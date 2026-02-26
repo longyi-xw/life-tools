@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>投资工具箱 · FinToolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0d;
+    --surface: #0f1218;
+    --surface2: #161c26;
+    --border: #1e2535;
+    --gold: #c8a84b;
+    --gold2: #e8c56a;
+    --gold-dim: rgba(200,168,75,0.12);
+    --green: #3ddc84;
+    --blue: #4a9eff;
+    --purple: #a855f7;
+    --orange: #f97316;
+    --red: #ef4444;
+    --teal: #14b8a6;
+    --text: #ddd8cc;
+    --muted: #5a6478;
+    --mono: 'Share Tech Mono', monospace;
+    --serif: 'Noto Serif SC', serif;
+    --display: 'Bebas Neue', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === GRID BG === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 48px 20px 36px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(200,168,75,0.05) 0%, transparent 100%);
+  }
+
+  .site-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  .site-title {
+    font-family: var(--display);
+    font-size: clamp(42px, 10vw, 72px);
+    color: var(--gold2);
+    letter-spacing: 6px;
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(200,168,75,0.3);
+    animation: titleGlow 4s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% { text-shadow: 0 0 40px rgba(200,168,75,0.2); }
+    50% { text-shadow: 0 0 80px rgba(200,168,75,0.5), 0 0 120px rgba(200,168,75,0.2); }
+  }
+
+  .site-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    margin-top: 10px;
+  }
+
+  .header-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .hstat {
+    text-align: center;
+  }
+  .hstat-num {
+    font-family: var(--display);
+    font-size: 28px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .hstat-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  /* === SEARCH BAR === */
+  .search-wrap {
+    position: relative;
+    z-index: 10;
+    padding: 20px 20px 0;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 11px 16px 11px 40px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--gold); }
+  .search-input::placeholder { color: var(--muted); }
+  .search-icon {
+    position: absolute;
+    left: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    pointer-events: none;
+    margin-top: 10px;
+  }
+
+  /* === CATEGORY FILTER === */
+  .filter-wrap {
+    position: relative;
+    z-index: 10;
+    padding: 16px 16px 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold2);
+  }
+
+  /* === MAIN GRID === */
+  .main {
+    position: relative;
+    z-index: 10;
+    padding: 20px 12px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Section label */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 24px 0 14px;
+  }
+  .section-label-text {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
+  .section-label-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Tool Card */
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--card-accent, var(--gold));
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s;
+  }
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--card-glow, rgba(200,168,75,0.04)), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .tool-card:hover {
+    border-color: var(--card-accent, var(--gold));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  .tool-card:hover::before { transform: scaleY(1); }
+  .tool-card:hover::after { opacity: 1; }
+
+  .tool-card.featured {
+    background: linear-gradient(135deg, rgba(200,168,75,0.06), var(--surface));
+    border-color: rgba(200,168,75,0.3);
+  }
+  .tool-card.featured::before { transform: scaleY(1); }
+
+  /* Icon */
+  .tool-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    background: var(--icon-bg, rgba(200,168,75,0.1));
+    border: 1px solid var(--icon-border, rgba(200,168,75,0.2));
+    position: relative;
+    z-index: 1;
+  }
+
+  .tool-body {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tool-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .tool-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .tool-tags {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .tool-tag {
+    font-size: 9px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .tag-new { background: rgba(61,220,132,0.12); color: var(--green); border: 1px solid rgba(61,220,132,0.25); }
+  .tag-hot { background: rgba(249,115,22,0.12); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
+  .tag-pro { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.25); }
+  .tag-free { background: rgba(74,158,255,0.12); color: var(--blue); border: 1px solid rgba(74,158,255,0.25); }
+
+  .tool-desc {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .tool-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .tool-meta-item {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tool-meta-item span { opacity: 0.6; }
+
+  .tool-arrow {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    color: var(--muted);
+    font-size: 16px;
+    transition: all 0.2s;
+    z-index: 1;
+  }
+  .tool-card:hover .tool-arrow {
+    color: var(--card-accent, var(--gold));
+    transform: translateX(4px);
+  }
+
+  /* Coming soon card */
+  .tool-card.coming-soon {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .tool-card.coming-soon:hover {
+    transform: none;
+    border-color: var(--border);
+    box-shadow: none;
+  }
+  .tool-card.coming-soon::before { display: none; }
+  .tag-soon { background: rgba(90,100,120,0.2); color: var(--muted); border: 1px solid rgba(90,100,120,0.3); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    display: none;
+  }
+  .empty-state.show { display: block; }
+  .empty-state p { color: var(--muted); font-family: var(--mono); font-size: 13px; }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* No results */
+  .hidden-card { display: none !important; }
+
+  /* Pulse dot */
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+    display: inline-block;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* Scroll reveal */
+  .tool-card { animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .tool-card:nth-child(1) { animation-delay: 0.05s; }
+  .tool-card:nth-child(2) { animation-delay: 0.10s; }
+  .tool-card:nth-child(3) { animation-delay: 0.15s; }
+  .tool-card:nth-child(4) { animation-delay: 0.20s; }
+  .tool-card:nth-child(5) { animation-delay: 0.25s; }
+  .tool-card:nth-child(6) { animation-delay: 0.30s; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: var(--mono);
+    z-index: 999;
+    transition: transform 0.3s;
+    border: 1px solid var(--gold);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-eyebrow">⬡ PERSONAL FINANCE TOOLKIT</div>
+  <div class="site-title">FINTOOLKIT</div>
+  <div class="site-sub">量化投资 · 价值分析 · 决策辅助</div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-num" id="stat-total">1</div>
+      <div class="hstat-label">TOOLS</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num"><span class="pulse-dot"></span></div>
+      <div class="hstat-label">LIVE</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-num">FREE</div>
+      <div class="hstat-label">FOREVER</div>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input class="search-input" type="text" placeholder="搜索工具..." oninput="filterTools(this.value)">
+</div>
+
+<div class="filter-wrap" id="filter-wrap">
+  <button class="filter-btn active" onclick="setFilter('all', this)">全部</button>
+  <button class="filter-btn" onclick="setFilter('value', this)">价值投资</button>
+  <button class="filter-btn" onclick="setFilter('quant', this)">量化分析</button>
+  <button class="filter-btn" onclick="setFilter('risk', this)">风险管理</button>
+  <button class="filter-btn" onclick="setFilter('macro', this)">宏观工具</button>
+</div>
+
+<div class="main" id="tool-grid">
+
+  <!-- ===== 已上线工具 ===== -->
+  <div class="section-label">
+    <span class="section-label-text">▸ 已上线</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <a class="tool-card featured"
+     href="graham-calculator.html"
+     data-name="格雷厄姆廉价股计算器 量化 价值投资 NCAV EPS 内在价值"
+     data-cat="value quant"
+     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+    <div class="tool-icon">📊</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">格雷厄姆廉价股计算器</div>
+        <div class="tool-tags">
+          <span class="tool-tag tag-hot">HOT</span>
+          <span class="tool-tag tag-free">FREE</span>
+        </div>
+      </div>
+      <div class="tool-desc">
+        PE/PB/NCAV多维度价值判断，EPS均值计算，<br>内在价值评级，含AI炒股提示词生成器
+      </div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>📐</span> 格雷厄姆策略</span>
+        <span class="tool-meta-item"><span>🏷️</span> 价值投资 · 量化</span>
+      </div>
+    </div>
+    <div class="tool-arrow">→</div>
+  </a>
+
+  <!-- ===== 即将上线 ===== -->
+  <div class="section-label" style="margin-top:30px;">
+    <span class="section-label-text">▸ 即将上线</span>
+    <div class="section-label-line"></div>
+  </div>
+
+  <div class="tool-card coming-soon"
+       data-name="DCF内在价值计算器 现金流折现"
+       data-cat="value quant">
+    <div class="tool-icon" style="--icon-bg:rgba(74,158,255,0.08);--icon-border:rgba(74,158,255,0.15); background:rgba(74,158,255,0.08);border-color:rgba(74,158,255,0.15);">💰</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">DCF 现金流折现计算器</div>
+        <div class="tool-tags"><span class="tool-tag tag-soon">SOON</span></div>
+      </div>
+      <div class="tool-desc">自由现金流预测，折现率调整，多情景模拟，敏感性分析</div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>🏷️</span> 价值投资 · 估值</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-card coming-soon"
+       data-name="仓位管理计算器 凯利公式 风险"
+       data-cat="risk quant">
+    <div class="tool-icon" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.15);">⚖️</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">仓位管理 · 凯利公式</div>
+        <div class="tool-tags"><span class="tool-tag tag-soon">SOON</span></div>
+      </div>
+      <div class="tool-desc">Kelly Criterion仓位计算，最大回撤控制，组合风险评估</div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>🏷️</span> 风险管理 · 仓位</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-card coming-soon"
+       data-name="股息再投资收益计算器 DRIP 复利"
+       data-cat="value">
+    <div class="tool-icon" style="background:rgba(61,220,132,0.08);border-color:rgba(61,220,132,0.15);">🌱</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">股息再投资复利计算</div>
+        <div class="tool-tags"><span class="tool-tag tag-soon">SOON</span></div>
+      </div>
+      <div class="tool-desc">DRIP策略模拟，股息增长率预测，长期复利收益可视化</div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>🏷️</span> 价值投资 · 复利</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-card coming-soon"
+       data-name="宏观经济指标看板 CPI PMI"
+       data-cat="macro">
+    <div class="tool-icon" style="background:rgba(168,85,247,0.08);border-color:rgba(168,85,247,0.15);">🌐</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">宏观指标分析看板</div>
+        <div class="tool-tags"><span class="tool-tag tag-soon">SOON</span></div>
+      </div>
+      <div class="tool-desc">CPI/PPI/PMI指标追踪，货币政策周期判断，市场情绪量化</div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>🏷️</span> 宏观 · 择时</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-card coming-soon"
+       data-name="ETF基金筛选器 指数基金 费率"
+       data-cat="quant">
+    <div class="tool-icon" style="background:rgba(20,184,166,0.08);border-color:rgba(20,184,166,0.15);">📈</div>
+    <div class="tool-body">
+      <div class="tool-top">
+        <div class="tool-name">ETF / 指数基金筛选器</div>
+        <div class="tool-tags"><span class="tool-tag tag-soon">SOON</span></div>
+      </div>
+      <div class="tool-desc">费率对比，跟踪误差分析，流动性评估，行业配置建议</div>
+      <div class="tool-meta">
+        <span class="tool-meta-item"><span>🏷️</span> 量化 · 基金</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" id="empty-state">
+    <p>🔍 未找到匹配的工具</p>
+    <p style="margin-top:8px;font-size:11px;">尝试其他关键词</p>
+  </div>
+
+</div>
+
+<footer>
+  <div style="margin-bottom:6px;color:var(--gold);letter-spacing:3px;">FINTOOLKIT</div>
+  <div>走在寂静前，走在黄昏前</div>
+  <div style="margin-top:4px;font-size:10px;">Deploy on GitHub Pages · 新增工具持续更新</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentFilter = 'all';
+
+function filterTools(query) {
+  const cards = document.querySelectorAll('.tool-card');
+  const q = query.toLowerCase();
+  let visible = 0;
+
+  cards.forEach(card => {
+    const name = (card.dataset.name || '').toLowerCase();
+    const cat = card.dataset.cat || '';
+    const matchSearch = q === '' || name.includes(q);
+    const matchCat = currentFilter === 'all' || cat.includes(currentFilter);
+
+    if (matchSearch && matchCat) {
+      card.classList.remove('hidden-card');
+      visible++;
+    } else {
+      card.classList.add('hidden-card');
+    }
+  });
+
+  document.getElementById('empty-state').classList.toggle('show', visible === 0);
+}
+
+function setFilter(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const q = document.querySelector('.search-input').value;
+  filterTools(q);
+}
+
+// Count live tools
+const liveCount = document.querySelectorAll('.tool-card:not(.coming-soon)').length;
+document.getElementById('stat-total').textContent = liveCount;
+
+// Intercept coming-soon clicks
+document.querySelectorAll('.tool-card.coming-soon').forEach(card => {
+  card.addEventListener('click', (e) => {
+    e.preventDefault();
+    const t = document.getElementById('toast');
+    t.textContent = '🚧 该工具正在开发中，敬请期待';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  });
+});
+</script>
+</body>
+</html>
