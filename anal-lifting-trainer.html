@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>提肛训练计时器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #FFD700, #FFEC8B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .timer-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .group-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+            color: #FFD700;
+        }
+        
+        .group-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+        
+        .phase-display {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .phase-tighten {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid rgba(255, 107, 107, 0.5);
+            color: #ff6b6b;
+        }
+        
+        .phase-relax {
+            background: rgba(107, 255, 107, 0.2);
+            border: 2px solid rgba(107, 255, 107, 0.5);
+            color: #6bff6b;
+        }
+        
+        .action-animation {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .action-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+        
+        .tighten-animation {
+            background: rgba(255, 107, 107, 0.8);
+            animation: tighten 4s infinite ease-in-out;
+        }
+        
+        .relax-animation {
+            background: rgba(107, 255, 107, 0.8);
+            animation: relax 4s infinite ease-in-out;
+        }
+        
+        @keyframes tighten {
+            0%, 100% { transform: scale(0.8); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        @keyframes relax {
+            0%, 100% { transform: scale(1.2); opacity: 1; }
+            50% { transform: scale(0.8); opacity: 0.7; }
+        }
+        
+        .phase-timer {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+            color: #FFD700;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 16px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 130px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
+        
+        .btn-pause {
+            background: linear-gradient(135deg, #FF9800, #EF6C00);
+            color: white;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(135deg, #f44336, #C62828);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .settings-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .settings-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #FFD700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .setting-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .setting-label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #FFEC8B;
+        }
+        
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .time-input span {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .time-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin: 5px 0;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .slider-container {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .group-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .group-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .group-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .group-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FFD700;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .preset-groups {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .preset-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .preset-btn.active {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #FFD700;
+        }
+        
+        .preset-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stats {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        .stats h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #FFD700;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #FFD700;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #FFD700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFEC8B);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .group-display {
+                font-size: 2.8rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-animation {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .action-circle {
+                width: 85px;
+                height: 85px;
+            }
+            
+            .phase-timer {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clock"></i> 提肛训练计时器 - 组数模式</h1>
+            <p class="subtitle">每个"缩紧-放松"循环为一组，自定义组数进行训练，科学有效。</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="timer-container">
+                <div class="group-display" id="group-display">0/10</div>
+                <div class="group-label">当前组数 / 总组数</div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                
+                <div class="phase-display phase-tighten" id="phase-display">缩紧</div>
+                
+                <div class="action-animation">
+                    <div class="action-circle tighten-animation" id="action-circle"></div>
+                </div>
+                
+                <div class="phase-timer" id="phase-timer">3</div>
+                
+                <div class="controls">
+                    <button class="btn btn-start" id="start-btn">
+                        <i class="fas fa-play"></i> 开始训练
+                    </button>
+                    <button class="btn btn-pause" id="pause-btn" disabled>
+                        <i class="fas fa-pause"></i> 暂停
+                    </button>
+                    <button class="btn btn-reset" id="reset-btn" disabled>
+                        <i class="fas fa-redo"></i> 重置
+                    </button>
+                </div>
+            </div>
+            
+            <div class="settings-panel">
+                <h3 class="settings-title"><i class="fas fa-cog"></i> 训练参数设置</h3>
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <label class="setting-label">动作时间配置</label>
+                        <div class="time-inputs">
+                            <div class="time-input">
+                                <span>缩紧时间</span>
+                                <div class="time-value" id="tighten-value">3</div>
+                                <span>秒</span>
+                            </div>
+                            <div class="time-input">
+                                <span>放松时间</span>
+                                <div class="time-value" id="relax-value">2</div>
+                                <span>秒</span>
+                            </div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="1" max="10" value="3" class="slider" id="tighten-slider">
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" min="1" max="10" value="2" class="slider" id="relax-slider">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">训练组数配置</label>
+                        <div class="group-controls">
+                            <button class="group-btn" id="decrease-groups">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <div class="group-value" id="group-value">10</div>
+                            <button class="group-btn" id="increase-groups">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="preset-groups">
+                            <div class="preset-btn active" data-groups="5">5组</div>
+                            <div class="preset-btn" data-groups="10">10组</div>
+                            <div class="preset-btn" data-groups="15">15组</div>
+                            <div class="preset-btn" data-groups="20">20组</div>
+                            <div class="preset-btn" data-groups="30">30组</div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <input type="checkbox" id="sound-toggle" checked>
+                                <span>提示音</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="vibration-toggle" checked>
+                                <span>震动提示</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <h3><i class="fas fa-chart-line"></i> 训练统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="today-sessions">0</div>
+                        <div class="stat-label">今日训练次数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-groups">0</div>
+                        <div class="stat-label">累计组数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="current-streak">0</div>
+                        <div class="stat-label">连续训练天数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-sessions">0</div>
+                        <div class="stat-label">总训练次数</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> 使用说明</h3>
+                <ol>
+                    <li>设置缩紧和放松的时间（建议：缩紧3-10秒，放松2-3秒）</li>
+                    <li>设置训练组数（每个"缩紧-放松"循环为一组）</li>
+                    <li>点击"开始训练"按钮，根据提示进行缩紧和放松</li>
+                    <li>红色动画和"缩紧"文字提示时收缩盆底肌，保持设定时间</li>
+                    <li>绿色动画和"放松"文字提示时完全放松盆底肌</li>
+                    <li>完成所有组数后训练结束，统计会自动更新</li>
+                    <li>建议每天训练2-3次，每次5-30组</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>提肛训练计时器 © 2025 Shawn</p>
+    </footer>
+
+    <audio id="beep-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // 获取DOM元素
+        const groupDisplay = document.getElementById('group-display');
+        const phaseDisplay = document.getElementById('phase-display');
+        const phaseTimer = document.getElementById('phase-timer');
+        const actionCircle = document.getElementById('action-circle');
+        const progressBar = document.getElementById('progress-bar');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const beepSound = document.getElementById('beep-sound');
+        
+        // 设置相关元素
+        const tightenSlider = document.getElementById('tighten-slider');
+        const relaxSlider = document.getElementById('relax-slider');
+        const tightenValue = document.getElementById('tighten-value');
+        const relaxValue = document.getElementById('relax-value');
+        const groupValue = document.getElementById('group-value');
+        const decreaseGroupsBtn = document.getElementById('decrease-groups');
+        const increaseGroupsBtn = document.getElementById('increase-groups');
+        const presetGroupButtons = document.querySelectorAll('.preset-btn');
+        const soundToggle = document.getElementById('sound-toggle');
+        const vibrationToggle = document.getElementById('vibration-toggle');
+        
+        // 统计元素
+        const todaySessionsEl = document.getElementById('today-sessions');
+        const totalGroupsEl = document.getElementById('total-groups');
+        const currentStreakEl = document.getElementById('current-streak');
+        const totalSessionsEl = document.getElementById('total-sessions');
+        
+        // 计时器变量
+        let timer = null;
+        let isRunning = false;
+        let isPaused = false;
+        
+        // 组数变量
+        let totalGroups = 10; // 总组数
+        let currentGroup = 0; // 当前组数
+        
+        // 阶段变量
+        let tightenTime = 3; // 缩紧时间（秒）
+        let relaxTime = 2;   // 放松时间（秒）
+        let currentPhase = 'tighten'; // 当前阶段：'tighten' 或 'relax'
+        let phaseTimeLeft = tightenTime; // 当前阶段剩余时间
+        
+        // 统计变量
+        let stats = {
+            todaySessions: 0,
+            totalGroups: 0,
+            currentStreak: 0,
+            totalSessions: 0,
+            lastTrainingDate: null
+        };
+        
+        // 从本地存储加载统计数据
+        function loadStats() {
+            const savedStats = localStorage.getItem('kegelTimerStats');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+                
+                // 检查是否是新的一天
+                const today = new Date().toDateString();
+                if (stats.lastTrainingDate !== today) {
+                    // 如果昨天训练了，连续天数增加，否则重置为0
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    if (stats.lastTrainingDate === yesterday.toDateString()) {
+                        stats.currentStreak++;
+                    } else {
+                        stats.currentStreak = 0;
+                    }
+                    stats.todaySessions = 0;
+                }
+                
+                updateStatsDisplay();
+            }
+            
+            // 加载设置
+            const savedSettings = localStorage.getItem('kegelTimerSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                tightenTime = settings.tightenTime || 3;
+                relaxTime = settings.relaxTime || 2;
+                totalGroups = settings.totalGroups || 10;
+                tightenSlider.value = tightenTime;
+                relaxSlider.value = relaxTime;
+                tightenValue.textContent = tightenTime;
+                relaxValue.textContent = relaxTime;
+                groupValue.textContent = totalGroups;
+                soundToggle.checked = settings.soundEnabled !== false;
+                vibrationToggle.checked = settings.vibrationEnabled !== false;
+                
+                // 更新预设按钮状态
+                updatePresetButtons();
+                updateDisplay();
+                updateProgressBar();
+            }
+        }
+        
+        // 保存统计数据到本地存储
+        function saveStats() {
+            stats.lastTrainingDate = new Date().toDateString();
+            localStorage.setItem('kegelTimerStats', JSON.stringify(stats));
+            updateStatsDisplay();
+        }
+        
+        // 保存设置到本地存储
+        function saveSettings() {
+            const settings = {
+                tightenTime,
+                relaxTime,
+                totalGroups,
+                soundEnabled: soundToggle.checked,
+                vibrationEnabled: vibrationToggle.checked
+            };
+            localStorage.setItem('kegelTimerSettings', JSON.stringify(settings));
+        }
+        
+        // 更新统计显示
+        function updateStatsDisplay() {
+            todaySessionsEl.textContent = stats.todaySessions;
+            totalGroupsEl.textContent = stats.totalGroups;
+            currentStreakEl.textContent = stats.currentStreak;
+            totalSessionsEl.textContent = stats.totalSessions;
+        }
+        
+        // 更新显示
+        function updateDisplay() {
+            groupDisplay.textContent = `${currentGroup}/${totalGroups}`;
+            phaseTimer.textContent = phaseTimeLeft;
+            
+            // 更新阶段显示
+            if (currentPhase === 'tighten') {
+                phaseDisplay.textContent = '缩紧';
+                phaseDisplay.className = 'phase-display phase-tighten';
+                actionCircle.className = 'action-circle tighten-animation';
+            } else {
+                phaseDisplay.textContent = '放松';
+                phaseDisplay.className = 'phase-display phase-relax';
+                actionCircle.className = 'action-circle relax-animation';
+            }
+        }
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = currentGroup / totalGroups * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        // 更新预设按钮状态
+        function updatePresetButtons() {
+            presetGroupButtons.forEach(btn => {
+                if (parseInt(btn.dataset.groups) === totalGroups) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // 开始计时器
+        function startTimer() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            isPaused = false;
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            resetBtn.disabled = false;
+            
+            // 如果是第一次开始，初始化
+            if (currentGroup === 0) {
+                currentGroup = 1;
+                currentPhase = 'tighten';
+                phaseTimeLeft = tightenTime;
+                updateDisplay();
+                updateProgressBar();
+            }
+            
+            // 更新按钮文本
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 训练中...';
+            startBtn.classList.add('pulse');
+            
+            timer = setInterval(() => {
+                phaseTimeLeft--;
+                
+                updateDisplay();
+                
+                // 阶段时间结束，切换到下一个阶段
+                if (phaseTimeLeft <= 0) {
+                    // 切换阶段
+                    if (currentPhase === 'tighten') {
+                        currentPhase = 'relax';
+                        phaseTimeLeft = relaxTime;
+                    } else {
+                        // 完成一组，进入下一组
+                        currentGroup++;
+                        currentPhase = 'tighten';
+                        phaseTimeLeft = tightenTime;
+                        
+                        // 如果完成了所有组数
+                        if (currentGroup > totalGroups) {
+                            finishTraining();
+                            return;
+                        }
+                        
+                        updateProgressBar();
+                    }
+                    
+                    // 播放提示音和震动
+                    if (soundToggle.checked) {
+                        beepSound.currentTime = 0;
+                        beepSound.play();
+                    }
+                    
+                    if (vibrationToggle.checked && 'vibrate' in navigator) {
+                        navigator.vibrate(100);
+                    }
+                    
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+        
+        // 暂停计时器
+        function pauseTimer() {
+            if (!isRunning) return;
+            
+            clearInterval(timer);
+            isRunning = false;
+            isPaused = true;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            // 更新按钮文本
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 继续训练';
+            startBtn.classList.remove('pulse');
+        }
+        
+        // 重置计时器
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            isPaused = false;
+            
+            // 重置组数和阶段
+            currentGroup = 0;
+            currentPhase = 'tighten';
+            phaseTimeLeft = tightenTime;
+            
+            updateDisplay();
+            updateProgressBar();
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = true;
+            
+            // 更新按钮文本
+            startBtn.innerHTML = '<i class="fas fa-play"></i> 开始训练';
+            startBtn.classList.remove('pulse');
+        }
+        
+        // 完成训练
+        function finishTraining() {
+            clearInterval(timer);
+            isRunning = false;
+            
+            // 播放完成提示音
+            if (soundToggle.checked) {
+                beepSound.currentTime = 0;
+                beepSound.play();
+            }
+            
+            if (vibrationToggle.checked && 'vibrate' in navigator) {
+                navigator.vibrate([100, 100, 100]);
+            }
+            
+            // 更新统计数据
+            stats.todaySessions++;
+            stats.totalSessions++;
+            stats.totalGroups += totalGroups;
+            
+            // 保存统计数据
+            saveStats();
+            
+            // 显示完成消息
+            groupDisplay.innerHTML = `<span style="color:#FFD700; font-size:2.8rem;">完成!</span>`;
+            phaseDisplay.textContent = '训练完成';
+            phaseDisplay.className = 'phase-display phase-tighten';
+            phaseTimer.textContent = '✓';
+            actionCircle.style.animation = 'none';
+            actionCircle.style.backgroundColor = '#FFD700';
+            
+            // 重置按钮状态
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            resetBtn.disabled = false;
+            
+            // 更新按钮文本
+            startBtn.innerHTML = '<i class="fas fa-redo"></i> 重新开始';
+            startBtn.classList.remove('pulse');
+            
+            // 3秒后重置显示
+            setTimeout(() => {
+                currentGroup = 0;
+                currentPhase = 'tighten';
+                phaseTimeLeft = tightenTime;
+                updateDisplay();
+                updateProgressBar();
+                startBtn.innerHTML = '<i class="fas fa-play"></i> 开始训练';
+                actionCircle.style.animation = '';
+                actionCircle.style.backgroundColor = '';
+            }, 3000);
+        }
+        
+        // 事件监听器
+        startBtn.addEventListener('click', () => {
+            if (!isRunning && !isPaused) {
+                startTimer();
+            } else if (isPaused) {
+                startTimer();
+            } else {
+                // 如果正在运行，点击将重新开始
+                resetTimer();
+                startTimer();
+            }
+        });
+        
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        
+        // 缩紧时间滑块
+        tightenSlider.addEventListener('input', function() {
+            tightenTime = parseInt(this.value);
+            tightenValue.textContent = tightenTime;
+            
+            if (!isRunning && currentPhase === 'tighten') {
+                phaseTimeLeft = tightenTime;
+                updateDisplay();
+            }
+            
+            saveSettings();
+        });
+        
+        // 放松时间滑块
+        relaxSlider.addEventListener('input', function() {
+            relaxTime = parseInt(this.value);
+            relaxValue.textContent = relaxTime;
+            
+            if (!isRunning && currentPhase === 'relax') {
+                phaseTimeLeft = relaxTime;
+                updateDisplay();
+            }
+            
+            saveSettings();
+        });
+        
+        // 组数控制
+        decreaseGroupsBtn.addEventListener('click', function() {
+            if (totalGroups > 1) {
+                totalGroups--;
+                groupValue.textContent = totalGroups;
+                updatePresetButtons();
+                
+                if (currentGroup > totalGroups) {
+                    currentGroup = totalGroups;
+                    updateDisplay();
+                    updateProgressBar();
+                }
+                
+                saveSettings();
+            }
+        });
+        
+        increaseGroupsBtn.addEventListener('click', function() {
+            if (totalGroups < 50) {
+                totalGroups++;
+                groupValue.textContent = totalGroups;
+                updatePresetButtons();
+                saveSettings();
+            }
+        });
+        
+        // 预设组数按钮
+        presetGroupButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isRunning) {
+                    alert('请先停止当前训练后再更改组数');
+                    return;
+                }
+                
+                totalGroups = parseInt(this.dataset.groups);
+                groupValue.textContent = totalGroups;
+                updatePresetButtons();
+                updateDisplay();
+                updateProgressBar();
+                saveSettings();
+            });
+        });
+        
+        // 声音和震动开关
+        soundToggle.addEventListener('change', saveSettings);
+        vibrationToggle.addEventListener('change', saveSettings);
+        
+        // 初始化
+        loadStats();
+        updateDisplay();
+        updateProgressBar();
+        
+        // 添加页面离开前的确认
+        window.addEventListener('beforeunload', (e) => {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = '训练正在进行中，确定要离开吗？';
+            }
+        });
+    </script>
+</body>
+</html>
