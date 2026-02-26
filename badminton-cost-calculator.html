@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>羽毛球费用平摊计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 15px;
+            color: #333;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            overflow: hidden;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            font-size: 1.4rem;
+        }
+        .input-section {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .players-list {
+            margin-top: 12px;
+        }
+        .player-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            gap: 8px;
+        }
+        .player-inputs {
+            display: flex;
+            gap: 8px;
+        }
+        .player-name {
+            flex: 2;
+        }
+        .player-expense {
+            flex: 1;
+        }
+        .remove-btn {
+            background-color: #e74c3c;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+        .results {
+            margin-top: 20px;
+            display: none;
+        }
+        .result-card {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-card h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 8px 5px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-size: 0.9rem;
+        }
+        .positive {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .negative {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .summary {
+            background-color: #ecf0f1;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .payment-list {
+            margin: 10px 0;
+        }
+        .payment-list ul {
+            padding-left: 20px;
+        }
+        .payment-list li {
+            margin-bottom: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+        
+        /* 平板和桌面端适配 */
+        @media (min-width: 768px) {
+            body {
+                font-size: 16px;
+                padding: 20px;
+            }
+            .container {
+                max-width: 700px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+            }
+            .input-section {
+                padding: 15px;
+            }
+            .player-item {
+                flex-direction: row;
+                align-items: center;
+            }
+            .player-inputs {
+                flex: 1;
+            }
+            .remove-btn {
+                width: auto;
+                margin-top: 0;
+            }
+            button {
+                width: auto;
+                margin-top: 0;
+            }
+            table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>羽毛球费用平摊计算器</h1>
+        
+        <div class="input-section">
+            <div class="form-group">
+                <label for="totalAmount">总费用（元）</label>
+                <input type="number" id="totalAmount" placeholder="输入总费用，留空则自动计算">
+            </div>
+            
+            <div class="form-group">
+                <label for="payerSelect">指定收款人</label>
+                <select id="payerSelect">
+                    <option value="">-- 请选择收款人 --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>球友列表</label>
+                <div class="players-list" id="playersList">
+                    <!-- 球友项目将在这里动态添加 -->
+                </div>
+                <button type="button" id="addPlayerBtn">添加球友</button>
+            </div>
+            
+            <button type="button" id="calculateBtn">计算平摊费用</button>
+        </div>
+        
+        <div class="results" id="resultsSection">
+            <div class="result-card">
+                <h3>平摊结果</h3>
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>球友</th>
+                            <th>已支出</th>
+                            <th>应平摊</th>
+                            <th>差额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 结果将在这里动态添加 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="result-card">
+                <h3>收款和转账明细</h3>
+                <div id="paymentDetails">
+                    <!-- 收款和转账明细将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>羽毛球费用平摊计算器 | 使用说明：添加球友并输入已支出金额，指定收款人后点击计算</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playersList = document.getElementById('playersList');
+            const addPlayerBtn = document.getElementById('addPlayerBtn');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const payerSelect = document.getElementById('payerSelect');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsTable = document.getElementById('resultsTable');
+            const paymentDetails = document.getElementById('paymentDetails');
+            const totalAmountInput = document.getElementById('totalAmount');
+            
+            let playerCount = 0;
+            
+            // 添加球友
+            addPlayerBtn.addEventListener('click', function() {
+                playerCount++;
+                const playerId = `player${playerCount}`;
+                
+                const playerItem = document.createElement('div');
+                playerItem.className = 'player-item';
+                playerItem.innerHTML = `
+                    <div class="player-inputs">
+                        <input type="text" class="player-name" placeholder="球友姓名" value="球友${playerCount}">
+                        <input type="number" class="player-expense" placeholder="已支出金额">
+                    </div>
+                    <button type="button" class="remove-btn" data-id="${playerId}">删除</button>
+                `;
+                
+                playersList.appendChild(playerItem);
+                
+                // 更新收款人选择列表
+                const option = document.createElement('option');
+                option.value = playerId;
+                option.textContent = `球友${playerCount}`;
+                payerSelect.appendChild(option);
+                
+                // 添加删除功能
+                playerItem.querySelector('.remove-btn').addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    playersList.removeChild(playerItem);
+                    
+                    // 从收款人选择列表中移除
+                    const optionToRemove = payerSelect.querySelector(`option[value="${id}"]`);
+                    if (optionToRemove) {
+                        payerSelect.removeChild(optionToRemove);
+                    }
+                    
+                    // 如果删除的是当前选中的收款人，清空选择
+                    if (payerSelect.value === id) {
+                        payerSelect.value = '';
+                    }
+                });
+                
+                // 当姓名输入框内容变化时，更新选择列表
+                playerItem.querySelector('.player-name').addEventListener('input', function() {
+                    const id = this.parentNode.parentNode.querySelector('.remove-btn').getAttribute('data-id');
+                    const option = payerSelect.querySelector(`option[value="${id}"]`);
+                    if (option) {
+                        option.textContent = this.value || `球友${id.replace('player', '')}`;
+                    }
+                });
+            });
+            
+            // 计算平摊费用
+            calculateBtn.addEventListener('click', function() {
+                // 获取所有球友数据
+                const players = [];
+                const playerItems = playersList.querySelectorAll('.player-item');
+                
+                if (playerItems.length === 0) {
+                    alert('请至少添加一个球友！');
+                    return;
+                }
+                
+                playerItems.forEach(item => {
+                    const name = item.querySelector('.player-name').value || `球友${item.querySelector('.remove-btn').getAttribute('data-id').replace('player', '')}`;
+                    const expense = parseFloat(item.querySelector('.player-expense').value) || 0;
+                    players.push({
+                        id: item.querySelector('.remove-btn').getAttribute('data-id'),
+                        name: name,
+                        expense: expense
+                    });
+                });
+                
+                // 获取总费用
+                let totalAmount = parseFloat(totalAmountInput.value);
+                if (!totalAmount || totalAmount <= 0) {
+                    // 如果没有输入总费用，则计算所有球友支出之和
+                    totalAmount = players.reduce((sum, player) => sum + player.expense, 0);
+                    totalAmountInput.value = totalAmount.toFixed(2);
+                }
+                
+                // 检查是否选择了收款人
+                const payerId = payerSelect.value;
+                if (!payerId) {
+                    alert('请指定一个收款人！');
+                    return;
+                }
+                
+                // 计算平摊金额
+                const perPersonAmount = totalAmount / players.length;
+                
+                // 计算每个球友的差额
+                players.forEach(player => {
+                    player.balance = perPersonAmount - player.expense;
+                });
+                
+                // 显示结果
+                displayResults(players, perPersonAmount, payerId);
+                
+                // 计算收款和转账明细
+                calculatePaymentDetails(players, payerId);
+                
+                // 显示结果区域
+                resultsSection.style.display = 'block';
+                
+                // 滚动到结果区域
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 显示平摊结果
+            function displayResults(players, perPersonAmount, payerId) {
+                const tbody = resultsTable.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                players.forEach(player => {
+                    const row = document.createElement('tr');
+                    
+                    // 标记收款人
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = player.id === payerId ? `${player.name} (收款人)` : player.name;
+                    
+                    const expenseCell = document.createElement('td');
+                    expenseCell.textContent = player.expense.toFixed(2);
+                    
+                    const perPersonCell = document.createElement('td');
+                    perPersonCell.textContent = perPersonAmount.toFixed(2);
+                    
+                    const balanceCell = document.createElement('td');
+                    balanceCell.textContent = player.balance.toFixed(2);
+                    
+                    if (player.balance > 0) {
+                        balanceCell.className = 'negative';
+                    } else if (player.balance < 0) {
+                        balanceCell.className = 'positive';
+                    }
+                    
+                    row.appendChild(nameCell);
+                    row.appendChild(expenseCell);
+                    row.appendChild(perPersonCell);
+                    row.appendChild(balanceCell);
+                    
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // 计算收款和转账明细
+            function calculatePaymentDetails(players, payerId) {
+                // 找到收款人
+                const payer = players.find(p => p.id === payerId);
+                
+                // 计算收款和转账
+                const payments = {
+                    receive: [],
+                    pay: []
+                };
+                
+                players.forEach(player => {
+                    if (player.id !== payerId) {
+                        if (player.balance > 0) {
+                            // 该球友需要付钱给收款人
+                            payments.receive.push({
+                                name: player.name,
+                                amount: player.balance
+                            });
+                        } else if (player.balance < 0) {
+                            // 收款人需要付钱给该球友
+                            payments.pay.push({
+                                name: player.name,
+                                amount: -player.balance
+                            });
+                        }
+                    }
+                });
+                
+                // 显示收款和转账明细
+                let html = `
+                    <div class="summary">
+                        <p><strong>收款人：${payer.name}</strong></p>
+                        <p>每人平摊金额：${(players.reduce((sum, p) => sum + p.expense, 0) / players.length).toFixed(2)}元</p>
+                    </div>
+                `;
+                
+                if (payments.receive.length > 0) {
+                    html += '<div class="payment-list"><h4>应收款：</h4><ul>';
+                    payments.receive.forEach(payment => {
+                        html += `<li>从 ${payment.name} 收款：<span class="negative">${payment.amount.toFixed(2)}元</span></li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                if (payments.pay.length > 0) {
+                    html += '<div class="payment-list"><h4>应转账：</h4><ul>';
+                    payments.pay.forEach(payment => {
+                        html += `<li>向 ${payment.name} 转账：<span class="positive">${payment.amount.toFixed(2)}元</span></li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                paymentDetails.innerHTML = html;
+            }
+            
+            // 初始添加一个球友
+            addPlayerBtn.click();
+        });
+    </script>
+</body>
+</html>
