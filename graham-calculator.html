@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>格雷厄姆量化计算器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111418;
+    --surface2: #1a1f27;
+    --border: #2a3040;
+    --accent: #c8a84b;
+    --accent2: #e8c56a;
+    --green: #3ddc84;
+    --yellow: #f0b429;
+    --red: #ff5a5f;
+    --text: #e8e4d8;
+    --muted: #7a8090;
+    --mono: 'Share Tech Mono', monospace;
+    --serif: 'Noto Serif SC', serif;
+    --sans: 'Rajdhani', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #0f1218 0%, #1a1410 100%);
+    border-bottom: 1px solid var(--accent);
+    padding: 18px 16px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 40%, rgba(200,168,75,0.15) 50%, transparent 60%);
+    animation: shine 4s infinite;
+  }
+  @keyframes shine { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } }
+
+  header h1 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+  header p {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Tab nav */
+  .tab-nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 69px;
+    z-index: 99;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    color: var(--accent2);
+    border-bottom-color: var(--accent);
+    background: rgba(200,168,75,0.05);
+  }
+
+  /* Content */
+  .tab-content { display: none; padding: 16px; }
+  .tab-content.active { display: block; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+  }
+  .card-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-left: 10px;
+  }
+
+  /* Input group */
+  .input-group {
+    margin-bottom: 12px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+  input[type="number"], input[type="text"], textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(200,168,75,0.1);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Button */
+  .btn {
+    background: linear-gradient(135deg, #c8a84b, #a87e2a);
+    color: #0a0c10;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 18px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+  .btn:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-sm {
+    padding: 7px 12px;
+    font-size: 12px;
+    width: auto;
+    display: inline-block;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(255,90,95,0.4);
+  }
+
+  /* Result display */
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .result-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--accent2);
+    font-weight: 400;
+  }
+  .result-value small {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .badge-high { background: rgba(61,220,132,0.15); color: var(--green); border: 1px solid rgba(61,220,132,0.4); }
+  .badge-mid { background: rgba(240,180,41,0.15); color: var(--yellow); border: 1px solid rgba(240,180,41,0.4); }
+  .badge-low { background: rgba(255,90,95,0.15); color: var(--red); border: 1px solid rgba(255,90,95,0.4); }
+
+  /* EPS list */
+  .eps-list { list-style: none; margin: 10px 0; }
+  .eps-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  .eps-item span { flex: 1; color: var(--accent2); }
+  .eps-item small { color: var(--muted); font-size: 11px; }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 12px 0;
+  }
+
+  /* AI prompt area */
+  .prompt-box {
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(200,168,75,0.15);
+    border: 1px solid rgba(200,168,75,0.3);
+    color: var(--accent);
+    border-radius: 2px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:active { background: rgba(200,168,75,0.3); }
+
+  /* Metrics row */
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(42,48,64,0.5);
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-name { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .metric-val { font-size: 13px; color: var(--text); font-family: var(--mono); }
+
+  /* Formula hint */
+  .formula {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    padding: 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 2px;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  /* Floating calc hint */
+  .calc-hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    padding: 4px 0;
+    text-align: right;
+  }
+
+  /* Section heading */
+  .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .sec-head-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .sec-head-text {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  /* Result section */
+  .result-section {
+    background: rgba(200,168,75,0.03);
+    border: 1px solid rgba(200,168,75,0.15);
+    border-radius: 3px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .result-item {
+    text-align: center;
+    padding: 8px;
+    background: var(--surface2);
+    border-radius: 2px;
+  }
+  .result-item .ri-label { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+  .result-item .ri-val { font-size: 16px; color: var(--accent2); font-family: var(--mono); margin-top: 2px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #2a3040;
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: var(--mono);
+    z-index: 999;
+    transition: transform 0.3s;
+    white-space: nowrap;
+    border: 1px solid var(--accent);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Indicator icons */
+  .ind-icon { font-size: 18px; margin-right: 4px; }
+
+  /* Add EPS row */
+  .add-eps-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: flex-end;
+  }
+  .add-eps-row .input-group { flex: 1; margin-bottom: 0; }
+
+  /* Overall verdict */
+  .verdict {
+    background: linear-gradient(135deg, rgba(200,168,75,0.08), rgba(200,168,75,0.02));
+    border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 4px;
+    padding: 14px;
+    text-align: center;
+    margin-top: 14px;
+  }
+  .verdict-title { font-size: 11px; color: var(--muted); font-family: var(--mono); letter-spacing: 2px; margin-bottom: 8px; }
+  .verdict-score { font-size: 32px; font-family: var(--sans); font-weight: 700; color: var(--accent2); }
+  .verdict-sub { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">GV</div>
+  <div>
+    <h1>格雷厄姆量化</h1>
+    <p>GRAHAM VALUE CALCULATOR</p>
+  </div>
+</header>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('input')">📊 基础指标</button>
+  <button class="tab-btn" onclick="switchTab('eps')">📈 EPS均值</button>
+  <button class="tab-btn" onclick="switchTab('iv')">💎 内在价值</button>
+  <button class="tab-btn" onclick="switchTab('ncav')">⚖️ NCAV</button>
+  <button class="tab-btn" onclick="switchTab('ai')">🤖 AI提示词</button>
+</div>
+
+<!-- Tab 1: 基础指标 -->
+<div id="tab-input" class="tab-content active">
+  <div class="card">
+    <div class="card-title">估值指标输入</div>
+    <div class="grid-2">
+      <div class="input-group">
+        <label>市盈率 P/E</label>
+        <input type="number" id="pe" placeholder="如: 10" step="0.01" oninput="syncAll()">
+      </div>
+      <div class="input-group">
+        <label>市净率 P/B</label>
+        <input type="number" id="pb" placeholder="如: 1.2" step="0.01" oninput="syncAll()">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>流动比率（流动资产/流动负债）</label>
+      <input type="number" id="cr" placeholder="建议 ≥ 2" step="0.01" oninput="syncAll()">
+    </div>
+    <div class="grid-2">
+      <div class="input-group">
+        <label>流动资产（万元）</label>
+        <input type="number" id="currentAssets" placeholder="0" step="0.01" oninput="syncAll()">
+      </div>
+      <div class="input-group">
+        <label>全部负债（万元）</label>
+        <input type="number" id="totalLiab" placeholder="0" step="0.01" oninput="syncAll()">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="input-group">
+        <label>流动负债（万元）</label>
+        <input type="number" id="currentLiab" placeholder="0" step="0.01" oninput="syncAll()">
+      </div>
+      <div class="input-group">
+        <label>总股本（万股）</label>
+        <input type="number" id="totalShares" placeholder="0" step="0.01" oninput="syncAll()">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>当前股价（元）</label>
+      <input type="number" id="stockPrice" placeholder="0.00" step="0.01" oninput="syncAll()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">格雷厄姆选股标准</div>
+    <div class="formula">
+      PE × PB ≤ 22.5（廉价股核心条件）<br>
+      流动比率 ≥ 2<br>
+      NCAV = 流动资产 - 全部负债<br>
+      股价 &lt; NCAV/股 × 2/3
+    </div>
+    <div id="basic-check"></div>
+  </div>
+</div>
+
+<!-- Tab 2: EPS均值 -->
+<div id="tab-eps" class="tab-content">
+  <div class="card">
+    <div class="card-title">每股收益 EPS 历史数据</div>
+    <p style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">输入多年EPS数据计算均值，用于内在价值估算</p>
+
+    <div class="add-eps-row">
+      <div class="input-group">
+        <label>年份（可选）</label>
+        <input type="text" id="epsYear" placeholder="如: 2024">
+      </div>
+      <div class="input-group">
+        <label>EPS（元）</label>
+        <input type="number" id="epsInput" placeholder="0.00" step="0.001">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="addEPS()" style="margin-bottom:1px;">+ 添加</button>
+    </div>
+
+    <ul class="eps-list" id="eps-list"></ul>
+
+    <div id="eps-result" class="result-section" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono);">EPS 均值</span>
+        <span class="badge badge-high" id="eps-count-badge">0 年</span>
+      </div>
+      <div style="font-size:28px;color:var(--accent2);font-family:var(--mono);margin-top:6px;" id="eps-avg-display">—</div>
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="ri-label">最高值</div>
+          <div class="ri-val" id="eps-max">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">最低值</div>
+          <div class="ri-val" id="eps-min">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">中位数</div>
+          <div class="ri-val" id="eps-median">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">数据点</div>
+          <div class="ri-val" id="eps-count">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 3: 内在价值 -->
+<div id="tab-iv" class="tab-content">
+  <div class="card">
+    <div class="card-title">内在价值计算</div>
+    <div class="formula">
+      内在价值 = EPS均值 × 估值倍数<br>
+      安全边际价格 = 股价 × 1.5<br>
+      判断：内在价值 vs 安全边际价格
+    </div>
+
+    <div class="input-group">
+      <label>EPS 均值（自动读取 / 可手动覆盖）</label>
+      <input type="number" id="ivEps" placeholder="从EPS均值计算器获取" step="0.001" oninput="calcIV()">
+    </div>
+    <div class="input-group">
+      <label>估值倍数（默认 13，格雷厄姆推荐 8-15）</label>
+      <input type="number" id="ivMultiple" value="13" step="0.5" oninput="calcIV()">
+    </div>
+    <div class="input-group">
+      <label>当前股价（自动读取 / 可手动覆盖）</label>
+      <input type="number" id="ivPrice" placeholder="元" step="0.01" oninput="calcIV()">
+    </div>
+
+    <div id="iv-result" class="result-section" style="display:none;">
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="ri-label">内在价值</div>
+          <div class="ri-val" id="iv-value">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">安全边际线</div>
+          <div class="ri-val" id="iv-safety">—</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:center;">
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值判断</div>
+        <div id="iv-badge"></div>
+        <div id="iv-detail" style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab 4: NCAV -->
+<div id="tab-ncav" class="tab-content">
+  <div class="card">
+    <div class="card-title">NCAV 净流动资产价值</div>
+    <div class="formula">
+      NCAV = 流动资产 - 全部负债<br>
+      每股NCAV = (流动资产 - 流动负债) / 总股本<br>
+      廉价标准：股价 &lt; NCAV × 2/3
+    </div>
+
+    <div id="ncav-data-hint" style="font-size:12px;color:var(--accent);font-family:var(--mono);padding:8px;background:rgba(200,168,75,0.05);border-radius:2px;margin-bottom:10px;">
+      ✓ 数据来源：基础指标页面输入
+    </div>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>流动资产（万元）</label>
+        <input type="number" id="ncavCA" placeholder="0" step="0.01" oninput="calcNCAV()">
+      </div>
+      <div class="input-group">
+        <label>全部负债（万元）</label>
+        <input type="number" id="ncavTL" placeholder="0" step="0.01" oninput="calcNCAV()">
+      </div>
+      <div class="input-group">
+        <label>流动负债（万元）</label>
+        <input type="number" id="ncavCL" placeholder="0" step="0.01" oninput="calcNCAV()">
+      </div>
+      <div class="input-group">
+        <label>总股本（万股）</label>
+        <input type="number" id="ncavShares" placeholder="0" step="0.01" oninput="calcNCAV()">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>当前股价（元）</label>
+      <input type="number" id="ncavPrice" placeholder="0.00" step="0.01" oninput="calcNCAV()">
+    </div>
+
+    <div id="ncav-result" class="result-section" style="display:none;">
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="ri-label">NCAV总值（万元）</div>
+          <div class="ri-val" id="ncav-total">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">每股NCAV（元）</div>
+          <div class="ri-val" id="ncav-per">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">2/3 NCAV线（元）</div>
+          <div class="ri-val" id="ncav-two3">—</div>
+        </div>
+        <div class="result-item">
+          <div class="ri-label">股价/NCAV比</div>
+          <div class="ri-val" id="ncav-ratio">—</div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="text-align:center;">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值2<br><span style="font-size:9px;">(NCAV法)</span></div>
+          <div id="ncav-badge2"></div>
+          <div id="ncav-detail2" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px;"></div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值3<br><span style="font-size:9px;">(每股NCAV法)</span></div>
+          <div id="ncav-badge3"></div>
+          <div id="ncav-detail3" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div id="summary-card" class="card" style="display:none;">
+    <div class="card-title">综合评级</div>
+    <div class="verdict">
+      <div class="verdict-title">GRAHAM SCORE</div>
+      <div class="verdict-score" id="summary-score">—</div>
+      <div class="verdict-sub" id="summary-sub"></div>
+    </div>
+    <div id="summary-details" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<!-- Tab 5: AI提示词 -->
+<div id="tab-ai" class="tab-content">
+  <div class="card">
+    <div class="card-title">AI 选股提示词生成</div>
+    <p style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">根据格雷厄姆指标自动生成可直接用于炒股软件AI的提示词</p>
+
+    <div class="grid-2">
+      <div class="input-group">
+        <label>最大市盈率 P/E ≤</label>
+        <input type="number" id="ai-pe" placeholder="10" step="0.5" value="10" oninput="genPrompt()">
+      </div>
+      <div class="input-group">
+        <label>最大市净率 P/B ≤</label>
+        <input type="number" id="ai-pb" placeholder="1.5" step="0.1" value="1.5" oninput="genPrompt()">
+      </div>
+      <div class="input-group">
+        <label>最小流动比率 ≥</label>
+        <input type="number" id="ai-cr" placeholder="2" step="0.1" value="2" oninput="genPrompt()">
+      </div>
+      <div class="input-group">
+        <label>PE×PB 乘积 ≤</label>
+        <input type="number" id="ai-pepb" placeholder="22.5" step="0.5" value="22.5" oninput="genPrompt()">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="input-group">
+        <label>最小市值（亿元）≥</label>
+        <input type="number" id="ai-mktcap" placeholder="0" step="1" oninput="genPrompt()">
+      </div>
+      <div class="input-group">
+        <label>最大资产负债率（%）≤</label>
+        <input type="number" id="ai-dr" placeholder="50" step="1" value="50" oninput="genPrompt()">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="input-group">
+      <label>生成的 AI 提示词（可直接编辑）</label>
+      <div class="prompt-box">
+        <textarea id="ai-prompt" rows="10"></textarea>
+        <button class="copy-btn" onclick="copyPrompt()">复制</button>
+      </div>
+    </div>
+
+    <button class="btn" onclick="genPrompt()">🔄 重新生成提示词</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">使用说明</div>
+    <div style="font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.8;">
+      1. 调整上方指标参数<br>
+      2. 点击"重新生成"或自动生成提示词<br>
+      3. 复制提示词到炒股软件的AI对话框<br>
+      4. 适用：同花顺AI、东方财富AI、通达信AI等<br>
+      <br>
+      <span style="color:var(--accent);">格雷厄姆廉价股核心标准：</span><br>
+      • PE × PB ≤ 22.5<br>
+      • 流动比率 ≥ 2<br>
+      • 股价 &lt; 每股净流动资产 × 2/3<br>
+      • 连续盈利 ≥ 5年
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== State =====
+const state = {
+  eps: [], // [{year, value}]
+  epsAvg: null,
+};
+
+// ===== Tab Switching =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+
+  if (name === 'iv') syncIVFromGlobal();
+  if (name === 'ncav') syncNCAVFromGlobal();
+  if (name === 'ai') genPrompt();
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== Sync all calculations when basic inputs change =====
+function syncAll() {
+  updateBasicCheck();
+}
+
+// ===== Basic Check =====
+function updateBasicCheck() {
+  const pe = parseFloat(document.getElementById('pe').value);
+  const pb = parseFloat(document.getElementById('pb').value);
+  const cr = parseFloat(document.getElementById('cr').value);
+  const ca = parseFloat(document.getElementById('currentAssets').value);
+  const tl = parseFloat(document.getElementById('totalLiab').value);
+  const cl = parseFloat(document.getElementById('currentLiab').value);
+  const ts = parseFloat(document.getElementById('totalShares').value);
+  const price = parseFloat(document.getElementById('stockPrice').value);
+
+  const checks = [];
+
+  if (!isNaN(pe) && !isNaN(pb)) {
+    const pepb = pe * pb;
+    checks.push({ name: 'PE × PB', val: pepb.toFixed(2), pass: pepb <= 22.5, hint: '≤ 22.5' });
+  }
+  if (!isNaN(cr)) {
+    checks.push({ name: '流动比率', val: cr.toFixed(2), pass: cr >= 2, hint: '≥ 2.0' });
+  }
+  if (!isNaN(ca) && !isNaN(tl) && !isNaN(ts) && ts > 0 && !isNaN(price)) {
+    const ncavPerShare = (ca - tl) / ts;
+    const threshold = ncavPerShare * 2/3;
+    checks.push({ name: '股价 vs 2/3 NCAV/股', val: price.toFixed(2) + ' vs ' + threshold.toFixed(2), pass: price < threshold, hint: '股价应更低' });
+  }
+  if (!isNaN(pe)) {
+    checks.push({ name: '市盈率', val: pe.toFixed(1), pass: pe <= 15, hint: '≤ 15' });
+  }
+  if (!isNaN(pb)) {
+    checks.push({ name: '市净率', val: pb.toFixed(2), pass: pb <= 1.5, hint: '≤ 1.5' });
+  }
+
+  if (checks.length === 0) {
+    document.getElementById('basic-check').innerHTML = '<div style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">请在上方输入指标数据</div>';
+    return;
+  }
+
+  let html = '';
+  checks.forEach(c => {
+    html += `<div class="metric-row">
+      <span class="metric-name">${c.pass ? '✅' : '❌'} ${c.name} <span style="font-size:10px;color:var(--muted);">(${c.hint})</span></span>
+      <span class="metric-val" style="color:${c.pass ? 'var(--green)' : 'var(--red)'}">${c.val}</span>
+    </div>`;
+  });
+
+  const passCount = checks.filter(c => c.pass).length;
+  const grade = passCount === checks.length ? '全部达标' : passCount >= checks.length * 0.7 ? '基本达标' : '谨慎关注';
+  const gradeColor = passCount === checks.length ? 'var(--green)' : passCount >= checks.length * 0.7 ? 'var(--yellow)' : 'var(--red)';
+
+  html += `<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.3);border-radius:2px;text-align:center;">
+    <span style="font-size:11px;color:var(--muted);font-family:var(--mono);">综合评估：</span>
+    <span style="color:${gradeColor};font-family:var(--sans);font-weight:700;font-size:14px;">${grade}</span>
+    <span style="font-size:11px;color:var(--muted);font-family:var(--mono);"> (${passCount}/${checks.length})</span>
+  </div>`;
+
+  document.getElementById('basic-check').innerHTML = html;
+}
+
+// ===== EPS =====
+function addEPS() {
+  const year = document.getElementById('epsYear').value.trim() || (new Date().getFullYear() - state.eps.length).toString();
+  const val = parseFloat(document.getElementById('epsInput').value);
+  if (isNaN(val)) { showToast('请输入有效的EPS数值'); return; }
+
+  state.eps.push({ year, value: val, id: Date.now() });
+  document.getElementById('epsYear').value = '';
+  document.getElementById('epsInput').value = '';
+  renderEPS();
+}
+
+document.getElementById('epsInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addEPS();
+});
+
+function removeEPS(id) {
+  state.eps = state.eps.filter(e => e.id !== id);
+  renderEPS();
+}
+
+function renderEPS() {
+  const list = document.getElementById('eps-list');
+  if (state.eps.length === 0) {
+    list.innerHTML = '<li style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">暂无数据，请添加EPS记录</li>';
+    document.getElementById('eps-result').style.display = 'none';
+    state.epsAvg = null;
+    return;
+  }
+
+  list.innerHTML = state.eps.map(e =>
+    `<li class="eps-item">
+      <small>${e.year}</small>
+      <span>¥ ${e.value.toFixed(3)}</span>
+      <button class="btn btn-danger btn-sm" onclick="removeEPS(${e.id})" style="padding:3px 8px;font-size:11px;">✕</button>
+    </li>`
+  ).join('');
+
+  const values = state.eps.map(e => e.value);
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+  const sorted = [...values].sort((a, b) => a - b);
+  const median = sorted.length % 2 === 0
+    ? (sorted[sorted.length/2-1] + sorted[sorted.length/2]) / 2
+    : sorted[Math.floor(sorted.length/2)];
+
+  state.epsAvg = avg;
+
+  document.getElementById('eps-result').style.display = 'block';
+  document.getElementById('eps-avg-display').textContent = '¥ ' + avg.toFixed(4);
+  document.getElementById('eps-count-badge').textContent = values.length + ' 年';
+  document.getElementById('eps-max').textContent = Math.max(...values).toFixed(3);
+  document.getElementById('eps-min').textContent = Math.min(...values).toFixed(3);
+  document.getElementById('eps-median').textContent = median.toFixed(3);
+  document.getElementById('eps-count').textContent = values.length;
+}
+
+// ===== IV =====
+function syncIVFromGlobal() {
+  const price = parseFloat(document.getElementById('stockPrice').value);
+  if (!isNaN(price) && price > 0) document.getElementById('ivPrice').value = price;
+  if (state.epsAvg !== null) document.getElementById('ivEps').value = state.epsAvg.toFixed(4);
+  calcIV();
+}
+
+function calcIV() {
+  const eps = parseFloat(document.getElementById('ivEps').value);
+  const mult = parseFloat(document.getElementById('ivMultiple').value) || 13;
+  const price = parseFloat(document.getElementById('ivPrice').value);
+
+  const result = document.getElementById('iv-result');
+
+  if (isNaN(eps) || isNaN(price)) { result.style.display = 'none'; return; }
+
+  const iv = eps * mult;
+  const safetyLine = price * 1.5;
+
+  document.getElementById('iv-value').textContent = '¥ ' + iv.toFixed(2);
+  document.getElementById('iv-safety').textContent = '¥ ' + safetyLine.toFixed(2);
+
+  const ratio = iv / safetyLine;
+  let badge, detail;
+  if (ratio >= 1.5) {
+    badge = '<span class="badge badge-high">🔥 高</span>';
+    detail = `内在价值超出安全边际 ${((ratio-1)*100).toFixed(0)}%，极具吸引力`;
+  } else if (ratio >= 1.0) {
+    badge = '<span class="badge badge-high">✅ 高</span>';
+    detail = `内在价值(${iv.toFixed(2)}) > 安全边际(${safetyLine.toFixed(2)})，安全`;
+  } else if (ratio >= 0.75) {
+    badge = '<span class="badge badge-mid">⚡ 中等</span>';
+    detail = `内在价值接近安全边际，差距 ${((1-ratio)*100).toFixed(0)}%`;
+  } else {
+    badge = '<span class="badge badge-low">⚠️ 低</span>';
+    detail = `内在价值不足安全边际的75%，安全边际不足`;
+  }
+
+  document.getElementById('iv-badge').innerHTML = badge;
+  document.getElementById('iv-detail').textContent = detail;
+  result.style.display = 'block';
+}
+
+// ===== NCAV =====
+function syncNCAVFromGlobal() {
+  const ca = document.getElementById('currentAssets').value;
+  const tl = document.getElementById('totalLiab').value;
+  const cl = document.getElementById('currentLiab').value;
+  const ts = document.getElementById('totalShares').value;
+  const price = document.getElementById('stockPrice').value;
+
+  if (ca) document.getElementById('ncavCA').value = ca;
+  if (tl) document.getElementById('ncavTL').value = tl;
+  if (cl) document.getElementById('ncavCL').value = cl;
+  if (ts) document.getElementById('ncavShares').value = ts;
+  if (price) document.getElementById('ncavPrice').value = price;
+  calcNCAV();
+}
+
+function calcNCAV() {
+  const ca = parseFloat(document.getElementById('ncavCA').value);
+  const tl = parseFloat(document.getElementById('ncavTL').value);
+  const cl = parseFloat(document.getElementById('ncavCL').value);
+  const ts = parseFloat(document.getElementById('ncavShares').value);
+  const price = parseFloat(document.getElementById('ncavPrice').value);
+
+  const result = document.getElementById('ncav-result');
+  const summary = document.getElementById('summary-card');
+
+  if (isNaN(ca) || isNaN(tl)) { result.style.display = 'none'; return; }
+
+  const ncav = ca - tl;
+  const ncavPerShare = (isNaN(ts) || ts === 0) ? null : ncav / ts;
+  const ncavPerShare2 = (!isNaN(cl) && !isNaN(ts) && ts > 0) ? (ca - cl) / ts : null;
+
+  document.getElementById('ncav-total').textContent = ncav.toFixed(2);
+  document.getElementById('ncav-per').textContent = ncavPerShare !== null ? '¥ ' + ncavPerShare.toFixed(3) : '—';
+
+  let badge2 = '', detail2 = '', badge3 = '', detail3 = '';
+
+  if (!isNaN(price) && ncavPerShare !== null) {
+    const twoThirds = ncavPerShare * 2/3;
+    document.getElementById('ncav-two3').textContent = '¥ ' + twoThirds.toFixed(3);
+
+    const discount = (twoThirds - price) / twoThirds;
+    const ratio = price / twoThirds;
+    document.getElementById('ncav-ratio').textContent = (price / ncavPerShare).toFixed(2) + 'x';
+
+    if (price < twoThirds) {
+      if (discount >= 0.3) {
+        badge2 = '<span class="badge badge-high">🔥 高</span>';
+        detail2 = `低于2/3线 ${(discount*100).toFixed(0)}%`;
+      } else if (discount >= 0.1) {
+        badge2 = '<span class="badge badge-high">✅ 高</span>';
+        detail2 = `低于2/3线 ${(discount*100).toFixed(0)}%`;
+      } else {
+        badge2 = '<span class="badge badge-mid">⚡ 中等</span>';
+        detail2 = `略低于2/3线`;
+      }
+    } else if (ratio <= 1.1) {
+      badge2 = '<span class="badge badge-mid">⚡ 中等</span>';
+      detail2 = `接近2/3线，高 ${((ratio-1)*100).toFixed(0)}%`;
+    } else {
+      badge2 = '<span class="badge badge-low">⚠️ 低</span>';
+      detail2 = `高于2/3线 ${((ratio-1)*100).toFixed(0)}%`;
+    }
+  } else {
+    document.getElementById('ncav-two3').textContent = '—';
+    document.getElementById('ncav-ratio').textContent = '—';
+  }
+
+  if (!isNaN(price) && ncavPerShare2 !== null) {
+    const diff = ncavPerShare2 - price;
+    const ratio = ncavPerShare2 / price;
+    if (ncavPerShare2 > price) {
+      if (ratio >= 1.5) {
+        badge3 = '<span class="badge badge-high">🔥 高</span>';
+        detail3 = `每股NCAV超股价 ${((ratio-1)*100).toFixed(0)}%`;
+      } else if (ratio >= 1.2) {
+        badge3 = '<span class="badge badge-high">✅ 高</span>';
+        detail3 = `高出股价 ${((ratio-1)*100).toFixed(0)}%`;
+      } else {
+        badge3 = '<span class="badge badge-mid">⚡ 中等</span>';
+        detail3 = `略高于股价 ${((ratio-1)*100).toFixed(0)}%`;
+      }
+    } else if (ratio >= 0.9) {
+      badge3 = '<span class="badge badge-mid">⚡ 中等</span>';
+      detail3 = `接近股价，差 ${((1-ratio)*100).toFixed(0)}%`;
+    } else {
+      badge3 = '<span class="badge badge-low">⚠️ 低</span>';
+      detail3 = `低于股价 ${((1-ratio)*100).toFixed(0)}%`;
+    }
+  }
+
+  document.getElementById('ncav-badge2').innerHTML = badge2 || '—';
+  document.getElementById('ncav-detail2').textContent = detail2;
+  document.getElementById('ncav-badge3').innerHTML = badge3 || '—';
+  document.getElementById('ncav-detail3').textContent = detail3;
+
+  result.style.display = 'block';
+
+  // Summary
+  updateSummary(badge2, badge3);
+}
+
+function updateSummary(badge2, badge3) {
+  const ivBadge = document.getElementById('iv-badge').innerHTML;
+  const badges = [ivBadge, badge2, badge3].filter(b => b && b.length > 3);
+
+  if (badges.length === 0) { document.getElementById('summary-card').style.display = 'none'; return; }
+
+  const scoreHigh = badges.filter(b => b.includes('badge-high')).length;
+  const scoreMid = badges.filter(b => b.includes('badge-mid')).length;
+  const total = badges.length;
+
+  let score, sub, color;
+  if (scoreHigh === total) {
+    score = 'A+'; sub = '全面高价值，格雷厄姆强烈推荐'; color = 'var(--green)';
+  } else if (scoreHigh >= total * 0.6) {
+    score = 'A'; sub = '高价值，具有安全边际'; color = 'var(--green)';
+  } else if (scoreHigh + scoreMid >= total * 0.6) {
+    score = 'B'; sub = '中等价值，可关注'; color = 'var(--yellow)';
+  } else {
+    score = 'C'; sub = '价值不足，建议观望'; color = 'var(--red)';
+  }
+
+  document.getElementById('summary-score').textContent = score;
+  document.getElementById('summary-score').style.color = color;
+  document.getElementById('summary-sub').textContent = sub;
+  document.getElementById('summary-card').style.display = 'block';
+}
+
+// ===== AI Prompt =====
+function genPrompt() {
+  const pe = document.getElementById('ai-pe').value || '10';
+  const pb = document.getElementById('ai-pb').value || '1.5';
+  const cr = document.getElementById('ai-cr').value || '2';
+  const pepb = document.getElementById('ai-pepb').value || '22.5';
+  const mktcap = document.getElementById('ai-mktcap').value;
+  const dr = document.getElementById('ai-dr').value || '50';
+
+  let prompt = `请帮我从A股市场中筛选符合格雷厄姆廉价股策略的股票，筛选条件如下：
+
+【核心估值条件】
+1. 市盈率（PE/TTM）≤ ${pe} 倍
+2. 市净率（PB）≤ ${pb} 倍
+3. PE × PB 乘积 ≤ ${pepb}（格雷厄姆廉价核心指标）
+
+【财务健康条件】
+4. 流动比率（流动资产/流动负债）≥ ${cr}
+5. 资产负债率 ≤ ${dr}%
+6. 近5年连续盈利，不存在亏损年份
+
+【NCAV安全边际条件】
+7. 当前股价 < 每股净流动资产（流动资产-全部负债/总股本）× 2/3
+   （即股价低于净流动资产的66.7%）
+
+【排除条件】
+- 排除ST、*ST股票
+- 排除金融类股票（银行、保险、券商）
+- 排除近一年有重大违规的公司${mktcap ? `\n- 市值 ≥ ${mktcap} 亿元` : ''}
+
+【输出要求】
+请按照安全边际从高到低排列，每只股票给出：
+- 股票代码和名称
+- PE、PB数值及PE×PB乘积
+- 流动比率
+- 每股净流动资产与当前股价对比
+- 简要说明是否符合格雷厄姆廉价股标准
+
+感谢！`;
+
+  document.getElementById('ai-prompt').value = prompt;
+}
+
+function copyPrompt() {
+  const text = document.getElementById('ai-prompt').value;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('✅ 提示词已复制'));
+  } else {
+    document.getElementById('ai-prompt').select();
+    document.execCommand('copy');
+    showToast('✅ 提示词已复制');
+  }
+}
+
+// ===== Init =====
+updateBasicCheck();
+genPrompt();
+renderEPS();
+</script>
+</body>
+</html>
