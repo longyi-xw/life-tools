@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三维估值 · DCF+PE+PB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b0e;
+  --s1: #0f1318;
+  --s2: #151b22;
+  --s3: #1c242e;
+  --bd: #1e2730;
+  --bd2: #263040;
+  --gold: #c8a84b;
+  --gold-l: #e5c96e;
+  --gold-d: rgba(200,168,75,0.14);
+  --gold-d2: rgba(200,168,75,0.07);
+  --txt: #ddd8ce;
+  --txt2: #7e8a9a;
+  --txt3: #3e4d5e;
+  --green: #48b87a;
+  --green-d: rgba(72,184,122,0.14);
+  --red: #d95c5c;
+  --red-d: rgba(217,92,92,0.14);
+  --blue: #5a9ed6;
+  --blue-d: rgba(90,158,214,0.14);
+  --purple: #9b7fd4;
+  --purple-d: rgba(155,127,212,0.14);
+  --r: 12px; --rs: 8px; --rx: 16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{background:var(--bg);color:var(--txt);font-family:'Noto Sans SC',sans-serif;font-size:14px;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+.wrap{position:relative;z-index:1;max-width:500px;margin:0 auto;padding-bottom:90px}
+
+/* ── HEADER ── */
+.hdr{padding:26px 18px 18px;border-bottom:1px solid var(--bd);background:linear-gradient(170deg,rgba(200,168,75,.06) 0%,transparent 60%)}
+.hdr-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.hdr-eyebrow::before{content:'';width:18px;height:1px;background:var(--gold)}
+.hdr h1{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:700;line-height:1.25;color:var(--txt)}
+.hdr h1 em{color:var(--gold);font-style:normal}
+.hdr-sub{margin-top:6px;font-size:11.5px;color:var(--txt2);line-height:1.65}
+.method-badges{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.05em;border:1px solid}
+.badge.dcf{color:var(--gold);border-color:rgba(200,168,75,.35);background:var(--gold-d2)}
+.badge.pe{color:var(--blue);border-color:rgba(90,158,214,.35);background:var(--blue-d)}
+.badge.pb{color:var(--purple);border-color:rgba(155,127,212,.35);background:var(--purple-d)}
+.badge.comp{color:var(--green);border-color:rgba(72,184,122,.35);background:var(--green-d)}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--bd)}
+.tab{flex:1;padding:11px 0;text-align:center;font-size:12px;font-weight:500;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.02em}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* ── PANELS ── */
+.panel{display:none}.panel.active{display:block}
+
+/* ── SECTION ── */
+.sec{padding:18px}
+.sec+.sec{padding-top:0}
+.sec-hdr{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--txt3);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec-hdr .tag{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;margin-left:auto}
+.sec-hdr.dcf-hdr .tag{background:var(--gold-d);color:var(--gold)}
+.sec-hdr.pe-hdr .tag{background:var(--blue-d);color:var(--blue)}
+.sec-hdr.pb-hdr .tag{background:var(--purple-d);color:var(--purple)}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--bd)}
+.sec-hdr .tag+.sec-hdr::after{display:none}
+
+/* ── INPUTS ── */
+.ig{display:flex;flex-direction:column;gap:6px}
+.ig label{font-size:11px;color:var(--txt2);letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center}
+.ig label .hn{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt3)}
+.iw{display:flex;align-items:center;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);transition:border-color .2s,box-shadow .2s}
+.iw:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,168,75,.1)}
+.iw.blue:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(90,158,214,.1)}
+.iw.purple:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px rgba(155,127,212,.1)}
+.iw .un{padding:0 10px 0 3px;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3);pointer-events:none;white-space:nowrap}
+.iw .px{padding:0 3px 0 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--txt2)}
+input[type=number],input[type=text]{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:14.5px;font-family:'DM Mono',monospace;padding:10px 8px;width:100%;-webkit-appearance:none}
+input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none}
+.igrid{display:flex;flex-direction:column;gap:11px}
+.irow{display:flex;gap:10px}.irow .ig{flex:1}
+
+/* ── SLIDER ── */
+.sg{display:flex;flex-direction:column;gap:7px}
+.sl{display:flex;justify-content:space-between;align-items:center}
+.sl span{font-size:11px;color:var(--txt2)}
+.sv{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);font-weight:500}
+.sv.blue{color:var(--blue)}.sv.purple{color:var(--purple)}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:2px;background:var(--bd);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2.5px solid var(--bg);box-shadow:0 0 8px rgba(200,168,75,.5);cursor:pointer}
+input[type=range].blue::-webkit-slider-thumb{background:var(--blue);box-shadow:0 0 8px rgba(90,158,214,.5)}
+input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shadow:0 0 8px rgba(155,127,212,.5)}
+
+/* ── PILLS ── */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pill{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bd);background:var(--s2);color:var(--txt2);cursor:pointer;transition:all .18s}
+.pill.active{background:var(--gold-d);border-color:var(--gold);color:var(--gold)}
+
+/* ── WEIGHT CONTROL ── */
+.wt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.wt-card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.wt-card.dcf.sel{border-color:var(--gold);background:var(--gold-d)}
+.wt-card.pe.sel{border-color:var(--blue);background:var(--blue-d)}
+.wt-card.pb.sel{border-color:var(--purple);background:var(--purple-d)}
+.wt-label{font-size:10px;color:var(--txt2);margin-bottom:4px;letter-spacing:.04em}
+.wt-pct{font-family:'DM Mono',monospace;font-size:16px;font-weight:500}
+.wt-card.dcf .wt-pct{color:var(--gold)}
+.wt-card.pe .wt-pct{color:var(--blue)}
+.wt-card.pb .wt-pct{color:var(--purple)}
+.wt-stepper{display:flex;justify-content:center;gap:6px;margin-top:6px}
+.wt-btn{background:var(--s3);border:1px solid var(--bd);border-radius:4px;width:26px;height:22px;color:var(--txt2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.wt-btn:active{transform:scale(.9)}
+
+/* ── BTN ── */
+.calc-btn{width:100%;padding:15px;background:linear-gradient(130deg,#b8942e,#e5c96e,#b8942e);background-size:200% 100%;background-position:right;border:none;border-radius:var(--r);color:#080b0e;font-size:15px;font-weight:700;font-family:'Noto Sans SC',sans-serif;letter-spacing:.07em;cursor:pointer;transition:background-position .35s,transform .15s,box-shadow .3s;box-shadow:0 4px 22px rgba(200,168,75,.28)}
+.calc-btn:hover{background-position:left;box-shadow:0 6px 30px rgba(200,168,75,.42)}
+.calc-btn:active{transform:scale(.975)}
+
+/* ── RESULT ── */
+.res-panel{display:none}.res-panel.show{display:block;animation:fadeUp .45s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* composite hero */
+.comp-hero{margin:18px 18px 0;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rx);overflow:hidden;position:relative}
+.comp-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.comp-top{padding:20px 18px 16px;text-align:center;border-bottom:1px solid var(--bd)}
+.comp-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--txt3);margin-bottom:6px}
+.comp-price{font-family:'DM Mono',monospace;font-size:36px;font-weight:400;color:var(--green);line-height:1}
+.comp-range{font-size:11px;color:var(--txt2);margin-top:6px;font-family:'DM Mono',monospace}
+.verdict{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:20px;font-size:11.5px;font-weight:600;letter-spacing:.05em}
+.verdict.under{background:var(--green-d);color:var(--green);border:1px solid rgba(72,184,122,.3)}
+.verdict.over{background:var(--red-d);color:var(--red);border:1px solid rgba(217,92,92,.3)}
+.verdict.fair{background:var(--blue-d);color:var(--blue);border:1px solid rgba(90,158,214,.3)}
+.verdict.warn{background:rgba(200,168,75,.14);color:var(--gold);border:1px solid rgba(200,168,75,.3)}
+
+/* method cards row */
+.method-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--bd)}
+.mc{padding:13px 10px;text-align:center;border-right:1px solid var(--bd)}
+.mc:last-child{border-right:none}
+.mc-label{font-size:9px;letter-spacing:.1em;color:var(--txt3);font-family:'DM Mono',monospace;margin-bottom:5px;text-transform:uppercase}
+.mc-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.mc.dcf .mc-val{color:var(--gold)}
+.mc.pe .mc-val{color:var(--blue)}
+.mc.pb .mc-val{color:var(--purple)}
+.mc-diff{font-size:9px;font-family:'DM Mono',monospace;margin-top:3px;color:var(--txt3)}
+.mc-diff.pos{color:var(--green)}.mc-diff.neg{color:var(--red)}
+.mc-w{font-size:9px;color:var(--txt3);margin-top:2px}
+
+/* price ruler */
+.ruler-wrap{margin:16px 18px 0}
+.ruler-title{font-size:10px;color:var(--txt2);margin-bottom:10px;letter-spacing:.06em;font-family:'DM Mono',monospace}
+.ruler{position:relative;height:48px;margin-bottom:6px}
+.ruler-track{position:absolute;top:50%;left:0;right:0;height:4px;background:var(--bd2);border-radius:2px;transform:translateY(-50%)}
+.ruler-zone{position:absolute;top:50%;height:4px;border-radius:2px;transform:translateY(-50%)}
+.ruler-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--bg)}
+.ruler-dot-label{position:absolute;top:calc(50% + 12px);transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap}
+.ruler-price-line{position:absolute;top:0;bottom:0;width:2px;border-radius:1px;transform:translateX(-50%)}
+.ruler-price-tag{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-family:'DM Mono',monospace;font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap;font-weight:600}
+
+/* signal bar */
+.signal-bar{display:flex;gap:6px;margin:12px 0 0;align-items:stretch}
+.signal-seg{flex:1;padding:10px 8px;border-radius:var(--rs);text-align:center;font-size:10px;font-weight:500;line-height:1.5;letter-spacing:.03em}
+
+/* detail cells */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bd);border-radius:var(--rs);overflow:hidden;margin:16px 18px 0}
+.dc{background:var(--s2);padding:12px 14px}
+.dc-l{font-size:10px;color:var(--txt3);margin-bottom:4px;letter-spacing:.05em}
+.dc-v{font-family:'DM Mono',monospace;font-size:13px;color:var(--txt)}
+
+/* risk flags */
+.flags{margin:14px 18px 0;display:flex;flex-direction:column;gap:6px}
+.flag{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1px solid;font-size:11.5px;line-height:1.6}
+.flag.ok{background:var(--green-d);border-color:rgba(72,184,122,.25);color:#88d4a8}
+.flag.warn{background:rgba(200,168,75,.1);border-color:rgba(200,168,75,.25);color:var(--gold-l)}
+.flag.danger{background:var(--red-d);border-color:rgba(217,92,92,.25);color:#e89090}
+.flag-icon{font-size:14px;line-height:1.4;flex-shrink:0}
+
+/* sensitivity */
+.sens-wrap{margin:16px 18px 0}
+.sens-title{font-size:9px;letter-spacing:.18em;color:var(--txt3);text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sens-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+.stab{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10px;border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden}
+.stab th{background:var(--s2);padding:7px 5px;text-align:center;color:var(--txt3);font-size:9px;font-weight:500;letter-spacing:.06em;border-bottom:1px solid var(--bd)}
+.stab th:first-child{text-align:left;padding-left:9px}
+.stab td{padding:7px 5px;text-align:center;border-bottom:1px solid var(--bd);color:var(--txt)}
+.stab td:first-child{background:var(--s2);color:var(--txt2);font-size:9px;padding-left:9px;text-align:left}
+.stab tr:last-child td{border-bottom:none}
+.cu{color:var(--green)}.co{color:var(--red)}.cf{color:var(--blue)}.cb{background:var(--gold-d)!important;color:var(--gold)!important;font-weight:600}
+
+/* CF table */
+.cf-wrap{margin:14px 18px 0}
+.cft{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:10.5px;border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden}
+.cft th{background:var(--s2);padding:7px 9px;color:var(--txt3);font-size:9px;font-weight:500;letter-spacing:.06em;border-bottom:1px solid var(--bd);text-align:right}
+.cft th:first-child{text-align:left}
+.cft td{padding:6px 9px;border-bottom:1px solid var(--bd);text-align:right;color:var(--txt)}
+.cft td:first-child{text-align:left;color:var(--txt2);font-size:9.5px}
+.cft tr:last-child td{border-bottom:none}
+.tvr td{color:var(--gold);background:var(--gold-d2)}
+.totr td{font-weight:600;border-top:1px solid var(--bd2)}
+
+/* disclaimer */
+.disc{margin:14px 18px 0;padding:12px 14px;background:rgba(200,168,75,.05);border:1px solid rgba(200,168,75,.15);border-radius:var(--rs);font-size:11px;color:var(--txt3);line-height:1.75}
+.disc strong{color:var(--gold);font-weight:500}
+
+/* about */
+.about{padding:18px}
+.a-formula{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:18px;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--gold-l);line-height:2.2}
+.a-formula small{color:var(--txt3);font-size:10px}
+.a-card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:15px;margin-bottom:11px}
+.a-card h3{font-size:13px;font-weight:600;margin-bottom:8px}
+.a-card h3.gold{color:var(--gold)}.a-card h3.blue{color:var(--blue)}.a-card h3.purple{color:var(--purple)}.a-card h3.green{color:var(--green)}
+.a-card p{font-size:12px;color:var(--txt2);line-height:1.8}
+.plist{list-style:none}
+.plist li{padding:8px 0;border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:flex-start}
+.plist li:last-child{border-bottom:none;padding-bottom:0}
+.pt{font-family:'DM Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:4px;white-space:nowrap;margin-top:2px;flex-shrink:0}
+.pt.gold{background:var(--gold-d);color:var(--gold)}
+.pt.blue{background:var(--blue-d);color:var(--blue)}
+.pt.purple{background:var(--purple-d);color:var(--purple)}
+.pd{font-size:11.5px;color:var(--txt2);line-height:1.75}
+.method-compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.mcc{padding:10px;background:var(--s3);border-radius:var(--rs);text-align:center}
+.mcc-title{font-size:10px;font-weight:600;margin-bottom:6px}
+.mcc-title.gold{color:var(--gold)}.mcc-title.blue{color:var(--blue)}.mcc-title.purple{color:var(--purple)}
+.mcc p{font-size:10px;color:var(--txt2);line-height:1.6}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--gold);color:var(--gold);padding:9px 18px;border-radius:24px;font-size:12.5px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@supports(padding-bottom:env(safe-area-inset-bottom)){.wrap{padding-bottom:calc(90px + env(safe-area-inset-bottom))}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-eyebrow">Multi-Method Valuation</div>
+  <h1>三维估值<em>综合计算器</em></h1>
+  <p class="hdr-sub">融合 DCF · PE · PB 三种方法，交叉验证内在价值，压缩估算误差区间</p>
+  <div class="method-badges">
+    <span class="badge dcf">DCF 折现现金流</span>
+    <span class="badge pe">PE 市盈率锚定</span>
+    <span class="badge pb">PB 市净率锚定</span>
+    <span class="badge comp">加权综合区间</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="input">参数输入</div>
+  <div class="tab" data-tab="result">估值结果</div>
+  <div class="tab" data-tab="about">方法说明</div>
+</div>
+
+<!-- ════ INPUT PANEL ════ -->
+<div class="panel active" id="p-input">
+
+  <div class="sec">
+    <div class="sec-hdr">快速场景</div>
+    <div class="pills">
+      <div class="pill" onclick="applyS('maotai')">贵州茅台</div>
+      <div class="pill" onclick="applyS('bank')">招商银行</div>
+      <div class="pill" onclick="applyS('growth')">成长科技股</div>
+      <div class="pill" onclick="applyS('utility')">公用事业</div>
+      <div class="pill active" onclick="applyS('custom')">自定义</div>
+    </div>
+  </div>
+
+  <!-- ── DCF inputs ── -->
+  <div class="sec">
+    <div class="sec-hdr dcf-hdr">DCF 折现现金流 <span class="tag">同花顺 → 现金流量表</span></div>
+    <div class="igrid">
+      <div class="irow">
+        <div class="ig">
+          <label>自由现金流 FCF<span class="hn">经营CF−资本支出</span></label>
+          <div class="iw"><input type="number" id="fcf" value="730" inputmode="decimal"><span class="un">亿元</span></div>
+        </div>
+        <div class="ig">
+          <label>总股本<span class="hn">Shares</span></label>
+          <div class="iw"><input type="number" id="shares" value="125.6" inputmode="decimal"><span class="un">亿股</span></div>
+        </div>
+      </div>
+      <div class="ig">
+        <label>当前股价（对比基准）</label>
+        <div class="iw"><span class="px">¥</span><input type="number" id="price" value="1500" inputmode="decimal"><span class="un">元</span></div>
+      </div>
+      <div class="sg">
+        <div class="sl"><span>第1-5年增长率</span><span class="sv" id="g1v">8.0%</span></div>
+        <input type="range" id="g1" min="-10" max="40" step=".5" value="8" oninput="slup('g1')">
+      </div>
+      <div class="sg">
+        <div class="sl"><span>第6-10年增长率</span><span class="sv" id="g2v">5.0%</span></div>
+        <input type="range" id="g2" min="-10" max="30" step=".5" value="5" oninput="slup('g2')">
+      </div>
+      <div class="sg">
+        <div class="sl"><span>永续增长率 g</span><span class="sv" id="gpv">3.0%</span></div>
+        <input type="range" id="gp" min=".5" max="5" step=".1" value="3" oninput="slup('gp')">
+      </div>
+      <div class="sg">
+        <div class="sl"><span>折现率 WACC</span><span class="sv" id="waccv">8.0%</span></div>
+        <input type="range" id="wacc" min="4" max="20" step=".1" value="8" oninput="slup('wacc')">
+      </div>
+      <div class="irow">
+        <div class="ig">
+          <label>无风险利率 Rf<span class="hn">10Y国债</span></label>
+          <div class="iw"><input type="number" id="rf" value="2.3" step=".1" inputmode="decimal"><span class="un">%</span></div>
+        </div>
+        <div class="ig">
+          <label>Beta 系数 β</label>
+          <div class="iw"><input type="number" id="beta" value="0.8" step=".05" inputmode="decimal"></div>
+        </div>
+      </div>
+      <div class="ig">
+        <label>CAPM 快速估算</label>
+        <div class="iw" style="background:var(--bg);border-style:dashed;cursor:pointer" onclick="applyWACC()">
+          <input type="text" id="wacc-hint" readonly style="cursor:pointer;font-size:11.5px;color:var(--gold)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PE inputs ── -->
+  <div class="sec">
+    <div class="sec-hdr pe-hdr">PE 市盈率估值 <span class="tag" style="background:var(--blue-d);color:var(--blue)">同花顺 → 主要指标</span></div>
+    <div class="igrid">
+      <div class="irow">
+        <div class="ig">
+          <label>每股收益 EPS<span class="hn">TTM</span></label>
+          <div class="iw blue"><span class="px">¥</span><input type="number" id="eps" value="60" step=".01" inputmode="decimal"></div>
+        </div>
+        <div class="ig">
+          <label>当前 PE<span class="hn">实时</span></label>
+          <div class="iw blue"><input type="number" id="cur-pe" value="25" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+      </div>
+      <div class="irow">
+        <div class="ig">
+          <label>历史 PE 低位<span class="hn">近5年</span></label>
+          <div class="iw blue"><input type="number" id="pe-lo" value="18" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+        <div class="ig">
+          <label>历史 PE 高位<span class="hn">近5年</span></label>
+          <div class="iw blue"><input type="number" id="pe-hi" value="40" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+      </div>
+      <div class="ig">
+        <label>行业/同类平均 PE<span class="hn">参考行业均值</span></label>
+        <div class="iw blue"><input type="number" id="ind-pe" value="28" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+      </div>
+      <div class="sg">
+        <div class="sl"><span>合理 PE 估值倍数（可调）</span><span class="sv blue" id="tpev">22.0×</span></div>
+        <input type="range" class="blue" id="tpe" min="5" max="80" step=".5" value="22" oninput="slup('tpe')">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PB inputs ── -->
+  <div class="sec">
+    <div class="sec-hdr pb-hdr">PB 市净率估值 <span class="tag" style="background:var(--purple-d);color:var(--purple)">同花顺 → 主要指标</span></div>
+    <div class="igrid">
+      <div class="irow">
+        <div class="ig">
+          <label>每股净资产 BVPS<span class="hn">BPS</span></label>
+          <div class="iw purple"><span class="px">¥</span><input type="number" id="bvps" value="215" step=".01" inputmode="decimal"></div>
+        </div>
+        <div class="ig">
+          <label>当前 PB<span class="hn">实时</span></label>
+          <div class="iw purple"><input type="number" id="cur-pb" value="7" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+      </div>
+      <div class="irow">
+        <div class="ig">
+          <label>历史 PB 低位<span class="hn">近5年</span></label>
+          <div class="iw purple"><input type="number" id="pb-lo" value="5" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+        <div class="ig">
+          <label>历史 PB 高位<span class="hn">近5年</span></label>
+          <div class="iw purple"><input type="number" id="pb-hi" value="14" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+        </div>
+      </div>
+      <div class="ig">
+        <label>行业/同类平均 PB<span class="hn">参考行业均值</span></label>
+        <div class="iw purple"><input type="number" id="ind-pb" value="8" step=".1" inputmode="decimal"><span class="un">倍</span></div>
+      </div>
+      <div class="sg">
+        <div class="sl"><span>合理 PB 估值倍数（可调）</span><span class="sv purple" id="tpbv">6.5×</span></div>
+        <input type="range" class="purple" id="tpb" min="0.5" max="30" step=".1" value="6.5" oninput="slup('tpb')">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Weights ── -->
+  <div class="sec">
+    <div class="sec-hdr">综合权重分配 <span style="font-size:9px;color:var(--txt3);margin-left:4px">合计须=100%</span></div>
+    <div class="wt-grid">
+      <div class="wt-card dcf sel" id="wc-dcf">
+        <div class="wt-label">DCF 权重</div>
+        <div class="wt-pct" id="wdcf">50%</div>
+        <div class="wt-stepper">
+          <div class="wt-btn" onclick="adjW('dcf',-5)">−</div>
+          <div class="wt-btn" onclick="adjW('dcf',+5)">+</div>
+        </div>
+      </div>
+      <div class="wt-card pe sel" id="wc-pe">
+        <div class="wt-label">PE 权重</div>
+        <div class="wt-pct" id="wpe">30%</div>
+        <div class="wt-stepper">
+          <div class="wt-btn" onclick="adjW('pe',-5)">−</div>
+          <div class="wt-btn" onclick="adjW('pe',+5)">+</div>
+        </div>
+      </div>
+      <div class="wt-card pb sel" id="wc-pb">
+        <div class="wt-label">PB 权重</div>
+        <div class="wt-pct" id="wpb">20%</div>
+        <div class="wt-stepper">
+          <div class="wt-btn" onclick="adjW('pb',-5)">−</div>
+          <div class="wt-btn" onclick="adjW('pb',+5)">+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sg" style="margin-bottom:14px">
+      <div class="sl"><span>安全边际要求</span><span class="sv" id="mgv">30%</span></div>
+      <input type="range" id="mg" min="0" max="50" step="5" value="30" oninput="slup('mg')">
+    </div>
+    <button class="calc-btn" onclick="calculate()">▶ 综合估值计算</button>
+  </div>
+</div>
+
+<!-- ════ RESULT PANEL ════ -->
+<div class="panel" id="p-result">
+  <div style="padding:50px 18px;text-align:center;color:var(--txt3);font-size:13px" id="no-res">请先填入参数并点击「综合估值计算」</div>
+
+  <div class="res-panel" id="res">
+
+    <!-- Composite hero -->
+    <div class="comp-hero">
+      <div class="comp-top">
+        <div class="comp-eyebrow">综合加权内在价值</div>
+        <div class="comp-price">¥<span id="r-comp">—</span></div>
+        <div class="comp-range">合理区间 <span id="r-lo">—</span> ~ <span id="r-hi">—</span></div>
+        <div id="r-verdict" class="verdict fair">计算中</div>
+      </div>
+      <!-- three method row -->
+      <div class="method-row">
+        <div class="mc dcf">
+          <div class="mc-label">DCF</div>
+          <div class="mc-val">¥<span id="rc-dcf">—</span></div>
+          <div class="mc-diff" id="rd-dcf">—</div>
+          <div class="mc-w" id="rw-dcf">—</div>
+        </div>
+        <div class="mc pe">
+          <div class="mc-label">PE</div>
+          <div class="mc-val">¥<span id="rc-pe">—</span></div>
+          <div class="mc-diff" id="rd-pe">—</div>
+          <div class="mc-w" id="rw-pe">—</div>
+        </div>
+        <div class="mc pb">
+          <div class="mc-label">PB</div>
+          <div class="mc-val">¥<span id="rc-pb">—</span></div>
+          <div class="mc-diff" id="rd-pb">—</div>
+          <div class="mc-w" id="rw-pb">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price ruler -->
+    <div class="ruler-wrap">
+      <div class="ruler-title">价格定位可视化（相对当前股价）</div>
+      <div class="ruler" id="ruler"></div>
+      <div class="signal-bar" id="signal-bar"></div>
+    </div>
+
+    <!-- detail cells -->
+    <div class="detail-grid">
+      <div class="dc"><div class="dc-l">安全边际买入价</div><div class="dc-v" id="r-safe">—</div></div>
+      <div class="dc"><div class="dc-l">PE估值区间</div><div class="dc-v" id="r-pe-range">—</div></div>
+      <div class="dc"><div class="dc-l">PB估值区间</div><div class="dc-v" id="r-pb-range">—</div></div>
+      <div class="dc"><div class="dc-l">终值占DCF比</div><div class="dc-v" id="r-tvpct">—</div></div>
+      <div class="dc"><div class="dc-l">PE偏贵/便宜度</div><div class="dc-v" id="r-pe-pos">—</div></div>
+      <div class="dc"><div class="dc-l">PB偏贵/便宜度</div><div class="dc-v" id="r-pb-pos">—</div></div>
+    </div>
+
+    <!-- Risk flags -->
+    <div class="flags" id="flags"></div>
+
+    <!-- Sensitivity -->
+    <div class="sens-wrap">
+      <div class="sens-title">DCF 敏感性矩阵（每股）</div>
+      <table class="stab" id="stab"><thead></thead><tbody></tbody></table>
+      <p style="font-size:9.5px;color:var(--txt3);margin-top:6px;font-family:'DM Mono',monospace">横轴: WACC | 纵轴: g | 高亮格: 当前参数</p>
+    </div>
+
+    <!-- CF table -->
+    <div class="cf-wrap">
+      <div class="sens-title" style="margin-bottom:10px">逐年现金流折现明细</div>
+      <table class="cft"><thead><tr><th>年份</th><th>FCF(亿)</th><th>折现因子</th><th>现值(亿)</th></tr></thead>
+      <tbody id="cft-body"></tbody></table>
+    </div>
+
+    <div class="disc"><strong>⚠ 风险提示：</strong>本工具所有结果仅供学习参考，不构成任何投资建议。三种估值方法均有局限性，综合结果仍存在显著不确定性。投资决策须结合充分的基本面研究与个人风险承受能力。</div>
+
+  </div>
+</div>
+
+<!-- ════ ABOUT PANEL ════ -->
+<div class="panel" id="p-about">
+<div class="about">
+  <div class="a-formula">
+    <div>DCF: V = Σ FCFt/(1+r)^t + TV/(1+r)^n</div>
+    <div>PE:  V = EPS × 合理PE倍数</div>
+    <div>PB:  V = BVPS × 合理PB倍数</div>
+    <div><small>综合: V = w₁·DCF + w₂·PE + w₃·PB</small></div>
+  </div>
+
+  <div class="a-card">
+    <h3 class="green">🎯 为什么要三法合一？</h3>
+    <p>每种单一估值方法都有盲区。DCF对增长假设极敏感、PE忽视资产质量、PB忽视盈利能力。三法交叉验证的核心逻辑是：当三种方法得出的结论方向一致时，置信度大幅提升；若结论相互矛盾，则提示需要进一步审查。</p>
+    <div class="method-compare">
+      <div class="mcc"><div class="mcc-title gold">DCF</div><p>未来现金流折现，适合稳定盈利的成熟企业，受折现率假设影响大</p></div>
+      <div class="mcc"><div class="mcc-title blue">PE</div><p>盈利能力锚定，直观易用，适合周期底部判断，需区分周期性EPS</p></div>
+      <div class="mcc"><div class="mcc-title purple">PB</div><p>资产价值兜底，适合重资产/金融类，轻资产企业PB意义有限</p></div>
+    </div>
+  </div>
+
+  <div class="a-card">
+    <h3 class="gold">📊 DCF 参数说明</h3>
+    <ul class="plist">
+      <li><span class="pt gold">FCF</span><span class="pd">同花顺→财务→现金流量表：「经营活动现金流净额」−「购建固定资产无形资产支出」</span></li>
+      <li><span class="pt gold">g₁₋₅</span><span class="pd">前5年增长率，建议参考近3年FCF复合增速（CAGR），保守可打7折</span></li>
+      <li><span class="pt gold">WACC</span><span class="pd">加权资本成本。快捷公式：Rf + β×ERP，A股ERP通常取6~7%。保守起见可用8~10%</span></li>
+      <li><span class="pt gold">g永续</span><span class="pd">永续增长率理论上不超过长期GDP增速，通常取2~3%。这一参数对终值影响极大</span></li>
+    </ul>
+  </div>
+
+  <div class="a-card">
+    <h3 class="blue">📈 PE 参数说明</h3>
+    <ul class="plist">
+      <li><span class="pt blue">EPS</span><span class="pd">同花顺→主要指标→每股收益（TTM，即过去12个月）。注意排除非经常性损益</span></li>
+      <li><span class="pt blue">历史PE区间</span><span class="pd">同花顺→估值→PE历史百分位。建议取近5年滚动区间，避免单一年度极值</span></li>
+      <li><span class="pt blue">合理PE</span><span class="pd">一般参考：历史中位数PE × 0.8~1.0。行业景气度高时可适当上浮，衰退期下调</span></li>
+    </ul>
+  </div>
+
+  <div class="a-card">
+    <h3 class="purple">🏦 PB 参数说明</h3>
+    <ul class="plist">
+      <li><span class="pt purple">BVPS</span><span class="pd">同花顺→主要指标→每股净资产（即账面价值每股）。可用总净资产÷总股本自算</span></li>
+      <li><span class="pt purple">历史PB区间</span><span class="pd">同花顺→估值→PB历史分位。PB估值更适用于银行、地产、保险等重资产行业</span></li>
+      <li><span class="pt purple">合理PB</span><span class="pd">ROE较稳定时：合理PB ≈ ROE / WACC。ROE=15%、WACC=10% → 合理PB≈1.5倍</span></li>
+    </ul>
+  </div>
+
+  <div class="a-card">
+    <h3 class="green">⚖️ 权重如何分配？</h3>
+    <p>没有放之四海而皆准的权重配比，需根据公司特性灵活调整：<br><br>
+    <strong style="color:var(--gold)">现金流稳定型</strong>（消费/医药）→ DCF权重↑（50~60%），PE辅助<br>
+    <strong style="color:var(--blue)">强盈利周期型</strong>（银行/保险）→ PE/PB权重↑，DCF参考<br>
+    <strong style="color:var(--purple)">重资产型</strong>（地产/钢铁）→ PB权重↑（40~50%），PE参考<br>
+    <strong style="color:var(--txt2)">成长型企业</strong> → DCF权重最高但不确定性也最大，需保守估计</p>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+const W = { dcf: 50, pe: 30, pb: 20 };
+
+// ══════════════════════════════════════════
+// SLIDERS
+// ══════════════════════════════════════════
+const slConf = {
+  g1:   { suffix:'%', dec:1, color:'gold' },
+  g2:   { suffix:'%', dec:1, color:'gold' },
+  gp:   { suffix:'%', dec:1, color:'gold' },
+  wacc: { suffix:'%', dec:1, color:'gold' },
+  tpe:  { suffix:'×', dec:1, color:'blue' },
+  tpb:  { suffix:'×', dec:1, color:'purple' },
+  mg:   { suffix:'%', dec:0, color:'gold' }
+};
+function slup(id) {
+  const el = document.getElementById(id);
+  const v = parseFloat(el.value);
+  const c = slConf[id];
+  const disp = document.getElementById(id+'v');
+  disp.textContent = v.toFixed(c.dec) + c.suffix;
+  const min = parseFloat(el.min), max = parseFloat(el.max);
+  const pct = (v - min) / (max - min) * 100;
+  const col = c.color === 'blue' ? 'var(--blue)' : c.color === 'purple' ? 'var(--purple)' : 'var(--gold)';
+  el.style.background = `linear-gradient(to right,${col} 0%,${col} ${pct}%,var(--bd) ${pct}%,var(--bd) 100%)`;
+  if (id === 'rf' || id === 'beta') updateWACC();
+}
+
+// ══════════════════════════════════════════
+// WACC HINT
+// ══════════════════════════════════════════
+function updateWACC() {
+  const rf = +v('rf') || 2.3, beta = +v('beta') || 0.8;
+  const est = rf + beta * 6.5;
+  document.getElementById('wacc-hint').value = `CAPM: ${rf}% + ${beta}×6.5% = ${est.toFixed(1)}% → 点击应用`;
+}
+function applyWACC() {
+  const rf = +v('rf') || 2.3, beta = +v('beta') || 0.8;
+  const est = Math.min(20, Math.max(4, rf + beta * 6.5));
+  document.getElementById('wacc').value = est.toFixed(1);
+  slup('wacc'); toast(`已应用 WACC = ${est.toFixed(1)}%`);
+}
+
+// ══════════════════════════════════════════
+// WEIGHTS
+// ══════════════════════════════════════════
+function adjW(key, delta) {
+  const other = Object.keys(W).filter(k => k !== key);
+  const newVal = Math.max(0, Math.min(100, W[key] + delta));
+  const diff = newVal - W[key];
+  if (diff === 0) return;
+  // distribute diff across others proportionally
+  const otherTotal = other.reduce((s, k) => s + W[k], 0);
+  if (otherTotal === 0 && diff < 0) return;
+  W[key] = newVal;
+  if (otherTotal > 0) {
+    other.forEach(k => { W[k] = Math.max(0, W[k] - diff * W[k] / otherTotal); });
+  }
+  // round and fix
+  let sum = Math.round(W.dcf) + Math.round(W.pe) + Math.round(W.pb);
+  W.dcf = Math.round(W.dcf); W.pe = Math.round(W.pe); W.pb = Math.round(W.pb);
+  const err = 100 - (W.dcf + W.pe + W.pb);
+  const adj = other.find(k => W[k] + err >= 0) || key;
+  W[adj] = Math.max(0, W[adj] + err);
+  document.getElementById('wdcf').textContent = W.dcf + '%';
+  document.getElementById('wpe').textContent  = W.pe  + '%';
+  document.getElementById('wpb').textContent  = W.pb  + '%';
+}
+
+// ══════════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════════
+const SC = {
+  maotai: { fcf:730, shares:125.6, price:1500, g1:8, g2:5, gp:3, wacc:8, rf:2.3, beta:0.75,
+            eps:60, curpe:25, pelo:18, pehi:40, indpe:28, tpe:22,
+            bvps:215, curpb:7, pblo:5, pbhi:14, indpb:8, tpb:6.5, mg:30 },
+  bank:   { fcf:180, shares:252, price:43, g1:5, g2:3, gp:2, wacc:9, rf:2.3, beta:0.85,
+            eps:6.5, curpe:6.5, pelo:4, pehi:10, indpe:6, tpe:5.5,
+            bvps:38, curpb:1.1, pblo:0.7, pbhi:1.5, indpb:1, tpb:0.9, mg:20 },
+  growth: { fcf:28, shares:9, price:90, g1:28, g2:16, gp:3.5, wacc:12, rf:2.3, beta:1.4,
+            eps:3, curpe:30, pelo:20, pehi:60, indpe:35, tpe:28,
+            bvps:22, curpb:4, pblo:2.5, pbhi:8, indpb:4.5, tpb:3.5, mg:35 },
+  utility:{ fcf:75, shares:55, price:16, g1:3.5, g2:2.5, gp:2, wacc:7, rf:2.3, beta:0.55,
+            eps:1.2, curpe:13, pelo:9, pehi:18, indpe:12, tpe:11,
+            bvps:10, curpb:1.6, pblo:1, pbhi:2.2, indpb:1.4, tpb:1.2, mg:25 },
+  custom: null
+};
+
+function applyS(key) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  const s = SC[key]; if (!s) return;
+  const map = {fcf:'fcf',shares:'shares',price:'price',rf:'rf',beta:'beta',
+    eps:'eps',curpe:'cur-pe',pelo:'pe-lo',pehi:'pe-hi',indpe:'ind-pe',
+    bvps:'bvps',curpb:'cur-pb',pblo:'pb-lo',pbhi:'pb-hi',indpb:'ind-pb'};
+  Object.entries(map).forEach(([k, id]) => { if (s[k] !== undefined) document.getElementById(id).value = s[k]; });
+  const sliders = {g1:'g1',g2:'g2',gp:'gp',wacc:'wacc',tpe:'tpe',tpb:'tpb',mg:'mg'};
+  Object.entries(sliders).forEach(([k,id]) => {
+    if (s[k] !== undefined) { document.getElementById(id).value = s[k]; slup(id); }
+  });
+  updateWACC();
+  toast('场景已加载');
+}
+
+// ══════════════════════════════════════════
+// CORE CALCULATE
+// ══════════════════════════════════════════
+function calculate() {
+  // DCF inputs
+  const fcf0  = +v('fcf'), shares = +v('shares'), price = +v('price');
+  const g1    = +v('g1')/100, g2 = +v('g2')/100;
+  const gp    = +v('gp')/100, wacc = +v('wacc')/100;
+  const mg    = +v('mg')/100;
+  // PE inputs
+  const eps   = +v('eps'), curPE = +v('cur-pe');
+  const peLo  = +v('pe-lo'), peHi = +v('pe-hi'), indPE = +v('ind-pe');
+  const tpe   = +v('tpe');
+  // PB inputs
+  const bvps  = +v('bvps'), curPB = +v('cur-pb');
+  const pbLo  = +v('pb-lo'), pbHi = +v('pb-hi'), indPB = +v('ind-pb');
+  const tpb   = +v('tpb');
+
+  if (!fcf0 || !shares || wacc <= gp) { toast('❌ 折现率须大于永续增长率'); return; }
+
+  // ── DCF ──
+  const { pvSum, tvPV, cfRows, totalValue } = dcfCalc(fcf0, g1, g2, gp, wacc);
+  const dcfVal = totalValue / shares;
+  const tvPct  = tvPV / totalValue * 100;
+
+  // DCF uncertainty band (±1% WACC)
+  const dcfLow  = dcfCalc(fcf0, g1, g2, gp, wacc + 0.01).totalValue / shares;
+  const dcfHigh = dcfCalc(fcf0, g1, g2, gp, Math.max(gp + 0.005, wacc - 0.01)).totalValue / shares;
+
+  // ── PE ──
+  const peVal = eps * tpe;
+  const peMid = eps * ((peLo + peHi) / 2);
+  const peLow2 = eps * peLo, peHigh2 = eps * peHi;
+
+  // ── PB ──
+  const pbVal = bvps * tpb;
+  const pbLow2 = bvps * pbLo, pbHigh2 = bvps * pbHi;
+
+  // ── Composite ──
+  const wDcf = W.dcf / 100, wPe = W.pe / 100, wPb = W.pb / 100;
+  const comp  = dcfVal * wDcf + peVal * wPe + pbVal * wPb;
+  const compLo = dcfLow * wDcf + peLow2 * wPe + pbLow2 * wPb;
+  const compHi = dcfHigh * wDcf + peHigh2 * wPe + pbHigh2 * wPb;
+  const safeP  = comp * (1 - mg);
+
+  // ── Render ──
+  $('r-comp', f2(comp));
+  $('r-lo', '¥' + f2(compLo)); $('r-hi', '¥' + f2(compHi));
+  $('r-safe', '¥' + f2(safeP) + ' （' + (mg*100).toFixed(0) + '%边际）');
+  $('r-tvpct', tvPct.toFixed(1) + '%' + (tvPct > 70 ? ' ⚠' : ''));
+  $('r-pe-range', '¥' + f2(peLow2) + ' ~ ¥' + f2(peHigh2));
+  $('r-pb-range', '¥' + f2(pbLow2) + ' ~ ¥' + f2(pbHigh2));
+
+  // method cards
+  const renderMC = (idSfx, val, w) => {
+    const diff = price > 0 ? (val - price) / price * 100 : null;
+    $('rc-' + idSfx, f2(val));
+    const diffEl = document.getElementById('rd-' + idSfx);
+    if (diff !== null) {
+      diffEl.textContent = (diff > 0 ? '▼ 低估' : '▲ 高估') + ' ' + Math.abs(diff).toFixed(1) + '%';
+      diffEl.className = 'mc-diff ' + (diff > 5 ? 'pos' : diff < -5 ? 'neg' : '');
+    } else { diffEl.textContent = '—'; diffEl.className = 'mc-diff'; }
+    $('rw-' + idSfx, 'W: ' + (w * 100).toFixed(0) + '%');
+  };
+  renderMC('dcf', dcfVal, wDcf);
+  renderMC('pe',  peVal,  wPe);
+  renderMC('pb',  pbVal,  wPb);
+
+  // PE/PB position
+  const pePos = (curPE - peLo) / (peHi - peLo) * 100;
+  const pbPos = (curPB - pbLo) / (pbHi - pbLo) * 100;
+  $('r-pe-pos', pePosText(pePos, curPE, indPE));
+  $('r-pb-pos', pbPosText(pbPos, curPB, indPB));
+
+  // Verdict
+  const vdiff = price > 0 ? (comp - price) / price * 100 : null;
+  const vEl = document.getElementById('r-verdict');
+  if (!vdiff && vdiff !== 0) { vEl.textContent = '— 未输入股价 —'; vEl.className = 'verdict fair'; }
+  else if (vdiff > 20) { vEl.textContent = `▼ 综合低估 ${vdiff.toFixed(1)}%，安全边际充足`; vEl.className = 'verdict under'; }
+  else if (vdiff > 8)  { vEl.textContent = `▽ 轻微低估 ${vdiff.toFixed(1)}%`; vEl.className = 'verdict under'; }
+  else if (vdiff < -20){ vEl.textContent = `▲ 综合高估 ${Math.abs(vdiff).toFixed(1)}%，溢价明显`; vEl.className = 'verdict over'; }
+  else if (vdiff < -8) { vEl.textContent = `△ 轻微高估 ${Math.abs(vdiff).toFixed(1)}%`; vEl.className = 'verdict over'; }
+  else                 { vEl.textContent = `≈ 综合合理，偏差 ${vdiff > 0 ? '+':''}${vdiff.toFixed(1)}%`; vEl.className = 'verdict fair'; }
+
+  // Ruler
+  buildRuler({ price, dcfVal, peVal, pbVal, comp, compLo, compHi });
+
+  // Flags
+  buildFlags({ tvPct, wacc, gp, curPE, peLo, peHi, indPE, curPB, pbLo, pbHi, indPB,
+    dcfVal, peVal, pbVal, comp, price, eps, bvps });
+
+  // CF table
+  const cfTbody = document.getElementById('cft-body');
+  cfTbody.innerHTML = '';
+  cfRows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = r.isTV ? 'tvr' : r.isTotal ? 'totr' : '';
+    tr.innerHTML = `<td>${r.year}</td><td>${r.fcf}</td><td>${r.factor}</td><td>${r.pv}</td>`;
+    cfTbody.appendChild(tr);
+  });
+
+  // Sensitivity
+  buildSens(fcf0, g1, g2, gp, wacc, shares, price);
+
+  // Show
+  document.getElementById('no-res').style.display = 'none';
+  document.getElementById('res').classList.add('show');
+  switchTab('result');
+  toast('估值计算完成 ✓');
+}
+
+// ── DCF calc ──
+function dcfCalc(fcf0, g1, g2, gp, wacc) {
+  let pvSum = 0, fcfT = fcf0;
+  const cfRows = [];
+  for (let t = 1; t <= 10; t++) {
+    fcfT *= 1 + (t <= 5 ? g1 : g2);
+    const factor = Math.pow(1 + wacc, t);
+    const pv = fcfT / factor;
+    pvSum += pv;
+    cfRows.push({ year:`第${t}年`, fcf:f3(fcfT), factor:(1/factor).toFixed(4), pv:f3(pv) });
+  }
+  const tv = fcfT * (1 + gp) / (wacc - gp);
+  const tvPV = tv / Math.pow(1 + wacc, 10);
+  cfRows.push({ year:'终值TV', fcf:f3(tv), factor:(1/Math.pow(1+wacc,10)).toFixed(4), pv:f3(tvPV), isTV:true });
+  cfRows.push({ year:'合计', fcf:'—', factor:'—', pv:f3(pvSum+tvPV), isTotal:true });
+  return { pvSum, tvPV, cfRows, totalValue: pvSum + tvPV };
+}
+
+// ── Ruler ──
+function buildRuler({ price, dcfVal, peVal, pbVal, comp, compLo, compHi }) {
+  const ruler = document.getElementById('ruler');
+  ruler.innerHTML = '';
+  const all = [compLo * 0.85, compHi * 1.15, price > 0 ? price * 0.7 : compLo * 0.8, price > 0 ? price * 1.3 : compHi * 1.2];
+  const minV = Math.min(...all), maxV = Math.max(...all);
+  const range = maxV - minV || 1;
+  const pct = val => Math.max(1, Math.min(99, (val - minV) / range * 100));
+
+  // track
+  const track = document.createElement('div');
+  track.className = 'ruler-track'; ruler.appendChild(track);
+
+  // fair zone
+  const zone = document.createElement('div');
+  zone.className = 'ruler-zone';
+  zone.style.cssText = `left:${pct(compLo)}%;width:${pct(compHi)-pct(compLo)}%;background:rgba(72,184,122,.18);border:1px solid rgba(72,184,122,.3)`;
+  ruler.appendChild(zone);
+
+  // dots for 3 methods
+  const dots = [
+    { val:dcfVal, color:'var(--gold)', label:'DCF' },
+    { val:peVal,  color:'var(--blue)', label:'PE' },
+    { val:pbVal,  color:'var(--purple)', label:'PB' },
+  ];
+  dots.forEach(d => {
+    const dot = document.createElement('div');
+    dot.className = 'ruler-dot';
+    dot.style.cssText = `left:${pct(d.val)}%;background:${d.color}`;
+    ruler.appendChild(dot);
+    const lbl = document.createElement('div');
+    lbl.className = 'ruler-dot-label';
+    lbl.style.cssText = `left:${pct(d.val)}%;color:${d.color}`;
+    lbl.textContent = d.label;
+    ruler.appendChild(lbl);
+  });
+
+  // current price line
+  if (price > 0) {
+    const line = document.createElement('div');
+    line.className = 'ruler-price-line';
+    line.style.cssText = `left:${pct(price)}%;background:var(--red);top:4px;bottom:4px`;
+    ruler.appendChild(line);
+    const tag = document.createElement('div');
+    tag.className = 'ruler-price-tag';
+    tag.style.cssText = `left:${pct(price)}%;background:var(--red-d);color:var(--red);border:1px solid rgba(217,92,92,.4)`;
+    tag.textContent = '现价¥' + f2(price);
+    ruler.appendChild(tag);
+  }
+
+  // signal bar
+  const sb = document.getElementById('signal-bar');
+  sb.innerHTML = '';
+  const methods = [
+    { label:'DCF', val:dcfVal, color:'var(--gold)', bg:'var(--gold-d)' },
+    { label:'PE',  val:peVal,  color:'var(--blue)', bg:'var(--blue-d)' },
+    { label:'PB',  val:pbVal,  color:'var(--purple)', bg:'var(--purple-d)' },
+    { label:'综合', val:comp,  color:'var(--green)', bg:'var(--green-d)' },
+  ];
+  methods.forEach(m => {
+    const seg = document.createElement('div');
+    seg.className = 'signal-seg';
+    seg.style.cssText = `background:${m.bg};border:1px solid ${m.color}30;color:${m.color}`;
+    const diff = price > 0 ? (m.val - price) / price * 100 : null;
+    const arrow = diff === null ? '' : diff > 5 ? '▼' : diff < -5 ? '▲' : '≈';
+    seg.innerHTML = `<div style="font-size:9px;letter-spacing:.06em">${m.label}</div><div style="font-size:11px;font-family:'DM Mono',monospace;margin-top:2px">¥${f2(m.val)}</div><div style="font-size:10px;margin-top:1px">${diff !== null ? arrow + ' ' + Math.abs(diff).toFixed(1) + '%' : '—'}</div>`;
+    sb.appendChild(seg);
+  });
+}
+
+// ── Flags ──
+function buildFlags({ tvPct, wacc, gp, curPE, peLo, peHi, indPE, curPB, pbLo, pbHi, indPB,
+    dcfVal, peVal, pbVal, comp, price, eps, bvps }) {
+  const flags = [];
+  // convergence check
+  const vals = [dcfVal, peVal, pbVal];
+  const avg = vals.reduce((s,v) => s+v, 0) / 3;
+  const maxDev = Math.max(...vals.map(v => Math.abs(v - avg) / avg));
+  if (maxDev < 0.15) flags.push({ type:'ok', icon:'✅', text:`三种方法高度收敛（最大偏差 ${(maxDev*100).toFixed(1)}%），综合置信度较高` });
+  else if (maxDev < 0.35) flags.push({ type:'warn', icon:'⚡', text:`三方法中等分散（最大偏差 ${(maxDev*100).toFixed(1)}%），各方法结论有一定差异，需重点核查假设` });
+  else flags.push({ type:'danger', icon:'⚠️', text:`三方法严重分歧（最大偏差 ${(maxDev*100).toFixed(1)}%），综合估值可信度低，建议深入审查各参数` });
+
+  // terminal value warning
+  if (tvPct > 80) flags.push({ type:'danger', icon:'⚠️', text:`DCF终值占比 ${tvPct.toFixed(1)}%，估值严重依赖远期假设，结果不确定性极大` });
+  else if (tvPct > 65) flags.push({ type:'warn', icon:'⚡', text:`DCF终值占比 ${tvPct.toFixed(1)}%，估值对永续假设较敏感，建议多做敏感性测试` });
+
+  // PE position
+  const pePos = (curPE - peLo) / (peHi - peLo);
+  if (pePos > 0.85) flags.push({ type:'danger', icon:'📊', text:`当前PE(${curPE}×)处于历史高位区间（${(pePos*100).toFixed(0)}% 分位），市场预期已较充分` });
+  else if (pePos < 0.2) flags.push({ type:'ok', icon:'📊', text:`当前PE(${curPE}×)处于历史低位（${(pePos*100).toFixed(0)}% 分位），估值相对压缩` });
+
+  // PB position
+  const pbPos = (curPB - pbLo) / (pbHi - pbLo);
+  if (pbPos > 0.85) flags.push({ type:'warn', icon:'📚', text:`当前PB(${curPB}×)处于历史高位（${(pbPos*100).toFixed(0)}% 分位），资产溢价较高` });
+  else if (pbPos < 0.15) flags.push({ type:'ok', icon:'📚', text:`当前PB(${curPB}×)处于历史低位（${(pbPos*100).toFixed(0)}% 分位），接近资产价值支撑区` });
+
+  // WACC-gp gap
+  const gap = wacc - gp;
+  if (gap < 0.02) flags.push({ type:'danger', icon:'🔢', text:`WACC与永续增长率差距过小(${(gap*100).toFixed(1)}%)，终值计算极不稳定，需扩大差距` });
+
+  // price vs safe
+  if (price > 0) {
+    const safe = comp * (1 - (+v('mg')/100));
+    if (price <= safe) flags.push({ type:'ok', icon:'🎯', text:`当前股价(¥${f2(price)})已满足安全边际要求（买入价 ¥${f2(safe)}）` });
+  }
+
+  const container = document.getElementById('flags');
+  container.innerHTML = '';
+  flags.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'flag ' + f.type;
+    div.innerHTML = `<span class="flag-icon">${f.icon}</span><span>${f.text}</span>`;
+    container.appendChild(div);
+  });
+}
+
+// ── Sensitivity ──
+function buildSens(fcf0, g1, g2, gp, baseW, shares, price) {
+  const wArr = [baseW-.02, baseW-.01, baseW, baseW+.01, baseW+.02].filter(w => w > gp + 0.005);
+  const gArr = [gp-.01, gp-.005, gp, gp+.005, gp+.01].map(g => Math.max(.005, Math.min(g, baseW-.01)));
+  const uniqG = [...new Set(gArr.map(x => +x.toFixed(4)))];
+
+  const tbl = document.getElementById('stab');
+  const thead = tbl.querySelector('thead'); thead.innerHTML = '';
+  const hr = thead.insertRow();
+  const th0 = document.createElement('th'); th0.textContent = 'g \\ r'; hr.appendChild(th0);
+  wArr.forEach(w => { const th = document.createElement('th'); th.textContent = (w*100).toFixed(1)+'%'; hr.appendChild(th); });
+
+  const tbody = tbl.querySelector('tbody'); tbody.innerHTML = '';
+  uniqG.forEach(g => {
+    const tr = tbody.insertRow();
+    const td0 = tr.insertCell(); td0.textContent = (g*100).toFixed(1)+'%';
+    wArr.forEach(w => {
+      const td = tr.insertCell();
+      if (w <= g + .001) { td.textContent = 'N/A'; td.style.color='var(--txt3)'; return; }
+      const val = dcfCalc(fcf0, g1, g2, g, w).totalValue / shares;
+      td.textContent = '¥' + f2(val);
+      const isBase = Math.abs(w-baseW) < .0005 && Math.abs(g-gp) < .0005;
+      if (isBase) td.className = 'cb';
+      else if (price > 0) {
+        const d = (val - price) / price;
+        td.className = d > .1 ? 'cu' : d < -.1 ? 'co' : 'cf';
+      }
+    });
+  });
+}
+
+// ── Helpers ──
+const v = id => document.getElementById(id).value;
+const $ = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+function f2(n) { if (!isFinite(n)||isNaN(n)) return '—'; return n.toFixed(2); }
+function f3(n) { if (!isFinite(n)||isNaN(n)) return '—'; if (Math.abs(n)>=10000) return (n/10000).toFixed(1)+'万亿'; return n.toFixed(0); }
+
+function pePosText(pos, curPE, indPE) {
+  const s = pos < 20 ? '历史低位' : pos > 80 ? '历史高位' : '历史中位';
+  const vs = curPE > indPE * 1.1 ? '↑高于行业' : curPE < indPE * 0.9 ? '↓低于行业' : '≈行业均值';
+  return `${s} (${pos.toFixed(0)}%)  ${vs}`;
+}
+function pbPosText(pos, curPB, indPB) {
+  const s = pos < 20 ? '历史低位' : pos > 80 ? '历史高位' : '历史中位';
+  const vs = curPB > indPB * 1.1 ? '↑高于行业' : curPB < indPB * 0.9 ? '↓低于行业' : '≈行业均值';
+  return `${s} (${pos.toFixed(0)}%)  ${vs}`;
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── Tab switch ──
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+// ── Init ──
+['g1','g2','gp','wacc','tpe','tpb','mg'].forEach(slup);
+['rf','beta'].forEach(id => document.getElementById(id).addEventListener('input', updateWACC));
+updateWACC();
+</script>
+</body>
+</html>
