@@ -3,1133 +3,808 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>格雷厄姆量化计算器</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<title>格雷厄姆量化计算器 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=JetBrains+Mono:wght@300;400;500&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c10;
-    --surface: #111418;
-    --surface2: #1a1f27;
-    --border: #2a3040;
-    --accent: #c8a84b;
-    --accent2: #e8c56a;
-    --green: #3ddc84;
-    --yellow: #f0b429;
-    --red: #ff5a5f;
-    --text: #e8e4d8;
-    --muted: #7a8090;
-    --mono: 'Share Tech Mono', monospace;
-    --serif: 'Noto Serif SC', serif;
-    --sans: 'Rajdhani', sans-serif;
-  }
+:root {
+  --bg: #07090c;
+  --s1: #0d1117;
+  --s2: #141a23;
+  --s3: #1c2433;
+  --border: #222d3d;
+  --border2: #2d3d52;
+  --gold: #d4a843;
+  --gold2: #f0c96a;
+  --gold-dim: rgba(212,168,67,0.1);
+  --green: #22c55e;
+  --green2: #4ade80;
+  --yellow: #eab308;
+  --orange: #f97316;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --teal: #14b8a6;
+  --purple: #a855f7;
+  --text: #cbd5e1;
+  --text2: #94a3b8;
+  --muted: #475569;
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Noto Serif SC', serif;
+  --display: 'Oswald', sans-serif;
+  --tc: #d4a843;
+  --tr: 212,168,67;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);min-height:100vh;overflow-x:hidden;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+.header{background:linear-gradient(135deg,#0d1117,#111820);border-bottom:1px solid #2d3d52;padding:14px 16px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:200;}
+.header-badge{background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.3);padding:4px 8px;font-family:var(--display);font-size:18px;color:var(--gold2);letter-spacing:2px;flex-shrink:0;}
+.header-text h1{font-family:var(--display);font-size:16px;color:var(--gold2);letter-spacing:3px;}
+.header-text p{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.header-ver{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--s2);border:1px solid var(--border);padding:3px 8px;border-radius:2px;}
+.back-link{display:inline-flex;align-items:center;font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.2s;flex-shrink:0;}
+.back-link:hover{color:var(--gold);}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--serif);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+.type-bar{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 12px;overflow-x:auto;scrollbar-width:none;position:sticky;top:57px;z-index:199;}
+.type-bar::-webkit-scrollbar{display:none;}
+.type-row{display:flex;gap:6px;min-width:max-content;}
+.type-btn{padding:6px 12px;border-radius:3px;font-family:var(--mono);font-size:11px;border:1px solid var(--border2);background:var(--s2);color:var(--text2);cursor:pointer;transition:all 0.2s;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.type-btn .ti{font-size:15px;}
+.type-btn .tn{font-size:10px;letter-spacing:0.5px;}
+.type-btn .tr{font-size:9px;color:var(--muted);}
+.type-btn.active{border-color:var(--tc);background:rgba(var(--tr),0.08);color:var(--tc);}
 
-  /* Header */
-  header {
-    background: linear-gradient(135deg, #0f1218 0%, #1a1410 100%);
-    border-bottom: 1px solid var(--accent);
-    padding: 18px 16px 14px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+.tab-nav{display:flex;background:var(--s1);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:112px;z-index:198;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;padding:9px 14px;font-size:11px;font-family:var(--mono);color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;white-space:nowrap;}
+.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold);}
 
-  .logo-mark {
-    width: 36px;
-    height: 36px;
-    border: 2px solid var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--accent);
-    letter-spacing: 1px;
-    flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .logo-mark::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent 40%, rgba(200,168,75,0.15) 50%, transparent 60%);
-    animation: shine 4s infinite;
-  }
-  @keyframes shine { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } }
+.tc{display:none;padding:14px 12px 80px;}
+.tc.active{display:block;}
 
-  header h1 {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--accent2);
-    letter-spacing: 2px;
-    line-height: 1.2;
-  }
-  header p {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
+.card{background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden;}
+.ca{position:absolute;left:0;top:0;width:2px;height:100%;background:var(--tc);}
+.ct{font-family:var(--display);font-size:13px;color:var(--text2);letter-spacing:2px;margin-bottom:12px;padding-left:10px;display:flex;align-items:center;gap:8px;}
+.ctm{color:var(--text);}
 
-  /* Tab nav */
-  .tab-nav {
-    display: flex;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-    position: sticky;
-    top: 69px;
-    z-index: 99;
-  }
-  .tab-nav::-webkit-scrollbar { display: none; }
-  .tab-btn {
-    flex-shrink: 0;
-    padding: 10px 14px;
-    font-size: 12px;
-    font-family: var(--mono);
-    color: var(--muted);
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .tab-btn.active {
-    color: var(--accent2);
-    border-bottom-color: var(--accent);
-    background: rgba(200,168,75,0.05);
-  }
+.ig{margin-bottom:10px;}
+label{display:block;font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:1px;margin-bottom:4px;}
+input[type=number],input[type=text],textarea,select{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:3px;padding:9px 11px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;}
+input:focus,textarea:focus,select:focus{border-color:var(--tc);box-shadow:0 0 0 2px rgba(var(--tr),0.08);}
+textarea{resize:vertical;min-height:130px;font-size:12px;line-height:1.7;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 
-  /* Content */
-  .tab-content { display: none; padding: 16px; }
-  .tab-content.active { display: block; }
+.info-box{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:3px;padding:10px 12px;margin-bottom:10px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;}
+.info-box strong{color:var(--gold);font-weight:500;}
 
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-    margin-bottom: 14px;
-    position: relative;
-    overflow: hidden;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3px;
-    height: 100%;
-    background: var(--accent);
-  }
-  .card-title {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    padding-left: 10px;
-  }
+.type-info{background:rgba(var(--tr),0.04);border:1px solid rgba(var(--tr),0.15);border-radius:4px;padding:12px;margin-bottom:12px;}
+.ti-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.ti-icon{font-size:20px;}
+.ti-title{font-family:var(--display);font-size:14px;color:var(--tc);letter-spacing:1px;}
+.ti-body{font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;}
+.tchip{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;font-family:var(--mono);margin:2px 3px 2px 0;background:rgba(var(--tr),0.1);border:1px solid rgba(var(--tr),0.25);color:var(--tc);}
 
-  /* Input group */
-  .input-group {
-    margin-bottom: 12px;
-  }
-  label {
-    display: block;
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 1px;
-    margin-bottom: 5px;
-  }
-  input[type="number"], input[type="text"], textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 9px 12px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  input:focus, textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(200,168,75,0.1);
-  }
-  textarea {
-    resize: vertical;
-    min-height: 120px;
-    font-size: 13px;
-    line-height: 1.6;
-  }
+.ck-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(34,45,61,0.6);gap:8px;}
+.ck-row:last-child{border-bottom:none;}
+.ck-left{flex:1;}
+.ck-label{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.ck-hint{font-size:10px;color:var(--muted);}
+.ck-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:4px;overflow:hidden;}
+.ck-bar{height:100%;border-radius:2px;transition:width 0.4s;}
+.ck-right{text-align:right;flex-shrink:0;padding-left:8px;}
+.ck-val{font-size:12px;font-family:var(--mono);}
+.ck-note{font-size:9px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
 
-  /* Grid */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sw{display:flex;align-items:center;gap:14px;padding:12px 0 8px;}
+.sr{width:64px;height:64px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid var(--border2);flex-shrink:0;}
+.sn{font-family:var(--display);font-size:22px;line-height:1;}
+.sd{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.si{flex:1;}
+.sg{font-family:var(--display);font-size:20px;letter-spacing:2px;}
+.ss{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:3px;line-height:1.5;}
 
-  /* Button */
-  .btn {
-    background: linear-gradient(135deg, #c8a84b, #a87e2a);
-    color: #0a0c10;
-    border: none;
-    border-radius: 3px;
-    padding: 10px 18px;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    width: 100%;
-    transition: all 0.2s;
-    margin-top: 4px;
-  }
-  .btn:active { transform: scale(0.98); opacity: 0.9; }
-  .btn-sm {
-    padding: 7px 12px;
-    font-size: 12px;
-    width: auto;
-    display: inline-block;
-  }
-  .btn-ghost {
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-  }
-  .btn-danger {
-    background: transparent;
-    color: var(--red);
-    border: 1px solid rgba(255,90,95,0.4);
-  }
+.eps-add{display:flex;gap:7px;align-items:flex-end;margin-bottom:8px;}
+.eps-add .ig{flex:1;margin-bottom:0;}
+.eps-list{list-style:none;margin:8px 0;}
+.eps-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--s2);border-radius:3px;margin-bottom:5px;font-family:var(--mono);font-size:13px;}
+.eps-yr{font-size:10px;color:var(--muted);width:36px;flex-shrink:0;}
+.eps-bw{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.eps-b{height:100%;border-radius:2px;}
+.eps-v{color:var(--gold2);width:52px;text-align:right;flex-shrink:0;}
+.eps-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;}
 
-  /* Result display */
-  .result-box {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 12px;
-    margin-top: 12px;
-    display: none;
-  }
-  .result-box.show { display: block; }
-  .result-label {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .result-value {
-    font-family: var(--mono);
-    font-size: 22px;
-    color: var(--accent2);
-    font-weight: 400;
-  }
-  .result-value small {
-    font-size: 12px;
-    color: var(--muted);
-    margin-left: 6px;
-  }
+.rs{background:rgba(var(--tr),0.03);border:1px solid rgba(var(--tr),0.15);border-radius:4px;padding:12px;margin-top:10px;}
+.rg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.rg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
+.ri{background:var(--s2);border-radius:3px;padding:9px;text-align:center;}
+.rl{font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:0.5px;}
+.rv{font-size:16px;color:var(--gold2);font-family:var(--mono);margin-top:3px;font-weight:500;}
+.rv.lg{font-size:22px;}
 
-  /* Badge */
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 2px;
-    font-size: 12px;
-    font-family: var(--sans);
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-  .badge-high { background: rgba(61,220,132,0.15); color: var(--green); border: 1px solid rgba(61,220,132,0.4); }
-  .badge-mid { background: rgba(240,180,41,0.15); color: var(--yellow); border: 1px solid rgba(240,180,41,0.4); }
-  .badge-low { background: rgba(255,90,95,0.15); color: var(--red); border: 1px solid rgba(255,90,95,0.4); }
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:2px;font-family:var(--display);font-size:14px;letter-spacing:1px;}
+.bh{background:rgba(34,197,94,0.1);color:var(--green2);border:1px solid rgba(34,197,94,0.3);}
+.bm{background:rgba(234,179,8,0.1);color:var(--yellow);border:1px solid rgba(234,179,8,0.3);}
+.bl{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.bn{background:rgba(71,85,105,0.2);color:var(--muted);border:1px solid rgba(71,85,105,0.3);}
 
-  /* EPS list */
-  .eps-list { list-style: none; margin: 10px 0; }
-  .eps-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 14px;
-  }
-  .eps-item span { flex: 1; color: var(--accent2); }
-  .eps-item small { color: var(--muted); font-size: 11px; }
+.btn{background:linear-gradient(135deg,#c8953a,#a87028);color:#07090c;border:none;border-radius:3px;padding:10px 16px;font-family:var(--display);font-size:14px;letter-spacing:1.5px;cursor:pointer;width:100%;transition:all 0.2s;margin-top:4px;}
+.btn:active{transform:scale(0.98);}
+.bsm{padding:7px 12px;font-size:12px;width:auto;display:inline-block;}
+.bgh{background:transparent;color:var(--gold);border:1px solid rgba(212,168,67,0.4);letter-spacing:1px;}
 
-  /* Divider */
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 12px 0;
-  }
+.pw{position:relative;}
+.cpb{position:absolute;top:8px;right:8px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.25);color:var(--gold);border-radius:2px;padding:4px 10px;font-size:10px;font-family:var(--mono);cursor:pointer;}
 
-  /* AI prompt area */
-  .prompt-box {
-    position: relative;
-  }
-  .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(200,168,75,0.15);
-    border: 1px solid rgba(200,168,75,0.3);
-    color: var(--accent);
-    border-radius: 2px;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-family: var(--mono);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .copy-btn:active { background: rgba(200,168,75,0.3); }
+.mult-table{width:100%;font-family:var(--mono);font-size:11px;border-collapse:collapse;margin-top:8px;}
+.mult-table td,.mult-table th{padding:6px 8px;border:1px solid var(--border);text-align:left;}
+.mult-table th{color:var(--muted);font-size:10px;letter-spacing:1px;background:var(--s2);}
+.mult-table .hl td{background:rgba(var(--tr),0.07);color:var(--tc);}
 
-  /* Metrics row */
-  .metric-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(42,48,64,0.5);
-  }
-  .metric-row:last-child { border-bottom: none; }
-  .metric-name { font-size: 12px; color: var(--muted); font-family: var(--mono); }
-  .metric-val { font-size: 13px; color: var(--text); font-family: var(--mono); }
+.phint{font-size:11px;color:var(--muted);font-family:var(--mono);padding:8px;background:rgba(0,0,0,0.3);border-radius:2px;margin-top:6px;line-height:1.6;}
 
-  /* Formula hint */
-  .formula {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    padding: 8px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 2px;
-    margin-bottom: 10px;
-    line-height: 1.6;
-  }
+.verdict{border-radius:4px;padding:14px;margin-top:10px;background:linear-gradient(135deg,rgba(var(--tr),0.06),rgba(0,0,0,0.2));border:1px solid rgba(var(--tr),0.2);text-align:center;}
+.vg{font-family:var(--display);font-size:36px;letter-spacing:4px;line-height:1;}
+.vs{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:6px;line-height:1.6;}
 
-  /* Floating calc hint */
-  .calc-hint {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    padding: 4px 0;
-    text-align: right;
-  }
+hr.dv{border:none;border-top:1px solid var(--border);margin:10px 0;}
 
-  /* Section heading */
-  .sec-head {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-  .sec-head-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .sec-head-text {
-    font-size: 10px;
-    color: var(--muted);
-    font-family: var(--mono);
-    letter-spacing: 2px;
-    white-space: nowrap;
-  }
-
-  /* Result section */
-  .result-section {
-    background: rgba(200,168,75,0.03);
-    border: 1px solid rgba(200,168,75,0.15);
-    border-radius: 3px;
-    padding: 12px;
-    margin-top: 12px;
-  }
-  .result-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 8px;
-  }
-  .result-item {
-    text-align: center;
-    padding: 8px;
-    background: var(--surface2);
-    border-radius: 2px;
-  }
-  .result-item .ri-label { font-size: 10px; color: var(--muted); font-family: var(--mono); }
-  .result-item .ri-val { font-size: 16px; color: var(--accent2); font-family: var(--mono); margin-top: 2px; }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #2a3040;
-    color: var(--text);
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-family: var(--mono);
-    z-index: 999;
-    transition: transform 0.3s;
-    white-space: nowrap;
-    border: 1px solid var(--accent);
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* Indicator icons */
-  .ind-icon { font-size: 18px; margin-right: 4px; }
-
-  /* Add EPS row */
-  .add-eps-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-    align-items: flex-end;
-  }
-  .add-eps-row .input-group { flex: 1; margin-bottom: 0; }
-
-  /* Overall verdict */
-  .verdict {
-    background: linear-gradient(135deg, rgba(200,168,75,0.08), rgba(200,168,75,0.02));
-    border: 1px solid rgba(200,168,75,0.3);
-    border-radius: 4px;
-    padding: 14px;
-    text-align: center;
-    margin-top: 14px;
-  }
-  .verdict-title { font-size: 11px; color: var(--muted); font-family: var(--mono); letter-spacing: 2px; margin-bottom: 8px; }
-  .verdict-score { font-size: 32px; font-family: var(--sans); font-weight: 700; color: var(--accent2); }
-  .verdict-sub { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 4px; }
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--s3);color:var(--text);padding:9px 18px;border-radius:3px;font-size:12px;font-family:var(--mono);z-index:999;transition:transform 0.3s;border:1px solid var(--gold);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-mark">GV</div>
-  <div>
+<div class="header">
+  <a href="index.html" class="back-link">←</a>
+  <div class="header-badge">GV</div>
+  <div class="header-text">
     <h1>格雷厄姆量化</h1>
-    <p>GRAHAM VALUE CALCULATOR</p>
+    <p>VALUE CALCULATOR · A股适配版</p>
   </div>
-</header>
+  <div class="header-ver">2026</div>
+</div>
+
+<div class="type-bar">
+  <div class="type-row" id="type-row">
+    <button class="type-btn active" data-type="value" onclick="setType(this)">
+      <span class="ti">🏦</span><span class="tn">价值/蓝筹</span><span class="tr">PE 10-18×</span>
+    </button>
+    <button class="type-btn" data-type="consumer" onclick="setType(this)">
+      <span class="ti">🛒</span><span class="tn">消费/品牌</span><span class="tr">PE 18-28×</span>
+    </button>
+    <button class="type-btn" data-type="tech" onclick="setType(this)">
+      <span class="ti">💻</span><span class="tn">科技/成长</span><span class="tr">PE 25-50×</span>
+    </button>
+    <button class="type-btn" data-type="pharma" onclick="setType(this)">
+      <span class="ti">💊</span><span class="tn">医药/生物</span><span class="tr">PE 20-35×</span>
+    </button>
+    <button class="type-btn" data-type="cyclical" onclick="setType(this)">
+      <span class="ti">⚙️</span><span class="tn">周期/工业</span><span class="tr">PE 6-12×</span>
+    </button>
+    <button class="type-btn" data-type="utility" onclick="setType(this)">
+      <span class="ti">⚡</span><span class="tn">公用事业</span><span class="tr">PE 12-18×</span>
+    </button>
+  </div>
+</div>
 
 <div class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab('input')">📊 基础指标</button>
-  <button class="tab-btn" onclick="switchTab('eps')">📈 EPS均值</button>
-  <button class="tab-btn" onclick="switchTab('iv')">💎 内在价值</button>
-  <button class="tab-btn" onclick="switchTab('ncav')">⚖️ NCAV</button>
-  <button class="tab-btn" onclick="switchTab('ai')">🤖 AI提示词</button>
+  <button class="tab-btn active" onclick="switchTab('input',this)">📊 基础指标</button>
+  <button class="tab-btn" onclick="switchTab('eps',this)">📈 EPS均值</button>
+  <button class="tab-btn" onclick="switchTab('iv',this)">💎 内在价值</button>
+  <button class="tab-btn" onclick="switchTab('ncav',this)">⚖️ NCAV</button>
+  <button class="tab-btn" onclick="switchTab('ai',this)">🤖 AI提示词</button>
 </div>
 
-<!-- Tab 1: 基础指标 -->
-<div id="tab-input" class="tab-content active">
-  <div class="card">
-    <div class="card-title">估值指标输入</div>
-    <div class="grid-2">
-      <div class="input-group">
-        <label>市盈率 P/E</label>
-        <input type="number" id="pe" placeholder="如: 10" step="0.01" oninput="syncAll()">
-      </div>
-      <div class="input-group">
-        <label>市净率 P/B</label>
-        <input type="number" id="pb" placeholder="如: 1.2" step="0.01" oninput="syncAll()">
-      </div>
+<!-- ===== 基础指标 ===== -->
+<div id="tab-input" class="tc active">
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">当前股票类型</span></div>
+    <div class="type-info" id="type-info-panel"></div>
+  </div>
+
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">估值指标</span></div>
+    <div class="g2">
+      <div class="ig"><label>市盈率 P/E（TTM）</label><input type="number" id="pe" placeholder="如：20" step="0.1" oninput="syncAll()"></div>
+      <div class="ig"><label>市净率 P/B</label><input type="number" id="pb" placeholder="如：2.5" step="0.01" oninput="syncAll()"></div>
+      <div class="ig"><label>ROE 净资产收益率（%）</label><input type="number" id="roe" placeholder="如：15" step="0.1" oninput="syncAll()"></div>
+      <div class="ig"><label>预期年增长率（%）</label><input type="number" id="growth" placeholder="如：12" step="0.1" oninput="syncAll()"></div>
+      <div class="ig"><label>流动比率</label><input type="number" id="cr" placeholder="如：1.8" step="0.01" oninput="syncAll()"></div>
+      <div class="ig"><label>资产负债率（%）</label><input type="number" id="dr" placeholder="如：45" step="0.1" oninput="syncAll()"></div>
     </div>
-    <div class="input-group">
-      <label>流动比率（流动资产/流动负债）</label>
-      <input type="number" id="cr" placeholder="建议 ≥ 2" step="0.01" oninput="syncAll()">
-    </div>
-    <div class="grid-2">
-      <div class="input-group">
-        <label>流动资产（万元）</label>
-        <input type="number" id="currentAssets" placeholder="0" step="0.01" oninput="syncAll()">
-      </div>
-      <div class="input-group">
-        <label>全部负债（万元）</label>
-        <input type="number" id="totalLiab" placeholder="0" step="0.01" oninput="syncAll()">
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="input-group">
-        <label>流动负债（万元）</label>
-        <input type="number" id="currentLiab" placeholder="0" step="0.01" oninput="syncAll()">
-      </div>
-      <div class="input-group">
-        <label>总股本（万股）</label>
-        <input type="number" id="totalShares" placeholder="0" step="0.01" oninput="syncAll()">
-      </div>
-    </div>
-    <div class="input-group">
-      <label>当前股价（元）</label>
-      <input type="number" id="stockPrice" placeholder="0.00" step="0.01" oninput="syncAll()">
+    <div class="ig"><label>当前股价（元）</label><input type="number" id="stockPrice" placeholder="0.00" step="0.01" oninput="syncAll()"></div>
+  </div>
+
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">资产负债数据</span><span style="font-size:10px;color:var(--muted);font-family:var(--mono);font-weight:normal;letter-spacing:0;">（万元 / 万股）</span></div>
+    <div class="g2">
+      <div class="ig"><label>流动资产（万元）</label><input type="number" id="currentAssets" placeholder="0" step="1" oninput="syncAll()"></div>
+      <div class="ig"><label>全部负债（万元）</label><input type="number" id="totalLiab" placeholder="0" step="1" oninput="syncAll()"></div>
+      <div class="ig"><label>流动负债（万元）</label><input type="number" id="currentLiab" placeholder="0" step="1" oninput="syncAll()"></div>
+      <div class="ig"><label>总股本（万股）</label><input type="number" id="totalShares" placeholder="0" step="1" oninput="syncAll()"></div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">格雷厄姆选股标准</div>
-    <div class="formula">
-      PE × PB ≤ 22.5（廉价股核心条件）<br>
-      流动比率 ≥ 2<br>
-      NCAV = 流动资产 - 全部负债<br>
-      股价 &lt; NCAV/股 × 2/3
-    </div>
-    <div id="basic-check"></div>
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">选股标准诊断</span></div>
+    <div id="check-body"><div style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">请先填写上方指标...</div></div>
   </div>
 </div>
 
-<!-- Tab 2: EPS均值 -->
-<div id="tab-eps" class="tab-content">
-  <div class="card">
-    <div class="card-title">每股收益 EPS 历史数据</div>
-    <p style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">输入多年EPS数据计算均值，用于内在价值估算</p>
-
-    <div class="add-eps-row">
-      <div class="input-group">
-        <label>年份（可选）</label>
-        <input type="text" id="epsYear" placeholder="如: 2024">
-      </div>
-      <div class="input-group">
-        <label>EPS（元）</label>
-        <input type="number" id="epsInput" placeholder="0.00" step="0.001">
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="addEPS()" style="margin-bottom:1px;">+ 添加</button>
+<!-- ===== EPS均值 ===== -->
+<div id="tab-eps" class="tc">
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">每股收益 EPS 历史数据</span></div>
+    <div class="info-box">建议录入 <strong>3-7年</strong> EPS 数据，均值用于内在价值估算。<br>
+      <strong>周期股</strong>建议用跨周期平均，避免单年高点误判估值。</div>
+    <div class="eps-add">
+      <div class="ig"><label>年份</label><input type="text" id="epsYear" placeholder="2024" style="width:70px;"></div>
+      <div class="ig"><label>EPS（元）</label><input type="number" id="epsVal" placeholder="0.000" step="0.001"></div>
+      <button class="btn bgh bsm" onclick="addEPS()" style="margin-bottom:0;padding:9px 14px;">+ 添加</button>
     </div>
-
-    <ul class="eps-list" id="eps-list"></ul>
-
-    <div id="eps-result" class="result-section" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:11px;color:var(--muted);font-family:var(--mono);">EPS 均值</span>
-        <span class="badge badge-high" id="eps-count-badge">0 年</span>
+    <ul class="eps-list" id="eps-list"><li style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">暂无数据，请添加EPS记录</li></ul>
+    <div id="eps-result" style="display:none;">
+      <hr class="dv">
+      <div class="g3">
+        <div class="ri"><div class="rl">EPS 均值</div><div class="rv lg" id="eps-avg">—</div></div>
+        <div class="ri"><div class="rl">中位数</div><div class="rv" id="eps-med">—</div></div>
+        <div class="ri"><div class="rl">标准差</div><div class="rv" id="eps-std">—</div></div>
       </div>
-      <div style="font-size:28px;color:var(--accent2);font-family:var(--mono);margin-top:6px;" id="eps-avg-display">—</div>
-      <div class="result-grid">
-        <div class="result-item">
-          <div class="ri-label">最高值</div>
-          <div class="ri-val" id="eps-max">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">最低值</div>
-          <div class="ri-val" id="eps-min">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">中位数</div>
-          <div class="ri-val" id="eps-median">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">数据点</div>
-          <div class="ri-val" id="eps-count">—</div>
-        </div>
+      <div class="rg2">
+        <div class="ri"><div class="rl">最高值</div><div class="rv" id="eps-max">—</div></div>
+        <div class="ri"><div class="rl">最低值</div><div class="rv" id="eps-min">—</div></div>
       </div>
+      <div class="phint" id="eps-stability" style="margin-top:8px;"></div>
     </div>
   </div>
 </div>
 
-<!-- Tab 3: 内在价值 -->
-<div id="tab-iv" class="tab-content">
-  <div class="card">
-    <div class="card-title">内在价值计算</div>
-    <div class="formula">
-      内在价值 = EPS均值 × 估值倍数<br>
-      安全边际价格 = 股价 × 1.5<br>
-      判断：内在价值 vs 安全边际价格
+<!-- ===== 内在价值 ===== -->
+<div id="tab-iv" class="tc">
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">估值倍数参考表</span></div>
+    <div class="info-box">
+      格雷厄姆原始（1962年）：<strong>IV = EPS × (8.5 + 2g)</strong>，当时无风险利率约4.4%<br>
+      2026年十年国债约 <strong>2.3%</strong>，低利率环境下合理倍数系统性上移，且不同行业差异显著。
     </div>
+    <table class="mult-table" id="mult-table"></table>
+  </div>
 
-    <div class="input-group">
-      <label>EPS 均值（自动读取 / 可手动覆盖）</label>
-      <input type="number" id="ivEps" placeholder="从EPS均值计算器获取" step="0.001" oninput="calcIV()">
-    </div>
-    <div class="input-group">
-      <label>估值倍数（默认 13，格雷厄姆推荐 8-15）</label>
-      <input type="number" id="ivMultiple" value="13" step="0.5" oninput="calcIV()">
-    </div>
-    <div class="input-group">
-      <label>当前股价（自动读取 / 可手动覆盖）</label>
-      <input type="number" id="ivPrice" placeholder="元" step="0.01" oninput="calcIV()">
-    </div>
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">内在价值计算</span></div>
+    <div class="ig"><label>EPS 均值（元）— 自动读取，可手动覆盖</label>
+      <input type="number" id="ivEps" placeholder="从EPS计算器获取" step="0.001" oninput="calcIV()"></div>
+    <div class="ig"><label id="iv-mult-label">估值倍数</label>
+      <input type="number" id="ivMult" step="0.5" oninput="calcIV()"></div>
+    <div class="phint" id="iv-mult-hint"></div>
+    <hr class="dv">
+    <div class="ig"><label>当前股价（元）— 自动读取，可手动覆盖</label>
+      <input type="number" id="ivPrice" placeholder="元" step="0.01" oninput="calcIV()"></div>
+    <div class="ig"><label>安全边际要求（%，默认30%）</label>
+      <input type="number" id="ivMargin" value="30" step="5" min="0" max="60" oninput="calcIV()"></div>
 
-    <div id="iv-result" class="result-section" style="display:none;">
-      <div class="result-grid">
-        <div class="result-item">
-          <div class="ri-label">内在价值</div>
-          <div class="ri-val" id="iv-value">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">安全边际线</div>
-          <div class="ri-val" id="iv-safety">—</div>
-        </div>
+    <div id="iv-result" class="rs" style="display:none;">
+      <div class="g3">
+        <div class="ri"><div class="rl">内在价值</div><div class="rv lg" id="iv-value">—</div></div>
+        <div class="ri"><div class="rl">安全价格线</div><div class="rv" id="iv-safe">—</div></div>
+        <div class="ri"><div class="rl">溢折价</div><div class="rv" id="iv-disc">—</div></div>
       </div>
-      <div style="margin-top:12px;text-align:center;">
-        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值判断</div>
+      <div style="text-align:center;margin-top:12px;">
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值①判断</div>
         <div id="iv-badge"></div>
-        <div id="iv-detail" style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:6px;"></div>
+        <div id="iv-detail" style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:6px;line-height:1.6;"></div>
       </div>
     </div>
+    <div class="phint" id="peg-box" style="display:none;margin-top:8px;"></div>
   </div>
 </div>
 
-<!-- Tab 4: NCAV -->
-<div id="tab-ncav" class="tab-content">
-  <div class="card">
-    <div class="card-title">NCAV 净流动资产价值</div>
-    <div class="formula">
-      NCAV = 流动资产 - 全部负债<br>
-      每股NCAV = (流动资产 - 流动负债) / 总股本<br>
-      廉价标准：股价 &lt; NCAV × 2/3
+<!-- ===== NCAV ===== -->
+<div id="tab-ncav" class="tc">
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">NCAV 净流动资产价值</span></div>
+    <div class="info-box">
+      <strong>NCAV = 流动资产 - 全部负债</strong>（格雷厄姆清算底价）<br>
+      <strong>每股NCAV = (流动资产 - 流动负债) ÷ 总股本</strong><br>
+      廉价线：股价 &lt; 每股NCAV × 2/3<br><br>
+      ⚠️ 当前类型 <strong id="ncav-type-hint"></strong>，NCAV策略参考权重已在综合评级中调整。
     </div>
-
-    <div id="ncav-data-hint" style="font-size:12px;color:var(--accent);font-family:var(--mono);padding:8px;background:rgba(200,168,75,0.05);border-radius:2px;margin-bottom:10px;">
-      ✓ 数据来源：基础指标页面输入
+    <div class="g2">
+      <div class="ig"><label>流动资产（万元）</label><input type="number" id="n-ca" step="1" oninput="calcNCAV()"></div>
+      <div class="ig"><label>全部负债（万元）</label><input type="number" id="n-tl" step="1" oninput="calcNCAV()"></div>
+      <div class="ig"><label>流动负债（万元）</label><input type="number" id="n-cl" step="1" oninput="calcNCAV()"></div>
+      <div class="ig"><label>总股本（万股）</label><input type="number" id="n-ts" step="1" oninput="calcNCAV()"></div>
     </div>
+    <div class="ig"><label>当前股价（元）</label><input type="number" id="n-price" step="0.01" oninput="calcNCAV()"></div>
 
-    <div class="grid-2">
-      <div class="input-group">
-        <label>流动资产（万元）</label>
-        <input type="number" id="ncavCA" placeholder="0" step="0.01" oninput="calcNCAV()">
+    <div id="ncav-result" style="display:none;">
+      <hr class="dv">
+      <div class="rg2">
+        <div class="ri"><div class="rl">NCAV总值（万元）</div><div class="rv" id="n-ncav">—</div></div>
+        <div class="ri"><div class="rl">每股NCAV（元）</div><div class="rv" id="n-per">—</div></div>
+        <div class="ri"><div class="rl">2/3 NCAV线（元）</div><div class="rv" id="n-23">—</div></div>
+        <div class="ri"><div class="rl">股价/每股NCAV</div><div class="rv" id="n-ratio">—</div></div>
       </div>
-      <div class="input-group">
-        <label>全部负债（万元）</label>
-        <input type="number" id="ncavTL" placeholder="0" step="0.01" oninput="calcNCAV()">
-      </div>
-      <div class="input-group">
-        <label>流动负债（万元）</label>
-        <input type="number" id="ncavCL" placeholder="0" step="0.01" oninput="calcNCAV()">
-      </div>
-      <div class="input-group">
-        <label>总股本（万股）</label>
-        <input type="number" id="ncavShares" placeholder="0" step="0.01" oninput="calcNCAV()">
-      </div>
-    </div>
-    <div class="input-group">
-      <label>当前股价（元）</label>
-      <input type="number" id="ncavPrice" placeholder="0.00" step="0.01" oninput="calcNCAV()">
-    </div>
-
-    <div id="ncav-result" class="result-section" style="display:none;">
-      <div class="result-grid">
-        <div class="result-item">
-          <div class="ri-label">NCAV总值（万元）</div>
-          <div class="ri-val" id="ncav-total">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">每股NCAV（元）</div>
-          <div class="ri-val" id="ncav-per">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">2/3 NCAV线（元）</div>
-          <div class="ri-val" id="ncav-two3">—</div>
-        </div>
-        <div class="result-item">
-          <div class="ri-label">股价/NCAV比</div>
-          <div class="ri-val" id="ncav-ratio">—</div>
-        </div>
-      </div>
-
-      <hr class="divider">
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <hr class="dv">
+      <div class="g2">
         <div style="text-align:center;">
-          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值2<br><span style="font-size:9px;">(NCAV法)</span></div>
-          <div id="ncav-badge2"></div>
-          <div id="ncav-detail2" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px;"></div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值②<br><span style="font-size:9px;">NCAV清算法</span></div>
+          <div id="n-badge2"></div>
+          <div id="n-detail2" style="font-size:10px;color:var(--text2);font-family:var(--mono);margin-top:5px;line-height:1.5;"></div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值3<br><span style="font-size:9px;">(每股NCAV法)</span></div>
-          <div id="ncav-badge3"></div>
-          <div id="ncav-detail3" style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px;"></div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:6px;">内在价值③<br><span style="font-size:9px;">每股NCAV法</span></div>
+          <div id="n-badge3"></div>
+          <div id="n-detail3" style="font-size:10px;color:var(--text2);font-family:var(--mono);margin-top:5px;line-height:1.5;"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Summary -->
-  <div id="summary-card" class="card" style="display:none;">
-    <div class="card-title">综合评级</div>
+  <div class="card" id="verdict-card" style="display:none;"><div class="ca"></div>
+    <div class="ct"><span class="ctm">综合价值评级</span></div>
     <div class="verdict">
-      <div class="verdict-title">GRAHAM SCORE</div>
-      <div class="verdict-score" id="summary-score">—</div>
-      <div class="verdict-sub" id="summary-sub"></div>
+      <div class="vg" id="v-grade">—</div>
+      <div class="vs" id="v-sub"></div>
     </div>
-    <div id="summary-details" style="margin-top:12px;"></div>
+    <div id="v-details" style="margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.8;"></div>
   </div>
 </div>
 
-<!-- Tab 5: AI提示词 -->
-<div id="tab-ai" class="tab-content">
-  <div class="card">
-    <div class="card-title">AI 选股提示词生成</div>
-    <p style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px;">根据格雷厄姆指标自动生成可直接用于炒股软件AI的提示词</p>
+<!-- ===== AI提示词 ===== -->
+<div id="tab-ai" class="tc">
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">AI 选股提示词生成</span></div>
+    <div class="info-box"><strong>只填写你关注的指标</strong>，未填写的字段不会出现在提示词中。<br>
+      适用：同花顺问财 · 东方财富AI · 通达信AI</div>
 
-    <div class="grid-2">
-      <div class="input-group">
-        <label>最大市盈率 P/E ≤</label>
-        <input type="number" id="ai-pe" placeholder="10" step="0.5" value="10" oninput="genPrompt()">
-      </div>
-      <div class="input-group">
-        <label>最大市净率 P/B ≤</label>
-        <input type="number" id="ai-pb" placeholder="1.5" step="0.1" value="1.5" oninput="genPrompt()">
-      </div>
-      <div class="input-group">
-        <label>最小流动比率 ≥</label>
-        <input type="number" id="ai-cr" placeholder="2" step="0.1" value="2" oninput="genPrompt()">
-      </div>
-      <div class="input-group">
-        <label>PE×PB 乘积 ≤</label>
-        <input type="number" id="ai-pepb" placeholder="22.5" step="0.5" value="22.5" oninput="genPrompt()">
-      </div>
+    <div class="ig"><label>目标行业/板块（可选）</label>
+      <input type="text" id="ai-sector" placeholder="如：半导体  消费  医药  留空则全市场" oninput="genPrompt()"></div>
+    <div class="g2">
+      <div class="ig"><label>PE ≤（倍）</label><input type="number" id="ai-pe" step="0.5" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>PB ≤（倍）</label><input type="number" id="ai-pb" step="0.1" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>PE×PB ≤</label><input type="number" id="ai-pepb" step="1" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>ROE ≥（%）</label><input type="number" id="ai-roe" step="0.5" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>流动比率 ≥</label><input type="number" id="ai-cr" step="0.1" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>负债率 ≤（%）</label><input type="number" id="ai-dr" step="1" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>市值 ≥（亿元）</label><input type="number" id="ai-mktcap" step="1" placeholder="不限" oninput="genPrompt()"></div>
+      <div class="ig"><label>PEG ≤</label><input type="number" id="ai-peg" step="0.1" placeholder="不限" oninput="genPrompt()"></div>
     </div>
-    <div class="grid-2">
-      <div class="input-group">
-        <label>最小市值（亿元）≥</label>
-        <input type="number" id="ai-mktcap" placeholder="0" step="1" oninput="genPrompt()">
-      </div>
-      <div class="input-group">
-        <label>最大资产负债率（%）≤</label>
-        <input type="number" id="ai-dr" placeholder="50" step="1" value="50" oninput="genPrompt()">
-      </div>
+    <div class="ig"><label>其他补充条件</label>
+      <input type="text" id="ai-extra" placeholder="如：近5年连续盈利；排除ST股；股息率>2%" oninput="genPrompt()"></div>
+    <hr class="dv">
+    <div class="ig"><label>生成的提示词（可直接复制或编辑）</label>
+      <div class="pw"><textarea id="ai-prompt" rows="12"></textarea>
+        <button class="cpb" onclick="copyPrompt()">📋 复制</button></div>
     </div>
-
-    <hr class="divider">
-
-    <div class="input-group">
-      <label>生成的 AI 提示词（可直接编辑）</label>
-      <div class="prompt-box">
-        <textarea id="ai-prompt" rows="10"></textarea>
-        <button class="copy-btn" onclick="copyPrompt()">复制</button>
-      </div>
-    </div>
-
-    <button class="btn" onclick="genPrompt()">🔄 重新生成提示词</button>
+    <button class="btn" onclick="genPrompt()">🔄 重新生成</button>
   </div>
 
-  <div class="card">
-    <div class="card-title">使用说明</div>
-    <div style="font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.8;">
-      1. 调整上方指标参数<br>
-      2. 点击"重新生成"或自动生成提示词<br>
-      3. 复制提示词到炒股软件的AI对话框<br>
-      4. 适用：同花顺AI、东方财富AI、通达信AI等<br>
-      <br>
-      <span style="color:var(--accent);">格雷厄姆廉价股核心标准：</span><br>
-      • PE × PB ≤ 22.5<br>
-      • 流动比率 ≥ 2<br>
-      • 股价 &lt; 每股净流动资产 × 2/3<br>
-      • 连续盈利 ≥ 5年
+  <div class="card"><div class="ca"></div>
+    <div class="ct"><span class="ctm">2026 A股各类型参考标准</span></div>
+    <div class="info-box">
+      <strong>🏦 价值/蓝筹</strong>　PE 10-18× · PB 0.8-2.5× · ROE≥10% · 高股息<br>
+      <strong>🛒 消费/品牌</strong>　PE 18-28× · PB 3-8× · ROE≥15% · 定价权<br>
+      <strong>💻 科技/成长</strong>　PE 25-50× · PEG&lt;1.5 · 营收增速≥20%<br>
+      <strong>💊 医药/生物</strong>　PE 20-35× · PB 2-5× · 管线/研发投入<br>
+      <strong>⚙️ 周期/工业</strong>　PE 6-12× · PB 0.6-1.5× · 跨周期EPS<br>
+      <strong>⚡ 公用事业</strong>　PE 12-18× · 股息率≥3% · 稳定现金流<br><br>
+      ⚠️ 传统格雷厄姆 PE≤15、PB≤1.5 在2026年A股只会筛选出<strong>衰退型/价值陷阱</strong>，不建议直接套用。
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== State =====
-const state = {
-  eps: [], // [{year, value}]
-  epsAvg: null,
+const TYPES={
+  value:{name:'价值/蓝筹',icon:'🏦',color:'#d4a843',rgb:'212,168,67',
+    pe:{lo:8,hi:18,warn:22},pb:{lo:0.5,hi:2.5,warn:3.5},cr:{min:1.5},dr:{max:65},roe:{min:8},
+    mult:{c:12,n:15,o:18},multDesc:'稳定蓝筹，低利率下合理PE区间，核心逻辑是股息+业绩稳定性',
+    growth:'5-10%',growNote:'业绩稳定，绝对价值法为主',pepb:30,
+    desc:'银行、保险、能源、基建，重视低PE+低PB+高股息，不追求高增速。',
+    chips:['低PE','高股息','稳定ROE','轻债务'],ncavW:0.8},
+  consumer:{name:'消费/品牌',icon:'🛒',color:'#22c55e',rgb:'34,197,94',
+    pe:{lo:18,hi:28,warn:40},pb:{lo:2,hi:8,warn:12},cr:{min:1.2},dr:{max:60},roe:{min:15},
+    mult:{c:20,n:25,o:30},multDesc:'品牌护城河支撑溢价，ROE≥15%是高PB的前提，参考消费龙头历史',
+    growth:'8-20%',growNote:'ROIC可持续性是核心，品牌=定价权',pepb:50,
+    desc:'食品饮料、白酒、零售，核心是品牌力和ROE可持续性，允许更高PB。',
+    chips:['品牌护城河','高ROE','定价权','消费升级'],ncavW:0.3},
+  tech:{name:'科技/成长',icon:'💻',color:'#3b82f6',rgb:'59,130,246',
+    pe:{lo:25,hi:50,warn:80},pb:{lo:3,hi:12,warn:20},cr:{min:1.5},dr:{max:50},roe:{min:10},
+    mult:{c:28,n:35,o:45},multDesc:'成长溢价显著，绝对PE意义有限，PEG<1.5是核心判断标准',
+    growth:'20-50%+',growNote:'PEG=PE/增长率，PEG<1低估，>2高估风险大',pepb:80,
+    desc:'半导体、软件、AI、新能源，需结合PEG和营收增速，不能只看PE。',
+    chips:['高增速','技术壁垒','PEG<1.5','市占率'],ncavW:0.2},
+  pharma:{name:'医药/生物',icon:'💊',color:'#a855f7',rgb:'168,85,247',
+    pe:{lo:20,hi:35,warn:60},pb:{lo:2,hi:5,warn:8},cr:{min:1.5},dr:{max:55},roe:{min:10},
+    mult:{c:22,n:28,o:35},multDesc:'创新药需DCF补充，仿制药用传统估值，细分赛道差异极大',
+    growth:'10-30%',growNote:'分创新药/仿制药判断，管线进展影响估值',pepb:55,
+    desc:'制药、生物科技、医疗器械，估值差异极大，需关注研发管线。',
+    chips:['研发投入','管线价值','政策壁垒','老龄化'],ncavW:0.4},
+  cyclical:{name:'周期/工业',icon:'⚙️',color:'#f97316',rgb:'249,115,22',
+    pe:{lo:5,hi:12,warn:18},pb:{lo:0.4,hi:1.5,warn:2.5},cr:{min:1.3},dr:{max:70},roe:{min:6},
+    mult:{c:8,n:10,o:13},multDesc:'周期底部PE虚高是买点，用跨周期EPS均值，PB<1为安全区',
+    growth:'波动大',growNote:'勿用单年利润，中周期均值EPS更可靠',pepb:20,
+    desc:'钢铁、煤炭、化工、航运，PE受周期波动剧烈，PB和跨周期EPS为主。',
+    chips:['PB<1','低成本','周期底部','供给侧'],ncavW:1.0},
+  utility:{name:'公用事业',icon:'⚡',color:'#14b8a6',rgb:'20,184,166',
+    pe:{lo:12,hi:18,warn:25},pb:{lo:0.8,hi:2,warn:3},cr:{min:1.0},dr:{max:75},roe:{min:8},
+    mult:{c:14,n:16,o:20},multDesc:'类债券资产，股息率是核心，低利率环境估值中枢上移',
+    growth:'3-8%',growNote:'重股息率>3%，关注监管政策变化',pepb:28,
+    desc:'电力、水务、燃气，现金流稳定，股息率是首要考量。',
+    chips:['稳定股息','低波动','政策保障','类债'],ncavW:0.6}
 };
 
-// ===== Tab Switching =====
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+let ct='value', epsData=[];
 
-  if (name === 'iv') syncIVFromGlobal();
-  if (name === 'ncav') syncNCAVFromGlobal();
-  if (name === 'ai') genPrompt();
+function gv(id){const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
+function gv2(id){const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;}
+
+function setType(btn){
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ct=btn.dataset.type;
+  const t=TYPES[ct];
+  document.documentElement.style.setProperty('--tc',t.color);
+  document.documentElement.style.setProperty('--tr',t.rgb);
+  document.querySelectorAll('.ca').forEach(el=>el.style.background=t.color);
+  renderTypeInfo();
+  renderMultTable();
+  updateIVMult();
+  syncAll();
+  document.getElementById('ncav-type-hint').textContent=t.icon+' '+t.name+'（NCAV权重 ×'+t.ncavW+'）';
 }
 
-// ===== Toast =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+function renderTypeInfo(){
+  const t=TYPES[ct];
+  document.getElementById('type-info-panel').innerHTML=
+    `<div class="ti-head"><span class="ti-icon">${t.icon}</span><span class="ti-title">${t.name}</span></div>
+    <div class="ti-body">${t.desc}<br>
+    增速参考：<strong style="color:var(--tc)">${t.growth}</strong> · ${t.growNote}<br>
+    ${t.chips.map(c=>`<span class="tchip">${c}</span>`).join('')}</div>`;
 }
 
-// ===== Sync all calculations when basic inputs change =====
-function syncAll() {
-  updateBasicCheck();
+function renderMultTable(){
+  const rows=Object.entries(TYPES).map(([k,t])=>{
+    const hl=k===ct?' class="hl"':'';
+    return `<tr${hl}><td>${t.icon} ${t.name}</td><td>${t.mult.c}×</td><td>${t.mult.n}×</td><td>${t.mult.o}×</td><td style="font-size:10px;color:var(--muted);">${t.multDesc.slice(0,18)}…</td></tr>`;
+  }).join('');
+  document.getElementById('mult-table').innerHTML=
+    `<tr><th>类型</th><th>保守</th><th>中性</th><th>乐观</th><th>说明</th></tr>${rows}`;
 }
 
-// ===== Basic Check =====
-function updateBasicCheck() {
-  const pe = parseFloat(document.getElementById('pe').value);
-  const pb = parseFloat(document.getElementById('pb').value);
-  const cr = parseFloat(document.getElementById('cr').value);
-  const ca = parseFloat(document.getElementById('currentAssets').value);
-  const tl = parseFloat(document.getElementById('totalLiab').value);
-  const cl = parseFloat(document.getElementById('currentLiab').value);
-  const ts = parseFloat(document.getElementById('totalShares').value);
-  const price = parseFloat(document.getElementById('stockPrice').value);
-
-  const checks = [];
-
-  if (!isNaN(pe) && !isNaN(pb)) {
-    const pepb = pe * pb;
-    checks.push({ name: 'PE × PB', val: pepb.toFixed(2), pass: pepb <= 22.5, hint: '≤ 22.5' });
-  }
-  if (!isNaN(cr)) {
-    checks.push({ name: '流动比率', val: cr.toFixed(2), pass: cr >= 2, hint: '≥ 2.0' });
-  }
-  if (!isNaN(ca) && !isNaN(tl) && !isNaN(ts) && ts > 0 && !isNaN(price)) {
-    const ncavPerShare = (ca - tl) / ts;
-    const threshold = ncavPerShare * 2/3;
-    checks.push({ name: '股价 vs 2/3 NCAV/股', val: price.toFixed(2) + ' vs ' + threshold.toFixed(2), pass: price < threshold, hint: '股价应更低' });
-  }
-  if (!isNaN(pe)) {
-    checks.push({ name: '市盈率', val: pe.toFixed(1), pass: pe <= 15, hint: '≤ 15' });
-  }
-  if (!isNaN(pb)) {
-    checks.push({ name: '市净率', val: pb.toFixed(2), pass: pb <= 1.5, hint: '≤ 1.5' });
-  }
-
-  if (checks.length === 0) {
-    document.getElementById('basic-check').innerHTML = '<div style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">请在上方输入指标数据</div>';
-    return;
-  }
-
-  let html = '';
-  checks.forEach(c => {
-    html += `<div class="metric-row">
-      <span class="metric-name">${c.pass ? '✅' : '❌'} ${c.name} <span style="font-size:10px;color:var(--muted);">(${c.hint})</span></span>
-      <span class="metric-val" style="color:${c.pass ? 'var(--green)' : 'var(--red)'}">${c.val}</span>
-    </div>`;
-  });
-
-  const passCount = checks.filter(c => c.pass).length;
-  const grade = passCount === checks.length ? '全部达标' : passCount >= checks.length * 0.7 ? '基本达标' : '谨慎关注';
-  const gradeColor = passCount === checks.length ? 'var(--green)' : passCount >= checks.length * 0.7 ? 'var(--yellow)' : 'var(--red)';
-
-  html += `<div style="margin-top:10px;padding:8px;background:rgba(0,0,0,0.3);border-radius:2px;text-align:center;">
-    <span style="font-size:11px;color:var(--muted);font-family:var(--mono);">综合评估：</span>
-    <span style="color:${gradeColor};font-family:var(--sans);font-weight:700;font-size:14px;">${grade}</span>
-    <span style="font-size:11px;color:var(--muted);font-family:var(--mono);"> (${passCount}/${checks.length})</span>
-  </div>`;
-
-  document.getElementById('basic-check').innerHTML = html;
-}
-
-// ===== EPS =====
-function addEPS() {
-  const year = document.getElementById('epsYear').value.trim() || (new Date().getFullYear() - state.eps.length).toString();
-  const val = parseFloat(document.getElementById('epsInput').value);
-  if (isNaN(val)) { showToast('请输入有效的EPS数值'); return; }
-
-  state.eps.push({ year, value: val, id: Date.now() });
-  document.getElementById('epsYear').value = '';
-  document.getElementById('epsInput').value = '';
-  renderEPS();
-}
-
-document.getElementById('epsInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addEPS();
-});
-
-function removeEPS(id) {
-  state.eps = state.eps.filter(e => e.id !== id);
-  renderEPS();
-}
-
-function renderEPS() {
-  const list = document.getElementById('eps-list');
-  if (state.eps.length === 0) {
-    list.innerHTML = '<li style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">暂无数据，请添加EPS记录</li>';
-    document.getElementById('eps-result').style.display = 'none';
-    state.epsAvg = null;
-    return;
-  }
-
-  list.innerHTML = state.eps.map(e =>
-    `<li class="eps-item">
-      <small>${e.year}</small>
-      <span>¥ ${e.value.toFixed(3)}</span>
-      <button class="btn btn-danger btn-sm" onclick="removeEPS(${e.id})" style="padding:3px 8px;font-size:11px;">✕</button>
-    </li>`
-  ).join('');
-
-  const values = state.eps.map(e => e.value);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const sorted = [...values].sort((a, b) => a - b);
-  const median = sorted.length % 2 === 0
-    ? (sorted[sorted.length/2-1] + sorted[sorted.length/2]) / 2
-    : sorted[Math.floor(sorted.length/2)];
-
-  state.epsAvg = avg;
-
-  document.getElementById('eps-result').style.display = 'block';
-  document.getElementById('eps-avg-display').textContent = '¥ ' + avg.toFixed(4);
-  document.getElementById('eps-count-badge').textContent = values.length + ' 年';
-  document.getElementById('eps-max').textContent = Math.max(...values).toFixed(3);
-  document.getElementById('eps-min').textContent = Math.min(...values).toFixed(3);
-  document.getElementById('eps-median').textContent = median.toFixed(3);
-  document.getElementById('eps-count').textContent = values.length;
-}
-
-// ===== IV =====
-function syncIVFromGlobal() {
-  const price = parseFloat(document.getElementById('stockPrice').value);
-  if (!isNaN(price) && price > 0) document.getElementById('ivPrice').value = price;
-  if (state.epsAvg !== null) document.getElementById('ivEps').value = state.epsAvg.toFixed(4);
+function updateIVMult(){
+  const t=TYPES[ct];
+  document.getElementById('ivMult').value=t.mult.n;
+  document.getElementById('iv-mult-label').textContent=`估值倍数 — ${t.name}推荐 ${t.mult.c}-${t.mult.o}×`;
+  document.getElementById('iv-mult-hint').innerHTML=
+    `<strong>${t.name}</strong>：${t.multDesc}<br>保守 ${t.mult.c}× · 中性 ${t.mult.n}× · 乐观 ${t.mult.o}×`;
   calcIV();
 }
 
-function calcIV() {
-  const eps = parseFloat(document.getElementById('ivEps').value);
-  const mult = parseFloat(document.getElementById('ivMultiple').value) || 13;
-  const price = parseFloat(document.getElementById('ivPrice').value);
+function syncAll(){
+  updateBasicCheck();
+  const price=gv('stockPrice');
+  if(price&&!document.getElementById('ivPrice').dataset.m) document.getElementById('ivPrice').value=price;
+  if(price&&!document.getElementById('n-price').dataset.m) document.getElementById('n-price').value=price;
+  ['currentAssets:n-ca','totalLiab:n-tl','currentLiab:n-cl','totalShares:n-ts'].forEach(p=>{
+    const [src,dst]=p.split(':');
+    const val=gv(src);
+    if(val!==null&&!document.getElementById(dst).dataset.m) document.getElementById(dst).value=val;
+  });
+  if(document.getElementById('tab-ncav').classList.contains('active')) calcNCAV();
+  if(document.getElementById('tab-iv').classList.contains('active')) calcIV();
+  genPrompt();
+}
 
-  const result = document.getElementById('iv-result');
+function updateBasicCheck(){
+  const t=TYPES[ct];
+  const pe=gv('pe'),pb=gv('pb'),cr=gv('cr'),dr=gv('dr'),roe=gv('roe'),growth=gv('growth');
+  const ca=gv('currentAssets'),tl=gv('totalLiab'),ts=gv('totalShares'),price=gv('stockPrice');
+  const checks=[];
 
-  if (isNaN(eps) || isNaN(price)) { result.style.display = 'none'; return; }
-
-  const iv = eps * mult;
-  const safetyLine = price * 1.5;
-
-  document.getElementById('iv-value').textContent = '¥ ' + iv.toFixed(2);
-  document.getElementById('iv-safety').textContent = '¥ ' + safetyLine.toFixed(2);
-
-  const ratio = iv / safetyLine;
-  let badge, detail;
-  if (ratio >= 1.5) {
-    badge = '<span class="badge badge-high">🔥 高</span>';
-    detail = `内在价值超出安全边际 ${((ratio-1)*100).toFixed(0)}%，极具吸引力`;
-  } else if (ratio >= 1.0) {
-    badge = '<span class="badge badge-high">✅ 高</span>';
-    detail = `内在价值(${iv.toFixed(2)}) > 安全边际(${safetyLine.toFixed(2)})，安全`;
-  } else if (ratio >= 0.75) {
-    badge = '<span class="badge badge-mid">⚡ 中等</span>';
-    detail = `内在价值接近安全边际，差距 ${((1-ratio)*100).toFixed(0)}%`;
-  } else {
-    badge = '<span class="badge badge-low">⚠️ 低</span>';
-    detail = `内在价值不足安全边际的75%，安全边际不足`;
+  if(pe!==null){
+    const ideal=pe>=t.pe.lo&&pe<=t.pe.hi,ok=pe<t.pe.warn;
+    const pct=Math.min(100,100*(t.pe.hi/Math.max(pe,0.1)));
+    const note=ideal?'处于合理区间':pe<t.pe.lo?'低于参考下限，注意价值陷阱':pe<t.pe.warn?'略偏高，需增速支撑':'明显偏贵，安全边际不足';
+    checks.push({label:'市盈率 P/E',hint:`${t.name}合理 ${t.pe.lo}-${t.pe.hi}× · 警戒>${t.pe.warn}×`,val:pe.toFixed(1)+'×',ok,ideal,pct,note});
+  }
+  if(pb!==null){
+    const ideal=pb>=t.pb.lo&&pb<=t.pb.hi,ok=pb<t.pb.warn;
+    const pct=Math.min(100,100*(t.pb.hi/Math.max(pb,0.01)));
+    const note=ideal?'处于合理区间':pb<t.pb.lo?'低PB注意ROE是否同样低':pb<t.pb.warn?'略偏高':'明显偏贵';
+    checks.push({label:'市净率 P/B',hint:`${t.name}合理 ${t.pb.lo}-${t.pb.hi}× · 警戒>${t.pb.warn}×`,val:pb.toFixed(2)+'×',ok,ideal,pct,note});
+  }
+  if(pe!==null&&pb!==null){
+    const pepb=pe*pb,ok=pepb<=t.pepb;
+    const pct=Math.min(100,100*(t.pepb/Math.max(pepb,0.1)));
+    checks.push({label:'PE × PB 综合',hint:`${t.name}上限 ${t.pepb}（原格雷厄姆22.5已过时）`,val:pepb.toFixed(1),ok,ideal:ok,pct,note:ok?'综合估值合理':'综合估值偏高'});
+  }
+  if(roe!==null){
+    const ok=roe>=t.roe.min,ideal=ok&&roe>=t.roe.min*1.5;
+    const pct=Math.min(100,roe/30*100);
+    const note=roe>=20?'优质盈利能力':ok?'达标，可接受':'盈利能力偏弱';
+    checks.push({label:'ROE 净资产收益率',hint:`${t.name}最低 ${t.roe.min}%`,val:roe.toFixed(1)+'%',ok,ideal,pct,note});
+  }
+  if(cr!==null){
+    const ok=cr>=t.cr.min,ideal=cr>=2;
+    const pct=Math.min(100,cr/3*100);
+    checks.push({label:'流动比率',hint:`${t.name}建议≥${t.cr.min}（传统2.0标准过严）`,val:cr.toFixed(2),ok,ideal,pct,note:cr>=2?'短期偿债安全':ok?'基本达标':'短期流动性偏弱'});
+  }
+  if(dr!==null){
+    const ok=dr<=t.dr.max,ideal=dr<=t.dr.max*0.7;
+    const pct=Math.min(100,(1-dr/100)*100);
+    checks.push({label:'资产负债率',hint:`${t.name}参考上限 ${t.dr.max}%`,val:dr.toFixed(1)+'%',ok,ideal,pct,note:dr<=40?'负债结构健康':ok?'可接受范围':'负债偏高'});
+  }
+  if(growth!==null&&pe!==null&&growth>0){
+    const peg=pe/growth,ok=peg<=1.5,ideal=peg<=1;
+    const pct=Math.min(100,(1.5/Math.max(peg,0.01))*100);
+    const note=peg<1?'PEG<1增速充分支撑':peg<1.5?'PEG合理':peg<2?'成长溢价偏高':'增速难支撑PE';
+    checks.push({label:'PEG 成长调整估值',hint:'PE÷增长率：<1低估 · 1-1.5合理 · >2偏贵',val:peg.toFixed(2),ok,ideal,pct,note});
+  }
+  if(ca!==null&&tl!==null&&ts!==null&&ts>0&&price!==null){
+    const ncavPS=(ca-tl)/ts,target=ncavPS*2/3,ok=price<target;
+    const pct=ok?100:Math.min(100,target/Math.max(price,0.01)*100);
+    const note=ok?'满足格雷厄姆清算安全边际':ncavPS>0?`高出2/3线${((price/target-1)*100).toFixed(0)}%`:'NCAV为负';
+    checks.push({label:'NCAV清算安全边际',hint:`每股NCAV:${ncavPS.toFixed(2)} · 2/3线:${target.toFixed(2)}`,val:price.toFixed(2)+' vs '+target.toFixed(2),ok,ideal:ok,pct,note});
   }
 
-  document.getElementById('iv-badge').innerHTML = badge;
-  document.getElementById('iv-detail').textContent = detail;
-  result.style.display = 'block';
+  if(checks.length===0){
+    document.getElementById('check-body').innerHTML='<div style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">请填写上方指标...</div>';
+    return;
+  }
+
+  const passN=checks.filter(c=>c.ok).length,idealN=checks.filter(c=>c.ideal).length,total=checks.length;
+  const sc=idealN>=total*0.7?'var(--green)':passN>=total*0.6?'var(--yellow)':'var(--red)';
+  const grade=idealN===total?'优质标的':idealN>=total*0.7?'值得关注':passN>=total*0.6?'基本达标':'谨慎观望';
+
+  let html=`<div class="sw">
+    <div class="sr" style="border-color:${sc};">
+      <div class="sn" style="color:${sc};">${passN}</div>
+      <div class="sd">/ ${total}</div>
+    </div>
+    <div class="si">
+      <div class="sg" style="color:${sc};">${grade}</div>
+      <div class="ss">通过 ${passN}/${total} 项 · 理想 ${idealN}/${total} 项<br>${TYPES[ct].icon} ${TYPES[ct].name} 专属标准</div>
+    </div>
+  </div><hr class="dv">`;
+
+  html+=checks.map(c=>`
+    <div class="ck-row">
+      <div class="ck-left">
+        <div class="ck-label"><span style="color:${c.ok?'var(--green)':'var(--red)'}">${c.ok?'✓':'✗'}</span> ${c.label}</div>
+        <div class="ck-hint">${c.hint}</div>
+        <div class="ck-bar-wrap"><div class="ck-bar" style="width:${c.pct}%;background:${c.ideal?'var(--green)':c.ok?'var(--yellow)':'var(--red)'};"></div></div>
+      </div>
+      <div class="ck-right">
+        <div class="ck-val" style="color:${c.ideal?'var(--green)':c.ok?'var(--yellow)':'var(--red)'}">${c.val}</div>
+        <div class="ck-note">${c.note}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('check-body').innerHTML=html;
 }
 
-// ===== NCAV =====
-function syncNCAVFromGlobal() {
-  const ca = document.getElementById('currentAssets').value;
-  const tl = document.getElementById('totalLiab').value;
-  const cl = document.getElementById('currentLiab').value;
-  const ts = document.getElementById('totalShares').value;
-  const price = document.getElementById('stockPrice').value;
+// EPS
+function addEPS(){
+  const year=document.getElementById('epsYear').value.trim()||(new Date().getFullYear()-epsData.length).toString();
+  const val=parseFloat(document.getElementById('epsVal').value);
+  if(isNaN(val)){showToast('请输入有效EPS');return;}
+  epsData.push({id:Date.now(),year,val});
+  document.getElementById('epsYear').value='';
+  document.getElementById('epsVal').value='';
+  renderEPS();
+}
+document.getElementById('epsVal').addEventListener('keydown',e=>{if(e.key==='Enter')addEPS();});
 
-  if (ca) document.getElementById('ncavCA').value = ca;
-  if (tl) document.getElementById('ncavTL').value = tl;
-  if (cl) document.getElementById('ncavCL').value = cl;
-  if (ts) document.getElementById('ncavShares').value = ts;
-  if (price) document.getElementById('ncavPrice').value = price;
-  calcNCAV();
+function removeEPS(id){epsData=epsData.filter(e=>e.id!==id);renderEPS();}
+
+function renderEPS(){
+  const list=document.getElementById('eps-list');
+  if(!epsData.length){
+    list.innerHTML='<li style="font-size:12px;color:var(--muted);font-family:var(--mono);padding:8px 0;">暂无数据</li>';
+    document.getElementById('eps-result').style.display='none';
+    return;
+  }
+  const vals=epsData.map(e=>e.val),mx=Math.max(...vals.map(Math.abs));
+  list.innerHTML=epsData.map(e=>`
+    <li class="eps-item">
+      <span class="eps-yr">${e.year}</span>
+      <div class="eps-bw"><div class="eps-b" style="width:${Math.abs(e.val)/mx*100}%;background:${e.val<0?'var(--red)':'var(--green)'};"></div></div>
+      <span class="eps-v">${e.val.toFixed(3)}</span>
+      <button class="eps-del" onclick="removeEPS(${e.id})">✕</button>
+    </li>`).join('');
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const sorted=[...vals].sort((a,b)=>a-b);
+  const med=sorted.length%2===0?(sorted[sorted.length/2-1]+sorted[sorted.length/2])/2:sorted[Math.floor(sorted.length/2)];
+  const std=Math.sqrt(vals.map(v=>(v-avg)**2).reduce((a,b)=>a+b,0)/vals.length);
+  const cv=avg?Math.abs(std/avg)*100:0;
+  document.getElementById('eps-result').style.display='block';
+  document.getElementById('eps-avg').textContent='¥'+avg.toFixed(3);
+  document.getElementById('eps-med').textContent='¥'+med.toFixed(3);
+  document.getElementById('eps-std').textContent=std.toFixed(3);
+  document.getElementById('eps-max').textContent='¥'+Math.max(...vals).toFixed(3);
+  document.getElementById('eps-min').textContent='¥'+Math.min(...vals).toFixed(3);
+  document.getElementById('eps-stability').textContent=
+    cv<15?`EPS波动率低（CV=${cv.toFixed(0)}%），盈利稳定，均值可靠`:
+    cv<40?`EPS存在波动（CV=${cv.toFixed(0)}%），建议使用保守估值倍数`:
+    `⚠️ EPS波动剧烈（CV=${cv.toFixed(0)}%），周期性明显，务必用跨周期均值`;
+  if(!document.getElementById('ivEps').dataset.m) document.getElementById('ivEps').value=avg.toFixed(4);
+  calcIV();
 }
 
-function calcNCAV() {
-  const ca = parseFloat(document.getElementById('ncavCA').value);
-  const tl = parseFloat(document.getElementById('ncavTL').value);
-  const cl = parseFloat(document.getElementById('ncavCL').value);
-  const ts = parseFloat(document.getElementById('ncavShares').value);
-  const price = parseFloat(document.getElementById('ncavPrice').value);
+// IV
+function calcIV(){
+  const eps=parseFloat(document.getElementById('ivEps').value);
+  const mult=parseFloat(document.getElementById('ivMult').value);
+  const price=parseFloat(document.getElementById('ivPrice').value);
+  const margin=parseFloat(document.getElementById('ivMargin').value)||30;
+  const res=document.getElementById('iv-result');
+  if(isNaN(eps)||isNaN(mult)||isNaN(price)){res.style.display='none';return;}
+  const iv=eps*mult,safe=iv*(1-margin/100),disc=(iv-price)/iv*100;
+  document.getElementById('iv-value').textContent='¥'+iv.toFixed(2);
+  document.getElementById('iv-safe').textContent='¥'+safe.toFixed(2);
+  document.getElementById('iv-disc').textContent=(disc>0?'+':'')+disc.toFixed(1)+'%';
+  document.getElementById('iv-disc').style.color=disc>0?'var(--green)':disc>-20?'var(--yellow)':'var(--red)';
+  let badge,detail;
+  if(price<=safe){const d=(safe-price)/safe*100;badge=d>20?'<span class="badge bh">🔥 高</span>':'<span class="badge bh">✅ 高</span>';detail=`低于安全价格线${d.toFixed(0)}%，安全边际${d>20?'充裕':'达标'}`;}
+  else if(price<iv){badge='<span class="badge bm">⚡ 中等</span>';detail=`低于内在价值但安全边际不足${margin}%`;}
+  else if(price<iv*1.2){badge='<span class="badge bm">📊 中等</span>';detail=`略高于内在价值${((price/iv-1)*100).toFixed(0)}%，偏贵`;}
+  else{badge='<span class="badge bl">⚠️ 低</span>';detail=`高于内在价值${((price/iv-1)*100).toFixed(0)}%，安全边际严重不足`;}
+  document.getElementById('iv-badge').innerHTML=badge;
+  document.getElementById('iv-detail').textContent=detail;
+  res.style.display='block';
+  const pegBox=document.getElementById('peg-box');
+  const growth=gv('growth'),pe=gv('pe');
+  if(ct==='tech'&&growth&&pe){
+    const peg=pe/growth;
+    pegBox.style.display='block';
+    pegBox.innerHTML=`<strong>成长股核心：PEG = ${peg.toFixed(2)}</strong>（PE÷增长率）<br>
+      ${peg<1?'✅ PEG<1，增速充分支撑估值，成长股首选买入区间':peg<1.5?'⚡ PEG合理，需增速持续兑现':peg<2?'⚠️ PEG偏高，需超预期增速':'❌ PEG>2，估值难以支撑'}`;
+  } else {pegBox.style.display='none';}
+  updateVerdict();
+}
 
-  const result = document.getElementById('ncav-result');
-  const summary = document.getElementById('summary-card');
+// NCAV
+function calcNCAV(){
+  const ca=parseFloat(document.getElementById('n-ca').value);
+  const tl=parseFloat(document.getElementById('n-tl').value);
+  const cl=parseFloat(document.getElementById('n-cl').value);
+  const ts=parseFloat(document.getElementById('n-ts').value);
+  const price=parseFloat(document.getElementById('n-price').value);
+  const res=document.getElementById('ncav-result');
+  if(isNaN(ca)||isNaN(tl)){res.style.display='none';return;}
+  const ncav=ca-tl,perShare=(!isNaN(ts)&&ts>0)?(ca-tl)/ts:null;
+  const perShare2=(!isNaN(cl)&&!isNaN(ts)&&ts>0)?(ca-cl)/ts:null;
+  document.getElementById('n-ncav').textContent=ncav.toFixed(0);
+  document.getElementById('n-per').textContent=perShare!==null?'¥'+perShare.toFixed(3):'—';
+  let b2='',d2='',b3='',d3='';
+  if(!isNaN(price)&&perShare!==null){
+    const t23=perShare*2/3,disc=(t23-price)/t23;
+    document.getElementById('n-23').textContent='¥'+t23.toFixed(3);
+    document.getElementById('n-ratio').textContent=(price/perShare).toFixed(2)+'×';
+    if(price<t23){b2=disc>0.3?'<span class="badge bh">🔥 高</span>':disc>0.1?'<span class="badge bh">✅ 高</span>':'<span class="badge bm">⚡ 中等</span>';d2=`低于2/3线${(disc*100).toFixed(0)}%`;}
+    else{const ov=(price/t23-1)*100;b2=ov<15?'<span class="badge bm">⚡ 中等</span>':'<span class="badge bl">⚠️ 低</span>';d2=`高于2/3线${ov.toFixed(0)}%`;}
+  }else{document.getElementById('n-23').textContent='—';document.getElementById('n-ratio').textContent='—';}
+  if(!isNaN(price)&&perShare2!==null){
+    const r=perShare2/price;
+    if(perShare2>price){b3=r>=1.5?'<span class="badge bh">🔥 高</span>':r>=1.2?'<span class="badge bh">✅ 高</span>':'<span class="badge bm">⚡ 中等</span>';d3=`超股价${((r-1)*100).toFixed(0)}%`;}
+    else if(r>=0.85){b3='<span class="badge bm">⚡ 中等</span>';d3=`接近股价，差${((1-r)*100).toFixed(0)}%`;}
+    else{b3='<span class="badge bl">⚠️ 低</span>';d3=`低于股价${((1-r)*100).toFixed(0)}%`;}
+  }
+  document.getElementById('n-badge2').innerHTML=b2||'<span class="badge bn">数据不足</span>';
+  document.getElementById('n-detail2').textContent=d2;
+  document.getElementById('n-badge3').innerHTML=b3||'<span class="badge bn">数据不足</span>';
+  document.getElementById('n-detail3').textContent=d3;
+  res.style.display='block';
+  updateVerdict();
+}
 
-  if (isNaN(ca) || isNaN(tl)) { result.style.display = 'none'; return; }
+function updateVerdict(){
+  const b1=document.getElementById('iv-badge').innerHTML;
+  const b2=document.getElementById('n-badge2').innerHTML;
+  const b3=document.getElementById('n-badge3').innerHTML;
+  const all=[b1,b2,b3].filter(b=>b&&!b.includes('数据不足')&&b.length>5);
+  const vc=document.getElementById('verdict-card');
+  if(!all.length){vc.style.display='none';return;}
+  const high=all.filter(b=>b.includes('bh')).length,mid=all.filter(b=>b.includes('bm')).length,n=all.length;
+  let grade,sub,color;
+  const t=TYPES[ct];
+  if(high===n){grade='A+';color='var(--green2)';sub='全维度高价值 · 格雷厄姆强买信号';}
+  else if(high>=n*0.6){grade='A';color='var(--green)';sub='高价值 · 具备安全边际';}
+  else if(high+mid>=n*0.6){grade='B';color='var(--yellow)';sub='中等价值 · 可跟踪观察';}
+  else{grade='C';color='var(--red)';sub='价值不足 · 建议观望';}
+  document.getElementById('v-grade').textContent=grade;
+  document.getElementById('v-grade').style.color=color;
+  document.getElementById('v-sub').textContent=sub;
+  document.getElementById('v-details').innerHTML=
+    `NCAV策略对 <strong>${t.icon} ${t.name}</strong> 的参考权重为 ×${t.ncavW}，${t.ncavW<0.5?'轻资产行业不宜过度依赖NCAV判断':'重资产行业NCAV具有较高参考价值'}。<br>
+    综合评级综合了内在价值①②③三个维度，请结合行业景气度和定性分析做最终判断。`;
+  vc.style.display='block';
+}
 
-  const ncav = ca - tl;
-  const ncavPerShare = (isNaN(ts) || ts === 0) ? null : ncav / ts;
-  const ncavPerShare2 = (!isNaN(cl) && !isNaN(ts) && ts > 0) ? (ca - cl) / ts : null;
-
-  document.getElementById('ncav-total').textContent = ncav.toFixed(2);
-  document.getElementById('ncav-per').textContent = ncavPerShare !== null ? '¥ ' + ncavPerShare.toFixed(3) : '—';
-
-  let badge2 = '', detail2 = '', badge3 = '', detail3 = '';
-
-  if (!isNaN(price) && ncavPerShare !== null) {
-    const twoThirds = ncavPerShare * 2/3;
-    document.getElementById('ncav-two3').textContent = '¥ ' + twoThirds.toFixed(3);
-
-    const discount = (twoThirds - price) / twoThirds;
-    const ratio = price / twoThirds;
-    document.getElementById('ncav-ratio').textContent = (price / ncavPerShare).toFixed(2) + 'x';
-
-    if (price < twoThirds) {
-      if (discount >= 0.3) {
-        badge2 = '<span class="badge badge-high">🔥 高</span>';
-        detail2 = `低于2/3线 ${(discount*100).toFixed(0)}%`;
-      } else if (discount >= 0.1) {
-        badge2 = '<span class="badge badge-high">✅ 高</span>';
-        detail2 = `低于2/3线 ${(discount*100).toFixed(0)}%`;
-      } else {
-        badge2 = '<span class="badge badge-mid">⚡ 中等</span>';
-        detail2 = `略低于2/3线`;
-      }
-    } else if (ratio <= 1.1) {
-      badge2 = '<span class="badge badge-mid">⚡ 中等</span>';
-      detail2 = `接近2/3线，高 ${((ratio-1)*100).toFixed(0)}%`;
-    } else {
-      badge2 = '<span class="badge badge-low">⚠️ 低</span>';
-      detail2 = `高于2/3线 ${((ratio-1)*100).toFixed(0)}%`;
+function switchTab(name,btn){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='iv'){
+    const price=gv('stockPrice');if(price&&!document.getElementById('ivPrice').dataset.m)document.getElementById('ivPrice').value=price;
+    if(epsData.length&&!document.getElementById('ivEps').dataset.m){
+      const avg=epsData.map(e=>e.val).reduce((a,b)=>a+b,0)/epsData.length;
+      document.getElementById('ivEps').value=avg.toFixed(4);
     }
-  } else {
-    document.getElementById('ncav-two3').textContent = '—';
-    document.getElementById('ncav-ratio').textContent = '—';
+    renderMultTable();calcIV();
   }
-
-  if (!isNaN(price) && ncavPerShare2 !== null) {
-    const diff = ncavPerShare2 - price;
-    const ratio = ncavPerShare2 / price;
-    if (ncavPerShare2 > price) {
-      if (ratio >= 1.5) {
-        badge3 = '<span class="badge badge-high">🔥 高</span>';
-        detail3 = `每股NCAV超股价 ${((ratio-1)*100).toFixed(0)}%`;
-      } else if (ratio >= 1.2) {
-        badge3 = '<span class="badge badge-high">✅ 高</span>';
-        detail3 = `高出股价 ${((ratio-1)*100).toFixed(0)}%`;
-      } else {
-        badge3 = '<span class="badge badge-mid">⚡ 中等</span>';
-        detail3 = `略高于股价 ${((ratio-1)*100).toFixed(0)}%`;
-      }
-    } else if (ratio >= 0.9) {
-      badge3 = '<span class="badge badge-mid">⚡ 中等</span>';
-      detail3 = `接近股价，差 ${((1-ratio)*100).toFixed(0)}%`;
-    } else {
-      badge3 = '<span class="badge badge-low">⚠️ 低</span>';
-      detail3 = `低于股价 ${((1-ratio)*100).toFixed(0)}%`;
-    }
+  if(name==='ncav'){
+    ['currentAssets:n-ca','totalLiab:n-tl','currentLiab:n-cl','totalShares:n-ts'].forEach(p=>{
+      const [s,d]=p.split(':');const val=gv(s);
+      if(val!==null&&!document.getElementById(d).dataset.m)document.getElementById(d).value=val;
+    });
+    const price=gv('stockPrice');if(price&&!document.getElementById('n-price').dataset.m)document.getElementById('n-price').value=price;
+    calcNCAV();
   }
-
-  document.getElementById('ncav-badge2').innerHTML = badge2 || '—';
-  document.getElementById('ncav-detail2').textContent = detail2;
-  document.getElementById('ncav-badge3').innerHTML = badge3 || '—';
-  document.getElementById('ncav-detail3').textContent = detail3;
-
-  result.style.display = 'block';
-
-  // Summary
-  updateSummary(badge2, badge3);
+  if(name==='ai')genPrompt();
 }
 
-function updateSummary(badge2, badge3) {
-  const ivBadge = document.getElementById('iv-badge').innerHTML;
-  const badges = [ivBadge, badge2, badge3].filter(b => b && b.length > 3);
+function genPrompt(){
+  const t=TYPES[ct];
+  const sector=document.getElementById('ai-sector').value.trim();
+  const items=[];
+  const aiPE=gv2('ai-pe'),aiPB=gv2('ai-pb'),aiPEPB=gv2('ai-pepb'),aiROE=gv2('ai-roe');
+  const aiCR=gv2('ai-cr'),aiDR=gv2('ai-dr'),aiCap=gv2('ai-mktcap'),aiPEG=gv2('ai-peg');
+  const extra=document.getElementById('ai-extra').value.trim();
+  if(aiPE!==null)items.push(`市盈率（PE/TTM）≤ ${aiPE} 倍`);
+  if(aiPB!==null)items.push(`市净率（PB）≤ ${aiPB} 倍`);
+  if(aiPEPB!==null)items.push(`PE × PB 乘积 ≤ ${aiPEPB}`);
+  if(aiROE!==null)items.push(`净资产收益率（ROE）≥ ${aiROE}%`);
+  if(aiCR!==null)items.push(`流动比率 ≥ ${aiCR}`);
+  if(aiDR!==null)items.push(`资产负债率 ≤ ${aiDR}%`);
+  if(aiCap!==null)items.push(`总市值 ≥ ${aiCap} 亿元`);
+  if(aiPEG!==null)items.push(`PEG（PE÷增长率）≤ ${aiPEG}`);
+  if(!items.length){document.getElementById('ai-prompt').value='请至少填写一个筛选指标后生成提示词。';return;}
+  const sectorLine=sector?`行业/板块：${sector}`:'全市场A股';
+  document.getElementById('ai-prompt').value=
+`请帮我从A股筛选符合价值投资策略的股票。
 
-  if (badges.length === 0) { document.getElementById('summary-card').style.display = 'none'; return; }
+【选股范围】
+${sectorLine}（剔除ST、金融类）
 
-  const scoreHigh = badges.filter(b => b.includes('badge-high')).length;
-  const scoreMid = badges.filter(b => b.includes('badge-mid')).length;
-  const total = badges.length;
-
-  let score, sub, color;
-  if (scoreHigh === total) {
-    score = 'A+'; sub = '全面高价值，格雷厄姆强烈推荐'; color = 'var(--green)';
-  } else if (scoreHigh >= total * 0.6) {
-    score = 'A'; sub = '高价值，具有安全边际'; color = 'var(--green)';
-  } else if (scoreHigh + scoreMid >= total * 0.6) {
-    score = 'B'; sub = '中等价值，可关注'; color = 'var(--yellow)';
-  } else {
-    score = 'C'; sub = '价值不足，建议观望'; color = 'var(--red)';
-  }
-
-  document.getElementById('summary-score').textContent = score;
-  document.getElementById('summary-score').style.color = color;
-  document.getElementById('summary-sub').textContent = sub;
-  document.getElementById('summary-card').style.display = 'block';
-}
-
-// ===== AI Prompt =====
-function genPrompt() {
-  const pe = document.getElementById('ai-pe').value || '10';
-  const pb = document.getElementById('ai-pb').value || '1.5';
-  const cr = document.getElementById('ai-cr').value || '2';
-  const pepb = document.getElementById('ai-pepb').value || '22.5';
-  const mktcap = document.getElementById('ai-mktcap').value;
-  const dr = document.getElementById('ai-dr').value || '50';
-
-  let prompt = `请帮我从A股市场中筛选符合格雷厄姆廉价股策略的股票，筛选条件如下：
-
-【核心估值条件】
-1. 市盈率（PE/TTM）≤ ${pe} 倍
-2. 市净率（PB）≤ ${pb} 倍
-3. PE × PB 乘积 ≤ ${pepb}（格雷厄姆廉价核心指标）
-
-【财务健康条件】
-4. 流动比率（流动资产/流动负债）≥ ${cr}
-5. 资产负债率 ≤ ${dr}%
-6. 近5年连续盈利，不存在亏损年份
-
-【NCAV安全边际条件】
-7. 当前股价 < 每股净流动资产（流动资产-全部负债/总股本）× 2/3
-   （即股价低于净流动资产的66.7%）
+【筛选条件】
+${items.map((c,i)=>`${i+1}. ${c}`).join('\n')}
 
 【排除条件】
-- 排除ST、*ST股票
-- 排除金融类股票（银行、保险、券商）
-- 排除近一年有重大违规的公司${mktcap ? `\n- 市值 ≥ ${mktcap} 亿元` : ''}
+- 排除ST、*ST及退市风险股
+- 排除近一年重大违规或财务造假记录
+${extra?'- '+extra:''}
+【策略背景】
+基于格雷厄姆价值投资+2026年A股市场参数，重点关注${t.icon}${t.name}类标的，核心要求：${t.chips.join('、')}。
 
-【输出要求】
-请按照安全边际从高到低排列，每只股票给出：
-- 股票代码和名称
-- PE、PB数值及PE×PB乘积
-- 流动比率
-- 每股净流动资产与当前股价对比
-- 简要说明是否符合格雷厄姆廉价股标准
-
-感谢！`;
-
-  document.getElementById('ai-prompt').value = prompt;
+【输出格式】
+按估值吸引力排列，每股给出：代码和名称 | 核心指标值 | 是否满足各条件 | 1-2句投资逻辑`;
 }
 
-function copyPrompt() {
-  const text = document.getElementById('ai-prompt').value;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => showToast('✅ 提示词已复制'));
-  } else {
-    document.getElementById('ai-prompt').select();
-    document.execCommand('copy');
-    showToast('✅ 提示词已复制');
-  }
+function copyPrompt(){
+  const text=document.getElementById('ai-prompt').value;
+  if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>showToast('✅ 提示词已复制'));
+  else{document.getElementById('ai-prompt').select();document.execCommand('copy');showToast('✅ 已复制');}
 }
 
-// ===== Init =====
-updateBasicCheck();
-genPrompt();
-renderEPS();
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Mark manual override for auto-sync fields
+['ivPrice','ivEps','n-ca','n-tl','n-cl','n-ts','n-price'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('input',()=>el.dataset.m='1');
+});
+
+// Init
+setType(document.querySelector('.type-btn.active'));
 </script>
 </body>
 </html>
