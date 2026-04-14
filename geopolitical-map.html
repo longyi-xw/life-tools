@@ -2,323 +2,255 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoStrategy Atlas | 地缘战略图谱</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GeoStrategy Atlas</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg0:#0a0e17;--bg1:#111827;--bg2:#1a2235;--a1:#00d4aa;--a2:#0ea5e9;--aw:#f59e0b;--ad:#ef4444;--ap:#a78bfa;--t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--bc:#1e293b;--ocean:#0c1422;--land:#1a2744;--lh:#243656;--la:#2d4a6f;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color:var(--t1);overflow:hidden;height:100vh;height:100dvh;width:100vw;touch-action:none}
 
-:root {
-  --bg-primary: #0a0e17;
-  --bg-secondary: #111827;
-  --bg-tertiary: #1a2235;
-  --accent-primary: #00d4aa;
-  --accent-secondary: #0ea5e9;
-  --accent-warning: #f59e0b;
-  --accent-danger: #ef4444;
-  --accent-purple: #a78bfa;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: #1e293b;
-  --glow-primary: rgba(0,212,170,0.15);
-  --glow-blue: rgba(14,165,233,0.12);
-  --ocean-color: #0c1422;
-  --land-color: #1a2744;
-  --land-hover: #243656;
-  --land-active: #2d4a6f;
-}
+/* ═══ LAYOUT ═══ */
+.app{display:grid;grid-template-columns:300px 1fr;grid-template-rows:48px 1fr 32px;height:100vh;height:100dvh}
 
-* { margin:0; padding:0; box-sizing:border-box; }
+/* ═══ TOPBAR ═══ */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg1);border-bottom:1px solid var(--bc);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.topbar::-webkit-scrollbar{display:none}
+.menu-btn{display:none;background:0;border:0;color:var(--t1);font-size:20px;cursor:pointer;padding:4px 8px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.logo-i{width:28px;height:28px;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-t{font-weight:700;font-size:13px;letter-spacing:.3px;white-space:nowrap}.logo-t span{color:var(--a1)}
+.spacer{flex:1;min-width:4px}
+.cb{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
+.cb:hover,.cb.active{border-color:var(--a1);color:var(--a1)}
+.cb.active{background:rgba(0,212,170,.1)}
+.vtog{display:flex;background:var(--bg2);border-radius:5px;border:1px solid var(--bc);overflow:hidden;flex-shrink:0}
+.vtog button{background:0;border:0;color:var(--t2);padding:4px 11px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .15s}
+.vtog button.active{background:var(--a1);color:var(--bg0);font-weight:600}
+.sbox{position:relative;flex-shrink:0}
+.sbox input{background:var(--bg2);border:1px solid var(--bc);color:var(--t1);padding:4px 8px 4px 26px;border-radius:5px;font-size:10px;font-family:inherit;width:140px;outline:0;transition:all .2s}
+.sbox input:focus{border-color:var(--a1);width:170px}
+.sbox::before{content:'⌕';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:12px}
+.ltog{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t2);cursor:pointer;user-select:none;flex-shrink:0}
+.ltog input{accent-color:var(--a1);width:14px;height:14px}
 
-body {
-  font-family: 'Noto Sans SC', 'DM Sans', sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  overflow: hidden;
-  height: 100vh; width: 100vw;
-}
+/* ═══ SIDEBAR ═══ */
+.sidebar{background:var(--bg1);border-right:1px solid var(--bc);overflow-y:auto;display:flex;flex-direction:column;z-index:90;transition:transform .3s ease}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--bc);border-radius:2px}
+.sec{padding:12px;border-bottom:1px solid var(--bc)}
+.sec h3{font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tb{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:8px 4px;border-radius:5px;cursor:pointer;font-size:9px;font-family:inherit;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tb .ico{font-size:16px}.tb:hover{border-color:var(--a2);color:var(--a2)}.tb.active{border-color:var(--a1);color:var(--a1);background:rgba(0,212,170,.08)}
 
-.app { display:grid; grid-template-columns:320px 1fr; grid-template-rows:52px 1fr 36px; height:100vh; }
+.cpanel{display:none}.cpanel.vis{display:block}
+.chead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cflag{font-size:28px;line-height:1}.cname{font-size:15px;font-weight:700;line-height:1.2}.cname-sub{font-size:9px;color:var(--t3)}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.scard{background:var(--bg2);border:1px solid var(--bc);border-radius:6px;padding:7px}
+.slbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
+.sval{font-size:14px;font-weight:700;color:var(--a1);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.sval.b{color:var(--a2)}.sval.y{color:var(--aw)}.sval.p{color:var(--ap)}
+.tsec{margin-bottom:10px}.tsec h4{font-size:10px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.tbar{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:9px}
+.tbar-l{width:65px;flex-shrink:0;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tbar-t{flex:1;height:4px;background:var(--bg0);border-radius:2px;overflow:hidden}
+.tbar-f{height:100%;border-radius:2px;transition:width .5s}.tbar-p{width:28px;text-align:right;color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:8px}
+.ef{background:linear-gradient(90deg,var(--a1),#00b894)}.if{background:linear-gradient(90deg,var(--a2),#3b82f6)}
+.dtags{display:flex;flex-wrap:wrap;gap:3px}
+.dtag{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:2px 6px;border-radius:3px;font-size:8px;transition:all .15s}
+.dtag.ally{border-color:rgba(0,212,170,.3);color:var(--a1)}.dtag.rival{border-color:rgba(239,68,68,.3);color:var(--ad)}.dtag.partner{border-color:rgba(14,165,233,.3);color:var(--a2)}.dtag.neighbor{border-color:rgba(245,158,11,.3);color:var(--aw)}
+.api-ld{display:flex;align-items:center;gap:5px;padding:6px 0;color:var(--t3);font-size:10px}
+.api-sp{width:12px;height:12px;border:2px solid var(--bc);border-top-color:var(--a1);border-radius:50%;animation:spin .7s linear infinite}
+.alist{max-height:160px;overflow-y:auto}
+.aitem{background:var(--bg2);border:1px solid var(--bc);border-radius:4px;padding:6px 8px;margin-bottom:4px;font-size:9px;display:flex;align-items:flex-start;gap:5px}
+.aitem .atxt{flex:1;color:var(--t2);line-height:1.4}.aitem .atype{font-size:7px;color:var(--aw);background:rgba(245,158,11,.1);padding:1px 4px;border-radius:2px;white-space:nowrap}
+.adel{background:0;border:0;color:var(--t3);cursor:pointer;font-size:12px;padding:0 2px}.adel:hover{color:var(--ad)}
+.clrbtn{width:100%;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--ad);padding:6px;border-radius:4px;cursor:pointer;font-size:9px;font-family:inherit;margin-top:5px}
 
-/* ── TOP BAR ── */
-.topbar {
-  grid-column:1/-1; display:flex; align-items:center; justify-content:space-between;
-  padding:0 18px; background:var(--bg-secondary); border-bottom:1px solid var(--border-color); z-index:100;
-}
-.logo { display:flex; align-items:center; gap:9px; }
-.logo-ico { width:30px;height:30px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px; }
-.logo-txt { font-weight:700;font-size:14px;letter-spacing:.4px; }
-.logo-txt span { color:var(--accent-primary); }
-.topctrl { display:flex; align-items:center; gap:6px; }
-.cb {
-  background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);
-  padding:5px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s;
-  display:flex;align-items:center;gap:5px;white-space:nowrap;
-}
-.cb:hover { border-color:var(--accent-primary);color:var(--accent-primary); }
-.cb.active { border-color:var(--accent-primary);color:var(--accent-primary);background:var(--glow-primary); }
-.vtog { display:flex;background:var(--bg-tertiary);border-radius:5px;border:1px solid var(--border-color);overflow:hidden; }
-.vtog button { background:0;border:0;color:var(--text-secondary);padding:5px 13px;cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s; }
-.vtog button.active { background:var(--accent-primary);color:var(--bg-primary);font-weight:600; }
-.sbox { position:relative; }
-.sbox input {
-  background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);
-  padding:5px 10px 5px 28px;border-radius:5px;font-size:11px;font-family:inherit;width:180px;outline:0;transition:all .2s;
-}
-.sbox input:focus { border-color:var(--accent-primary);box-shadow:0 0 0 2px var(--glow-primary); }
-.sbox::before { content:'⌕';position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px; }
-.label-toggle { display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary);cursor:pointer;user-select:none; }
-.label-toggle input { accent-color:var(--accent-primary); }
-
-/* ── SIDEBAR ── */
-.sidebar { background:var(--bg-secondary);border-right:1px solid var(--border-color);overflow-y:auto;display:flex;flex-direction:column; }
-.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--border-color);border-radius:2px}
-.sec { padding:14px;border-bottom:1px solid var(--border-color); }
-.sec h3 { font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:5px; }
-.tgrid { display:grid;grid-template-columns:1fr 1fr;gap:5px; }
-.tb {
-  background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);
-  padding:9px 6px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .2s;
-  text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;
-}
-.tb .ico { font-size:17px; }
-.tb:hover { border-color:var(--accent-secondary);color:var(--accent-secondary); }
-.tb.active { border-color:var(--accent-primary);color:var(--accent-primary);background:var(--glow-primary); }
-
-/* Country panel */
-.cpanel { display:none; }
-.cpanel.vis { display:block; }
-.chead { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
-.cflag { font-size:30px;line-height:1; }
-.cname { font-size:17px;font-weight:700;line-height:1.2; }
-.cname-sub { font-size:10px;color:var(--text-muted);font-weight:400; }
-.sgrid { display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px; }
-.scard { background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:7px;padding:8px; }
-.slbl { font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px; }
-.sval { font-size:15px;font-weight:700;color:var(--accent-primary);font-family:'JetBrains Mono',monospace;margin-top:1px; }
-.sval.b{color:var(--accent-secondary)}.sval.y{color:var(--accent-warning)}.sval.p{color:var(--accent-purple)}
-.tsec { margin-bottom:12px; }
-.tsec h4 { font-size:11px;font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:5px; }
-.tbar { display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:10px; }
-.tbar-l { width:72px;flex-shrink:0;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.tbar-t { flex:1;height:5px;background:var(--bg-primary);border-radius:3px;overflow:hidden; }
-.tbar-f { height:100%;border-radius:3px;transition:width .6s ease; }
-.tbar-p { width:32px;text-align:right;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:9px; }
-.ef { background:linear-gradient(90deg,var(--accent-primary),#00b894); }
-.if { background:linear-gradient(90deg,var(--accent-secondary),#3b82f6); }
-.dtags { display:flex;flex-wrap:wrap;gap:3px; }
-.dtag { background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-secondary);padding:2px 7px;border-radius:3px;font-size:9px;cursor:pointer;transition:all .2s; }
-.dtag:hover{border-color:var(--accent-secondary);color:var(--accent-secondary)}
-.dtag.ally{border-color:rgba(0,212,170,.3);color:var(--accent-primary)}
-.dtag.rival{border-color:rgba(239,68,68,.3);color:var(--accent-danger)}
-.dtag.partner{border-color:rgba(14,165,233,.3);color:var(--accent-secondary)}
-.dtag.neighbor{border-color:rgba(245,158,11,.3);color:var(--accent-warning)}
-.api-loading { display:flex;align-items:center;gap:6px;padding:8px 0;color:var(--text-muted);font-size:11px; }
-.api-spin { width:14px;height:14px;border:2px solid var(--border-color);border-top-color:var(--accent-primary);border-radius:50%;animation:spin .8s linear infinite; }
-
-/* Annotations */
-.alist { max-height:180px;overflow-y:auto; }
-.aitem { background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:5px;padding:7px 9px;margin-bottom:5px;font-size:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px; }
-.aitem .atxt { flex:1;color:var(--text-secondary);line-height:1.4; }
-.aitem .atype { font-size:8px;color:var(--accent-warning);background:rgba(245,158,11,.1);padding:1px 5px;border-radius:2px;white-space:nowrap; }
-.adel { background:0;border:0;color:var(--text-muted);cursor:pointer;font-size:13px;padding:0 2px;transition:color .2s; }
-.adel:hover{color:var(--accent-danger)}
-.clrbtn { width:100%;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--accent-danger);padding:7px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;margin-top:6px;transition:all .2s; }
-.clrbtn:hover{background:rgba(239,68,68,.2)}
-
-/* ── MAP ── */
-.mapc { position:relative;overflow:hidden;background:var(--ocean-color); }
-.mapc svg { width:100%;height:100%; }
-.zctrl { position:absolute;bottom:18px;right:18px;display:flex;flex-direction:column;gap:3px;z-index:50; }
-.zb { width:34px;height:34px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-primary);border-radius:5px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s; }
-.zb:hover{border-color:var(--accent-primary);color:var(--accent-primary)}
-.coords { position:absolute;bottom:18px;left:18px;background:rgba(17,24,39,.9);border:1px solid var(--border-color);padding:5px 10px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);z-index:50; }
-.mmap { position:absolute;top:14px;right:14px;width:150px;height:84px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:7px;overflow:hidden;z-index:50;opacity:.85; }
+/* ═══ MAP ═══ */
+.mapc{position:relative;overflow:hidden;background:var(--ocean);touch-action:none}
+.mapc svg{width:100%;height:100%;touch-action:none}
+.zctrl{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;gap:3px;z-index:50}
+.zb{width:36px;height:36px;background:var(--bg1);border:1px solid var(--bc);color:var(--t1);border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.zb:hover{border-color:var(--a1);color:var(--a1)}
+.coords{position:absolute;bottom:14px;left:14px;background:rgba(17,24,39,.88);border:1px solid var(--bc);padding:4px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);z-index:50}
+.mmap{position:absolute;top:10px;right:10px;width:130px;height:72px;background:var(--bg1);border:1px solid var(--bc);border-radius:6px;overflow:hidden;z-index:50;opacity:.8}
 .mmap svg{width:100%;height:100%}
-.ttip { position:absolute;background:rgba(17,24,39,.95);border:1px solid var(--border-color);padding:7px 11px;border-radius:7px;font-size:11px;pointer-events:none;z-index:200;backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;max-width:200px; }
-.ttip .tn{font-weight:700;margin-bottom:1px;color:var(--text-primary)}
-.ttip .td{font-size:9px;color:var(--text-muted)}
-.mleg { position:absolute;top:14px;left:14px;background:rgba(17,24,39,.9);border:1px solid var(--border-color);border-radius:7px;padding:9px 12px;font-size:9px;z-index:50;backdrop-filter:blur(8px);display:none; }
-.mleg-t{font-weight:600;font-size:10px;margin-bottom:5px;color:var(--text-secondary)}
-.mleg-i{display:flex;align-items:center;gap:5px;margin-bottom:2px;color:var(--text-muted)}
-.mleg-d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-.aover { position:absolute;z-index:150;display:none; }
-.abox { background:var(--bg-secondary);border:1px solid var(--accent-primary);border-radius:7px;padding:9px;width:230px;box-shadow:0 8px 32px rgba(0,0,0,.5); }
-.abox textarea { width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);border-radius:4px;padding:5px 7px;font-size:11px;font-family:inherit;resize:none;outline:0;height:55px;margin-bottom:5px; }
-.abox select { width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);border-radius:4px;padding:3px 5px;font-size:10px;font-family:inherit;outline:0;margin-bottom:5px; }
-.aacts { display:flex;gap:5px; }
-.aacts button { flex:1;padding:4px;border-radius:4px;border:1px solid var(--border-color);font-size:10px;font-family:inherit;cursor:pointer;transition:all .2s; }
-.asave { background:var(--accent-primary)!important;color:var(--bg-primary)!important;border-color:var(--accent-primary)!important;font-weight:600; }
-.acancel { background:var(--bg-tertiary);color:var(--text-secondary); }
-
-.loading-ov { position:absolute;inset:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s; }
-.loading-ov.hid{opacity:0;pointer-events:none}
-.lspin{width:44px;height:44px;border:3px solid var(--border-color);border-top-color:var(--accent-primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:14px}
+.ttip{position:absolute;background:rgba(17,24,39,.95);border:1px solid var(--bc);padding:6px 10px;border-radius:6px;font-size:10px;pointer-events:none;z-index:200;backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,.4);display:none;max-width:180px}
+.ttip .tn{font-weight:700;color:var(--t1)}.ttip .td{font-size:8px;color:var(--t3)}
+.mleg{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.88);border:1px solid var(--bc);border-radius:6px;padding:8px 10px;font-size:8px;z-index:50;display:none}
+.mleg-t{font-weight:600;font-size:9px;margin-bottom:4px;color:var(--t2)}.mleg-i{display:flex;align-items:center;gap:4px;margin-bottom:2px;color:var(--t3)}.mleg-d{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.aover{position:absolute;z-index:150;display:none}
+.abox{background:var(--bg1);border:1px solid var(--a1);border-radius:6px;padding:8px;width:220px;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.abox textarea{width:100%;background:var(--bg2);border:1px solid var(--bc);color:var(--t1);border-radius:3px;padding:4px 6px;font-size:10px;font-family:inherit;resize:none;outline:0;height:50px;margin-bottom:4px}
+.abox select{width:100%;background:var(--bg2);border:1px solid var(--bc);color:var(--t1);border-radius:3px;padding:3px 4px;font-size:9px;font-family:inherit;outline:0;margin-bottom:4px}
+.aacts{display:flex;gap:4px}.aacts button{flex:1;padding:4px;border-radius:3px;border:1px solid var(--bc);font-size:9px;font-family:inherit;cursor:pointer}
+.asave{background:var(--a1)!important;color:var(--bg0)!important;border-color:var(--a1)!important;font-weight:600}.acancel{background:var(--bg2);color:var(--t2)}
+.lov{position:absolute;inset:0;background:var(--bg0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s}
+.lov.hid{opacity:0;pointer-events:none}
+.lsp{width:40px;height:40px;border:3px solid var(--bc);border-top-color:var(--a1);border-radius:50%;animation:spin .9s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
+.country-label{fill:rgba(255,255,255,.5);font-family:'Noto Sans SC','DM Sans',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(10,14,23,.85);stroke-width:2.5px;stroke-linejoin:round}
+.country-label.major{fill:rgba(255,255,255,.8);font-weight:600}
+.country-path{fill:var(--land);stroke:rgba(255,255,255,.1);stroke-width:.4;cursor:pointer;transition:fill .12s}
+.country-path:hover{fill:var(--lh)}.country-path.selected{fill:var(--la);stroke:var(--a1);stroke-width:1}
+.graticule{fill:none;stroke:rgba(255,255,255,.035);stroke-width:.4}
+.globe-outline{fill:none;stroke:rgba(255,255,255,.07);stroke-width:1.2}
+.sphere{fill:var(--ocean)}
 
-.country-label { fill:rgba(255,255,255,.55);font-family:'Noto Sans SC','DM Sans',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(10,14,23,.8);stroke-width:2.5px;stroke-linejoin:round; }
-.country-label.major { fill:rgba(255,255,255,.82);font-weight:600; }
+/* ═══ STATUS ═══ */
+.sbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--bg1);border-top:1px solid var(--bc);font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.sbar-l,.sbar-r{display:flex;align-items:center;gap:10px}
+.sdot{width:4px;height:4px;background:var(--a1);border-radius:50%;display:inline-block;margin-right:3px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-.country-path { fill:var(--land-color);stroke:rgba(255,255,255,.12);stroke-width:.5;cursor:pointer;transition:fill .15s; }
-.country-path:hover { fill:var(--land-hover); }
-.country-path.selected { fill:var(--land-active);stroke:var(--accent-primary);stroke-width:1.2; }
-.graticule { fill:none;stroke:rgba(255,255,255,.04);stroke-width:.5; }
-.globe-outline { fill:none;stroke:rgba(255,255,255,.08);stroke-width:1.5; }
-.sphere { fill:var(--ocean-color); }
+/* Mobile overlay for sidebar */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:85}
 
-.sbar { grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:var(--bg-secondary);border-top:1px solid var(--border-color);font-size:9px;color:var(--text-muted);font-family:'JetBrains Mono',monospace; }
-.sbar-l,.sbar-r{display:flex;align-items:center;gap:14px}
-.sdot{width:5px;height:5px;background:var(--accent-primary);border-radius:50%;display:inline-block;margin-right:3px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.mmap{display:none}}
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  .app{grid-template-columns:1fr;grid-template-rows:48px 1fr 32px}
+  .menu-btn{display:flex}
+  .sidebar{position:fixed;left:0;top:48px;bottom:32px;width:280px;transform:translateX(-100%);z-index:90}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .sbox input{width:100px}
+  .sbox input:focus{width:120px}
+  .mmap{width:100px;height:56px;top:8px;right:8px}
+  .zctrl{bottom:10px;right:10px}
+  .zb{width:40px;height:40px;font-size:20px}
+  .coords{font-size:8px;padding:3px 6px;bottom:10px;left:8px}
+  .ttip{font-size:9px;max-width:160px}
+  .logo-t{display:none}
+  .abox{width:200px}
+}
+@media(max-width:400px){
+  .cb{padding:3px 6px;font-size:9px}
+  .vtog button{padding:3px 8px;font-size:9px}
+  .sbox{display:none}
+}
 </style>
 </head>
 <body>
 <div class="app">
 <div class="topbar">
-  <div class="logo"><div class="logo-ico">🌐</div><div class="logo-txt"><span>Geo</span>Strategy Atlas</div></div>
-  <div class="topctrl">
-    <div class="sbox"><input type="text" id="searchInput" placeholder="搜索国家..."/></div>
-    <div class="vtog"><button id="btn3d" class="active" onclick="setView('3d')">3D</button><button id="btn2d" onclick="setView('2d')">2D</button></div>
-    <label class="label-toggle"><input type="checkbox" id="labelToggle" checked onchange="toggleLabels()"/><span data-i18n="labels">地名</span></label>
-    <button class="cb" id="langBtn" onclick="toggleLang()">🌐 <span id="langLabel">EN</span></button>
-    <button class="cb" id="annotateBtn" onclick="toggleTool('annotate')">📌 <span data-i18n="annotate">标注</span></button>
-  </div>
+  <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</button>
+  <div class="logo"><div class="logo-i">🌐</div><div class="logo-t"><span>Geo</span>Strategy</div></div>
+  <div class="spacer"></div>
+  <div class="sbox"><input type="text" id="searchInput" placeholder="搜索国家..."/></div>
+  <div class="vtog"><button id="btn3d" class="active" onclick="setView('3d')">3D</button><button id="btn2d" onclick="setView('2d')">2D</button></div>
+  <label class="ltog"><input type="checkbox" id="labelTog" checked onchange="toggleLabels()"/><span data-i18n="labels">地名</span></label>
+  <button class="cb" onclick="toggleLang()">🌐 <span id="langLbl">EN</span></button>
+  <button class="cb" id="annotateBtn" onclick="toggleTool('annotate')">📌 <span data-i18n="annotate">标注</span></button>
 </div>
+<div class="sidebar-overlay" id="sidebarOv" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
-  <div class="sec">
-    <h3>◈ <span data-i18n="mapLayers">地图图层</span></h3>
-    <div class="tgrid">
-      <button class="tb active" onclick="toggleLayer('countries')" id="layerCountries"><span class="ico">🗺️</span><span data-i18n="layerCountries">国家边界</span></button>
-      <button class="tb" onclick="toggleLayer('graticule')" id="layerGraticule"><span class="ico">🔲</span><span data-i18n="layerGrid">经纬网格</span></button>
-      <button class="tb" onclick="toggleLayer('capitals')" id="layerCapitals"><span class="ico">⭐</span><span data-i18n="layerCapitals">首都标注</span></button>
-      <button class="tb" onclick="toggleLayer('disputes')" id="layerDisputes"><span class="ico">⚡</span><span data-i18n="layerDisputes">争议区域</span></button>
-    </div>
-  </div>
-  <div class="sec">
-    <h3>◈ <span data-i18n="analysisTools">分析工具</span></h3>
-    <div class="tgrid">
-      <button class="tb" onclick="toggleAnalysis('trade')"><span class="ico">📊</span><span data-i18n="tradeFlow">贸易流向</span></button>
-      <button class="tb" onclick="toggleAnalysis('alliance')"><span class="ico">🤝</span><span data-i18n="allianceNet">同盟网络</span></button>
-      <button class="tb" onclick="toggleAnalysis('gdp')"><span class="ico">💰</span><span data-i18n="gdpHeat">GDP热力</span></button>
-      <button class="tb" onclick="toggleAnalysis('military')"><span class="ico">🎖️</span><span data-i18n="militaryPower">军事实力</span></button>
-    </div>
-  </div>
-  <div class="sec cpanel" id="countryPanel">
-    <h3>◈ <span data-i18n="countryInfo">国家信息</span></h3>
+  <div class="sec"><h3>◈ <span data-i18n="mapLayers">地图图层</span></h3><div class="tgrid">
+    <button class="tb active" onclick="toggleLayer('countries')" id="layerCountries"><span class="ico">🗺️</span><span data-i18n="layerCountries">国家边界</span></button>
+    <button class="tb" onclick="toggleLayer('graticule')" id="layerGraticule"><span class="ico">🔲</span><span data-i18n="layerGrid">经纬网格</span></button>
+    <button class="tb" onclick="toggleLayer('capitals')" id="layerCapitals"><span class="ico">⭐</span><span data-i18n="layerCapitals">首都标注</span></button>
+    <button class="tb" onclick="toggleLayer('disputes')" id="layerDisputes"><span class="ico">⚡</span><span data-i18n="layerDisputes">争议区域</span></button>
+  </div></div>
+  <div class="sec"><h3>◈ <span data-i18n="analysisTools">分析工具</span></h3><div class="tgrid">
+    <button class="tb" onclick="toggleAnalysis('trade')"><span class="ico">📊</span><span data-i18n="tradeFlow">贸易流向</span></button>
+    <button class="tb" onclick="toggleAnalysis('alliance')"><span class="ico">🤝</span><span data-i18n="allianceNet">同盟网络</span></button>
+    <button class="tb" onclick="toggleAnalysis('gdp')"><span class="ico">💰</span><span data-i18n="gdpHeat">GDP热力</span></button>
+    <button class="tb" onclick="toggleAnalysis('military')"><span class="ico">🎖️</span><span data-i18n="militaryPower">军事实力</span></button>
+  </div></div>
+  <div class="sec cpanel" id="cPanel"><h3>◈ <span data-i18n="countryInfo">国家信息</span></h3>
     <div class="chead"><div class="cflag" id="cFlag"></div><div><div class="cname" id="cName"></div><div class="cname-sub" id="cNameSub"></div></div></div>
-    <div class="sgrid">
-      <div class="scard"><div class="slbl">GDP (USD)</div><div class="sval" id="sGDP">—</div></div>
-      <div class="scard"><div class="slbl" data-i18n="population">人口</div><div class="sval b" id="sPop">—</div></div>
-      <div class="scard"><div class="slbl" data-i18n="area">面积(km²)</div><div class="sval y" id="sArea">—</div></div>
-      <div class="scard"><div class="slbl" data-i18n="region">地区</div><div class="sval p" id="sRegion" style="font-size:12px">—</div></div>
-    </div>
-    <div class="tsec"><h4>ℹ️ <span data-i18n="basicInfo">基础信息</span></h4><div id="basicInfo"></div></div>
-    <div class="tsec"><h4>📤 <span data-i18n="mainExports">主要出口</span></h4><div id="exportBars"></div></div>
-    <div class="tsec"><h4>📥 <span data-i18n="mainImports">主要进口</span></h4><div id="importBars"></div></div>
-    <div class="tsec"><h4>🤝 <span data-i18n="diplomacy">外交关系</span></h4><div class="dtags" id="diploTags"></div></div>
+    <div class="sgrid"><div class="scard"><div class="slbl">GDP</div><div class="sval" id="sGDP">—</div></div><div class="scard"><div class="slbl" data-i18n="population">人口</div><div class="sval b" id="sPop">—</div></div><div class="scard"><div class="slbl" data-i18n="area">面积km²</div><div class="sval y" id="sArea">—</div></div><div class="scard"><div class="slbl" data-i18n="region">地区</div><div class="sval p" id="sReg" style="font-size:11px">—</div></div></div>
+    <div class="tsec"><h4>ℹ️ <span data-i18n="basicInfo">基础信息</span></h4><div id="bInfo"></div></div>
+    <div class="tsec"><h4>📤 <span data-i18n="mainExports">主要出口</span></h4><div id="exBars"></div></div>
+    <div class="tsec"><h4>📥 <span data-i18n="mainImports">主要进口</span></h4><div id="imBars"></div></div>
+    <div class="tsec"><h4>🤝 <span data-i18n="diplomacy">外交关系</span></h4><div class="dtags" id="dpTags"></div></div>
   </div>
-  <div class="sec">
-    <h3>◈ <span data-i18n="annotations">标注与笔记</span></h3>
-    <div class="alist" id="annoList"><div style="text-align:center;color:var(--text-muted);font-size:10px;padding:14px 0"><span data-i18n="noAnnotations">暂无标注，点击地图添加</span></div></div>
-    <button class="clrbtn" onclick="clearAllAnnotations()" id="clearBtn" style="display:none">🗑️ <span data-i18n="clearAll">一键清除所有标注</span></button>
+  <div class="sec"><h3>◈ <span data-i18n="annotations">标注与笔记</span></h3>
+    <div class="alist" id="aList"><div style="text-align:center;color:var(--t3);font-size:9px;padding:12px 0"><span data-i18n="noAnnotations">暂无标注</span></div></div>
+    <button class="clrbtn" onclick="clearAnnos()" id="clrBtn" style="display:none">🗑️ <span data-i18n="clearAll">一键清除所有标注</span></button>
   </div>
 </div>
 <div class="mapc" id="mapC">
-  <div class="loading-ov" id="loadOv"><div class="lspin"></div><div style="font-size:12px;color:var(--text-secondary)" data-i18n="loading">正在加载地图数据...</div></div>
+  <div class="lov" id="lov"><div class="lsp"></div><div style="font-size:11px;color:var(--t2)" data-i18n="loading">加载地图数据...</div></div>
   <svg id="mapSvg"></svg>
   <div class="ttip" id="ttip"></div>
-  <div class="aover" id="aOver"><div class="abox"><textarea id="aText" placeholder="输入标注内容..."></textarea><select id="aType"><option value="strategic">🎯 战略要点</option><option value="economic">💰 经济观察</option><option value="risk">⚠️ 风险提示</option><option value="note">📝 一般备注</option></select><div class="aacts"><button class="acancel" onclick="cancelAnno()">取消</button><button class="asave" onclick="saveAnno()">保存</button></div></div></div>
+  <div class="aover" id="aOv"><div class="abox"><textarea id="aTxt" placeholder="输入标注内容..."></textarea><select id="aTp"><option value="strategic">🎯 战略要点</option><option value="economic">💰 经济观察</option><option value="risk">⚠️ 风险提示</option><option value="note">📝 一般备注</option></select><div class="aacts"><button class="acancel" onclick="cancelA()">取消</button><button class="asave" onclick="saveA()">保存</button></div></div></div>
   <div class="mleg" id="mLeg"><div class="mleg-t" data-i18n="legendTitle">图例</div><div id="legC"></div></div>
   <div class="coords" id="coordD">0.00°N, 0.00°E</div>
-  <div class="zctrl"><button class="zb" onclick="zoomIn()">+</button><button class="zb" onclick="zoomOut()">−</button><button class="zb" onclick="resetView()" style="font-size:11px">⌂</button></div>
+  <div class="zctrl"><button class="zb" onclick="doZoom(1.5)">+</button><button class="zb" onclick="doZoom(0.67)">−</button><button class="zb" onclick="resetV()" style="font-size:12px">⌂</button></div>
   <div class="mmap" id="mmap"><svg id="mmSvg"></svg></div>
 </div>
-<div class="sbar">
-  <div class="sbar-l"><span><span class="sdot"></span><span data-i18n="ready">就绪</span></span><span id="stCC">—</span><span id="stZ">Zoom: 1.0x</span></div>
-  <div class="sbar-r"><span id="stAC">标注: 0</span><span>GeoStrategy Atlas v3.0</span></div>
-</div>
+<div class="sbar"><div class="sbar-l"><span><span class="sdot"></span><span data-i18n="ready">就绪</span></span><span id="stCC">—</span><span id="stZ">1.0x</span></div><div class="sbar-r"><span id="stA">0</span><span>v4.0</span></div></div>
 </div>
 
 <script>
-/* ═══════════════════ STATE ═══════════════════ */
-const S={lang:'zh',view:'3d',sel:null,tool:null,analysis:null,annos:[],
-  layers:{countries:true,graticule:false,capitals:false,disputes:false},
-  showLabels:true,rot:[0,-20,0],scale:1,wd:null,countries:null,apiCache:{}};
+/* ═══════ STATE ═══════ */
+const S={lang:'zh',view:'3d',sel:null,tool:null,ana:null,annos:[],
+  layers:{countries:1,graticule:0,capitals:0,disputes:0},
+  showLbl:1,rot:[0,-20,0],scale:1,wd:null,ct:null,apiC:{}};
+const isMobile=()=>window.innerWidth<=768;
 
-/* ═══════════════════ I18N ═══════════════════ */
-const L={
-  zh:{mapLayers:'地图图层',layerCountries:'国家边界',layerGrid:'经纬网格',layerCapitals:'首都标注',layerDisputes:'争议区域',analysisTools:'分析工具',tradeFlow:'贸易流向',allianceNet:'同盟网络',gdpHeat:'GDP热力',militaryPower:'军事实力',countryInfo:'国家信息',population:'人口',area:'面积(km²)',region:'地区',basicInfo:'基础信息',mainExports:'主要出口',mainImports:'主要进口',diplomacy:'外交关系',annotations:'标注与笔记',noAnnotations:'暂无标注，点击地图添加',clearAll:'一键清除所有标注',loading:'正在加载地图数据...',ready:'就绪',annotate:'标注',legendTitle:'图例',labels:'地名',searchPh:'搜索国家...',annoPh:'输入标注内容...',capital:'首都',currencies:'货币',languages:'语言',timezones:'时区',continent:'洲',loadingApi:'正在从API获取数据...',noData:'暂无详细贸易数据',annoCount:'标注',ally:'盟友',rival:'对手',partner:'伙伴',neighbor:'邻国'},
-  en:{mapLayers:'Map Layers',layerCountries:'Borders',layerGrid:'Graticule',layerCapitals:'Capitals',layerDisputes:'Disputes',analysisTools:'Analysis Tools',tradeFlow:'Trade Flow',allianceNet:'Alliances',gdpHeat:'GDP Heat',militaryPower:'Military',countryInfo:'Country Info',population:'Population',area:'Area(km²)',region:'Region',basicInfo:'Basic Info',mainExports:'Main Exports',mainImports:'Main Imports',diplomacy:'Diplomacy',annotations:'Annotations',noAnnotations:'No annotations. Click map to add.',clearAll:'Clear All',loading:'Loading map data...',ready:'Ready',annotate:'Annotate',legendTitle:'Legend',labels:'Labels',searchPh:'Search country...',annoPh:'Enter annotation...',capital:'Capital',currencies:'Currency',languages:'Languages',timezones:'Timezone',continent:'Continent',loadingApi:'Fetching from API...',noData:'No trade data',annoCount:'Annotations',ally:'Ally',rival:'Rival',partner:'Partner',neighbor:'Neighbor'}
+/* ═══════ I18N ═══════ */
+const I={
+  zh:{mapLayers:'地图图层',layerCountries:'国家边界',layerGrid:'经纬网格',layerCapitals:'首都标注',layerDisputes:'争议区域',analysisTools:'分析工具',tradeFlow:'贸易流向',allianceNet:'同盟网络',gdpHeat:'GDP热力',militaryPower:'军事实力',countryInfo:'国家信息',population:'人口',area:'面积km²',region:'地区',basicInfo:'基础信息',mainExports:'主要出口',mainImports:'主要进口',diplomacy:'外交关系',annotations:'标注与笔记',noAnnotations:'暂无标注',clearAll:'一键清除所有标注',loading:'加载地图数据...',ready:'就绪',annotate:'标注',legendTitle:'图例',labels:'地名',searchPh:'搜索国家...',capital:'首都',currencies:'货币',languages:'语言',timezones:'时区',continent:'洲',ldApi:'获取API数据...',noData:'暂无贸易数据',ally:'盟友',rival:'对手',partner:'伙伴',neighbor:'邻国'},
+  en:{mapLayers:'Map Layers',layerCountries:'Borders',layerGrid:'Graticule',layerCapitals:'Capitals',layerDisputes:'Disputes',analysisTools:'Analysis',tradeFlow:'Trade',allianceNet:'Alliances',gdpHeat:'GDP',militaryPower:'Military',countryInfo:'Country Info',population:'Population',area:'Area km²',region:'Region',basicInfo:'Basic Info',mainExports:'Exports',mainImports:'Imports',diplomacy:'Diplomacy',annotations:'Notes',noAnnotations:'No annotations',clearAll:'Clear All',loading:'Loading...',ready:'Ready',annotate:'Pin',legendTitle:'Legend',labels:'Labels',searchPh:'Search...',capital:'Capital',currencies:'Currency',languages:'Languages',timezones:'Timezone',continent:'Continent',ldApi:'Fetching...',noData:'No trade data',ally:'Ally',rival:'Rival',partner:'Partner',neighbor:'Neighbor'}
 };
 
-/* ═══════════════════ COUNTRY NAMES ═══════════════════ */
-const ZH={'004':'阿富汗','008':'阿尔巴尼亚','012':'阿尔及利亚','024':'安哥拉','032':'阿根廷','036':'澳大利亚','040':'奥地利','050':'孟加拉国','056':'比利时','064':'不丹','068':'玻利维亚','070':'波黑','072':'博茨瓦纳','076':'巴西','100':'保加利亚','104':'缅甸','108':'布隆迪','116':'柬埔寨','120':'喀麦隆','124':'加拿大','140':'中非','144':'斯里兰卡','148':'乍得','152':'智利','156':'中国','170':'哥伦比亚','178':'刚果(布)','180':'刚果(金)','188':'哥斯达黎加','191':'克罗地亚','192':'古巴','196':'塞浦路斯','203':'捷克','208':'丹麦','214':'多米尼加','218':'厄瓜多尔','818':'埃及','222':'萨尔瓦多','226':'赤道几内亚','232':'厄立特里亚','233':'爱沙尼亚','231':'埃塞俄比亚','238':'福克兰群岛','242':'斐济','246':'芬兰','250':'法国','260':'法属南部领地','266':'加蓬','270':'冈比亚','268':'格鲁吉亚','276':'德国','288':'加纳','300':'希腊','304':'格陵兰','320':'危地马拉','324':'几内亚','328':'圭亚那','332':'海地','340':'洪都拉斯','348':'匈牙利','352':'冰岛','356':'印度','360':'印度尼西亚','364':'伊朗','368':'伊拉克','372':'爱尔兰','376':'以色列','380':'意大利','384':'科特迪瓦','388':'牙买加','392':'日本','400':'约旦','398':'哈萨克斯坦','404':'肯尼亚','408':'朝鲜','410':'韩国','414':'科威特','417':'吉尔吉斯斯坦','418':'老挝','422':'黎巴嫩','426':'莱索托','428':'拉脱维亚','430':'利比里亚','434':'利比亚','440':'立陶宛','442':'卢森堡','450':'马达加斯加','454':'马拉维','458':'马来西亚','466':'马里','478':'毛里塔尼亚','484':'墨西哥','496':'蒙古','498':'摩尔多瓦','499':'黑山','504':'摩洛哥','508':'莫桑比克','516':'纳米比亚','524':'尼泊尔','528':'荷兰','540':'新喀里多尼亚','554':'新西兰','558':'尼加拉瓜','562':'尼日尔','566':'尼日利亚','578':'挪威','512':'阿曼','586':'巴基斯坦','591':'巴拿马','598':'巴布亚新几内亚','600':'巴拉圭','604':'秘鲁','608':'菲律宾','616':'波兰','620':'葡萄牙','630':'波多黎各','634':'卡塔尔','642':'罗马尼亚','643':'俄罗斯','646':'卢旺达','682':'沙特阿拉伯','686':'塞内加尔','688':'塞尔维亚','694':'塞拉利昂','702':'新加坡','703':'斯洛伐克','705':'斯洛文尼亚','706':'索马里','710':'南非','716':'津巴布韦','724':'西班牙','728':'南苏丹','729':'苏丹','740':'苏里南','748':'斯威士兰','752':'瑞典','756':'瑞士','760':'叙利亚','158':'台湾','762':'塔吉克斯坦','764':'泰国','768':'多哥','780':'特立尼达和多巴哥','788':'突尼斯','792':'土耳其','795':'土库曼斯坦','800':'乌干达','804':'乌克兰','784':'阿联酋','826':'英国','834':'坦桑尼亚','840':'美国','858':'乌拉圭','860':'乌兹别克斯坦','862':'委内瑞拉','704':'越南','732':'西撒哈拉','887':'也门','894':'赞比亚'};
-const EN={'004':'Afghanistan','008':'Albania','012':'Algeria','024':'Angola','032':'Argentina','036':'Australia','040':'Austria','050':'Bangladesh','056':'Belgium','064':'Bhutan','068':'Bolivia','070':'Bosnia','072':'Botswana','076':'Brazil','100':'Bulgaria','104':'Myanmar','108':'Burundi','116':'Cambodia','120':'Cameroon','124':'Canada','140':'C.A.R.','144':'Sri Lanka','148':'Chad','152':'Chile','156':'China','170':'Colombia','178':'Congo','180':'DR Congo','188':'Costa Rica','191':'Croatia','192':'Cuba','196':'Cyprus','203':'Czechia','208':'Denmark','214':'Dom. Rep.','218':'Ecuador','818':'Egypt','222':'El Salvador','226':'Eq. Guinea','232':'Eritrea','233':'Estonia','231':'Ethiopia','238':'Falklands','242':'Fiji','246':'Finland','250':'France','260':'Fr. S. Lands','266':'Gabon','270':'Gambia','268':'Georgia','276':'Germany','288':'Ghana','300':'Greece','304':'Greenland','320':'Guatemala','324':'Guinea','328':'Guyana','332':'Haiti','340':'Honduras','348':'Hungary','352':'Iceland','356':'India','360':'Indonesia','364':'Iran','368':'Iraq','372':'Ireland','376':'Israel','380':'Italy','384':"Côte d'Ivoire",'388':'Jamaica','392':'Japan','400':'Jordan','398':'Kazakhstan','404':'Kenya','408':'N. Korea','410':'S. Korea','414':'Kuwait','417':'Kyrgyzstan','418':'Laos','422':'Lebanon','426':'Lesotho','428':'Latvia','430':'Liberia','434':'Libya','440':'Lithuania','442':'Luxembourg','450':'Madagascar','454':'Malawi','458':'Malaysia','466':'Mali','478':'Mauritania','484':'Mexico','496':'Mongolia','498':'Moldova','499':'Montenegro','504':'Morocco','508':'Mozambique','516':'Namibia','524':'Nepal','528':'Netherlands','540':'New Caledonia','554':'New Zealand','558':'Nicaragua','562':'Niger','566':'Nigeria','578':'Norway','512':'Oman','586':'Pakistan','591':'Panama','598':'Papua N.G.','600':'Paraguay','604':'Peru','608':'Philippines','616':'Poland','620':'Portugal','630':'Puerto Rico','634':'Qatar','642':'Romania','643':'Russia','646':'Rwanda','682':'Saudi Arabia','686':'Senegal','688':'Serbia','694':'Sierra Leone','702':'Singapore','703':'Slovakia','705':'Slovenia','706':'Somalia','710':'South Africa','716':'Zimbabwe','724':'Spain','728':'S. Sudan','729':'Sudan','740':'Suriname','748':'Eswatini','752':'Sweden','756':'Switzerland','760':'Syria','158':'Taiwan','762':'Tajikistan','764':'Thailand','768':'Togo','780':'Trinidad','788':'Tunisia','792':'Turkey','795':'Turkmenistan','800':'Uganda','804':'Ukraine','784':'UAE','826':'UK','834':'Tanzania','840':'USA','858':'Uruguay','860':'Uzbekistan','862':'Venezuela','704':'Vietnam','732':'W. Sahara','887':'Yemen','894':'Zambia'};
-const MAJOR=new Set(['156','840','643','356','076','036','124','276','250','826','392','410','484','566','682','360','380','724','764','704','586','818','032','710','804','792','364','398','578','752','528','608','458','862','170']);
+/* ═══════ NAMES ═══════ */
+const ZH={'004':'阿富汗','008':'阿尔巴尼亚','012':'阿尔及利亚','024':'安哥拉','032':'阿根廷','036':'澳大利亚','040':'奥地利','050':'孟加拉国','056':'比利时','064':'不丹','068':'玻利维亚','070':'波黑','072':'博茨瓦纳','076':'巴西','100':'保加利亚','104':'缅甸','108':'布隆迪','116':'柬埔寨','120':'喀麦隆','124':'加拿大','140':'中非','144':'斯里兰卡','148':'乍得','152':'智利','156':'中国','170':'哥伦比亚','178':'刚果(布)','180':'刚果(金)','188':'哥斯达黎加','191':'克罗地亚','192':'古巴','196':'塞浦路斯','203':'捷克','208':'丹麦','214':'多米尼加','218':'厄瓜多尔','818':'埃及','222':'萨尔瓦多','231':'埃塞俄比亚','232':'厄立特里亚','233':'爱沙尼亚','242':'斐济','246':'芬兰','250':'法国','266':'加蓬','268':'格鲁吉亚','270':'冈比亚','276':'德国','288':'加纳','300':'希腊','304':'格陵兰','320':'危地马拉','324':'几内亚','328':'圭亚那','332':'海地','340':'洪都拉斯','348':'匈牙利','352':'冰岛','356':'印度','360':'印度尼西亚','364':'伊朗','368':'伊拉克','372':'爱尔兰','376':'以色列','380':'意大利','384':'科特迪瓦','392':'日本','398':'哈萨克斯坦','400':'约旦','404':'肯尼亚','408':'朝鲜','410':'韩国','414':'科威特','417':'吉尔吉斯斯坦','418':'老挝','422':'黎巴嫩','428':'拉脱维亚','430':'利比里亚','434':'利比亚','440':'立陶宛','450':'马达加斯加','454':'马拉维','458':'马来西亚','466':'马里','478':'毛里塔尼亚','484':'墨西哥','496':'蒙古','498':'摩尔多瓦','499':'黑山','504':'摩洛哥','508':'莫桑比克','512':'阿曼','516':'纳米比亚','524':'尼泊尔','528':'荷兰','554':'新西兰','558':'尼加拉瓜','562':'尼日尔','566':'尼日利亚','578':'挪威','586':'巴基斯坦','591':'巴拿马','598':'巴新','600':'巴拉圭','604':'秘鲁','608':'菲律宾','616':'波兰','620':'葡萄牙','634':'卡塔尔','642':'罗马尼亚','643':'俄罗斯','682':'沙特','686':'塞内加尔','688':'塞尔维亚','702':'新加坡','703':'斯洛伐克','705':'斯洛文尼亚','706':'索马里','710':'南非','716':'津巴布韦','724':'西班牙','728':'南苏丹','729':'苏丹','740':'苏里南','748':'斯威士兰','752':'瑞典','756':'瑞士','760':'叙利亚','762':'塔吉克斯坦','764':'泰国','768':'多哥','788':'突尼斯','792':'土耳其','795':'土库曼斯坦','800':'乌干达','804':'乌克兰','784':'阿联酋','826':'英国','834':'坦桑尼亚','840':'美国','858':'乌拉圭','860':'乌兹别克斯坦','862':'委内瑞拉','704':'越南','887':'也门','894':'赞比亚'};
+const EN={'004':'Afghanistan','008':'Albania','012':'Algeria','024':'Angola','032':'Argentina','036':'Australia','040':'Austria','050':'Bangladesh','056':'Belgium','064':'Bhutan','068':'Bolivia','070':'Bosnia','072':'Botswana','076':'Brazil','100':'Bulgaria','104':'Myanmar','108':'Burundi','116':'Cambodia','120':'Cameroon','124':'Canada','140':'C.A.R.','144':'Sri Lanka','148':'Chad','152':'Chile','156':'China','170':'Colombia','178':'Congo','180':'DR Congo','188':'Costa Rica','191':'Croatia','192':'Cuba','196':'Cyprus','203':'Czechia','208':'Denmark','214':'Dom. Rep.','218':'Ecuador','818':'Egypt','222':'El Salvador','231':'Ethiopia','232':'Eritrea','233':'Estonia','242':'Fiji','246':'Finland','250':'France','266':'Gabon','268':'Georgia','270':'Gambia','276':'Germany','288':'Ghana','300':'Greece','304':'Greenland','320':'Guatemala','324':'Guinea','328':'Guyana','332':'Haiti','340':'Honduras','348':'Hungary','352':'Iceland','356':'India','360':'Indonesia','364':'Iran','368':'Iraq','372':'Ireland','376':'Israel','380':'Italy','384':"Côte d'Ivoire",'392':'Japan','398':'Kazakhstan','400':'Jordan','404':'Kenya','408':'N. Korea','410':'S. Korea','414':'Kuwait','417':'Kyrgyzstan','418':'Laos','422':'Lebanon','428':'Latvia','430':'Liberia','434':'Libya','440':'Lithuania','450':'Madagascar','454':'Malawi','458':'Malaysia','466':'Mali','478':'Mauritania','484':'Mexico','496':'Mongolia','498':'Moldova','499':'Montenegro','504':'Morocco','508':'Mozambique','512':'Oman','516':'Namibia','524':'Nepal','528':'Netherlands','554':'New Zealand','558':'Nicaragua','562':'Niger','566':'Nigeria','578':'Norway','586':'Pakistan','591':'Panama','598':'Papua N.G.','600':'Paraguay','604':'Peru','608':'Philippines','616':'Poland','620':'Portugal','634':'Qatar','642':'Romania','643':'Russia','682':'Saudi Arabia','686':'Senegal','688':'Serbia','702':'Singapore','703':'Slovakia','705':'Slovenia','706':'Somalia','710':'South Africa','716':'Zimbabwe','724':'Spain','728':'S. Sudan','729':'Sudan','740':'Suriname','748':'Eswatini','752':'Sweden','756':'Switzerland','760':'Syria','762':'Tajikistan','764':'Thailand','768':'Togo','788':'Tunisia','792':'Turkey','795':'Turkmenistan','800':'Uganda','804':'Ukraine','784':'UAE','826':'UK','834':'Tanzania','840':'USA','858':'Uruguay','860':'Uzbekistan','862':'Venezuela','704':'Vietnam','887':'Yemen','894':'Zambia'};
+const MAJ=new Set(['156','840','643','356','076','036','124','276','250','826','392','410','484','566','682','360','380','724','764','704','586','818','032','710','804','792','364','398','578','608','458']);
+const N2A={'004':'AFG','008':'ALB','012':'DZA','024':'AGO','032':'ARG','036':'AUS','040':'AUT','050':'BGD','056':'BEL','064':'BTN','068':'BOL','070':'BIH','072':'BWA','076':'BRA','100':'BGR','104':'MMR','108':'BDI','116':'KHM','120':'CMR','124':'CAN','140':'CAF','144':'LKA','148':'TCD','152':'CHL','156':'CHN','170':'COL','178':'COG','180':'COD','188':'CRI','191':'HRV','192':'CUB','196':'CYP','203':'CZE','208':'DNK','214':'DOM','218':'ECU','222':'SLV','231':'ETH','232':'ERI','233':'EST','242':'FJI','246':'FIN','250':'FRA','266':'GAB','268':'GEO','270':'GMB','276':'DEU','288':'GHA','300':'GRC','304':'GRL','320':'GTM','324':'GIN','328':'GUY','332':'HTI','340':'HND','348':'HUN','352':'ISL','356':'IND','360':'IDN','364':'IRN','368':'IRQ','372':'IRL','376':'ISR','380':'ITA','384':'CIV','392':'JPN','398':'KAZ','400':'JOR','404':'KEN','408':'PRK','410':'KOR','414':'KWT','417':'KGZ','418':'LAO','422':'LBN','428':'LVA','430':'LBR','434':'LBY','440':'LTU','450':'MDG','454':'MWI','458':'MYS','466':'MLI','478':'MRT','484':'MEX','496':'MNG','498':'MDA','499':'MNE','504':'MAR','508':'MOZ','512':'OMN','516':'NAM','524':'NPL','528':'NLD','554':'NZL','558':'NIC','562':'NER','566':'NGA','578':'NOR','586':'PAK','591':'PAN','598':'PNG','600':'PRY','604':'PER','608':'PHL','616':'POL','620':'PRT','634':'QAT','642':'ROU','643':'RUS','682':'SAU','686':'SEN','688':'SRB','702':'SGP','703':'SVK','705':'SVN','706':'SOM','710':'ZAF','716':'ZWE','724':'ESP','728':'SSD','729':'SDN','740':'SUR','748':'SWZ','752':'SWE','756':'CHE','760':'SYR','762':'TJK','764':'THA','768':'TGO','788':'TUN','792':'TUR','795':'TKM','800':'UGA','804':'UKR','784':'ARE','818':'EGY','826':'GBR','834':'TZA','840':'USA','858':'URY','860':'UZB','862':'VEN','704':'VNM','887':'YEM','894':'ZMB'};
 
-/* ═══════════════════ NUM→ALPHA3 ═══════════════════ */
-const N2A={'004':'AFG','008':'ALB','012':'DZA','024':'AGO','032':'ARG','036':'AUS','040':'AUT','050':'BGD','056':'BEL','064':'BTN','068':'BOL','070':'BIH','072':'BWA','076':'BRA','100':'BGR','104':'MMR','108':'BDI','116':'KHM','120':'CMR','124':'CAN','140':'CAF','144':'LKA','148':'TCD','152':'CHL','156':'CHN','170':'COL','178':'COG','180':'COD','188':'CRI','191':'HRV','192':'CUB','196':'CYP','203':'CZE','208':'DNK','214':'DOM','218':'ECU','222':'SLV','226':'GNQ','231':'ETH','232':'ERI','233':'EST','238':'FLK','242':'FJI','246':'FIN','250':'FRA','260':'ATF','266':'GAB','268':'GEO','270':'GMB','276':'DEU','288':'GHA','300':'GRC','304':'GRL','320':'GTM','324':'GIN','328':'GUY','332':'HTI','340':'HND','348':'HUN','352':'ISL','356':'IND','360':'IDN','364':'IRN','368':'IRQ','372':'IRL','376':'ISR','380':'ITA','384':'CIV','388':'JAM','392':'JPN','398':'KAZ','400':'JOR','404':'KEN','408':'PRK','410':'KOR','414':'KWT','417':'KGZ','418':'LAO','422':'LBN','426':'LSO','428':'LVA','430':'LBR','434':'LBY','440':'LTU','442':'LUX','450':'MDG','454':'MWI','458':'MYS','466':'MLI','478':'MRT','484':'MEX','496':'MNG','498':'MDA','499':'MNE','504':'MAR','508':'MOZ','512':'OMN','516':'NAM','524':'NPL','528':'NLD','540':'NCL','554':'NZL','558':'NIC','562':'NER','566':'NGA','578':'NOR','586':'PAK','591':'PAN','598':'PNG','600':'PRY','604':'PER','608':'PHL','616':'POL','620':'PRT','630':'PRI','634':'QAT','642':'ROU','643':'RUS','646':'RWA','682':'SAU','686':'SEN','688':'SRB','694':'SLE','702':'SGP','703':'SVK','705':'SVN','706':'SOM','710':'ZAF','716':'ZWE','724':'ESP','728':'SSD','729':'SDN','732':'ESH','740':'SUR','748':'SWZ','752':'SWE','756':'CHE','158':'TWN','760':'SYR','762':'TJK','764':'THA','768':'TGO','780':'TTO','788':'TUN','792':'TUR','795':'TKM','800':'UGA','804':'UKR','784':'ARE','818':'EGY','826':'GBR','834':'TZA','840':'USA','858':'URY','860':'UZB','862':'VEN','704':'VNM','887':'YEM','894':'ZMB'};
-
-/* ═══════════════════ OFFLINE TRADE/DIPLO DATA ═══════════════════ */
+/* ═══════ TRADE DATA (offline) ═══════ */
 const OD={
-'156':{ex:[{n:'电子设备',e:'Electronics',p:26},{n:'机械',e:'Machinery',p:17},{n:'纺织品',e:'Textiles',p:10},{n:'化学品',e:'Chemicals',p:8},{n:'钢铁',e:'Steel',p:6}],im:[{n:'半导体',e:'Semiconductors',p:22},{n:'原油',e:'Crude Oil',p:18},{n:'铁矿石',e:'Iron Ore',p:9},{n:'大豆',e:'Soybeans',p:5},{n:'天然气',e:'Nat. Gas',p:5}],dp:[{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'},{c:'🇵🇰 巴基斯坦',e:'🇵🇰 Pakistan',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'rival'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'neighbor'},{c:'🇰🇷 韩国',e:'🇰🇷 S.Korea',t:'neighbor'},{c:'🇮🇳 印度',e:'🇮🇳 India',t:'rival'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'partner'}]},
-'840':{ex:[{n:'精炼石油',e:'Ref. Petrol.',p:14},{n:'航空器',e:'Aircraft',p:8},{n:'半导体',e:'Semiconductors',p:7},{n:'医药品',e:'Pharma.',p:6},{n:'天然气',e:'Nat. Gas',p:6}],im:[{n:'电子设备',e:'Electronics',p:18},{n:'汽车',e:'Vehicles',p:13},{n:'原油',e:'Crude Oil',p:9},{n:'医药品',e:'Pharma.',p:7},{n:'机械',e:'Machinery',p:6}],dp:[{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'ally'},{c:'🇨🇦 加拿大',e:'🇨🇦 Canada',t:'ally'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'ally'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'rival'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'rival'},{c:'🇮🇱 以色列',e:'🇮🇱 Israel',t:'ally'},{c:'🇦🇺 澳洲',e:'🇦🇺 Australia',t:'ally'},{c:'🇰🇷 韩国',e:'🇰🇷 S.Korea',t:'ally'}]},
-'643':{ex:[{n:'原油',e:'Crude Oil',p:30},{n:'天然气',e:'Nat. Gas',p:14},{n:'金属',e:'Metals',p:10},{n:'化肥',e:'Fertilizers',p:5},{n:'小麦',e:'Wheat',p:4}],im:[{n:'机械',e:'Machinery',p:18},{n:'汽车',e:'Vehicles',p:11},{n:'电子',e:'Electronics',p:10},{n:'医药品',e:'Pharma.',p:7},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇮🇳 印度',e:'🇮🇳 India',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'rival'},{c:'🇧🇾 白俄罗斯',e:'🇧🇾 Belarus',t:'ally'},{c:'🇺🇦 乌克兰',e:'🇺🇦 Ukraine',t:'rival'},{c:'🇹🇷 土耳其',e:'🇹🇷 Türkiye',t:'partner'}]},
-'356':{ex:[{n:'精炼石油',e:'Ref. Petrol.',p:18},{n:'IT服务',e:'IT Services',p:12},{n:'宝石',e:'Gems',p:10},{n:'医药品',e:'Pharma.',p:8},{n:'纺织品',e:'Textiles',p:7}],im:[{n:'原油',e:'Crude Oil',p:28},{n:'黄金',e:'Gold',p:9},{n:'电子',e:'Electronics',p:8},{n:'化学品',e:'Chemicals',p:5},{n:'煤炭',e:'Coal',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'rival'},{c:'🇵🇰 巴基斯坦',e:'🇵🇰 Pakistan',t:'rival'}]},
-'276':{ex:[{n:'汽车',e:'Vehicles',p:18},{n:'机械',e:'Machinery',p:15},{n:'化学品',e:'Chemicals',p:10},{n:'电子',e:'Electronics',p:8},{n:'医药',e:'Pharma.',p:7}],im:[{n:'机械',e:'Machinery',p:11},{n:'汽车',e:'Vehicles',p:8},{n:'化学品',e:'Chemicals',p:8},{n:'电子',e:'Electronics',p:7},{n:'原油',e:'Crude Oil',p:6}],dp:[{c:'🇫🇷 法国',e:'🇫🇷 France',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇵🇱 波兰',e:'🇵🇱 Poland',t:'ally'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'partner'}]},
-'392':{ex:[{n:'汽车',e:'Vehicles',p:22},{n:'机械',e:'Machinery',p:16},{n:'电子',e:'Electronics',p:12},{n:'钢铁',e:'Steel',p:5},{n:'化学品',e:'Chemicals',p:5}],im:[{n:'原油',e:'Crude Oil',p:16},{n:'天然气',e:'Nat. Gas',p:10},{n:'电子',e:'Electronics',p:9},{n:'医药品',e:'Pharma.',p:6},{n:'服装',e:'Apparel',p:4}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇦🇺 澳洲',e:'🇦🇺 Australia',t:'ally'},{c:'🇮🇳 印度',e:'🇮🇳 India',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'neighbor'},{c:'🇰🇷 韩国',e:'🇰🇷 S.Korea',t:'neighbor'}]},
-'826':{ex:[{n:'机械',e:'Machinery',p:14},{n:'汽车',e:'Vehicles',p:11},{n:'医药品',e:'Pharma.',p:10},{n:'金融服务',e:'Finance',p:9},{n:'原油',e:'Crude Oil',p:7}],im:[{n:'机械',e:'Machinery',p:12},{n:'汽车',e:'Vehicles',p:10},{n:'电子',e:'Electronics',p:8},{n:'原油',e:'Crude Oil',p:7},{n:'医药品',e:'Pharma.',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇫🇷 法国',e:'🇫🇷 France',t:'ally'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'partner'},{c:'🇦🇺 澳洲',e:'🇦🇺 Australia',t:'ally'},{c:'🇨🇦 加拿大',e:'🇨🇦 Canada',t:'ally'}]},
-'250':{ex:[{n:'航空器',e:'Aircraft',p:12},{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:8},{n:'医药品',e:'Pharma.',p:7},{n:'化学品',e:'Chemicals',p:6}],im:[{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:9},{n:'原油',e:'Crude Oil',p:7},{n:'电子',e:'Electronics',p:6},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'ally'},{c:'🇮🇹 意大利',e:'🇮🇹 Italy',t:'ally'}]},
-'076':{ex:[{n:'大豆',e:'Soybeans',p:14},{n:'铁矿石',e:'Iron Ore',p:13},{n:'原油',e:'Crude Oil',p:11},{n:'牛肉',e:'Beef',p:6},{n:'蔗糖',e:'Sugar',p:5}],im:[{n:'精炼石油',e:'Ref. Petrol.',p:8},{n:'电子',e:'Electronics',p:7},{n:'汽车配件',e:'Auto Parts',p:5},{n:'化学品',e:'Chemicals',p:5},{n:'医药品',e:'Pharma.',p:4}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇦🇷 阿根廷',e:'🇦🇷 Argentina',t:'ally'}]},
-'682':{ex:[{n:'原油',e:'Crude Oil',p:62},{n:'精炼石油',e:'Ref. Petrol.',p:12},{n:'化学品',e:'Chemicals',p:6},{n:'塑料',e:'Plastics',p:4},{n:'铝材',e:'Aluminum',p:2}],im:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:10},{n:'电子',e:'Electronics',p:9},{n:'食品',e:'Food',p:7},{n:'钢铁',e:'Steel',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇦🇪 阿联酋',e:'🇦🇪 UAE',t:'ally'},{c:'🇮🇷 伊朗',e:'🇮🇷 Iran',t:'rival'}]},
-'410':{ex:[{n:'半导体',e:'Semiconductors',p:20},{n:'汽车',e:'Vehicles',p:12},{n:'石化',e:'Petrochem.',p:8},{n:'船舶',e:'Ships',p:6},{n:'显示屏',e:'Displays',p:5}],im:[{n:'原油',e:'Crude Oil',p:18},{n:'半导体',e:'Semiconductors',p:9},{n:'天然气',e:'Nat. Gas',p:7},{n:'电子',e:'Electronics',p:6},{n:'钢铁',e:'Steel',p:4}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'neighbor'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇰🇵 朝鲜',e:'🇰🇵 N.Korea',t:'rival'}]},
-'036':{ex:[{n:'铁矿石',e:'Iron Ore',p:27},{n:'煤炭',e:'Coal',p:14},{n:'天然气',e:'Nat. Gas',p:12},{n:'黄金',e:'Gold',p:6},{n:'铝土矿',e:'Bauxite',p:4}],im:[{n:'汽车',e:'Vehicles',p:11},{n:'精炼石油',e:'Ref. Petrol.',p:8},{n:'电子',e:'Electronics',p:7},{n:'机械',e:'Machinery',p:6},{n:'医药品',e:'Pharma.',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'ally'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'}]},
-'484':{ex:[{n:'汽车',e:'Vehicles',p:16},{n:'电子',e:'Electronics',p:14},{n:'机械',e:'Machinery',p:9},{n:'原油',e:'Crude Oil',p:7},{n:'农产品',e:'Agriculture',p:5}],im:[{n:'电子',e:'Electronics',p:15},{n:'汽车配件',e:'Auto Parts',p:9},{n:'机械',e:'Machinery',p:8},{n:'精炼石油',e:'Ref. Petrol.',p:6},{n:'塑料',e:'Plastics',p:4}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇨🇦 加拿大',e:'🇨🇦 Canada',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'}]},
-'380':{ex:[{n:'机械',e:'Machinery',p:16},{n:'汽车',e:'Vehicles',p:8},{n:'医药品',e:'Pharma.',p:8},{n:'服装',e:'Apparel',p:6},{n:'食品',e:'Food',p:5}],im:[{n:'原油',e:'Crude Oil',p:10},{n:'汽车',e:'Vehicles',p:8},{n:'机械',e:'Machinery',p:7},{n:'化学品',e:'Chemicals',p:6},{n:'金属',e:'Metals',p:5}],dp:[{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'},{c:'🇫🇷 法国',e:'🇫🇷 France',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'}]},
-'360':{ex:[{n:'棕榈油',e:'Palm Oil',p:14},{n:'煤炭',e:'Coal',p:13},{n:'钢铁',e:'Steel',p:8},{n:'橡胶',e:'Rubber',p:5},{n:'镍',e:'Nickel',p:5}],im:[{n:'精炼石油',e:'Ref. Petrol.',p:11},{n:'电子',e:'Electronics',p:8},{n:'机械',e:'Machinery',p:7},{n:'钢铁',e:'Steel',p:5},{n:'化学品',e:'Chemicals',p:4}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇸🇬 新加坡',e:'🇸🇬 Singapore',t:'neighbor'}]},
-'702':{ex:[{n:'集成电路',e:'ICs',p:22},{n:'精炼石油',e:'Ref. Petrol.',p:16},{n:'机械',e:'Machinery',p:10},{n:'化学品',e:'Chemicals',p:6},{n:'医药品',e:'Pharma.',p:5}],im:[{n:'集成电路',e:'ICs',p:18},{n:'原油',e:'Crude Oil',p:15},{n:'机械',e:'Machinery',p:8},{n:'黄金',e:'Gold',p:4},{n:'汽车',e:'Vehicles',p:3}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇲🇾 马来西亚',e:'🇲🇾 Malaysia',t:'neighbor'},{c:'🇮🇩 印尼',e:'🇮🇩 Indonesia',t:'neighbor'}]},
-'566':{ex:[{n:'原油',e:'Crude Oil',p:45},{n:'天然气',e:'Nat. Gas',p:15},{n:'可可',e:'Cocoa',p:5},{n:'橡胶',e:'Rubber',p:3}],im:[{n:'精炼石油',e:'Ref. Petrol.',p:18},{n:'汽车',e:'Vehicles',p:8},{n:'小麦',e:'Wheat',p:5},{n:'机械',e:'Machinery',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'partner'}]},
-'792':{ex:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:8},{n:'钢铁',e:'Steel',p:7},{n:'服装',e:'Apparel',p:6},{n:'食品',e:'Food',p:5}],im:[{n:'原油',e:'Crude Oil',p:10},{n:'黄金',e:'Gold',p:7},{n:'机械',e:'Machinery',p:6},{n:'钢铁',e:'Steel',p:5},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'}]},
-'764':{ex:[{n:'电子',e:'Electronics',p:14},{n:'汽车',e:'Vehicles',p:11},{n:'橡胶',e:'Rubber',p:6},{n:'化学品',e:'Chemicals',p:5},{n:'食品',e:'Food',p:5}],im:[{n:'原油',e:'Crude Oil',p:14},{n:'电子',e:'Electronics',p:12},{n:'机械',e:'Machinery',p:8},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'}]},
-'704':{ex:[{n:'电子',e:'Electronics',p:35},{n:'纺织品',e:'Textiles',p:12},{n:'鞋类',e:'Footwear',p:7},{n:'机械',e:'Machinery',p:5}],im:[{n:'电子',e:'Electronics',p:28},{n:'机械',e:'Machinery',p:10},{n:'纺织材料',e:'Textile Mat.',p:7},{n:'钢铁',e:'Steel',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'partner'},{c:'🇰🇷 韩国',e:'🇰🇷 S.Korea',t:'partner'}]},
-'586':{ex:[{n:'纺织品',e:'Textiles',p:25},{n:'大米',e:'Rice',p:8},{n:'皮革',e:'Leather',p:5},{n:'体育用品',e:'Sports Goods',p:4}],im:[{n:'原油',e:'Crude Oil',p:22},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:6},{n:'食品',e:'Food',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'ally'},{c:'🇸🇦 沙特',e:'🇸🇦 Saudi',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇮🇳 印度',e:'🇮🇳 India',t:'rival'},{c:'🇹🇷 土耳其',e:'🇹🇷 Turkey',t:'partner'}]},
-'818':{ex:[{n:'原油',e:'Crude Oil',p:25},{n:'天然气',e:'Nat. Gas',p:8},{n:'化肥',e:'Fertilizers',p:5},{n:'纺织品',e:'Textiles',p:4}],im:[{n:'小麦',e:'Wheat',p:10},{n:'精炼石油',e:'Ref. Petrol.',p:7},{n:'汽车',e:'Vehicles',p:5},{n:'机械',e:'Machinery',p:5}],dp:[{c:'🇸🇦 沙特',e:'🇸🇦 Saudi',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'}]},
-'124':{ex:[{n:'原油',e:'Crude Oil',p:18},{n:'汽车',e:'Vehicles',p:10},{n:'天然气',e:'Nat. Gas',p:6},{n:'黄金',e:'Gold',p:5}],im:[{n:'汽车',e:'Vehicles',p:12},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:7},{n:'医药品',e:'Pharma.',p:4}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'ally'},{c:'🇫🇷 法国',e:'🇫🇷 France',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'}]},
-'724':{ex:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:8},{n:'食品',e:'Food',p:7},{n:'医药品',e:'Pharma.',p:5}],im:[{n:'原油',e:'Crude Oil',p:9},{n:'汽车',e:'Vehicles',p:7},{n:'机械',e:'Machinery',p:7},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇫🇷 法国',e:'🇫🇷 France',t:'ally'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'}]},
-'710':{ex:[{n:'黄金',e:'Gold',p:15},{n:'钻石',e:'Diamonds',p:8},{n:'铂金',e:'Platinum',p:7},{n:'铁矿石',e:'Iron Ore',p:6}],im:[{n:'原油',e:'Crude Oil',p:15},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:6},{n:'汽车',e:'Vehicles',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'partner'}]},
-'804':{ex:[{n:'谷物',e:'Cereals',p:18},{n:'钢铁',e:'Steel',p:14},{n:'食用油',e:'Veg. Oil',p:8},{n:'铁矿石',e:'Iron Ore',p:6}],im:[{n:'精炼石油',e:'Ref. Petrol.',p:12},{n:'天然气',e:'Nat. Gas',p:10},{n:'机械',e:'Machinery',p:8},{n:'汽车',e:'Vehicles',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'partner'},{c:'🇵🇱 波兰',e:'🇵🇱 Poland',t:'ally'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'rival'}]},
-'784':{ex:[{n:'原油',e:'Crude Oil',p:30},{n:'精炼石油',e:'Ref. Petrol.',p:10},{n:'黄金',e:'Gold',p:8},{n:'天然气',e:'Nat. Gas',p:6}],im:[{n:'黄金',e:'Gold',p:10},{n:'电子',e:'Electronics',p:8},{n:'机械',e:'Machinery',p:7},{n:'汽车',e:'Vehicles',p:7}],dp:[{c:'🇸🇦 沙特',e:'🇸🇦 Saudi',t:'ally'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇮🇳 印度',e:'🇮🇳 India',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'}]},
-'608':{ex:[{n:'电子',e:'Electronics',p:40},{n:'机械',e:'Machinery',p:6},{n:'水果',e:'Fruits',p:5},{n:'铜矿',e:'Copper',p:3}],im:[{n:'电子',e:'Electronics',p:25},{n:'精炼石油',e:'Ref. Petrol.',p:9},{n:'机械',e:'Machinery',p:6},{n:'汽车',e:'Vehicles',p:4}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'rival'},{c:'🇯🇵 日本',e:'🇯🇵 Japan',t:'partner'}]},
-'458':{ex:[{n:'电子',e:'Electronics',p:28},{n:'棕榈油',e:'Palm Oil',p:10},{n:'石化',e:'Petrochem.',p:8},{n:'天然气',e:'Nat. Gas',p:6}],im:[{n:'电子',e:'Electronics',p:22},{n:'精炼石油',e:'Ref. Petrol.',p:8},{n:'机械',e:'Machinery',p:7},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇸🇬 新加坡',e:'🇸🇬 Singapore',t:'neighbor'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'}]},
-'032':{ex:[{n:'豆粕',e:'Soybean Meal',p:15},{n:'大豆',e:'Soybeans',p:8},{n:'玉米',e:'Corn',p:8},{n:'汽车',e:'Vehicles',p:6}],im:[{n:'汽车',e:'Vehicles',p:8},{n:'天然气',e:'Nat. Gas',p:6},{n:'机械',e:'Machinery',p:5},{n:'电子',e:'Electronics',p:5}],dp:[{c:'🇧🇷 巴西',e:'🇧🇷 Brazil',t:'ally'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'}]},
-'364':{ex:[{n:'原油',e:'Crude Oil',p:50},{n:'天然气',e:'Nat. Gas',p:10},{n:'石化',e:'Petrochem.',p:8},{n:'钢铁',e:'Steel',p:4}],im:[{n:'机械',e:'Machinery',p:12},{n:'电子',e:'Electronics',p:8},{n:'谷物',e:'Cereals',p:6},{n:'汽车',e:'Vehicles',p:5}],dp:[{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'},{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'rival'},{c:'🇸🇦 沙特',e:'🇸🇦 Saudi',t:'rival'}]},
-'398':{ex:[{n:'原油',e:'Crude Oil',p:35},{n:'天然气',e:'Nat. Gas',p:10},{n:'铀矿',e:'Uranium',p:8},{n:'小麦',e:'Wheat',p:5}],im:[{n:'机械',e:'Machinery',p:12},{n:'汽车',e:'Vehicles',p:8},{n:'钢铁',e:'Steel',p:6},{n:'电子',e:'Electronics',p:5}],dp:[{c:'🇷🇺 俄罗斯',e:'🇷🇺 Russia',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇹🇷 土耳其',e:'🇹🇷 Turkey',t:'partner'}]},
-'578':{ex:[{n:'原油',e:'Crude Oil',p:35},{n:'天然气',e:'Nat. Gas',p:25},{n:'鱼类',e:'Fish',p:8},{n:'铝材',e:'Aluminum',p:4}],im:[{n:'汽车',e:'Vehicles',p:10},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:6},{n:'食品',e:'Food',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇬🇧 英国',e:'🇬🇧 UK',t:'ally'},{c:'🇸🇪 瑞典',e:'🇸🇪 Sweden',t:'ally'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'}]},
-'170':{ex:[{n:'原油',e:'Crude Oil',p:30},{n:'煤炭',e:'Coal',p:12},{n:'咖啡',e:'Coffee',p:8},{n:'黄金',e:'Gold',p:5}],im:[{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:7},{n:'电子',e:'Electronics',p:6},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'partner'},{c:'🇨🇳 中国',e:'🇨🇳 China',t:'partner'},{c:'🇪🇨 厄瓜多尔',e:'🇪🇨 Ecuador',t:'neighbor'}]},
-'752':{ex:[{n:'机械',e:'Machinery',p:14},{n:'汽车',e:'Vehicles',p:11},{n:'纸浆',e:'Paper Pulp',p:6},{n:'医药品',e:'Pharma.',p:5}],im:[{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:8},{n:'原油',e:'Crude Oil',p:7},{n:'电子',e:'Electronics',p:6}],dp:[{c:'🇺🇸 美国',e:'🇺🇸 USA',t:'ally'},{c:'🇩🇪 德国',e:'🇩🇪 Germany',t:'ally'},{c:'🇳🇴 挪威',e:'🇳🇴 Norway',t:'ally'},{c:'🇫🇮 芬兰',e:'🇫🇮 Finland',t:'ally'}]},
+'156':{ex:[{n:'电子设备',e:'Electronics',p:26},{n:'机械',e:'Machinery',p:17},{n:'纺织品',e:'Textiles',p:10},{n:'化学品',e:'Chemicals',p:8},{n:'钢铁',e:'Steel',p:6}],im:[{n:'半导体',e:'Semiconductors',p:22},{n:'原油',e:'Crude Oil',p:18},{n:'铁矿石',e:'Iron Ore',p:9},{n:'大豆',e:'Soybeans',p:5},{n:'天然气',e:'LNG',p:5}],dp:[{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'},{c:'🇵🇰巴基斯坦',e:'🇵🇰Pakistan',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'rival'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'neighbor'},{c:'🇰🇷韩国',e:'🇰🇷S.Korea',t:'neighbor'},{c:'🇮🇳印度',e:'🇮🇳India',t:'rival'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'partner'}]},
+'840':{ex:[{n:'精炼石油',e:'Ref.Petrol.',p:14},{n:'航空器',e:'Aircraft',p:8},{n:'半导体',e:'Semicon.',p:7},{n:'医药品',e:'Pharma.',p:6},{n:'天然气',e:'LNG',p:6}],im:[{n:'电子设备',e:'Electronics',p:18},{n:'汽车',e:'Vehicles',p:13},{n:'原油',e:'Crude Oil',p:9},{n:'医药品',e:'Pharma.',p:7},{n:'机械',e:'Machinery',p:6}],dp:[{c:'🇬🇧英国',e:'🇬🇧UK',t:'ally'},{c:'🇨🇦加拿大',e:'🇨🇦Canada',t:'ally'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'ally'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'ally'},{c:'🇨🇳中国',e:'🇨🇳China',t:'rival'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'rival'},{c:'🇮🇱以色列',e:'🇮🇱Israel',t:'ally'},{c:'🇦🇺澳洲',e:'🇦🇺Australia',t:'ally'},{c:'🇰🇷韩国',e:'🇰🇷S.Korea',t:'ally'}]},
+'643':{ex:[{n:'原油',e:'Crude Oil',p:30},{n:'天然气',e:'LNG',p:14},{n:'金属',e:'Metals',p:10},{n:'化肥',e:'Fertilizer',p:5}],im:[{n:'机械',e:'Machinery',p:18},{n:'汽车',e:'Vehicles',p:11},{n:'电子',e:'Electronics',p:10},{n:'医药品',e:'Pharma.',p:7}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇮🇳印度',e:'🇮🇳India',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'rival'},{c:'🇧🇾白俄',e:'🇧🇾Belarus',t:'ally'},{c:'🇺🇦乌克兰',e:'🇺🇦Ukraine',t:'rival'}]},
+'356':{ex:[{n:'精炼石油',e:'Ref.Petrol.',p:18},{n:'IT服务',e:'IT Services',p:12},{n:'宝石',e:'Gems',p:10},{n:'医药品',e:'Pharma.',p:8}],im:[{n:'原油',e:'Crude Oil',p:28},{n:'黄金',e:'Gold',p:9},{n:'电子',e:'Electronics',p:8},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'rival'},{c:'🇵🇰巴基斯坦',e:'🇵🇰Pakistan',t:'rival'}]},
+'276':{ex:[{n:'汽车',e:'Vehicles',p:18},{n:'机械',e:'Machinery',p:15},{n:'化学品',e:'Chemicals',p:10},{n:'电子',e:'Electronics',p:8}],im:[{n:'机械',e:'Machinery',p:11},{n:'汽车',e:'Vehicles',p:8},{n:'化学品',e:'Chemicals',p:8},{n:'电子',e:'Electronics',p:7}],dp:[{c:'🇫🇷法国',e:'🇫🇷France',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇵🇱波兰',e:'🇵🇱Poland',t:'ally'}]},
+'392':{ex:[{n:'汽车',e:'Vehicles',p:22},{n:'机械',e:'Machinery',p:16},{n:'电子',e:'Electronics',p:12},{n:'钢铁',e:'Steel',p:5}],im:[{n:'原油',e:'Crude Oil',p:16},{n:'天然气',e:'LNG',p:10},{n:'电子',e:'Electronics',p:9},{n:'医药品',e:'Pharma.',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇦🇺澳洲',e:'🇦🇺Australia',t:'ally'},{c:'🇮🇳印度',e:'🇮🇳India',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'neighbor'}]},
+'826':{ex:[{n:'机械',e:'Machinery',p:14},{n:'汽车',e:'Vehicles',p:11},{n:'医药品',e:'Pharma.',p:10},{n:'金融',e:'Finance',p:9}],im:[{n:'机械',e:'Machinery',p:12},{n:'汽车',e:'Vehicles',p:10},{n:'电子',e:'Electronics',p:8},{n:'原油',e:'Crude Oil',p:7}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇫🇷法国',e:'🇫🇷France',t:'ally'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'partner'},{c:'🇦🇺澳洲',e:'🇦🇺Australia',t:'ally'}]},
+'250':{ex:[{n:'航空器',e:'Aircraft',p:12},{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:8},{n:'医药品',e:'Pharma.',p:7}],im:[{n:'机械',e:'Machinery',p:10},{n:'汽车',e:'Vehicles',p:9},{n:'原油',e:'Crude Oil',p:7},{n:'电子',e:'Electronics',p:6}],dp:[{c:'🇩🇪德国',e:'🇩🇪Germany',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇬🇧英国',e:'🇬🇧UK',t:'ally'}]},
+'076':{ex:[{n:'大豆',e:'Soybeans',p:14},{n:'铁矿石',e:'Iron Ore',p:13},{n:'原油',e:'Crude Oil',p:11},{n:'牛肉',e:'Beef',p:6}],im:[{n:'精炼石油',e:'Ref.Petrol.',p:8},{n:'电子',e:'Electronics',p:7},{n:'汽车配件',e:'Auto Parts',p:5},{n:'化学品',e:'Chemicals',p:5}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇦🇷阿根廷',e:'🇦🇷Argentina',t:'ally'}]},
+'682':{ex:[{n:'原油',e:'Crude Oil',p:62},{n:'精炼石油',e:'Ref.Petrol.',p:12},{n:'化学品',e:'Chemicals',p:6}],im:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:10},{n:'电子',e:'Electronics',p:9},{n:'食品',e:'Food',p:7}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇦🇪阿联酋',e:'🇦🇪UAE',t:'ally'},{c:'🇮🇷伊朗',e:'🇮🇷Iran',t:'rival'}]},
+'410':{ex:[{n:'半导体',e:'Semicon.',p:20},{n:'汽车',e:'Vehicles',p:12},{n:'石化',e:'Petrochem.',p:8},{n:'船舶',e:'Ships',p:6}],im:[{n:'原油',e:'Crude Oil',p:18},{n:'半导体',e:'Semicon.',p:9},{n:'天然气',e:'LNG',p:7},{n:'电子',e:'Electronics',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'neighbor'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇰🇵朝鲜',e:'🇰🇵N.Korea',t:'rival'}]},
+'036':{ex:[{n:'铁矿石',e:'Iron Ore',p:27},{n:'煤炭',e:'Coal',p:14},{n:'天然气',e:'LNG',p:12},{n:'黄金',e:'Gold',p:6}],im:[{n:'汽车',e:'Vehicles',p:11},{n:'精炼石油',e:'Ref.Petrol.',p:8},{n:'电子',e:'Electronics',p:7},{n:'机械',e:'Machinery',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇬🇧英国',e:'🇬🇧UK',t:'ally'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'ally'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'}]},
+'484':{ex:[{n:'汽车',e:'Vehicles',p:16},{n:'电子',e:'Electronics',p:14},{n:'机械',e:'Machinery',p:9},{n:'原油',e:'Crude Oil',p:7}],im:[{n:'电子',e:'Electronics',p:15},{n:'汽车配件',e:'Auto Parts',p:9},{n:'机械',e:'Machinery',p:8},{n:'精炼石油',e:'Ref.Petrol.',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇨🇦加拿大',e:'🇨🇦Canada',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'}]},
+'360':{ex:[{n:'棕榈油',e:'Palm Oil',p:14},{n:'煤炭',e:'Coal',p:13},{n:'钢铁',e:'Steel',p:8},{n:'镍',e:'Nickel',p:5}],im:[{n:'精炼石油',e:'Ref.Petrol.',p:11},{n:'电子',e:'Electronics',p:8},{n:'机械',e:'Machinery',p:7}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇸🇬新加坡',e:'🇸🇬Singapore',t:'neighbor'}]},
+'702':{ex:[{n:'集成电路',e:'ICs',p:22},{n:'精炼石油',e:'Ref.Petrol.',p:16},{n:'机械',e:'Machinery',p:10}],im:[{n:'集成电路',e:'ICs',p:18},{n:'原油',e:'Crude Oil',p:15},{n:'机械',e:'Machinery',p:8}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇲🇾马来西亚',e:'🇲🇾Malaysia',t:'neighbor'}]},
+'566':{ex:[{n:'原油',e:'Crude Oil',p:45},{n:'天然气',e:'LNG',p:15},{n:'可可',e:'Cocoa',p:5}],im:[{n:'精炼石油',e:'Ref.Petrol.',p:18},{n:'汽车',e:'Vehicles',p:8},{n:'小麦',e:'Wheat',p:5}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇬🇧英国',e:'🇬🇧UK',t:'partner'}]},
+'792':{ex:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:8},{n:'钢铁',e:'Steel',p:7},{n:'服装',e:'Apparel',p:6}],im:[{n:'原油',e:'Crude Oil',p:10},{n:'黄金',e:'Gold',p:7},{n:'机械',e:'Machinery',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'partner'}]},
+'764':{ex:[{n:'电子',e:'Electronics',p:14},{n:'汽车',e:'Vehicles',p:11},{n:'橡胶',e:'Rubber',p:6}],im:[{n:'原油',e:'Crude Oil',p:14},{n:'电子',e:'Electronics',p:12},{n:'机械',e:'Machinery',p:8}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'}]},
+'704':{ex:[{n:'电子',e:'Electronics',p:35},{n:'纺织品',e:'Textiles',p:12},{n:'鞋类',e:'Footwear',p:7}],im:[{n:'电子',e:'Electronics',p:28},{n:'机械',e:'Machinery',p:10},{n:'纺织材料',e:'Textile Mat.',p:7}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'partner'},{c:'🇰🇷韩国',e:'🇰🇷S.Korea',t:'partner'}]},
+'586':{ex:[{n:'纺织品',e:'Textiles',p:25},{n:'大米',e:'Rice',p:8},{n:'皮革',e:'Leather',p:5}],im:[{n:'原油',e:'Crude Oil',p:22},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:6}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'ally'},{c:'🇸🇦沙特',e:'🇸🇦Saudi',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇮🇳印度',e:'🇮🇳India',t:'rival'}]},
+'804':{ex:[{n:'谷物',e:'Cereals',p:18},{n:'钢铁',e:'Steel',p:14},{n:'食用油',e:'Veg.Oil',p:8}],im:[{n:'精炼石油',e:'Ref.Petrol.',p:12},{n:'天然气',e:'LNG',p:10},{n:'机械',e:'Machinery',p:8}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇬🇧英国',e:'🇬🇧UK',t:'partner'},{c:'🇵🇱波兰',e:'🇵🇱Poland',t:'ally'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'rival'}]},
+'724':{ex:[{n:'汽车',e:'Vehicles',p:13},{n:'机械',e:'Machinery',p:8},{n:'食品',e:'Food',p:7}],im:[{n:'原油',e:'Crude Oil',p:9},{n:'汽车',e:'Vehicles',p:7},{n:'机械',e:'Machinery',p:7}],dp:[{c:'🇫🇷法国',e:'🇫🇷France',t:'ally'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'}]},
+'710':{ex:[{n:'黄金',e:'Gold',p:15},{n:'钻石',e:'Diamonds',p:8},{n:'铂金',e:'Platinum',p:7}],im:[{n:'原油',e:'Crude Oil',p:15},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:6}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇩🇪德国',e:'🇩🇪Germany',t:'partner'}]},
+'784':{ex:[{n:'原油',e:'Crude Oil',p:30},{n:'精炼石油',e:'Ref.Petrol.',p:10},{n:'黄金',e:'Gold',p:8}],im:[{n:'黄金',e:'Gold',p:10},{n:'电子',e:'Electronics',p:8},{n:'机械',e:'Machinery',p:7}],dp:[{c:'🇸🇦沙特',e:'🇸🇦Saudi',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇮🇳印度',e:'🇮🇳India',t:'partner'}]},
+'124':{ex:[{n:'原油',e:'Crude Oil',p:18},{n:'汽车',e:'Vehicles',p:10},{n:'天然气',e:'LNG',p:6}],im:[{n:'汽车',e:'Vehicles',p:12},{n:'机械',e:'Machinery',p:8},{n:'电子',e:'Electronics',p:7}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇬🇧英国',e:'🇬🇧UK',t:'ally'},{c:'🇫🇷法国',e:'🇫🇷France',t:'ally'}]},
+'608':{ex:[{n:'电子',e:'Electronics',p:40},{n:'机械',e:'Machinery',p:6},{n:'水果',e:'Fruits',p:5}],im:[{n:'电子',e:'Electronics',p:25},{n:'精炼石油',e:'Ref.Petrol.',p:9},{n:'机械',e:'Machinery',p:6}],dp:[{c:'🇺🇸美国',e:'🇺🇸USA',t:'ally'},{c:'🇨🇳中国',e:'🇨🇳China',t:'rival'},{c:'🇯🇵日本',e:'🇯🇵Japan',t:'partner'}]},
+'458':{ex:[{n:'电子',e:'Electronics',p:28},{n:'棕榈油',e:'Palm Oil',p:10},{n:'石化',e:'Petrochem.',p:8}],im:[{n:'电子',e:'Electronics',p:22},{n:'精炼石油',e:'Ref.Petrol.',p:8},{n:'机械',e:'Machinery',p:7}],dp:[{c:'🇸🇬新加坡',e:'🇸🇬Singapore',t:'neighbor'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'}]},
+'364':{ex:[{n:'原油',e:'Crude Oil',p:50},{n:'天然气',e:'LNG',p:10},{n:'石化',e:'Petrochem.',p:8}],im:[{n:'机械',e:'Machinery',p:12},{n:'电子',e:'Electronics',p:8},{n:'谷物',e:'Cereals',p:6}],dp:[{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'rival'},{c:'🇸🇦沙特',e:'🇸🇦Saudi',t:'rival'}]},
+'398':{ex:[{n:'原油',e:'Crude Oil',p:35},{n:'天然气',e:'LNG',p:10},{n:'铀矿',e:'Uranium',p:8}],im:[{n:'机械',e:'Machinery',p:12},{n:'汽车',e:'Vehicles',p:8},{n:'钢铁',e:'Steel',p:6}],dp:[{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'},{c:'🇨🇳中国',e:'🇨🇳China',t:'partner'}]},
+'818':{ex:[{n:'原油',e:'Crude Oil',p:25},{n:'天然气',e:'LNG',p:8},{n:'化肥',e:'Fertilizer',p:5}],im:[{n:'小麦',e:'Wheat',p:10},{n:'精炼石油',e:'Ref.Petrol.',p:7},{n:'汽车',e:'Vehicles',p:5}],dp:[{c:'🇸🇦沙特',e:'🇸🇦Saudi',t:'ally'},{c:'🇺🇸美国',e:'🇺🇸USA',t:'partner'},{c:'🇷🇺俄罗斯',e:'🇷🇺Russia',t:'partner'}]},
 };
 
-/* ═══════════════════ MAP GLOBALS ═══════════════════ */
-let svg,g,labelG,proj,path,zoomB,mmSvg,mmProj,mmPath,W,H;
+/* ═══════ MAP ═══════ */
+let svg,g,lblG,proj,path,zoomB,mmSvg,mmP,mmPh,W,H;
 
-/* ═══════════════════ API ═══════════════════ */
-async function fetchAPI(a3){
-  if(S.apiCache[a3])return S.apiCache[a3];
-  try{
-    const r=await fetch(`https://restcountries.com/v3.1/alpha/${a3}?fields=name,capital,currencies,languages,flag,population,area,region,subregion,timezones,borders,latlng,cca2,cca3`);
-    if(!r.ok)return null;
-    const d=await r.json(); S.apiCache[a3]=d; return d;
-  }catch(e){return null;}
-}
+/* KEY FIX: We use a single zoom behavior for BOTH 2D and 3D.
+   In 3D: zoom = scale projection; "pan" part of zoom is IGNORED, rotation is separate.
+   In 2D: zoom = transform g (both pan AND scale work naturally).
+   We do NOT use d3.drag() at all — we use pointer events for globe rotation. */
 
-/* ═══════════════════ INIT ═══════════════════ */
+let rotDrag=null, rotStart=null;
+
 function initMap(){
-  const c=document.getElementById('mapC'); W=c.clientWidth;H=c.clientHeight;
+  const c=document.getElementById('mapC');W=c.clientWidth;H=c.clientHeight;
   svg=d3.select('#mapSvg').attr('width',W).attr('height',H);
   proj=d3.geoOrthographic().scale(Math.min(W,H)/2.3).translate([W/2,H/2]).rotate(S.rot).clipAngle(90);
   path=d3.geoPath().projection(proj);
@@ -327,75 +259,98 @@ function initMap(){
   g.append('path').datum({type:'Sphere'}).attr('class','sphere').attr('d',path).style('fill','url(#oG)');
   g.append('path').datum(d3.geoGraticule()()).attr('class','graticule').attr('d',path).style('display','none');
   g.append('path').datum({type:'Sphere'}).attr('class','globe-outline').attr('d',path);
-  labelG=svg.append('g').attr('class','lbl-g');
-  mmSvg=d3.select('#mmSvg');
-  mmProj=d3.geoNaturalEarth1().scale(26).translate([75,44]);
-  mmPath=d3.geoPath().projection(mmProj);
-  mmSvg.append('rect').attr('width',150).attr('height',84).attr('fill','#0c1422');
-  loadWorld(); setupInteract(); setupSearch();
+  lblG=svg.append('g');
+  mmSvg=d3.select('#mmSvg');mmP=d3.geoNaturalEarth1().scale(22).translate([65,38]);mmPh=d3.geoPath().projection(mmP);
+  mmSvg.append('rect').attr('width',130).attr('height',72).attr('fill','#0c1422');
+  loadWorld();setupZoom();setupSearch();
 }
 
 async function loadWorld(){
   try{
-    const data=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
-    S.wd=data; S.countries=topojson.feature(data,data.objects.countries);
-    renderC(); renderLabels(); renderMM();
-    document.getElementById('loadOv').classList.add('hid');
-    document.getElementById('stCC').textContent=S.lang==='zh'?`${S.countries.features.length} 个国家/地区`:`${S.countries.features.length} Countries`;
-  }catch(e){document.getElementById('loadOv').innerHTML='<div style="color:var(--accent-danger)">地图加载失败，请刷新</div>';}
+    const d=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    S.wd=d;S.ct=topojson.feature(d,d.objects.countries);
+    renderC();renderLbl();renderMM();
+    document.getElementById('lov').classList.add('hid');
+    updCC();
+  }catch(e){document.getElementById('lov').innerHTML='<div style="color:var(--ad)">加载失败</div>';}
 }
 
 function renderC(){
   g.selectAll('.country-path').remove();
-  g.selectAll('.country-path').data(S.countries.features).enter().append('path')
+  g.selectAll('.country-path').data(S.ct.features).enter().append('path')
     .attr('class','country-path').attr('d',path).attr('data-id',d=>d.id)
-    .on('click',function(ev,d){if(S.tool==='annotate'){showAnnoInput(ev);return;}selectCountry(d,this);})
+    .on('click',function(ev,d){ev.stopPropagation();if(S.tool==='annotate'){showAI(ev);return;}selC(d,this);})
     .on('mousemove',function(ev,d){showTip(ev,d);}).on('mouseout',hideTip);
-  renderAnnoM();
+  renderAM();
   g.select('.globe-outline').attr('d',path);g.select('.sphere').attr('d',path);g.select('.graticule').attr('d',path);
 }
 
-function renderLabels(){
-  labelG.selectAll('*').remove();
-  if(!S.showLabels||!S.countries)return;
-  S.countries.features.forEach(f=>{
-    const id=f.id,nm=S.lang==='zh'?(ZH[id]||''):(EN[id]||'');
-    if(!nm)return;
-    const ct=d3.geoCentroid(f),pos=proj(ct);
-    if(!pos)return;
-    if(S.view==='3d'){if(d3.geoDistance(ct,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;}
-    const maj=MAJOR.has(id);
-    if(S.view==='3d'&&!maj&&S.scale<1.5)return;
-    if(S.view==='2d'&&!maj&&S.scale<1.2)return;
-    let fs=maj?10:7.5;
-    if(S.view==='2d')fs=Math.min(maj?10/Math.max(S.scale*.7,0.4):7.5/Math.max(S.scale*.7,0.4),16);
-    labelG.append('text').attr('class','country-label'+(maj?' major':'')).attr('x',pos[0]).attr('y',pos[1])
+function renderLbl(){
+  lblG.selectAll('*').remove();
+  if(!S.showLbl||!S.ct)return;
+  S.ct.features.forEach(f=>{
+    const id=f.id,nm=S.lang==='zh'?(ZH[id]||''):(EN[id]||'');if(!nm)return;
+    const ct=d3.geoCentroid(f),pos=proj(ct);if(!pos)return;
+    if(S.view==='3d'&&d3.geoDistance(ct,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;
+    const mj=MAJ.has(id);
+    if(S.view==='3d'&&!mj&&S.scale<1.5)return;
+    if(S.view==='2d'&&!mj&&S.scale<1.2)return;
+    let fs=mj?10:7;
+    if(S.view==='2d')fs=Math.min((mj?10:7)/Math.max(S.scale*.65,.35),16);
+    lblG.append('text').attr('class','country-label'+(mj?' major':'')).attr('x',pos[0]).attr('y',pos[1])
       .attr('data-lng',ct[0]).attr('data-lat',ct[1]).style('font-size',fs+'px').text(nm);
   });
 }
 
-function renderMM(){
-  if(!S.countries)return;
-  mmSvg.selectAll('.mc').remove();
-  mmSvg.selectAll('.mc').data(S.countries.features).enter().append('path')
-    .attr('class','mc').attr('d',mmPath).attr('fill','#1a2744').attr('stroke','rgba(255,255,255,.08)').attr('stroke-width',.3);
-}
+function renderMM(){if(!S.ct)return;mmSvg.selectAll('.mc').remove();mmSvg.selectAll('.mc').data(S.ct.features).enter().append('path').attr('class','mc').attr('d',mmPh).attr('fill','#1a2744').attr('stroke','rgba(255,255,255,.06)').attr('stroke-width',.2);}
 
-/* ═══════════════════ INTERACTIONS ═══════════════════ */
-function setupInteract(){
-  let ds=null,dr=null;
-  svg.call(d3.drag()
-    .on('start',ev=>{if(S.view!=='3d')return;ds=[ev.x,ev.y];dr=[...proj.rotate()];})
-    .on('drag',ev=>{if(S.view!=='3d'||!ds)return;const s=.4;const nr=[dr[0]+(ev.x-ds[0])*s,Math.max(-90,Math.min(90,dr[1]-(ev.y-ds[1])*s)),dr[2]];S.rot=nr;proj.rotate(nr);updateAll();})
-    .on('end',()=>{ds=null;})
-  );
-  zoomB=d3.zoom().scaleExtent([0.5,12]).on('zoom',ev=>{
-    S.scale=ev.transform.k;
-    if(S.view==='2d'){g.attr('transform',ev.transform);labelG.attr('transform',ev.transform);renderLabels();}
-    else{proj.scale(Math.min(W,H)/2.3*ev.transform.k);updateAll();}
-    document.getElementById('stZ').textContent=`Zoom: ${S.scale.toFixed(1)}x`;
-  });
+/* ═══════ ZOOM + ROTATION (THE FIX) ═══════ */
+function setupZoom(){
+  /* Zoom handles both pan (2D) and scale (both modes) */
+  zoomB=d3.zoom().scaleExtent([0.5,12])
+    .filter(ev=>{
+      /* In 3D, block pan (translate) from zoom — only allow wheel/pinch for scale */
+      if(S.view==='3d'){
+        // Allow wheel, pinch (touch with 2+ fingers), and dblclick
+        if(ev.type==='wheel')return true;
+        if(ev.type==='dblclick')return true;
+        if(ev.touches&&ev.touches.length>=2)return true;
+        return false; // Block single-finger/mouse drag from zoom (we handle rotation separately)
+      }
+      return true; // In 2D, allow everything (pan + zoom)
+    })
+    .on('zoom',ev=>{
+      S.scale=ev.transform.k;
+      if(S.view==='2d'){
+        g.attr('transform',ev.transform);
+        lblG.attr('transform',ev.transform);
+        renderLbl();
+      } else {
+        proj.scale(Math.min(W,H)/2.3*ev.transform.k);
+        updAll();
+      }
+      document.getElementById('stZ').textContent=S.scale.toFixed(1)+'x';
+    });
   svg.call(zoomB);
+
+  /* 3D globe rotation via pointer events (does NOT conflict with zoom) */
+  const svgNode=svg.node();
+  svgNode.addEventListener('pointerdown',ev=>{
+    if(S.view!=='3d')return;
+    if(ev.pointerType==='touch'){ /* Only single touch rotates */ }
+    rotDrag={x:ev.clientX,y:ev.clientY};rotStart=[...proj.rotate()];
+    svgNode.setPointerCapture(ev.pointerId);
+  });
+  svgNode.addEventListener('pointermove',ev=>{
+    if(!rotDrag||S.view!=='3d')return;
+    const dx=ev.clientX-rotDrag.x,dy=ev.clientY-rotDrag.y,s=.35;
+    const nr=[rotStart[0]+dx*s,Math.max(-90,Math.min(90,rotStart[1]-dy*s)),0];
+    S.rot=nr;proj.rotate(nr);updAll();
+  });
+  svgNode.addEventListener('pointerup',()=>{rotDrag=null;});
+  svgNode.addEventListener('pointercancel',()=>{rotDrag=null;});
+
+  /* Coord display */
   svg.on('mousemove',ev=>{
     const[x,y]=d3.pointer(ev);let co;
     if(S.view==='2d'){const t=d3.zoomTransform(svg.node());co=proj.invert([(x-t.x)/t.k,(y-t.y)/t.k]);}
@@ -404,145 +359,140 @@ function setupInteract(){
   });
 }
 
-function updateAll(){
+function updAll(){
   g.selectAll('.country-path').attr('d',path);
   g.select('.graticule').attr('d',path);g.select('.globe-outline').attr('d',path);g.select('.sphere').attr('d',path);
-  renderLabels();
-  g.selectAll('.cap-dot,.cap-lbl,.anno-marker,.disp-c').each(function(){
+  renderLbl();
+  g.selectAll('.cap-d,.cap-l,.anno-marker,.disp-c').each(function(){
     const el=d3.select(this),co=[+el.attr('data-lng'),+el.attr('data-lat')],p=proj(co);
     if(!p)return;
     if(S.view==='3d'){const dd=d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]]);el.style('display',dd>Math.PI/2?'none':'block');}
     if(this.tagName==='circle')el.attr('cx',p[0]).attr('cy',p[1]);
-    else if(this.tagName==='text')el.attr('x',p[0]+5).attr('y',p[1]+3);
+    else if(this.tagName==='text')el.attr('x',p[0]+4).attr('y',p[1]+3);
   });
 }
 
-/* ═══════════════════ VIEW SWITCH ═══════════════════ */
+/* ═══════ VIEW SWITCH ═══════ */
 function setView(v){
   S.view=v;
   document.getElementById('btn3d').classList.toggle('active',v==='3d');
   document.getElementById('btn2d').classList.toggle('active',v==='2d');
-  svg.call(zoomB.transform,d3.zoomIdentity);S.scale=1;g.attr('transform',null);labelG.attr('transform',null);
+  svg.call(zoomB.transform,d3.zoomIdentity);S.scale=1;g.attr('transform',null);lblG.attr('transform',null);
   if(v==='3d'){proj=d3.geoOrthographic().scale(Math.min(W,H)/2.3).translate([W/2,H/2]).rotate(S.rot).clipAngle(90);g.select('.sphere').style('display','block');g.select('.globe-outline').style('display','block');}
   else{proj=d3.geoNaturalEarth1().scale(Math.min(W,H)/3.5).translate([W/2,H/2]);g.select('.sphere').style('display','none');g.select('.globe-outline').style('display','none');}
-  path=d3.geoPath().projection(proj);renderC();renderLabels();
+  path=d3.geoPath().projection(proj);renderC();renderLbl();
   if(S.layers.capitals)renderCaps();if(S.layers.disputes)showDisp();
-  document.getElementById('stZ').textContent='Zoom: 1.0x';
+  document.getElementById('stZ').textContent='1.0x';
 }
 
-/* ═══════════════════ SELECT COUNTRY ═══════════════════ */
-async function selectCountry(d,el){
+/* ═══════ SELECT COUNTRY ═══════ */
+async function selC(d,el){
   g.selectAll('.country-path').classed('selected',false);d3.select(el).classed('selected',true);S.sel=d.id;
-  const p=document.getElementById('countryPanel');p.classList.add('vis');
+  const p=document.getElementById('cPanel');p.classList.add('vis');
+  if(isMobile()){document.getElementById('sidebar').classList.add('open');document.getElementById('sidebarOv').classList.add('open');}
   const nz=ZH[d.id]||`#${d.id}`,ne=EN[d.id]||`#${d.id}`;
   document.getElementById('cName').textContent=S.lang==='zh'?nz:ne;
   document.getElementById('cNameSub').textContent=S.lang==='zh'?ne:nz;
-  document.getElementById('sGDP').textContent='...';document.getElementById('sPop').textContent='...';
-  document.getElementById('sArea').textContent='...';document.getElementById('sRegion').textContent='...';
-  document.getElementById('basicInfo').innerHTML=`<div class="api-loading"><div class="api-spin"></div>${L[S.lang].loadingApi}</div>`;
-  // 3D rotate
-  if(S.view==='3d'){const ct=d3.geoCentroid(d),tr=[-ct[0],-ct[1],0],cr=proj.rotate();d3.transition().duration(700).tween('r',()=>{const r=d3.interpolate(cr,tr);return t=>{proj.rotate(r(t));S.rot=r(t);updateAll();};});}
-  // API
-  const a3=N2A[d.id];let api=null;if(a3)api=await fetchAPI(a3);
+  ['sGDP','sPop','sArea'].forEach(x=>document.getElementById(x).textContent='...');
+  document.getElementById('sReg').textContent='...';
+  document.getElementById('bInfo').innerHTML=`<div class="api-ld"><div class="api-sp"></div>${I[S.lang].ldApi}</div>`;
+  if(S.view==='3d'){const ct=d3.geoCentroid(d),tr=[-ct[0],-ct[1],0],cr=proj.rotate();d3.transition().duration(600).tween('r',()=>{const r=d3.interpolate(cr,tr);return t=>{proj.rotate(r(t));S.rot=r(t);updAll();};});}
+  const a3=N2A[d.id];let api=null;if(a3)try{const r=await fetch(`https://restcountries.com/v3.1/alpha/${a3}?fields=name,capital,currencies,languages,flag,population,area,region,subregion,timezones,borders`);if(r.ok){api=await r.json();S.apiC[a3]=api;}}catch(e){}
   if(api){
     document.getElementById('cFlag').textContent=api.flag||'🏳️';
     document.getElementById('sPop').textContent=fN(api.population);
     document.getElementById('sArea').textContent=fN(api.area);
-    document.getElementById('sRegion').textContent=S.lang==='zh'?rZh(api.region):(api.subregion||api.region||'—');
+    document.getElementById('sReg').textContent=S.lang==='zh'?rZ(api.region):(api.subregion||api.region||'—');
     document.getElementById('sGDP').textContent='—';
     const cap=api.capital?api.capital.join(', '):'—';
     const cur=api.currencies?Object.values(api.currencies).map(c=>c.name+(c.symbol?' ('+c.symbol+')':'')).join(', '):'—';
     const lng=api.languages?Object.values(api.languages).join(', '):'—';
-    const tz=api.timezones?api.timezones.slice(0,3).join(', ')+(api.timezones.length>3?' ...':''):'—';
-    const brd=api.borders&&api.borders.length?api.borders.join(', '):(S.lang==='zh'?'无陆上邻国':'None');
-    document.getElementById('basicInfo').innerHTML=`<div style="font-size:11px;color:var(--text-secondary);line-height:1.9">
-      <div><span style="color:var(--text-muted)">${L[S.lang].capital}:</span> ${cap}</div>
-      <div><span style="color:var(--text-muted)">${L[S.lang].currencies}:</span> ${cur}</div>
-      <div><span style="color:var(--text-muted)">${L[S.lang].languages}:</span> ${lng}</div>
-      <div><span style="color:var(--text-muted)">${L[S.lang].timezones}:</span> ${tz}</div>
-      <div><span style="color:var(--text-muted)">${S.lang==='zh'?'陆上邻国':'Borders'}:</span> ${brd}</div>
-      <div><span style="color:var(--text-muted)">${L[S.lang].continent}:</span> ${S.lang==='zh'?rZh(api.region):api.region}</div></div>`;
+    const tz=api.timezones?api.timezones.slice(0,3).join(', ')+(api.timezones.length>3?' …':''):'—';
+    const brd=api.borders&&api.borders.length?api.borders.join(', '):(S.lang==='zh'?'岛国/无陆上邻国':'Island/None');
+    document.getElementById('bInfo').innerHTML=`<div style="font-size:10px;color:var(--t2);line-height:1.8">
+      <div><span style="color:var(--t3)">${I[S.lang].capital}:</span> ${cap}</div>
+      <div><span style="color:var(--t3)">${I[S.lang].currencies}:</span> ${cur}</div>
+      <div><span style="color:var(--t3)">${I[S.lang].languages}:</span> ${lng}</div>
+      <div><span style="color:var(--t3)">${I[S.lang].timezones}:</span> ${tz}</div>
+      <div><span style="color:var(--t3)">${S.lang==='zh'?'邻国':'Borders'}:</span> ${brd}</div></div>`;
   } else {
-    document.getElementById('cFlag').textContent='🏳️';['sGDP','sPop','sArea','sRegion'].forEach(x=>document.getElementById(x).textContent='—');
-    document.getElementById('basicInfo').innerHTML=`<div style="font-size:10px;color:var(--text-muted)">${S.lang==='zh'?'API数据不可用':'API unavailable'}</div>`;
+    document.getElementById('cFlag').textContent='🏳️';['sGDP','sPop','sArea'].forEach(x=>document.getElementById(x).textContent='—');document.getElementById('sReg').textContent='—';
+    document.getElementById('bInfo').innerHTML=`<div style="font-size:9px;color:var(--t3)">API不可用</div>`;
   }
   const od=OD[d.id];
-  if(od){renderBars('exportBars',od.ex,'ef');renderBars('importBars',od.im,'if');renderDiplo(od.dp);}
-  else{document.getElementById('exportBars').innerHTML=`<div style="font-size:10px;color:var(--text-muted);padding:4px 0">${L[S.lang].noData}</div>`;document.getElementById('importBars').innerHTML='';document.getElementById('diploTags').innerHTML='';}
+  if(od){rBars('exBars',od.ex,'ef');rBars('imBars',od.im,'if');rDip(od.dp);}
+  else{document.getElementById('exBars').innerHTML=`<div style="font-size:9px;color:var(--t3);padding:3px 0">${I[S.lang].noData}</div>`;document.getElementById('imBars').innerHTML='';document.getElementById('dpTags').innerHTML='';}
 }
 
-function fN(n){if(!n&&n!==0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n.toString();}
-function rZh(r){return{'Africa':'非洲','Americas':'美洲','Asia':'亚洲','Europe':'欧洲','Oceania':'大洋洲','Antarctic':'南极洲'}[r]||r||'—';}
-function renderBars(cid,items,fc){document.getElementById(cid).innerHTML=items.map(i=>`<div class="tbar"><div class="tbar-l">${S.lang==='zh'?i.n:i.e}</div><div class="tbar-t"><div class="tbar-f ${fc}" style="width:${i.p*2.5}%"></div></div><div class="tbar-p">${i.p}%</div></div>`).join('');}
-function renderDiplo(rels){document.getElementById('diploTags').innerHTML=rels.map(r=>`<div class="dtag ${r.t}" title="${L[S.lang][r.t]||r.t}">${S.lang==='zh'?r.c:r.e}</div>`).join('');}
+function fN(n){if(!n&&n!==0)return'—';if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return''+n;}
+function rZ(r){return{'Africa':'非洲','Americas':'美洲','Asia':'亚洲','Europe':'欧洲','Oceania':'大洋洲'}[r]||r||'—';}
+function rBars(id,items,fc){document.getElementById(id).innerHTML=items.map(i=>`<div class="tbar"><div class="tbar-l">${S.lang==='zh'?i.n:i.e}</div><div class="tbar-t"><div class="tbar-f ${fc}" style="width:${i.p*2.5}%"></div></div><div class="tbar-p">${i.p}%</div></div>`).join('');}
+function rDip(rels){document.getElementById('dpTags').innerHTML=rels.map(r=>`<div class="dtag ${r.t}">${S.lang==='zh'?r.c:r.e}</div>`).join('');}
 
-/* ═══════════════════ TOOLTIP ═══════════════════ */
-function showTip(ev,d){const t=document.getElementById('ttip'),nm=S.lang==='zh'?(ZH[d.id]||`#${d.id}`):(EN[d.id]||`#${d.id}`);t.innerHTML=`<div class="tn">${nm}</div><div class="td">${S.lang==='zh'?'点击查看详情':'Click for details'}</div>`;t.style.display='block';t.style.left=(ev.offsetX+14)+'px';t.style.top=(ev.offsetY-8)+'px';}
+function showTip(ev,d){const t=document.getElementById('ttip'),nm=S.lang==='zh'?(ZH[d.id]||'?'):(EN[d.id]||'?');t.innerHTML=`<div class="tn">${nm}</div><div class="td">${S.lang==='zh'?'点击查看':'Click for info'}</div>`;t.style.display='block';t.style.left=Math.min(ev.offsetX+12,W-160)+'px';t.style.top=(ev.offsetY-8)+'px';}
 function hideTip(){document.getElementById('ttip').style.display='none';}
 
-/* ═══════════════════ LANGUAGE ═══════════════════ */
+/* ═══════ SIDEBAR MOBILE ═══════ */
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOv').classList.toggle('open');}
+
+/* ═══════ LANG ═══════ */
 function toggleLang(){
-  S.lang=S.lang==='zh'?'en':'zh';
-  document.getElementById('langLabel').textContent=S.lang==='zh'?'EN':'中文';
-  document.getElementById('searchInput').placeholder=L[S.lang].searchPh;
-  document.getElementById('aText').placeholder=L[S.lang].annoPh;
-  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(L[S.lang][k])el.textContent=L[S.lang][k];});
-  document.getElementById('aType').innerHTML=`<option value="strategic">${L[S.lang].strategic||'🎯'}</option><option value="economic">${L[S.lang].economic||'💰'}</option><option value="risk">${L[S.lang].risk||'⚠️'}</option><option value="note">${L[S.lang].note||'📝'}</option>`;
-  renderLabels();
-  if(S.sel){const el2=g.select(`[data-id="${S.sel}"]`);if(!el2.empty())selectCountry(el2.datum(),el2.node());}
-  document.getElementById('stCC').textContent=S.countries?(S.lang==='zh'?`${S.countries.features.length} 个国家/地区`:`${S.countries.features.length} Countries`):'—';
-  updateAnnoUI();if(S.layers.capitals)renderCaps();
+  S.lang=S.lang==='zh'?'en':'zh';document.getElementById('langLbl').textContent=S.lang==='zh'?'EN':'中文';
+  document.getElementById('searchInput').placeholder=I[S.lang].searchPh;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(I[S.lang][k])el.textContent=I[S.lang][k];});
+  renderLbl();updCC();
+  if(S.sel){const el=g.select(`[data-id="${S.sel}"]`);if(!el.empty())selC(el.datum(),el.node());}
+  if(S.layers.capitals)renderCaps();updAUI();
 }
-function toggleLabels(){S.showLabels=document.getElementById('labelToggle').checked;renderLabels();}
+function toggleLabels(){S.showLbl=document.getElementById('labelTog').checked;renderLbl();}
+function updCC(){document.getElementById('stCC').textContent=S.ct?(S.lang==='zh'?S.ct.features.length+'国':S.ct.features.length+' countries'):'—';}
 
-/* ═══════════════════ TOOLS ═══════════════════ */
-function toggleTool(t){if(S.tool===t){S.tool=null;document.getElementById(t+'Btn').classList.remove('active');document.body.style.cursor='default';}else{S.tool=t;document.querySelectorAll('.cb').forEach(b=>b.classList.remove('active'));document.getElementById(t+'Btn').classList.add('active');document.body.style.cursor='crosshair';}}
+/* ═══════ TOOLS ═══════ */
+function toggleTool(t){if(S.tool===t){S.tool=null;document.getElementById(t+'Btn').classList.remove('active');document.body.style.cursor='';}else{S.tool=t;document.getElementById(t+'Btn').classList.add('active');document.body.style.cursor='crosshair';}}
 
-/* ═══════════════════ LAYERS ═══════════════════ */
-function toggleLayer(l){S.layers[l]=!S.layers[l];const b=document.getElementById('layer'+l.charAt(0).toUpperCase()+l.slice(1));if(b)b.classList.toggle('active',S.layers[l]);if(l==='graticule')g.select('.graticule').style('display',S.layers.graticule?'block':'none');if(l==='capitals'){S.layers.capitals?renderCaps():g.selectAll('.cap-dot,.cap-lbl').remove();}if(l==='disputes'){S.layers.disputes?showDisp():(g.selectAll('.disp-c').remove(),document.getElementById('mLeg').style.display='none');}}
+/* ═══════ LAYERS ═══════ */
+function toggleLayer(l){S.layers[l]=!S.layers[l];const b=document.getElementById('layer'+l[0].toUpperCase()+l.slice(1));if(b)b.classList.toggle('active',S.layers[l]);if(l==='graticule')g.select('.graticule').style('display',S.layers.graticule?'block':'none');if(l==='capitals'){S.layers.capitals?renderCaps():g.selectAll('.cap-d,.cap-l').remove();}if(l==='disputes'){S.layers.disputes?showDisp():(g.selectAll('.disp-c').remove(),document.getElementById('mLeg').style.display='none');}}
 
-const CAPS=[{z:'北京',e:'Beijing',la:39.9,lo:116.4},{z:'华盛顿',e:'Washington',la:38.9,lo:-77},{z:'莫斯科',e:'Moscow',la:55.75,lo:37.6},{z:'伦敦',e:'London',la:51.5,lo:-.12},{z:'东京',e:'Tokyo',la:35.7,lo:139.7},{z:'新德里',e:'New Delhi',la:28.6,lo:77.2},{z:'巴黎',e:'Paris',la:48.85,lo:2.35},{z:'柏林',e:'Berlin',la:52.52,lo:13.4},{z:'堪培拉',e:'Canberra',la:-35.3,lo:149.1},{z:'巴西利亚',e:'Brasília',la:-15.8,lo:-47.9},{z:'利雅得',e:'Riyadh',la:24.7,lo:46.7},{z:'首尔',e:'Seoul',la:37.57,lo:127},{z:'渥太华',e:'Ottawa',la:45.4,lo:-75.7},{z:'墨西哥城',e:'Mexico City',la:19.4,lo:-99.1},{z:'雅加达',e:'Jakarta',la:-6.2,lo:106.85},{z:'开罗',e:'Cairo',la:30.05,lo:31.25},{z:'比勒陀利亚',e:'Pretoria',la:-25.75,lo:28.2},{z:'安卡拉',e:'Ankara',la:39.93,lo:32.85},{z:'新加坡',e:'Singapore',la:1.35,lo:103.8},{z:'河内',e:'Hanoi',la:21.03,lo:105.85},{z:'曼谷',e:'Bangkok',la:13.75,lo:100.5},{z:'吉隆坡',e:'K. Lumpur',la:3.14,lo:101.7},{z:'马德里',e:'Madrid',la:40.42,lo:-3.7},{z:'罗马',e:'Rome',la:41.9,lo:12.5},{z:'基辅',e:'Kyiv',la:50.45,lo:30.5},{z:'华沙',e:'Warsaw',la:52.23,lo:21},{z:'伊斯兰堡',e:'Islamabad',la:33.7,lo:73},{z:'达卡',e:'Dhaka',la:23.8,lo:90.4},{z:'内罗毕',e:'Nairobi',la:-1.3,lo:36.8},{z:'布宜诺斯',e:'Buenos Aires',la:-34.6,lo:-58.4},{z:'利马',e:'Lima',la:-12,lo:-77},{z:'波哥大',e:'Bogotá',la:4.7,lo:-74.1},{z:'德黑兰',e:'Tehran',la:35.7,lo:51.4},{z:'巴格达',e:'Baghdad',la:33.3,lo:44.4}];
-function renderCaps(){g.selectAll('.cap-dot,.cap-lbl').remove();CAPS.forEach(c=>{const co=[c.lo,c.la],p=proj(co);if(!p)return;if(S.view==='3d'&&d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;g.append('circle').attr('class','cap-dot').attr('cx',p[0]).attr('cy',p[1]).attr('r',2.5).attr('fill','#f59e0b').attr('stroke','#000').attr('stroke-width',.5).attr('data-lat',c.la).attr('data-lng',c.lo).style('filter','url(#glow)');g.append('text').attr('class','cap-lbl').attr('x',p[0]+4).attr('y',p[1]+3).attr('fill','#fbbf24').attr('font-size','8px').attr('font-family',"'Noto Sans SC','DM Sans',sans-serif").attr('data-lat',c.la).attr('data-lng',c.lo).text(S.lang==='zh'?c.z:c.e);});}
-function showDisp(){g.selectAll('.disp-c').remove();[{la:34.5,lo:76.5,r:12},{la:12,lo:114,r:15},{la:33.1,lo:35.8,r:5},{la:45,lo:34,r:8},{la:24.5,lo:-13,r:10},{la:24,lo:119.5,r:7}].forEach(d=>{const p=proj([d.lo,d.la]);if(!p)return;g.append('circle').attr('class','disp-c').attr('cx',p[0]).attr('cy',p[1]).attr('r',d.r).attr('fill','rgba(239,68,68,.12)').attr('stroke','rgba(239,68,68,.5)').attr('stroke-width',1).attr('stroke-dasharray','3,2').attr('data-lat',d.la).attr('data-lng',d.lo);});document.getElementById('mLeg').style.display='block';document.getElementById('legC').innerHTML=`<div class="mleg-i"><div class="mleg-d" style="background:#ef4444;opacity:.5"></div>${S.lang==='zh'?'争议区域':'Disputed'}</div><div class="mleg-i"><div class="mleg-d" style="background:#f59e0b"></div>${S.lang==='zh'?'首都':'Capital'}</div>`;}
+const CAPS=[{z:'北京',e:'Beijing',a:39.9,o:116.4},{z:'华盛顿',e:'Washington',a:38.9,o:-77},{z:'莫斯科',e:'Moscow',a:55.75,o:37.6},{z:'伦敦',e:'London',a:51.5,o:-.12},{z:'东京',e:'Tokyo',a:35.7,o:139.7},{z:'新德里',e:'New Delhi',a:28.6,o:77.2},{z:'巴黎',e:'Paris',a:48.85,o:2.35},{z:'柏林',e:'Berlin',a:52.52,o:13.4},{z:'堪培拉',e:'Canberra',a:-35.3,o:149.1},{z:'巴西利亚',e:'Brasília',a:-15.8,o:-47.9},{z:'利雅得',e:'Riyadh',a:24.7,o:46.7},{z:'首尔',e:'Seoul',a:37.57,o:127},{z:'渥太华',e:'Ottawa',a:45.4,o:-75.7},{z:'墨西哥城',e:'Mexico City',a:19.4,o:-99.1},{z:'雅加达',e:'Jakarta',a:-6.2,o:106.85},{z:'开罗',e:'Cairo',a:30.05,o:31.25},{z:'安卡拉',e:'Ankara',a:39.93,o:32.85},{z:'新加坡',e:'Singapore',a:1.35,o:103.8},{z:'河内',e:'Hanoi',a:21.03,o:105.85},{z:'曼谷',e:'Bangkok',a:13.75,o:100.5},{z:'马德里',e:'Madrid',a:40.42,o:-3.7},{z:'罗马',e:'Rome',a:41.9,o:12.5},{z:'基辅',e:'Kyiv',a:50.45,o:30.5},{z:'华沙',e:'Warsaw',a:52.23,o:21},{z:'德黑兰',e:'Tehran',a:35.7,o:51.4},{z:'内罗毕',e:'Nairobi',a:-1.3,o:36.8},{z:'布宜诺斯',e:'B. Aires',a:-34.6,o:-58.4}];
+function renderCaps(){g.selectAll('.cap-d,.cap-l').remove();CAPS.forEach(c=>{const co=[c.o,c.a],p=proj(co);if(!p)return;if(S.view==='3d'&&d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;g.append('circle').attr('class','cap-d').attr('cx',p[0]).attr('cy',p[1]).attr('r',2).attr('fill','#f59e0b').attr('stroke','#000').attr('stroke-width',.4).attr('data-lat',c.a).attr('data-lng',c.o);g.append('text').attr('class','cap-l').attr('x',p[0]+4).attr('y',p[1]+3).attr('fill','#fbbf24').attr('font-size','7px').attr('font-family',"'Noto Sans SC',sans-serif").attr('data-lat',c.a).attr('data-lng',c.o).text(S.lang==='zh'?c.z:c.e);});}
+function showDisp(){g.selectAll('.disp-c').remove();[{a:34.5,o:76.5,r:10},{a:12,o:114,r:13},{a:33.1,o:35.8,r:4},{a:45,o:34,r:7},{a:24.5,o:-13,r:9},{a:24,o:119.5,r:6}].forEach(d=>{const p=proj([d.o,d.a]);if(!p)return;g.append('circle').attr('class','disp-c').attr('cx',p[0]).attr('cy',p[1]).attr('r',d.r).attr('fill','rgba(239,68,68,.1)').attr('stroke','rgba(239,68,68,.45)').attr('stroke-width',.8).attr('stroke-dasharray','3,2').attr('data-lat',d.a).attr('data-lng',d.o);});document.getElementById('mLeg').style.display='block';document.getElementById('legC').innerHTML=`<div class="mleg-i"><div class="mleg-d" style="background:var(--ad);opacity:.5"></div>${S.lang==='zh'?'争议区域':'Disputed'}</div>`;}
 
-/* ═══════════════════ ANALYSIS ═══════════════════ */
-function toggleAnalysis(t){if(S.analysis===t){S.analysis=null;resetC();document.getElementById('mLeg').style.display='none';return;}S.analysis=t;if(t==='gdp')showGDP();else if(t==='alliance')showAll();else if(t==='trade')showTrd();else if(t==='military')showMil();}
+/* ═══════ ANALYSIS ═══════ */
+function toggleAnalysis(t){if(S.ana===t){S.ana=null;g.selectAll('.country-path').style('fill',null);document.getElementById('mLeg').style.display='none';return;}S.ana=t;({gdp:showGDP,alliance:showAlliance,trade:showTrade,military:showMil})[t]();}
 const GT={'840':5,'156':5,'392':4,'276':4,'826':4,'356':4,'250':4,'380':3,'124':3,'076':3,'410':3,'036':3,'643':3,'484':2,'360':2,'682':2,'792':2,'528':2,'756':2,'752':2,'616':2,'566':2,'764':2,'784':2,'056':2,'724':2};
 const GC=['#1a2744','#1a3a4a','#1a5050','#0d7a5f','#00d4aa','#00ffcc'];
-function showGDP(){g.selectAll('.country-path').each(function(){const e=d3.select(this);e.style('fill',GC[GT[e.attr('data-id')]||0]);});sLeg('GDP',[{c:GC[5],l:'>$15T'},{c:GC[4],l:'$3-15T'},{c:GC[3],l:'$1-3T'},{c:GC[2],l:'$0.5-1T'}]);}
+function showGDP(){g.selectAll('.country-path').each(function(){d3.select(this).style('fill',GC[GT[d3.select(this).attr('data-id')]||0]);});sL('GDP',[{c:GC[5],l:'>$15T'},{c:GC[4],l:'$3-15T'},{c:GC[3],l:'$1-3T'},{c:GC[2],l:'$0.5-1T'}]);}
 const MT={'840':5,'643':4,'156':4,'356':3,'826':3,'250':3,'392':3,'410':2,'792':2,'276':2,'036':2,'076':2,'380':2,'818':2,'682':2,'586':2,'364':2};
 const MC=['#1a2744','#2a1a44','#3a1a55','#5a1a77','#8b5cf6','#a78bfa'];
-function showMil(){g.selectAll('.country-path').each(function(){const e=d3.select(this);e.style('fill',MC[MT[e.attr('data-id')]||0]);});sLeg(S.lang==='zh'?'军事实力':'Military',[{c:MC[5],l:S.lang==='zh'?'超级大国':'Superpower'},{c:MC[4],l:S.lang==='zh'?'军事强国':'Major'},{c:MC[3],l:S.lang==='zh'?'区域强国':'Regional'},{c:MC[2],l:S.lang==='zh'?'中等':'Medium'}]);}
-function showAll(){const n=new Set(['840','124','826','250','276','380','616','792','578','208','056','528','724','620','300','348','203','233','428','440','191','100','642','703','705','008']),b=new Set(['076','643','356','156','710','818','364','784','231']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',n.has(id)?'rgba(14,165,233,.4)':b.has(id)?'rgba(239,68,68,.4)':'#1a2744');});sLeg(S.lang==='zh'?'同盟体系':'Alliances',[{c:'rgba(14,165,233,.6)',l:'NATO'},{c:'rgba(239,68,68,.6)',l:'BRICS+'}]);}
-function showTrd(){const hi=new Set(['156','840','276','392','826','250','528','410','380','124','484','356']),md=new Set(['076','036','682','702','764','792','360','458','616','752','056','784','704','566','608']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',hi.has(id)?'rgba(0,212,170,.5)':md.has(id)?'rgba(0,212,170,.25)':'#1a2744');});sLeg(S.lang==='zh'?'贸易规模':'Trade',[{c:'rgba(0,212,170,.5)',l:S.lang==='zh'?'主要贸易国':'Major'},{c:'rgba(0,212,170,.25)',l:S.lang==='zh'?'重要贸易国':'Significant'}]);}
-function sLeg(t,items){document.getElementById('mLeg').style.display='block';document.querySelector('.mleg-t').textContent=t;document.getElementById('legC').innerHTML=items.map(i=>`<div class="mleg-i"><div class="mleg-d" style="background:${i.c}"></div>${i.l}</div>`).join('');}
-function resetC(){g.selectAll('.country-path').style('fill',null);}
+function showMil(){g.selectAll('.country-path').each(function(){d3.select(this).style('fill',MC[MT[d3.select(this).attr('data-id')]||0]);});sL(S.lang==='zh'?'军事实力':'Military',[{c:MC[5],l:S.lang==='zh'?'超级大国':'Super'},{c:MC[4],l:S.lang==='zh'?'强国':'Major'},{c:MC[3],l:S.lang==='zh'?'区域':'Regional'},{c:MC[2],l:S.lang==='zh'?'中等':'Medium'}]);}
+function showAlliance(){const n=new Set(['840','124','826','250','276','380','616','792','578','208','056','528','724','620','300','348','203','233','428','440','191','100','642','703','705']),b=new Set(['076','643','356','156','710','818','364','784','231']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',n.has(id)?'rgba(14,165,233,.4)':b.has(id)?'rgba(239,68,68,.4)':'#1a2744');});sL(S.lang==='zh'?'同盟':'Alliances',[{c:'rgba(14,165,233,.6)',l:'NATO'},{c:'rgba(239,68,68,.6)',l:'BRICS+'}]);}
+function showTrade(){const hi=new Set(['156','840','276','392','826','250','528','410','380','124','484','356']),md=new Set(['076','036','682','702','764','792','360','458','616','752','056','784','704','566','608']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',hi.has(id)?'rgba(0,212,170,.5)':md.has(id)?'rgba(0,212,170,.25)':'#1a2744');});sL(S.lang==='zh'?'贸易':'Trade',[{c:'rgba(0,212,170,.5)',l:S.lang==='zh'?'主要':'Major'},{c:'rgba(0,212,170,.25)',l:S.lang==='zh'?'重要':'Signif.'}]);}
+function sL(t,items){document.getElementById('mLeg').style.display='block';document.querySelector('.mleg-t').textContent=t;document.getElementById('legC').innerHTML=items.map(i=>`<div class="mleg-i"><div class="mleg-d" style="background:${i.c}"></div>${i.l}</div>`).join('');}
 
-/* ═══════════════════ ANNOTATIONS ═══════════════════ */
-let pendA=null;
-function showAnnoInput(ev){const[x,y]=d3.pointer(ev);let co;if(S.view==='2d'){const t=d3.zoomTransform(svg.node());co=proj.invert([(x-t.x)/t.k,(y-t.y)/t.k]);}else co=proj.invert([x,y]);if(!co)return;pendA={lat:co[1],lng:co[0]};const ov=document.getElementById('aOver');ov.style.display='block';ov.style.left=(ev.offsetX+8)+'px';ov.style.top=(ev.offsetY-8)+'px';document.getElementById('aText').value='';document.getElementById('aText').focus();}
-function cancelAnno(){document.getElementById('aOver').style.display='none';pendA=null;}
-function saveAnno(){const t=document.getElementById('aText').value.trim(),tp=document.getElementById('aType').value;if(!t||!pendA)return;S.annos.push({id:Date.now(),lat:pendA.lat,lng:pendA.lng,text:t,type:tp,time:new Date().toLocaleString()});saveAS();renderAnnoM();updateAnnoUI();cancelAnno();}
-function renderAnnoM(){g.selectAll('.anno-marker').remove();const cs={strategic:'#ef4444',economic:'#f59e0b',risk:'#f97316',note:'#00d4aa'};S.annos.forEach(a=>{const p=proj([a.lng,a.lat]);if(!p)return;g.append('circle').attr('class','anno-marker').attr('cx',p[0]).attr('cy',p[1]).attr('r',5).attr('fill',cs[a.type]||'#00d4aa').attr('stroke','#fff').attr('stroke-width',1.5).attr('data-lat',a.lat).attr('data-lng',a.lng).style('filter','url(#glow)').style('cursor','pointer').on('mouseover',function(ev){const tt=document.getElementById('ttip');tt.innerHTML=`<div class="tn">${a.text}</div><div class="td">${a.time}</div>`;tt.style.display='block';tt.style.left=(ev.offsetX+14)+'px';tt.style.top=(ev.offsetY-8)+'px';}).on('mouseout',hideTip);});}
-function updateAnnoUI(){const li=document.getElementById('annoList'),btn=document.getElementById('clearBtn'),ic={strategic:'🎯',economic:'💰',risk:'⚠️',note:'📝'};if(!S.annos.length){li.innerHTML=`<div style="text-align:center;color:var(--text-muted);font-size:10px;padding:14px 0">${L[S.lang].noAnnotations}</div>`;btn.style.display='none';}else{btn.style.display='block';li.innerHTML=S.annos.map(a=>`<div class="aitem"><div class="atxt">${a.text}</div><div class="atype">${ic[a.type]||'📝'}</div><button class="adel" onclick="delAnno(${a.id})">×</button></div>`).join('');}document.getElementById('stAC').textContent=`${L[S.lang].annoCount}: ${S.annos.length}`;}
-function delAnno(id){S.annos=S.annos.filter(a=>a.id!==id);saveAS();renderAnnoM();updateAnnoUI();}
-function clearAllAnnotations(){if(!confirm(S.lang==='zh'?'确定要清除所有标注吗？':'Clear all?'))return;S.annos=[];saveAS();renderAnnoM();updateAnnoUI();}
-function saveAS(){try{window.storage&&window.storage.set('gs-annos',JSON.stringify(S.annos));}catch(e){}}
-function loadAS(){try{window.storage&&window.storage.get('gs-annos').then(r=>{if(r&&r.value){S.annos=JSON.parse(r.value);renderAnnoM();updateAnnoUI();}}).catch(()=>{});}catch(e){}}
+/* ═══════ ANNOTATIONS ═══════ */
+let pA=null;
+function showAI(ev){const[x,y]=d3.pointer(ev);let co;if(S.view==='2d'){const t=d3.zoomTransform(svg.node());co=proj.invert([(x-t.x)/t.k,(y-t.y)/t.k]);}else co=proj.invert([x,y]);if(!co)return;pA={lat:co[1],lng:co[0]};const ov=document.getElementById('aOv');ov.style.display='block';ov.style.left=Math.min(ev.offsetX+8,W-230)+'px';ov.style.top=Math.min(ev.offsetY-8,H-150)+'px';document.getElementById('aTxt').value='';document.getElementById('aTxt').focus();}
+function cancelA(){document.getElementById('aOv').style.display='none';pA=null;}
+function saveA(){const t=document.getElementById('aTxt').value.trim(),tp=document.getElementById('aTp').value;if(!t||!pA)return;S.annos.push({id:Date.now(),lat:pA.lat,lng:pA.lng,text:t,type:tp,time:new Date().toLocaleString()});sAS();renderAM();updAUI();cancelA();}
+function renderAM(){g.selectAll('.anno-marker').remove();const cs={strategic:'#ef4444',economic:'#f59e0b',risk:'#f97316',note:'#00d4aa'};S.annos.forEach(a=>{const p=proj([a.lng,a.lat]);if(!p)return;g.append('circle').attr('class','anno-marker').attr('cx',p[0]).attr('cy',p[1]).attr('r',5).attr('fill',cs[a.type]||'#00d4aa').attr('stroke','#fff').attr('stroke-width',1.5).attr('data-lat',a.lat).attr('data-lng',a.lng).style('cursor','pointer').on('mouseover',function(ev){const tt=document.getElementById('ttip');tt.innerHTML=`<div class="tn">${a.text}</div><div class="td">${a.time}</div>`;tt.style.display='block';tt.style.left=(ev.offsetX+12)+'px';tt.style.top=(ev.offsetY-8)+'px';}).on('mouseout',hideTip);});}
+function updAUI(){const li=document.getElementById('aList'),btn=document.getElementById('clrBtn'),ic={strategic:'🎯',economic:'💰',risk:'⚠️',note:'📝'};if(!S.annos.length){li.innerHTML=`<div style="text-align:center;color:var(--t3);font-size:9px;padding:12px 0">${I[S.lang].noAnnotations}</div>`;btn.style.display='none';}else{btn.style.display='block';li.innerHTML=S.annos.map(a=>`<div class="aitem"><div class="atxt">${a.text}</div><div class="atype">${ic[a.type]||'📝'}</div><button class="adel" onclick="delA(${a.id})">×</button></div>`).join('');}document.getElementById('stA').textContent=S.annos.length;}
+function delA(id){S.annos=S.annos.filter(a=>a.id!==id);sAS();renderAM();updAUI();}
+function clearAnnos(){if(!confirm(S.lang==='zh'?'确定清除所有标注？':'Clear all?'))return;S.annos=[];sAS();renderAM();updAUI();}
+function sAS(){try{window.storage&&window.storage.set('gs4-a',JSON.stringify(S.annos));}catch(e){}}
+function lAS(){try{window.storage&&window.storage.get('gs4-a').then(r=>{if(r&&r.value){S.annos=JSON.parse(r.value);renderAM();updAUI();}}).catch(()=>{});}catch(e){}}
 
-/* ═══════════════════ ZOOM CONTROLS ═══════════════════ */
-function zoomIn(){svg.transition().duration(250).call(zoomB.scaleBy,1.5);}
-function zoomOut(){svg.transition().duration(250).call(zoomB.scaleBy,.67);}
-function resetView(){S.rot=[0,-20,0];if(S.view==='3d')proj.rotate(S.rot);svg.transition().duration(400).call(zoomB.transform,d3.zoomIdentity);S.scale=1;g.attr('transform',null);labelG.attr('transform',null);if(S.view==='3d'){proj.scale(Math.min(W,H)/2.3);updateAll();}else renderLabels();document.getElementById('stZ').textContent='Zoom: 1.0x';}
+/* ═══════ ZOOM BUTTONS ═══════ */
+function doZoom(k){svg.transition().duration(200).call(zoomB.scaleBy,k);}
+function resetV(){S.rot=[0,-20,0];if(S.view==='3d')proj.rotate(S.rot);svg.transition().duration(350).call(zoomB.transform,d3.zoomIdentity);S.scale=1;g.attr('transform',null);lblG.attr('transform',null);if(S.view==='3d'){proj.scale(Math.min(W,H)/2.3);updAll();}else renderLbl();document.getElementById('stZ').textContent='1.0x';}
 
-/* ═══════════════════ SEARCH ═══════════════════ */
-function setupSearch(){const inp=document.getElementById('searchInput');inp.addEventListener('input',function(){const q=this.value.trim().toLowerCase();if(!q)return;for(const[id,nm]of Object.entries(ZH)){const en=(EN[id]||'').toLowerCase();if(nm.includes(q)||en.includes(q)){const el=g.select(`[data-id="${id}"]`);if(!el.empty()){selectCountry(el.datum(),el.node());this.blur();return;}}}});inp.addEventListener('keydown',function(e){if(e.key==='Enter'){const ev=new Event('input');this.dispatchEvent(ev);}});}
+/* ═══════ SEARCH ═══════ */
+function setupSearch(){const inp=document.getElementById('searchInput');inp.addEventListener('input',function(){const q=this.value.trim().toLowerCase();if(!q)return;for(const[id,nm]of Object.entries(ZH)){if(nm.includes(q)||(EN[id]||'').toLowerCase().includes(q)){const el=g.select(`[data-id="${id}"]`);if(!el.empty()){selC(el.datum(),el.node());this.blur();return;}}}});inp.addEventListener('keydown',function(e){if(e.key==='Enter')this.dispatchEvent(new Event('input'));});}
 
-/* ═══════════════════ RESIZE ═══════════════════ */
-window.addEventListener('resize',()=>{const c=document.getElementById('mapC');W=c.clientWidth;H=c.clientHeight;svg.attr('width',W).attr('height',H);proj.translate([W/2,H/2]);if(S.view==='3d')proj.scale(Math.min(W,H)/2.3*S.scale);else proj.scale(Math.min(W,H)/3.5);path=d3.geoPath().projection(proj);if(S.countries){renderC();renderLabels();}});
+/* ═══════ RESIZE ═══════ */
+window.addEventListener('resize',()=>{const c=document.getElementById('mapC');W=c.clientWidth;H=c.clientHeight;svg.attr('width',W).attr('height',H);proj.translate([W/2,H/2]);if(S.view==='3d')proj.scale(Math.min(W,H)/2.3*S.scale);else proj.scale(Math.min(W,H)/3.5);path=d3.geoPath().projection(proj);if(S.ct){renderC();renderLbl();}});
 
-/* ═══════════════════ BOOT ═══════════════════ */
-window.addEventListener('DOMContentLoaded',()=>{initMap();loadAS();});
+/* ═══════ BOOT ═══════ */
+window.addEventListener('DOMContentLoaded',()=>{initMap();lAS();});
 </script>
 </body>
 </html>
