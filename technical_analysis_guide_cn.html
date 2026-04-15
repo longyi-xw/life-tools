@@ -1,240 +1,436 @@
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术面分析速查手册</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --surface2: #f2f0eb;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1a18;
+    --text2: #5a5a56;
+    --text3: #8a8a84;
+    --blue: #1a6fd4;
+    --blue-bg: #e8f0fb;
+    --blue-text: #1245a0;
+    --green: #15803d;
+    --green-bg: #dcfce7;
+    --green-text: #14532d;
+    --red: #b91c1c;
+    --red-bg: #fee2e2;
+    --red-text: #7f1d1d;
+    --amber: #92400e;
+    --amber-bg: #fef3c7;
+    --amber-text: #78350f;
+    --purple: #5b21b6;
+    --purple-bg: #ede9fe;
+    --purple-text: #4c1d95;
+    --teal: #0f766e;
+    --teal-bg: #ccfbf1;
+    --teal-text: #134e4a;
+    --accent: #1a6fd4;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --surface2: #252522;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #e8e6e0;
+      --text2: #a0a09a;
+      --text3: #6a6a64;
+      --blue-bg: #1a2f54;
+      --blue-text: #93c5fd;
+      --green-bg: #052e16;
+      --green-text: #86efac;
+      --red-bg: #450a0a;
+      --red-text: #fca5a5;
+      --amber-bg: #451a03;
+      --amber-text: #fcd34d;
+      --purple-bg: #2e1065;
+      --purple-text: #c4b5fd;
+      --teal-bg: #042f2e;
+      --teal-text: #5eead4;
+    }
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans SC', var(--font-sans), sans-serif; }
-  .doc { max-width: 900px; padding: 0 0 2rem; }
-  .hero { background: linear-gradient(135deg, #0a0f1e 0%, #0f1e3a 50%, #0a2050 100%); padding: 2.5rem 2rem 2rem; border-radius: var(--border-radius-lg); margin-bottom: 2rem; position: relative; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: -60px; right: -40px; width: 250px; height: 250px; border-radius: 50%; background: rgba(59, 130, 246, 0.08); }
-  .hero-title { font-size: 26px; font-weight: 700; color: #e8f4ff; letter-spacing: 1px; margin-bottom: 6px; }
-  .hero-sub { font-size: 13px; color: #7fa8cc; letter-spacing: 0.5px; }
-  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-  .hero-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(59,130,246,0.15); color: #93c5fd; border: 0.5px solid rgba(59,130,246,0.3); }
-  .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
-  .nav-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .nav-btn:hover, .nav-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
-  .section { margin-bottom: 2.5rem; }
-  .sec-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; padding-left: 10px; border-left: 3px solid #3b82f6; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
-  .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 12px; white-space: nowrap; }
-  .badge-blue { background: #dbeafe; color: #1d4ed8; }
-  .badge-green { background: #dcfce7; color: #166534; }
-  .badge-red { background: #fee2e2; color: #991b1b; }
-  .badge-amber { background: #fef3c7; color: #92400e; }
-  .badge-purple { background: #ede9fe; color: #5b21b6; }
-  @media (prefers-color-scheme: dark) {
-    .badge-blue { background: #1e3a5f; color: #93c5fd; }
-    .badge-green { background: #14432a; color: #86efac; }
-    .badge-red { background: #450a0a; color: #fca5a5; }
-    .badge-amber { background: #451a03; color: #fcd34d; }
-    .badge-purple { background: #2e1065; color: #c4b5fd; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 14px;
   }
-  .card-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-  .card-formula { font-size: 11px; color: var(--color-text-tertiary); font-family: var(--font-mono); background: var(--color-background-secondary); padding: 2px 6px; border-radius: 4px; margin-top: 2px; }
-  .signal-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-  .signal { font-size: 11px; padding: 3px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; }
-  .sig-buy { background: #f0fdf4; color: #15803d; border: 0.5px solid #86efac; }
-  .sig-sell { background: #fff7f7; color: #b91c1c; border: 0.5px solid #fca5a5; }
-  .sig-watch { background: #fffbeb; color: #b45309; border: 0.5px solid #fcd34d; }
-  @media (prefers-color-scheme: dark) {
-    .sig-buy { background: #052e16; color: #86efac; border-color: #166534; }
-    .sig-sell { background: #450a0a; color: #fca5a5; border-color: #991b1b; }
-    .sig-watch { background: #451a03; color: #fcd34d; border-color: #92400e; }
+  .page-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
   }
-  .dot-buy::before { content: '▲'; font-size: 8px; }
-  .dot-sell::before { content: '▼'; font-size: 8px; }
-  .dot-watch::before { content: '◆'; font-size: 8px; }
-  .desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 6px; }
-  .kline-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-  .kline-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
-  .kline-card:hover { border-color: var(--color-border-primary); }
-  .kline-svg { display: block; margin: 0 auto 6px; }
-  .kline-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary); }
-  .kline-sig { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
-  .market-phase { display: flex; gap: 0; margin-bottom: 1rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
-  .phase { flex: 1; padding: 12px 10px; text-align: center; cursor: pointer; transition: background 0.2s; }
-  .phase:not(:last-child) { border-right: 0.5px solid var(--color-border-tertiary); }
-  .phase.active { background: var(--color-background-info); }
-  .phase-icon { font-size: 20px; display: block; margin-bottom: 4px; }
-  .phase-name { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
-  .phase.active .phase-name { color: var(--color-text-info); }
-  .phase-detail { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; display: none; }
-  .phase-detail.show { display: block; }
-  .phase-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
-  .phase-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-  .phase-list li { font-size: 13px; color: var(--color-text-secondary); padding-left: 14px; position: relative; }
-  .phase-list li::before { content: '—'; position: absolute; left: 0; color: var(--color-text-tertiary); }
-  .combo-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .combo-table th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 10px; background: var(--color-background-secondary); text-align: left; }
-  .combo-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; }
-  .combo-table tr:last-child td { border-bottom: none; }
-  .combo-table tr:hover td { background: var(--color-background-secondary); }
-  .divider-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-top: 10px; }
-  .divider-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
-  .rule-list { display: flex; flex-direction: column; gap: 4px; }
-  .rule { font-size: 12px; color: var(--color-text-secondary); padding: 4px 8px; background: var(--color-background-primary); border-radius: 4px; border-left: 2px solid #3b82f6; }
-  .warn-box { background: #fffbeb; border: 0.5px solid #fcd34d; border-radius: var(--border-radius-md); padding: 10px 14px; display: flex; gap: 8px; align-items: flex-start; }
-  @media (prefers-color-scheme: dark) { .warn-box { background: #1c1500; border-color: #713f12; } }
-  .warn-icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
-  .warn-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
-  .level-bar { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-  .level-label { font-size: 11px; color: var(--color-text-secondary); width: 60px; flex-shrink: 0; text-align: right; }
-  .level-track { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
-  .level-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-  .tab-group { display: flex; gap: 4px; margin-bottom: 12px; background: var(--color-background-secondary); padding: 4px; border-radius: var(--border-radius-md); }
-  .tab { font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer; color: var(--color-text-secondary); transition: all 0.2s; border: none; background: transparent; }
-  .tab.active { background: var(--color-background-primary); color: var(--color-text-primary); box-shadow: 0 0 0 0.5px var(--color-border-secondary); }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-</style>
 
-<div class="doc">
+  /* HERO */
+  .hero {
+    background: #0a1628;
+    padding: 32px 28px 24px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -80px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(59,130,246,.06);
+    pointer-events: none;
+  }
+  .hero-title { font-size: clamp(20px,4vw,28px); font-weight: 600; color: #e8f4ff; margin-bottom: 6px; }
+  .hero-sub { font-size: 12px; color: #6b90b8; letter-spacing: .4px; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+  .htag {
+    font-size: 11px; padding: 3px 11px; border-radius: 20px;
+    background: rgba(59,130,246,.14); color: #93c5fd;
+    border: .5px solid rgba(59,130,246,.28);
+  }
+
+  /* NAV */
+  .nav-wrap {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px; padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+  .nav-wrap::-webkit-scrollbar { height: 3px; }
+  .nav-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .nav { display: flex; gap: 6px; min-width: max-content; }
+  .nb {
+    font-size: 12px; padding: 7px 16px; border-radius: 20px;
+    border: .5px solid var(--border2);
+    background: var(--surface); color: var(--text2);
+    cursor: pointer; white-space: nowrap;
+    transition: all .18s; outline: none;
+  }
+  .nb:hover { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); }
+  .nb.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+  .sec { margin-bottom: 28px; }
+  .sec-last { margin-bottom: 0; }
+  .st {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin-bottom: 14px; padding-left: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* GRID */
+  .g2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 10px; }
+  .g4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: .5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .desc { font-size: 12px; color: var(--text2); line-height: 1.6; margin-top: 6px; }
+
+  /* BADGE */
+  .bdg { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 12px; white-space: nowrap; }
+  .b-blue   { background: var(--blue-bg);   color: var(--blue-text); }
+  .b-green  { background: var(--green-bg);  color: var(--green-text); }
+  .b-red    { background: var(--red-bg);    color: var(--red-text); }
+  .b-amber  { background: var(--amber-bg);  color: var(--amber-text); }
+  .b-purple { background: var(--purple-bg); color: var(--purple-text); }
+  .b-teal   { background: var(--teal-bg);   color: var(--teal-text); }
+  .cf {
+    font-size: 11px; color: var(--text3);
+    font-family: 'SF Mono', monospace;
+    background: var(--surface2); padding: 2px 7px; border-radius: 4px;
+  }
+
+  /* SIGNAL PILLS */
+  .sr { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .sig { font-size: 11px; padding: 3px 9px; border-radius: 4px; display: flex; align-items: center; gap: 3px; }
+  .sbuy  { background: var(--green-bg);  color: var(--green-text);  border: .5px solid #86efac; }
+  .ssell { background: var(--red-bg);    color: var(--red-text);    border: .5px solid #fca5a5; }
+  .swat  { background: var(--amber-bg);  color: var(--amber-text);  border: .5px solid #fcd34d; }
+
+  /* LEVEL BARS */
+  .lbar { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .llabel { font-size: 11px; color: var(--text2); width: 50px; flex-shrink: 0; text-align: right; }
+  .ltrack { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .lfill  { height: 100%; border-radius: 3px; }
+
+  /* RSI GRADIENT */
+  .rsi-bar { height: 8px; border-radius: 4px; margin-bottom: 18px; position: relative; }
+  .rsi-ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+  /* MACD MINIS */
+  .mini-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .mini-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+
+  /* K-LINE CARDS */
+  .kc {
+    background: var(--surface); border: .5px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 6px;
+    text-align: center; cursor: default;
+    transition: border-color .18s;
+  }
+  .kc:hover { border-color: var(--border2); }
+  .kn { font-size: 12px; font-weight: 600; color: var(--text); margin-top: 4px; }
+  .ks { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* MARKET PHASES */
+  .mp {
+    display: flex; border: .5px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 14px;
+  }
+  .ph {
+    flex: 1; padding: 12px 6px; text-align: center;
+    cursor: pointer; transition: background .18s; min-width: 0;
+  }
+  .ph + .ph { border-left: .5px solid var(--border); }
+  .ph.active { background: var(--blue-bg); }
+  .phi { font-size: 20px; display: block; margin-bottom: 4px; }
+  .phn { font-size: 11px; font-weight: 500; color: var(--text2); }
+  .ph.active .phn { color: var(--blue-text); }
+  .pd { display: none; background: var(--surface2); border-radius: var(--radius-sm); padding: 16px; }
+  .pd.show { display: block; }
+  .pdt { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,200px), 1fr)); gap: 14px; margin-top: 8px; }
+  .plabel { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .plist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .plist li { font-size: 12px; color: var(--text2); padding-left: 14px; position: relative; line-height: 1.4; }
+  .plist li::before { content: '—'; position: absolute; left: 0; color: var(--text3); }
+
+  /* COMBO CARDS */
+  .combo-card {
+    background: var(--surface); border: .5px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+  }
+  .combo-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .combo-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .combo-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .combo-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,150px),1fr)); gap: 8px; }
+  .ci { background: var(--surface2); border-radius: 6px; padding: 9px 10px; }
+  .ci-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; letter-spacing: .3px; }
+  .ci-val { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .flow-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .fbox { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: .5px solid; white-space: nowrap; }
+  .farr { color: var(--text3); font-size: 14px; }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: .5px solid var(--border); border-radius: var(--radius); }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  .tbl th { font-size: 11px; font-weight: 600; color: var(--text3); padding: 8px 10px; background: var(--surface2); text-align: left; white-space: nowrap; }
+  .tbl td { padding: 8px 10px; border-top: .5px solid var(--border); color: var(--text2); vertical-align: top; word-break: break-all; line-height: 1.4; }
+  .tbl tr:hover td { background: var(--surface2); }
+
+  /* RULES */
+  .rlist { display: flex; flex-direction: column; gap: 4px; }
+  .rule { font-size: 12px; color: var(--text2); padding: 6px 10px; background: var(--surface2); border-left: 2px solid var(--blue); line-height: 1.4; }
+  .rule.r-sell { border-left-color: #ef4444; }
+  .rule.r-warn { border-left-color: #f97316; }
+  .rule.r-ok   { border-left-color: #22c55e; }
+
+  /* WARN BOX */
+  .wbox { background: var(--amber-bg); border: .5px solid #fcd34d; border-radius: var(--radius-sm); padding: 10px 14px; display: flex; gap: 8px; margin-top: 12px; }
+  .wbox-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .wbox-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* K-LINE COMBO ITEMS */
+  .kcombo-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: .5px solid var(--border); }
+  .kcombo-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .kcombo-svg { flex-shrink: 0; }
+  .kcombo-info { flex: 1; min-width: 0; }
+  .kcombo-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .kcombo-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  /* DIVERGENCE */
+  .div-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,260px),1fr)); gap: 12px; }
+
+  /* MULTI-PERIOD */
+  .period-row { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+  .period-box { flex: 1; min-width: 120px; text-align: center; padding: 12px 8px; background: var(--surface2); border-radius: 8px; }
+  .period-tag { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+  .period-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .period-role { font-size: 11px; margin-top: 3px; }
+  .period-arr { display: flex; align-items: center; color: var(--text3); font-size: 18px; }
+
+  @media (max-width: 500px) {
+    .page-wrap { padding: 16px 14px 40px; }
+    .hero { padding: 22px 16px 18px; }
+    .card { padding: 12px; }
+    .pd { padding: 12px; }
+    .combo-card { padding: 12px; }
+    .plist li, .ci-val { font-size: 11px; }
+    .tbl th, .tbl td { padding: 6px 8px; font-size: 11px; }
+    .phi { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HERO -->
   <div class="hero">
     <div class="hero-title">技术面分析速查手册</div>
     <div class="hero-sub">Technical Analysis Reference · 指标 · K线 · 市场阶段 · 信号解读</div>
     <div class="hero-tags">
-      <span class="hero-tag">均线 MA</span>
-      <span class="hero-tag">MACD</span>
-      <span class="hero-tag">RSI</span>
-      <span class="hero-tag">KDJ</span>
-      <span class="hero-tag">布林带 BOLL</span>
-      <span class="hero-tag">成交量 VOL</span>
-      <span class="hero-tag">K线形态</span>
-      <span class="hero-tag">市场四阶段</span>
+      <span class="htag">均线 MA</span>
+      <span class="htag">MACD</span>
+      <span class="htag">RSI</span>
+      <span class="htag">KDJ</span>
+      <span class="htag">布林带 BOLL</span>
+      <span class="htag">成交量 VOL</span>
+      <span class="htag">K线形态</span>
+      <span class="htag">市场四阶段</span>
     </div>
   </div>
 
-  <div class="nav" id="mainNav">
-    <button class="nav-btn active" onclick="showSection('indicators')">📊 核心指标</button>
-    <button class="nav-btn" onclick="showSection('kline')">🕯️ K线形态</button>
-    <button class="nav-btn" onclick="showSection('phases')">📈 市场阶段</button>
-    <button class="nav-btn" onclick="showSection('combo')">🔗 组合策略</button>
-    <button class="nav-btn" onclick="showSection('rules')">📌 操作原则</button>
+  <!-- NAV -->
+  <div class="nav-wrap">
+    <div class="nav">
+      <button class="nb active" onclick="showSec('indicators')">核心指标</button>
+      <button class="nb" onclick="showSec('kline')">K线形态</button>
+      <button class="nb" onclick="showSec('phases')">市场阶段</button>
+      <button class="nb" onclick="showSec('combo')">组合策略</button>
+      <button class="nb" onclick="showSec('rules')">操作原则</button>
+    </div>
   </div>
 
-  <!-- ===== SECTION 1: INDICATORS ===== -->
-  <div class="section" id="sec-indicators">
+  <!-- ===== INDICATORS ===== -->
+  <div id="sec-indicators" class="section active">
+    <div class="sec">
+      <div class="st">趋势类指标</div>
+      <div class="g2">
 
-    <div class="section" style="margin-bottom:1.5rem">
-      <div class="sec-title">趋势类指标</div>
-      <div class="grid2">
-
+        <!-- MA -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-blue">MA · 均线</span>
-            <span class="card-formula">MA(n) = ΣC / n</span>
+            <span class="bdg b-blue">MA · 均线</span>
+            <span class="cf">MA(n) = ΣC / n</span>
           </div>
           <div class="card-name">移动平均线</div>
           <div class="desc">价格历史平均，平滑噪音，判断趋势方向。多均线排列判断多空强度。</div>
-          <div style="margin-top:10px">
-            <div class="level-bar"><span class="level-label">MA5</span><div class="level-track"><div class="level-fill" style="width:95%;background:#ef4444"></div></div><span style="font-size:11px;color:var(--color-text-tertiary)">短期</span></div>
-            <div class="level-bar"><span class="level-label">MA20</span><div class="level-track"><div class="level-fill" style="width:70%;background:#f97316"></div></div><span style="font-size:11px;color:var(--color-text-tertiary)">中期</span></div>
-            <div class="level-bar"><span class="level-label">MA60</span><div class="level-track"><div class="level-fill" style="width:50%;background:#eab308"></div></div><span style="font-size:11px;color:var(--color-text-tertiary)">中长</span></div>
-            <div class="level-bar"><span class="level-label">MA250</span><div class="level-track"><div class="level-fill" style="width:25%;background:#22c55e"></div></div><span style="font-size:11px;color:var(--color-text-tertiary)">牛熊线</span></div>
+          <div style="margin-top:12px">
+            <div class="lbar"><span class="llabel">MA5</span><div class="ltrack"><div class="lfill" style="width:95%;background:#ef4444"></div></div><span style="font-size:10px;color:var(--text3)">短期</span></div>
+            <div class="lbar"><span class="llabel">MA20</span><div class="ltrack"><div class="lfill" style="width:72%;background:#f97316"></div></div><span style="font-size:10px;color:var(--text3)">中期</span></div>
+            <div class="lbar"><span class="llabel">MA60</span><div class="ltrack"><div class="lfill" style="width:50%;background:#eab308"></div></div><span style="font-size:10px;color:var(--text3)">中长</span></div>
+            <div class="lbar"><span class="llabel">MA250</span><div class="ltrack"><div class="lfill" style="width:25%;background:#22c55e"></div></div><span style="font-size:10px;color:var(--text3)">牛熊线</span></div>
           </div>
-          <div class="signal-row">
-            <span class="signal sig-buy"><span class="dot-buy"></span>多头排列 买入持有</span>
-            <span class="signal sig-sell"><span class="dot-sell"></span>空头排列 回避做空</span>
-            <span class="signal sig-watch"><span class="dot-watch"></span>均线纠缠 震荡观望</span>
+          <div class="sr">
+            <span class="sig sbuy">▲ 多头排列 买入持有</span>
+            <span class="sig ssell">▼ 空头排列 回避做空</span>
+            <span class="sig swat">◆ 均线纠缠 震荡观望</span>
           </div>
         </div>
 
+        <!-- MACD -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-blue">MACD</span>
-            <span class="card-formula">DIF - DEA 柱状</span>
+            <span class="bdg b-blue">MACD</span>
+            <span class="cf">DIF(12,26) − DEA(9)</span>
           </div>
           <div class="card-name">指数平滑异同均线</div>
-          <div class="desc">由 DIF(12,26)、DEA(9日均) 和柱状线组成。红柱增长=趋势向上，绿柱扩张=趋势向下。</div>
-          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
-            <div style="flex:1;min-width:100px">
-              <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">DIF & DEA 零轴上方</div>
-              <svg width="100%" height="50" viewBox="0 0 200 50">
-                <line x1="0" y1="25" x2="200" y2="25" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="4,3"/>
-                <rect x="20" y="15" width="12" height="10" fill="#ef4444" opacity="0.8" rx="1"/>
-                <rect x="36" y="10" width="12" height="15" fill="#ef4444" opacity="0.8" rx="1"/>
-                <rect x="52" y="5" width="12" height="20" fill="#ef4444" opacity="0.8" rx="1"/>
-                <rect x="68" y="8" width="12" height="17" fill="#ef4444" opacity="0.8" rx="1"/>
-                <path d="M20 20 Q80 8 160 15" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-                <path d="M20 22 Q80 12 160 18" fill="none" stroke="#f97316" stroke-width="1"/>
-                <text x="4" y="48" fill="#22c55e" font-size="9">多头</text>
+          <div class="desc">红柱增长=趋势向上，绿柱扩张=趋势向下。零轴上方多头，下方空头。</div>
+          <div class="mini-charts">
+            <div>
+              <div class="mini-label">零轴上方（多头）</div>
+              <svg width="100%" height="50" viewBox="0 0 170 50">
+                <line x1="0" y1="25" x2="170" y2="25" stroke="var(--border2)" stroke-width=".5" stroke-dasharray="3,3"/>
+                <rect x="14" y="17" width="10" height="8"  fill="#ef4444" opacity=".85" rx="1"/>
+                <rect x="28" y="11" width="10" height="14" fill="#ef4444" opacity=".85" rx="1"/>
+                <rect x="42" y="7"  width="10" height="18" fill="#ef4444" opacity=".85" rx="1"/>
+                <rect x="56" y="10" width="10" height="15" fill="#ef4444" opacity=".85" rx="1"/>
+                <path d="M14 20 Q55 8 130 14" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+                <path d="M14 22 Q55 11 130 17" fill="none" stroke="#f97316" stroke-width="1"/>
+                <text x="4" y="45" fill="#22c55e" font-size="9">多头</text>
               </svg>
             </div>
-            <div style="flex:1;min-width:100px">
-              <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px">DIF & DEA 零轴下方</div>
-              <svg width="100%" height="50" viewBox="0 0 200 50">
-                <line x1="0" y1="25" x2="200" y2="25" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="4,3"/>
-                <rect x="20" y="25" width="12" height="12" fill="#22c55e" opacity="0.8" rx="1"/>
-                <rect x="36" y="25" width="12" height="16" fill="#22c55e" opacity="0.8" rx="1"/>
-                <rect x="52" y="25" width="12" height="14" fill="#22c55e" opacity="0.8" rx="1"/>
-                <rect x="68" y="25" width="12" height="10" fill="#22c55e" opacity="0.8" rx="1"/>
-                <path d="M20 30 Q80 38 160 35" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-                <path d="M20 32 Q80 40 160 37" fill="none" stroke="#f97316" stroke-width="1"/>
-                <text x="4" y="48" fill="#ef4444" font-size="9">空头</text>
+            <div>
+              <div class="mini-label">零轴下方（空头）</div>
+              <svg width="100%" height="50" viewBox="0 0 170 50">
+                <line x1="0" y1="25" x2="170" y2="25" stroke="var(--border2)" stroke-width=".5" stroke-dasharray="3,3"/>
+                <rect x="14" y="25" width="10" height="10" fill="#22c55e" opacity=".85" rx="1"/>
+                <rect x="28" y="25" width="10" height="15" fill="#22c55e" opacity=".85" rx="1"/>
+                <rect x="42" y="25" width="10" height="12" fill="#22c55e" opacity=".85" rx="1"/>
+                <rect x="56" y="25" width="10" height="8"  fill="#22c55e" opacity=".85" rx="1"/>
+                <path d="M14 30 Q55 38 130 34" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+                <path d="M14 32 Q55 40 130 37" fill="none" stroke="#f97316" stroke-width="1"/>
+                <text x="4" y="45" fill="#ef4444" font-size="9">空头</text>
               </svg>
             </div>
           </div>
-          <div class="signal-row">
-            <span class="signal sig-buy"><span class="dot-buy"></span>金叉上穿零轴 买入</span>
-            <span class="signal sig-sell"><span class="dot-sell"></span>死叉下穿零轴 卖出</span>
-            <span class="signal sig-watch"><span class="dot-watch"></span>顶背离/底背离 警惕反转</span>
+          <div class="sr">
+            <span class="sig sbuy">▲ 金叉上穿零轴</span>
+            <span class="sig ssell">▼ 死叉下穿零轴</span>
+            <span class="sig swat">◆ 顶/底背离 反转</span>
           </div>
         </div>
 
+        <!-- BOLL -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-purple">BOLL · 布林带</span>
-            <span class="card-formula">中轨±2σ</span>
+            <span class="bdg b-purple">BOLL · 布林带</span>
+            <span class="cf">中轨 ± 2σ</span>
           </div>
           <div class="card-name">布林格通道</div>
-          <div class="desc">上中下三轨。上下轨为压力/支撑，中轨(MA20)为趋势参考。轨道宽窄反映波动率。</div>
-          <div style="margin-top:10px">
-            <svg width="100%" height="70" viewBox="0 0 300 70">
-              <path d="M10 20 Q60 15 100 18 Q150 22 200 16 Q250 12 290 15" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,2"/>
-              <path d="M10 35 Q60 33 100 32 Q150 34 200 30 Q250 28 290 30" fill="none" stroke="#6b7280" stroke-width="1.5"/>
-              <path d="M10 55 Q60 52 100 50 Q150 54 200 50 Q250 48 290 52" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="4,2"/>
-              <path d="M10 20 Q60 15 100 18 Q150 22 200 16 Q250 12 290 15 L290 52 Q250 48 200 50 Q150 54 100 50 Q60 52 10 55 Z" fill="#3b82f6" fill-opacity="0.05"/>
-              <circle cx="110" cy="18" r="3" fill="#ef4444"/>
-              <circle cx="180" cy="50" r="3" fill="#3b82f6"/>
-              <text x="230" y="13" fill="#ef4444" font-size="9">上轨 压力</text>
-              <text x="230" y="30" fill="#6b7280" font-size="9">中轨 MA20</text>
-              <text x="230" y="55" fill="#3b82f6" font-size="9">下轨 支撑</text>
+          <div class="desc">上中下三轨。上轨压力，下轨支撑，中轨(MA20)趋势参考。轨道宽窄反映波动率。</div>
+          <div style="margin-top:12px">
+            <svg width="100%" height="60" viewBox="0 0 280 60">
+              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,2"/>
+              <path d="M10 30 Q70 27 110 26 Q160 28 200 24 Q240 22 270 24" fill="none" stroke="#8a8a84" stroke-width="1.5"/>
+              <path d="M10 48 Q70 46 110 44 Q160 48 200 44 Q240 42 270 46" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="4,2"/>
+              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10 L270 46 Q240 42 200 44 Q160 48 110 44 Q70 46 10 48 Z" fill="#3b82f6" fill-opacity=".05"/>
+              <text x="4" y="11"  fill="#ef4444" font-size="8">上轨</text>
+              <text x="4" y="27"  fill="#8a8a84" font-size="8">中轨</text>
+              <text x="4" y="49"  fill="#3b82f6" font-size="8">下轨</text>
             </svg>
           </div>
-          <div class="signal-row">
-            <span class="signal sig-buy"><span class="dot-buy"></span>收口后向上突破</span>
-            <span class="signal sig-sell"><span class="dot-sell"></span>触及上轨反转</span>
-            <span class="signal sig-watch"><span class="dot-watch"></span>开口扩大 趋势加速</span>
+          <div class="sr">
+            <span class="sig sbuy">▲ 收口后放量上破</span>
+            <span class="sig ssell">▼ 触及上轨反转</span>
+            <span class="sig swat">◆ 开口扩大 趋势加速</span>
           </div>
         </div>
 
+        <!-- VOL -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-amber">VOL · 成交量</span>
+            <span class="bdg b-amber">VOL · 成交量</span>
           </div>
           <div class="card-name">成交量分析</div>
           <div class="desc">量价配合是趋势可靠性的关键。量是因，价是果；放量上涨强势，缩量上涨需谨慎。</div>
-          <div style="margin-top:10px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
-              <div style="padding:6px 8px;background:var(--color-background-secondary);border-radius:6px;border-left:2px solid #22c55e">
-                <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:3px">放量上涨 ✓</div>
-                <div style="color:var(--color-text-secondary)">主力进场，趋势可信</div>
-              </div>
-              <div style="padding:6px 8px;background:var(--color-background-secondary);border-radius:6px;border-left:2px solid #ef4444">
-                <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:3px">缩量下跌 ✓</div>
-                <div style="color:var(--color-text-secondary)">惜售，下跌动能减弱</div>
-              </div>
-              <div style="padding:6px 8px;background:var(--color-background-secondary);border-radius:6px;border-left:2px solid #f97316">
-                <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:3px">缩量上涨 ⚠</div>
-                <div style="color:var(--color-text-secondary)">动能不足，假突破风险</div>
-              </div>
-              <div style="padding:6px 8px;background:var(--color-background-secondary);border-radius:6px;border-left:2px solid #ef4444">
-                <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:3px">放量下跌 ✗</div>
-                <div style="color:var(--color-text-secondary)">主力出货，加速下跌</div>
-              </div>
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px">
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #22c55e">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">放量上涨</div>
+              <div style="font-size:11px;color:var(--text2)">主力进场，趋势可信</div>
+            </div>
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #22c55e">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">缩量下跌</div>
+              <div style="font-size:11px;color:var(--text2)">惜售，动能减弱</div>
+            </div>
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #f97316">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">缩量上涨 ⚠</div>
+              <div style="font-size:11px;color:var(--text2)">动能不足，假突破</div>
+            </div>
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #ef4444">
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">放量下跌 ✗</div>
+              <div style="font-size:11px;color:var(--text2)">主力出货，加速跌</div>
             </div>
           </div>
         </div>
@@ -242,470 +438,463 @@
       </div>
     </div>
 
-    <div class="section" style="margin-bottom:0">
-      <div class="sec-title">震荡类指标</div>
-      <div class="grid2">
+    <div class="sec sec-last">
+      <div class="st">震荡类指标</div>
+      <div class="g2">
 
+        <!-- RSI -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-green">RSI · 相对强弱</span>
-            <span class="card-formula">0 — 100</span>
+            <span class="bdg b-green">RSI · 相对强弱</span>
+            <span class="cf">0 — 100</span>
           </div>
           <div class="card-name">相对强弱指数</div>
-          <div class="desc">衡量一段时间内多空力量对比，反映超买超卖状态。参数通常取 6、12、24 日。</div>
-          <div style="margin-top:10px;position:relative;height:44px">
-            <div style="height:10px;border-radius:5px;background:linear-gradient(to right,#3b82f6 0%,#22c55e 30%,#f8fafc 50%,#f97316 70%,#ef4444 100%);position:relative">
-              <div style="position:absolute;top:-14px;left:0%;font-size:9px;color:var(--color-text-tertiary)">0</div>
-              <div style="position:absolute;top:-14px;left:18%;font-size:9px;color:#3b82f6">20</div>
-              <div style="position:absolute;top:-14px;left:48%;font-size:9px;color:var(--color-text-secondary)">50</div>
-              <div style="position:absolute;top:-14px;left:68%;font-size:9px;color:#ef4444">80</div>
-              <div style="position:absolute;top:-14px;right:0;font-size:9px;color:var(--color-text-tertiary)">100</div>
+          <div class="desc">衡量多空力量对比，反映超买超卖状态。参数通常取 6、12、24 日。</div>
+          <div style="margin-top:12px">
+            <div class="rsi-bar" style="background:linear-gradient(to right,#3b82f6,#22c55e 28%,#d1d5db 50%,#f97316 70%,#ef4444)">
+              <div style="position:absolute;top:12px;left:0;font-size:9px;color:#3b82f6">0</div>
+              <div style="position:absolute;top:12px;left:17%;font-size:9px;color:#3b82f6">20</div>
+              <div style="position:absolute;top:12px;left:46%;font-size:9px;color:var(--text3)">50</div>
+              <div style="position:absolute;top:12px;left:76%;font-size:9px;color:#ef4444">80</div>
+              <div style="position:absolute;top:12px;right:0;font-size:9px;color:var(--text3)">100</div>
             </div>
-            <div style="display:flex;justify-content:space-between;margin-top:16px;font-size:10px;color:var(--color-text-tertiary)">
-              <span style="color:#3b82f6">超卖区 &lt;20<br>可考虑买入</span>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:8px">
+              <span style="color:#3b82f6">超卖 &lt;20<br>买入参考</span>
               <span style="text-align:center">中性区<br>顺势而为</span>
-              <span style="text-align:right;color:#ef4444">超买区 &gt;80<br>可考虑减仓</span>
+              <span style="text-align:right;color:#ef4444">超买 &gt;80<br>减仓参考</span>
             </div>
           </div>
-          <div class="signal-row" style="margin-top:8px">
-            <span class="signal sig-buy"><span class="dot-buy"></span>RSI&lt;20 向上穿越</span>
-            <span class="signal sig-sell"><span class="dot-sell"></span>RSI&gt;80 向下穿越</span>
-            <span class="signal sig-watch"><span class="dot-watch"></span>RSI背离 趋势转变</span>
+          <div class="sr">
+            <span class="sig sbuy">▲ RSI&lt;20 向上穿越</span>
+            <span class="sig ssell">▼ RSI&gt;80 向下穿越</span>
+            <span class="sig swat">◆ 背离 趋势转变</span>
           </div>
         </div>
 
+        <!-- KDJ -->
         <div class="card">
           <div class="card-head">
-            <span class="badge badge-purple">KDJ · 随机指标</span>
-            <span class="card-formula">K/D/J 三线</span>
+            <span class="bdg b-purple">KDJ · 随机指标</span>
+            <span class="cf">K / D / J 三线</span>
           </div>
           <div class="card-name">随机指标</div>
-          <div class="desc">K、D、J 三线组合，反映价格强弱和超买超卖。短线灵敏，适合震荡行情，单边市慎用。</div>
-          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-            <div style="text-align:center;padding:6px 4px;background:var(--color-background-secondary);border-radius:6px">
-              <div style="font-size:18px;font-weight:700;color:#ef4444">80</div>
-              <div style="font-size:10px;color:var(--color-text-tertiary)">超买</div>
+          <div class="desc">K、D、J三线组合，反映超买超卖。短线灵敏，适合震荡行情，单边市慎用。</div>
+          <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
+            <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
+              <div style="font-size:20px;font-weight:600;color:#ef4444">80</div>
+              <div style="font-size:10px;color:var(--text3)">超买</div>
               <div style="font-size:11px;color:#ef4444;margin-top:2px">考虑卖出</div>
             </div>
-            <div style="text-align:center;padding:6px 4px;background:var(--color-background-secondary);border-radius:6px">
-              <div style="font-size:18px;font-weight:700;color:#6b7280">50</div>
-              <div style="font-size:10px;color:var(--color-text-tertiary)">中性</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:2px">方向不明</div>
+            <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
+              <div style="font-size:20px;font-weight:600;color:var(--text2)">50</div>
+              <div style="font-size:10px;color:var(--text3)">中性</div>
+              <div style="font-size:11px;color:var(--text2);margin-top:2px">方向不明</div>
             </div>
-            <div style="text-align:center;padding:6px 4px;background:var(--color-background-secondary);border-radius:6px">
-              <div style="font-size:18px;font-weight:700;color:#3b82f6">20</div>
-              <div style="font-size:10px;color:var(--color-text-tertiary)">超卖</div>
+            <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
+              <div style="font-size:20px;font-weight:600;color:#3b82f6">20</div>
+              <div style="font-size:10px;color:var(--text3)">超卖</div>
               <div style="font-size:11px;color:#3b82f6;margin-top:2px">考虑买入</div>
             </div>
           </div>
-          <div class="signal-row" style="margin-top:8px">
-            <span class="signal sig-buy"><span class="dot-buy"></span>低位金叉 K上穿D</span>
-            <span class="signal sig-sell"><span class="dot-sell"></span>高位死叉 K下穿D</span>
-            <span class="signal sig-watch"><span class="dot-watch"></span>J线钝化 震荡加剧</span>
+          <div class="sr">
+            <span class="sig sbuy">▲ 低位金叉 K上穿D</span>
+            <span class="sig ssell">▼ 高位死叉 K下穿D</span>
+            <span class="sig swat">◆ J线钝化 震荡</span>
           </div>
         </div>
 
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ===== SECTION 2: K-LINE ===== -->
-  <div class="section" id="sec-kline" style="display:none">
-    <div class="sec-title">单根K线信号</div>
-    <div class="kline-grid" id="klineGrid">
-    </div>
-
-    <div style="margin-top:1.5rem">
-      <div class="sec-title">组合K线形态</div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-head"><span class="badge badge-green">看涨形态</span></div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="20" y="5" width="8" height="18" fill="#ef4444" stroke="none" rx="1"/>
-                <line x1="24" y1="5" x2="24" y2="2" stroke="#ef4444" stroke-width="1.5"/>
-                <line x1="24" y1="23" x2="24" y2="27" stroke="#ef4444" stroke-width="1.5"/>
-                <rect x="14" y="27" width="20" height="20" fill="#22c55e" stroke="none" rx="1"/>
-                <line x1="24" y1="27" x2="24" y2="22" stroke="#22c55e" stroke-width="1.5"/>
-                <line x1="24" y1="47" x2="24" y2="50" stroke="#22c55e" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">看涨吞没</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">大阳线完全包住前日阴线，多头反攻信号</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="18" y="10" width="12" height="14" fill="#ef4444" rx="1"/>
-                <rect x="18" y="28" width="12" height="14" fill="#ef4444" rx="1"/>
-                <rect x="14" y="24" width="20" height="12" fill="#22c55e" rx="1"/>
-                <line x1="24" y1="24" x2="24" y2="20" stroke="#22c55e" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">早晨之星</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">三根K线组合：阴+小十字+阳，底部反转</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="18" y="20" width="12" height="22" fill="#22c55e" rx="1"/>
-                <line x1="24" y1="20" x2="24" y2="5" stroke="#22c55e" stroke-width="1.5"/>
-                <line x1="24" y1="42" x2="24" y2="44" stroke="#22c55e" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">锤子线</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">低位出现，长下影=多头强力支撑</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="badge badge-red">看跌形态</span></div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="14" y="5" width="20" height="20" fill="#22c55e" stroke="none" rx="1"/>
-                <line x1="24" y1="5" x2="24" y2="2" stroke="#22c55e" stroke-width="1.5"/>
-                <line x1="24" y1="25" x2="24" y2="28" stroke="#22c55e" stroke-width="1.5"/>
-                <rect x="20" y="27" width="8" height="18" fill="#ef4444" stroke="none" rx="1"/>
-                <line x1="24" y1="27" x2="24" y2="23" stroke="#ef4444" stroke-width="1.5"/>
-                <line x1="24" y1="45" x2="24" y2="48" stroke="#ef4444" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">看跌吞没</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">大阴线完全包住前日阳线，空头反攻信号</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="14" y="5" width="20" height="12" fill="#22c55e" rx="1"/>
-                <rect x="18" y="20" width="12" height="12" fill="#ef4444" rx="1"/>
-                <rect x="14" y="35" width="20" height="12" fill="#ef4444" rx="1"/>
-                <line x1="24" y1="47" x2="24" y2="50" stroke="#ef4444" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">黄昏之星</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">三根K线组合：阳+小十字+阴，顶部反转</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <svg width="48" height="50" viewBox="0 0 48 50">
-                <rect x="18" y="6" width="12" height="22" fill="#ef4444" rx="1"/>
-                <line x1="24" y1="6" x2="24" y2="3" stroke="#ef4444" stroke-width="1.5"/>
-                <line x1="24" y1="28" x2="24" y2="44" stroke="#ef4444" stroke-width="1.5"/>
-              </svg>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">流星线</div>
-                <div style="font-size:12px;color:var(--color-text-secondary)">高位出现，长上影=多头受阻，警惕顶部</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== SECTION 3: PHASES ===== -->
-  <div class="section" id="sec-phases" style="display:none">
-    <div class="sec-title">市场四阶段理论</div>
-    <div class="market-phase">
-      <div class="phase active" onclick="showPhase(0)">
-        <span class="phase-icon">🔄</span>
-        <div class="phase-name">筑底期</div>
-      </div>
-      <div class="phase" onclick="showPhase(1)">
-        <span class="phase-icon">📈</span>
-        <div class="phase-name">上升期</div>
-      </div>
-      <div class="phase" onclick="showPhase(2)">
-        <span class="phase-icon">⚖️</span>
-        <div class="phase-name">筑顶期</div>
-      </div>
-      <div class="phase" onclick="showPhase(3)">
-        <span class="phase-icon">📉</span>
-        <div class="phase-name">下降期</div>
-      </div>
+  <!-- ===== K-LINE ===== -->
+  <div id="sec-kline" class="section">
+    <div class="sec">
+      <div class="st">单根K线信号</div>
+      <div class="g4" id="klineGrid"></div>
     </div>
 
-    <div id="phaseDetails">
-      <div class="phase-detail show" data-phase="0">
-        <div class="phase-title">🔄 筑底期 — 积蓄阶段</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">市场特征</div>
-            <ul class="phase-list">
-              <li>股价长期下跌后趋于平稳</li>
-              <li>成交量极度萎缩</li>
-              <li>均线由散乱趋于走平</li>
-              <li>RSI 在 20-40 区间徘徊</li>
-              <li>MACD 柱线在零轴下方缩短</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">操作策略</div>
-            <ul class="phase-list">
-              <li>耐心等待，不追跌</li>
-              <li>关注放量异动</li>
-              <li>试探性小仓建仓</li>
-              <li>止损位设在近期低点下方</li>
-              <li>等待突破确认再加仓</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="phase-detail" data-phase="1">
-        <div class="phase-title">📈 上升期 — 趋势阶段</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">市场特征</div>
-            <ul class="phase-list">
-              <li>价格突破均线系统向上</li>
-              <li>均线由平转向多头排列</li>
-              <li>成交量放大配合上涨</li>
-              <li>MACD 金叉并站上零轴</li>
-              <li>RSI 保持在 50 以上</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">操作策略</div>
-            <ul class="phase-list">
-              <li>顺势做多，持股为主</li>
-              <li>回调至均线附近加仓</li>
-              <li>不轻易做空</li>
-              <li>用均线追踪止盈</li>
-              <li>出现顶部信号再减仓</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="phase-detail" data-phase="2">
-        <div class="phase-title">⚖️ 筑顶期 — 分配阶段</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">市场特征</div>
-            <ul class="phase-list">
-              <li>价格在高位横盘震荡</li>
-              <li>放量但价格无法创新高</li>
-              <li>均线开始纠缠走平</li>
-              <li>MACD 顶背离信号出现</li>
-              <li>RSI 高位钝化或背离</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">操作策略</div>
-            <ul class="phase-list">
-              <li>逐步减仓，锁定利润</li>
-              <li>不追涨，不抄顶</li>
-              <li>严格执行止损</li>
-              <li>背离信号出现时清仓</li>
-              <li>等待方向明朗再入场</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="phase-detail" data-phase="3">
-        <div class="phase-title">📉 下降期 — 下跌阶段</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">市场特征</div>
-            <ul class="phase-list">
-              <li>价格跌破均线支撑</li>
-              <li>均线空头排列，死叉连续</li>
-              <li>每次反弹量缩价跌</li>
-              <li>MACD 零轴下方运行</li>
-              <li>RSI 长时间处于 20-50 区间</li>
-            </ul>
-          </div>
-          <div>
-            <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px">操作策略</div>
-            <ul class="phase-list">
-              <li>空仓观望为主</li>
-              <li>反弹减仓，不接刀</li>
-              <li>切忌抄底操作</li>
-              <li>等待筑底信号出现</li>
-              <li>做空市场只在确认下降趋势后</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-top:1.5rem">
-      <div class="sec-title">背离信号详解</div>
-      <div class="grid2">
-        <div class="card">
-          <div class="card-head"><span class="badge badge-green">底背离 — 买入信号</span></div>
-          <div class="desc" style="margin-top:6px">价格创新低，而 MACD / RSI 指标<strong style="font-weight:500">未能同步创新低</strong>，说明下跌动能减弱，可能即将反转向上。</div>
-          <div style="margin-top:8px">
-            <svg width="100%" height="60" viewBox="0 0 280 60">
-              <path d="M20 20 Q60 15 80 35 Q100 50 130 45 Q160 40 180 50 Q200 55 220 48" fill="none" stroke="#6b7280" stroke-width="1.5"/>
-              <path d="M20 35 Q60 32 80 38 Q100 44 130 40 Q160 36 180 34 Q200 32 220 30" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2"/>
-              <circle cx="80" cy="35" r="3" fill="#ef4444"/>
-              <circle cx="220" cy="48" r="3" fill="#ef4444"/>
-              <circle cx="80" cy="38" r="3" fill="#3b82f6"/>
-              <circle cx="220" cy="30" r="3" fill="#3b82f6"/>
-              <line x1="80" y1="35" x2="220" y2="48" stroke="#ef4444" stroke-width="0.5" stroke-dasharray="3,2"/>
-              <line x1="80" y1="38" x2="220" y2="30" stroke="#3b82f6" stroke-width="0.5" stroke-dasharray="3,2"/>
-              <text x="4" y="38" fill="#6b7280" font-size="9">价格</text>
-              <text x="4" y="53" fill="#3b82f6" font-size="9">指标</text>
-            </svg>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="badge badge-red">顶背离 — 卖出信号</span></div>
-          <div class="desc" style="margin-top:6px">价格创新高，而 MACD / RSI 指标<strong style="font-weight:500">未能同步创新高</strong>，说明上涨动能衰竭，可能即将反转向下。</div>
-          <div style="margin-top:8px">
-            <svg width="100%" height="60" viewBox="0 0 280 60">
-              <path d="M20 40 Q60 35 80 20 Q100 15 130 18 Q160 20 180 12 Q200 8 220 15" fill="none" stroke="#6b7280" stroke-width="1.5"/>
-              <path d="M20 30 Q60 28 80 22 Q100 18 130 20 Q160 22 180 26 Q200 28 220 32" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
-              <circle cx="80" cy="20" r="3" fill="#22c55e"/>
-              <circle cx="220" cy="15" r="3" fill="#22c55e"/>
-              <circle cx="80" cy="22" r="3" fill="#ef4444"/>
-              <circle cx="220" cy="32" r="3" fill="#ef4444"/>
-              <line x1="80" y1="20" x2="220" y2="15" stroke="#22c55e" stroke-width="0.5" stroke-dasharray="3,2"/>
-              <line x1="80" y1="22" x2="220" y2="32" stroke="#ef4444" stroke-width="0.5" stroke-dasharray="3,2"/>
-              <text x="4" y="30" fill="#6b7280" font-size="9">价格</text>
-              <text x="4" y="45" fill="#ef4444" font-size="9">指标</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== SECTION 4: COMBO ===== -->
-  <div class="section" id="sec-combo" style="display:none">
-    <div class="sec-title">常用指标组合策略</div>
-    <table class="combo-table">
-      <thead>
-        <tr>
-          <th>组合名称</th>
-          <th>组合指标</th>
-          <th>适用场景</th>
-          <th>进场信号</th>
-          <th>出场信号</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="badge badge-blue" style="font-size:11px">趋势跟踪</span></td>
-          <td>MA + MACD</td>
-          <td>单边趋势行情</td>
-          <td>均线多头排列 + MACD 金叉零轴上</td>
-          <td>均线死叉 + MACD 绿柱扩张</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-green" style="font-size:11px">超跌反弹</span></td>
-          <td>RSI + KDJ</td>
-          <td>短期超卖反弹</td>
-          <td>RSI&lt;25 且 KDJ 低位金叉</td>
-          <td>RSI&gt;70 或 KDJ 高位死叉</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-purple" style="font-size:11px">突破交易</span></td>
-          <td>BOLL + VOL</td>
-          <td>区间突破</td>
-          <td>布林收口后放量突破上轨</td>
-          <td>价格重回中轨下方</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-amber" style="font-size:11px">强势持有</span></td>
-          <td>MA + BOLL</td>
-          <td>牛市趋势波段</td>
-          <td>价格站上 BOLL 中轨 + 均线多排</td>
-          <td>跌破中轨且均线走平</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-red" style="font-size:11px">全指标确认</span></td>
-          <td>MA+MACD+RSI+VOL</td>
-          <td>重要买点确认</td>
-          <td>四指标同步共振看多</td>
-          <td>任意两个以上指标转空</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="margin-top:1.5rem">
-      <div class="sec-title">多周期共振</div>
+    <div class="sec">
+      <div class="st">看涨组合形态</div>
       <div class="card">
-        <div class="desc">使用多个时间周期验证信号，从大到小逐级确认。大周期定方向，小周期找时机。</div>
-        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:100px;text-align:center;padding:10px 6px;background:var(--color-background-secondary);border-radius:8px;position:relative">
-            <div style="font-size:11px;color:var(--color-text-tertiary)">月线 / 周线</div>
-            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:4px 0">判断大趋势</div>
-            <div style="font-size:11px;color:#3b82f6">方向</div>
+        <!-- 看涨吞没 -->
+        <div class="kcombo-item">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <line x1="26" y1="2"  x2="26" y2="10" stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="20" y="10" width="12" height="20" fill="#ef4444" rx="1"/>
+            <line x1="26" y1="30" x2="26" y2="36" stroke="#ef4444" stroke-width="1.5"/>
+            <line x1="26" y1="36" x2="26" y2="40" stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="14" y="40" width="24" height="16" fill="#22c55e" rx="1"/>
+            <line x1="26" y1="56" x2="26" y2="60" stroke="#22c55e" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">看涨吞没</div>
+            <div class="kcombo-desc">大阳线实体完全包住前日阴线，多头强力反攻。出现在下跌趋势末端时可靠性高，量能放大更佳。</div>
           </div>
-          <div style="display:flex;align-items:center;color:var(--color-text-tertiary);font-size:16px">→</div>
-          <div style="flex:1;min-width:100px;text-align:center;padding:10px 6px;background:var(--color-background-secondary);border-radius:8px">
-            <div style="font-size:11px;color:var(--color-text-tertiary)">日线</div>
-            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:4px 0">确认中期趋势</div>
-            <div style="font-size:11px;color:#f97316">过滤</div>
+        </div>
+        <!-- 早晨之星 -->
+        <div class="kcombo-item">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <line x1="12" y1="2"  x2="12" y2="8"  stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="7"  y="8"  width="10" height="14" fill="#ef4444" rx="1"/>
+            <line x1="12" y1="22" x2="12" y2="28" stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="22" y="24" width="8" height="8" fill="#888" rx="1"/>
+            <line x1="26" y1="24" x2="26" y2="20" stroke="#888" stroke-width="1.5"/>
+            <line x1="26" y1="32" x2="26" y2="36" stroke="#888" stroke-width="1.5"/>
+            <line x1="40" y1="36" x2="40" y2="40" stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="35" y="40" width="10" height="14" fill="#22c55e" rx="1"/>
+            <line x1="40" y1="54" x2="40" y2="58" stroke="#22c55e" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">早晨之星</div>
+            <div class="kcombo-desc">阴线 + 小实体/十字星 + 阳线，三日底部反转形态。第三日阳线收盘需回补第一日阴线实体一半以上。</div>
           </div>
-          <div style="display:flex;align-items:center;color:var(--color-text-tertiary);font-size:16px">→</div>
-          <div style="flex:1;min-width:100px;text-align:center;padding:10px 6px;background:var(--color-background-secondary);border-radius:8px">
-            <div style="font-size:11px;color:var(--color-text-tertiary)">60分钟 / 15分钟</div>
-            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:4px 0">寻找入场点</div>
-            <div style="font-size:11px;color:#22c55e">时机</div>
+        </div>
+        <!-- 锤子线 -->
+        <div class="kcombo-item" style="border-bottom:none;padding-bottom:0">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <!-- 锤子线：实体在上方，上影线短，下影线很长 -->
+            <line x1="26" y1="2"  x2="26" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="20" y="6"  width="12" height="14" fill="#22c55e" rx="1"/>
+            <line x1="26" y1="20" x2="26" y2="58" stroke="#22c55e" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">锤子线</div>
+            <div class="kcombo-desc">低位出现，实体在上方，上影线极短或无，下影线很长（≥2倍实体）。代表空头砸盘后多头强力接盘，底部反转信号。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec sec-last">
+      <div class="st">看跌组合形态</div>
+      <div class="card">
+        <!-- 看跌吞没 -->
+        <div class="kcombo-item">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <line x1="26" y1="2"  x2="26" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="14" y="6"  width="24" height="18" fill="#22c55e" rx="1"/>
+            <line x1="26" y1="24" x2="26" y2="28" stroke="#22c55e" stroke-width="1.5"/>
+            <line x1="26" y1="28" x2="26" y2="32" stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="20" y="32" width="12" height="22" fill="#ef4444" rx="1"/>
+            <line x1="26" y1="54" x2="26" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">看跌吞没</div>
+            <div class="kcombo-desc">大阴线实体完全包住前日阳线，空头强力反攻。出现在上涨趋势末端时可靠性高，量能放大更佳。</div>
+          </div>
+        </div>
+        <!-- 黄昏之星 -->
+        <div class="kcombo-item">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <line x1="12" y1="2"  x2="12" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="7"  y="6"  width="10" height="14" fill="#22c55e" rx="1"/>
+            <line x1="12" y1="20" x2="12" y2="26" stroke="#22c55e" stroke-width="1.5"/>
+            <rect x="22" y="22" width="8" height="8" fill="#888" rx="1"/>
+            <line x1="26" y1="22" x2="26" y2="18" stroke="#888" stroke-width="1.5"/>
+            <line x1="26" y1="30" x2="26" y2="34" stroke="#888" stroke-width="1.5"/>
+            <line x1="40" y1="28" x2="40" y2="34" stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="35" y="34" width="10" height="20" fill="#ef4444" rx="1"/>
+            <line x1="40" y1="54" x2="40" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">黄昏之星</div>
+            <div class="kcombo-desc">阳线 + 小实体/十字星 + 阴线，三日顶部反转形态。第三日阴线收盘需回补第一日阳线实体一半以上。</div>
+          </div>
+        </div>
+        <!-- 流星线 -->
+        <div class="kcombo-item" style="border-bottom:none;padding-bottom:0">
+          <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
+            <!-- 流星线：实体在下方，上影线很长，下影线极短或无 -->
+            <line x1="26" y1="2"  x2="26" y2="40" stroke="#ef4444" stroke-width="1.5"/>
+            <rect x="20" y="40" width="12" height="14" fill="#ef4444" rx="1"/>
+            <line x1="26" y1="54" x2="26" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+          </svg>
+          <div class="kcombo-info">
+            <div class="kcombo-name">流星线</div>
+            <div class="kcombo-desc">高位出现，实体在下方，下影线极短或无，上影线很长（≥2倍实体）。代表多头拉高后遭空头强力打压，顶部反转信号。</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== SECTION 5: RULES ===== -->
-  <div class="section" id="sec-rules" style="display:none">
-    <div class="sec-title">核心操作原则</div>
-    <div class="grid2">
-      <div>
-        <div class="divider-box">
-          <div class="divider-title">葛兰碧八大法则（均线）</div>
-          <div class="rule-list">
-            <div class="rule">① 均线走平或上翘，价格从下方向上穿越均线 → 买入</div>
-            <div class="rule">② 均线上升，价格暂时跌至均线附近回升 → 买入</div>
-            <div class="rule">③ 均线上升，价格跌破均线后迅速回升 → 买入</div>
-            <div class="rule">④ 均线下跌，价格远低于均线急速下跌 → 超卖买入</div>
-            <div class="rule">⑤ 均线走平或下弯，价格从上方向下穿越均线 → 卖出</div>
-            <div class="rule">⑥ 均线下降，价格暂时升至均线附近回落 → 卖出</div>
-            <div class="rule">⑦ 均线下降，价格升破均线后迅速回落 → 卖出</div>
-            <div class="rule">⑧ 均线上升，价格远高于均线持续上升 → 超买卖出</div>
-          </div>
-        </div>
+  <!-- ===== PHASES ===== -->
+  <div id="sec-phases" class="section">
+    <div class="sec">
+      <div class="st">市场四阶段理论</div>
+      <div class="mp">
+        <div class="ph active" onclick="showPhase(0)"><span class="phi">🔄</span><div class="phn">筑底期</div></div>
+        <div class="ph" onclick="showPhase(1)"><span class="phi">📈</span><div class="phn">上升期</div></div>
+        <div class="ph" onclick="showPhase(2)"><span class="phi">⚖️</span><div class="phn">筑顶期</div></div>
+        <div class="ph" onclick="showPhase(3)"><span class="phi">📉</span><div class="phn">下降期</div></div>
       </div>
-      <div>
-        <div class="divider-box" style="margin-bottom:10px">
-          <div class="divider-title">风险管理铁律</div>
-          <div class="rule-list">
-            <div class="rule" style="border-left-color:#ef4444">单笔止损不超过本金 2%</div>
-            <div class="rule" style="border-left-color:#ef4444">同向仓位总风险不超过 6%</div>
-            <div class="rule" style="border-left-color:#f97316">盈亏比要求至少 2:1 再入场</div>
-            <div class="rule" style="border-left-color:#f97316">连续亏损 3 次强制停止交易</div>
-            <div class="rule" style="border-left-color:#22c55e">盈利时使用追踪止损</div>
-            <div class="rule" style="border-left-color:#22c55e">分批建仓，分批离场</div>
+      <div id="phaseDetails">
+        <div class="pd show" data-phase="0">
+          <div class="pdt">🔄 筑底期 — 积蓄阶段</div>
+          <div class="pgrid">
+            <div><div class="plabel">市场特征</div><ul class="plist"><li>股价长期下跌后趋于平稳</li><li>成交量极度萎缩</li><li>均线由散乱趋于走平</li><li>RSI 在 20-40 区间徘徊</li><li>MACD 柱线零轴下方缩短</li></ul></div>
+            <div><div class="plabel">操作策略</div><ul class="plist"><li>耐心等待，不追跌</li><li>关注放量异动信号</li><li>试探性小仓建仓</li><li>止损设在近期低点下方</li><li>等待突破确认再加仓</li></ul></div>
           </div>
         </div>
-        <div class="warn-box">
-          <div class="warn-icon">⚠</div>
-          <div class="warn-text">技术指标为辅助工具，存在滞后性。单一指标信号可靠性有限，建议 3-5 个指标共振确认，配合基本面分析，严格执行止损策略。</div>
+        <div class="pd" data-phase="1">
+          <div class="pdt">📈 上升期 — 趋势阶段</div>
+          <div class="pgrid">
+            <div><div class="plabel">市场特征</div><ul class="plist"><li>价格突破均线系统向上</li><li>均线由平转向多头排列</li><li>成交量放大配合上涨</li><li>MACD 金叉并站上零轴</li><li>RSI 保持在 50 以上</li></ul></div>
+            <div><div class="plabel">操作策略</div><ul class="plist"><li>顺势做多，持股为主</li><li>回调至均线附近加仓</li><li>不轻易做空</li><li>用均线追踪止盈</li><li>出现顶部信号再减仓</li></ul></div>
+          </div>
+        </div>
+        <div class="pd" data-phase="2">
+          <div class="pdt">⚖️ 筑顶期 — 分配阶段</div>
+          <div class="pgrid">
+            <div><div class="plabel">市场特征</div><ul class="plist"><li>价格在高位横盘震荡</li><li>放量但价格无法创新高</li><li>均线开始纠缠走平</li><li>MACD 顶背离信号出现</li><li>RSI 高位钝化或背离</li></ul></div>
+            <div><div class="plabel">操作策略</div><ul class="plist"><li>逐步减仓，锁定利润</li><li>不追涨，不抄顶</li><li>严格执行止损</li><li>背离信号出现时清仓</li><li>等待方向明朗再入场</li></ul></div>
+          </div>
+        </div>
+        <div class="pd" data-phase="3">
+          <div class="pdt">📉 下降期 — 下跌阶段</div>
+          <div class="pgrid">
+            <div><div class="plabel">市场特征</div><ul class="plist"><li>价格跌破均线支撑</li><li>均线空头排列，死叉连续</li><li>每次反弹量缩价跌</li><li>MACD 零轴下方运行</li><li>RSI 长时间 20-50 区间</li></ul></div>
+            <div><div class="plabel">操作策略</div><ul class="plist"><li>空仓观望为主</li><li>反弹减仓，不接刀</li><li>切忌抄底操作</li><li>等待筑底信号出现</li><li>做空需确认趋势后</li></ul></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div style="margin-top:1.5rem">
-      <div class="sec-title">常见误区</div>
-      <div class="grid3">
-        <div class="card" style="border-left:2px solid #ef4444;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">指标钝化</div>
-          <div class="desc">强势行情中，RSI、KDJ 可长期处于超买区，不能单纯依此做空。</div>
+    <div class="sec sec-last">
+      <div class="st">背离信号详解</div>
+      <div class="div-grid">
+        <div class="card">
+          <div class="card-head"><span class="bdg b-green">底背离 — 买入信号</span></div>
+          <div class="desc" style="margin-top:4px">价格创新低，MACD / RSI 指标未同步创新低，下跌动能减弱，可能反转向上。</div>
+          <svg width="100%" height="58" viewBox="0 0 260 58" style="margin-top:8px">
+            <path d="M18 16 Q52 12 72 30 Q90 44 120 40 Q152 36 172 44 Q200 50 228 42" fill="none" stroke="var(--text2)" stroke-width="1.5"/>
+            <path d="M18 34 Q52 30 72 36 Q90 42 120 38 Q152 33 172 30 Q200 27 228 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <circle cx="72"  cy="30" r="3" fill="#ef4444"/>
+            <circle cx="228" cy="42" r="3" fill="#ef4444"/>
+            <circle cx="72"  cy="36" r="3" fill="#3b82f6"/>
+            <circle cx="228" cy="24" r="3" fill="#3b82f6"/>
+            <line x1="72" y1="30" x2="228" y2="42" stroke="#ef4444" stroke-width=".5" stroke-dasharray="3,2"/>
+            <line x1="72" y1="36" x2="228" y2="24" stroke="#3b82f6" stroke-width=".5" stroke-dasharray="3,2"/>
+            <text x="4" y="18"  fill="var(--text2)" font-size="9">价格</text>
+            <text x="4" y="38"  fill="#3b82f6"       font-size="9">指标</text>
+          </svg>
         </div>
-        <div class="card" style="border-left:2px solid #f97316;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">假突破</div>
-          <div class="desc">价格突破必须配合成交量放大，缩量突破通常为假信号，风险极高。</div>
+        <div class="card">
+          <div class="card-head"><span class="bdg b-red">顶背离 — 卖出信号</span></div>
+          <div class="desc" style="margin-top:4px">价格创新高，MACD / RSI 指标未同步创新高，上涨动能衰竭，可能反转向下。</div>
+          <svg width="100%" height="58" viewBox="0 0 260 58" style="margin-top:8px">
+            <path d="M18 40 Q52 34 72 18 Q90 12 120 14 Q152 16 172 8 Q200 4 228 10" fill="none" stroke="var(--text2)" stroke-width="1.5"/>
+            <path d="M18 28 Q52 24 72 20 Q90 16 120 18 Q152 20 172 24 Q200 27 228 30" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <circle cx="72"  cy="18" r="3" fill="#22c55e"/>
+            <circle cx="228" cy="10" r="3" fill="#22c55e"/>
+            <circle cx="72"  cy="20" r="3" fill="#ef4444"/>
+            <circle cx="228" cy="30" r="3" fill="#ef4444"/>
+            <line x1="72" y1="18" x2="228" y2="10" stroke="#22c55e" stroke-width=".5" stroke-dasharray="3,2"/>
+            <line x1="72" y1="20" x2="228" y2="30" stroke="#ef4444" stroke-width=".5" stroke-dasharray="3,2"/>
+            <text x="4" y="22"  fill="var(--text2)" font-size="9">价格</text>
+            <text x="4" y="38"  fill="#ef4444"       font-size="9">指标</text>
+          </svg>
         </div>
-        <div class="card" style="border-left:2px solid #eab308;border-radius:0 var(--border-radius-lg) var(--border-radius-lg) 0">
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">滞后性</div>
-          <div class="desc">均线和MACD基于历史数据，行情快速变化时，信号会明显滞后，须提前预判。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COMBO ===== -->
+  <div id="sec-combo" class="section">
+    <div class="sec">
+      <div class="st">经典指标组合</div>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th style="width:18%">组合</th>
+            <th style="width:22%">指标</th>
+            <th style="width:30%">进场信号</th>
+            <th style="width:30%">出场信号</th>
+          </tr></thead>
+          <tbody>
+            <tr><td><span class="bdg b-blue" style="font-size:10px">趋势跟踪</span></td><td>MA + MACD</td><td>均线多头排列 + MACD金叉零轴上</td><td>均线死叉 + 绿柱扩张</td></tr>
+            <tr><td><span class="bdg b-green" style="font-size:10px">超跌反弹</span></td><td>RSI + KDJ</td><td>RSI&lt;25 且 KDJ低位金叉</td><td>RSI&gt;70 或 KDJ高位死叉</td></tr>
+            <tr><td><span class="bdg b-purple" style="font-size:10px">区间突破</span></td><td>BOLL + VOL</td><td>收口后放量突破上轨</td><td>价格重回中轨下方</td></tr>
+            <tr><td><span class="bdg b-amber" style="font-size:10px">强势持有</span></td><td>MA + BOLL</td><td>站上BOLL中轨 + 均线多排</td><td>跌破中轨且均线走平</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="st">K线 + 指标 + 价格 + 成交量 综合买点</div>
+
+      <!-- 高胜率买入 -->
+      <div class="combo-card">
+        <div class="combo-head">
+          <div>
+            <div class="combo-title">底部反转做多 — 高胜率买点</div>
+            <div class="combo-tags">
+              <span class="bdg b-green">K线看涨</span>
+              <span class="bdg b-blue">指标超卖</span>
+              <span class="bdg b-teal">价格关键位</span>
+              <span class="bdg b-amber">量能放大</span>
+            </div>
+          </div>
+          <span class="sig sbuy" style="font-size:12px;padding:5px 12px">高胜率买入</span>
+        </div>
+        <div class="combo-body">
+          <div class="ci"><div class="ci-label">K线形态</div><div class="ci-val">锤子线 / 早晨之星 / 看涨吞没，出现在低位</div></div>
+          <div class="ci"><div class="ci-label">价格位置</div><div class="ci-val">触及历史支撑位 / 跌至布林下轨 / 前期低点附近</div></div>
+          <div class="ci"><div class="ci-label">指标状态</div><div class="ci-val">RSI &lt; 25 或 KDJ低位金叉；MACD柱线缩短，底背离出现</div></div>
+          <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">反转当日放量（较前5日均量 +50%以上），量能明显放大</div></div>
+        </div>
+        <div class="flow-row">
+          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:#86efac">K线确认</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">指标共振</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:#86efac">放量确认</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:#dcfce7;color:#166534;border-color:#22c55e;font-weight:600">入场做多</span>
+        </div>
+      </div>
+
+      <!-- 高胜率卖出 -->
+      <div class="combo-card">
+        <div class="combo-head">
+          <div>
+            <div class="combo-title">顶部反转做空 — 高胜率卖点</div>
+            <div class="combo-tags">
+              <span class="bdg b-red">K线看跌</span>
+              <span class="bdg b-amber">指标超买</span>
+              <span class="bdg b-teal">价格关键位</span>
+              <span class="bdg b-purple">量价背离</span>
+            </div>
+          </div>
+          <span class="sig ssell" style="font-size:12px;padding:5px 12px">高胜率卖出</span>
+        </div>
+        <div class="combo-body">
+          <div class="ci"><div class="ci-label">K线形态</div><div class="ci-val">流星线 / 黄昏之星 / 看跌吞没，出现在高位</div></div>
+          <div class="ci"><div class="ci-label">价格位置</div><div class="ci-val">触及历史阻力位 / 升至布林上轨 / 前期高点附近</div></div>
+          <div class="ci"><div class="ci-label">指标状态</div><div class="ci-val">RSI &gt; 75 或 KDJ高位死叉；MACD柱线缩短，顶背离出现</div></div>
+          <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">上涨时量缩（量价背离），或拉高后出现异常放量随后萎缩</div></div>
+        </div>
+        <div class="flow-row">
+          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:#fca5a5">K线确认</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:#fcd34d">指标共振</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:#fca5a5">量价背离</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:#fee2e2;color:#991b1b;border-color:#ef4444;font-weight:600">减仓出场</span>
+        </div>
+      </div>
+
+      <!-- 趋势突破 -->
+      <div class="combo-card" style="margin-bottom:0">
+        <div class="combo-head">
+          <div>
+            <div class="combo-title">趋势突破追涨 — 中等确定性</div>
+            <div class="combo-tags">
+              <span class="bdg b-green">K线突破</span>
+              <span class="bdg b-blue">趋势指标</span>
+              <span class="bdg b-amber">放量突破</span>
+            </div>
+          </div>
+          <span class="sig swat" style="font-size:12px;padding:5px 12px">需量能确认</span>
+        </div>
+        <div class="combo-body">
+          <div class="ci"><div class="ci-label">K线形态</div><div class="ci-val">大阳线实体突破关键阻力，连续两日站稳压力位上方</div></div>
+          <div class="ci"><div class="ci-label">价格位置</div><div class="ci-val">突破均线压力 / BOLL上轨 / 前期高点或整理区上沿</div></div>
+          <div class="ci"><div class="ci-label">指标状态</div><div class="ci-val">MACD金叉且柱线扩大，均线多头排列，RSI在50-70区间</div></div>
+          <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">突破当日须放量（前5日均量1.5倍以上），缩量突破为假突破</div></div>
+        </div>
+        <div class="flow-row">
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">价格突破</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:#fcd34d">放量确认</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">次日不回头</span>
+          <span class="farr">→</span>
+          <span class="fbox" style="background:#dcfce7;color:#166534;border-color:#22c55e;font-weight:600">轻仓追入</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec sec-last">
+      <div class="st">多周期共振框架</div>
+      <div class="card">
+        <div class="desc" style="margin-bottom:14px">大周期定方向，中周期过滤，小周期找精确时机。三个周期方向一致时，信号最为可靠。</div>
+        <div class="period-row">
+          <div class="period-box">
+            <div class="period-tag">月线 / 周线</div>
+            <div class="period-name">判断大趋势</div>
+            <div class="period-role" style="color:var(--blue)">方向</div>
+          </div>
+          <div class="period-arr">→</div>
+          <div class="period-box">
+            <div class="period-tag">日线</div>
+            <div class="period-name">确认中期趋势</div>
+            <div class="period-role" style="color:#f97316">过滤</div>
+          </div>
+          <div class="period-arr">→</div>
+          <div class="period-box">
+            <div class="period-tag">60分钟 / 15分钟</div>
+            <div class="period-name">寻找入场点</div>
+            <div class="period-role" style="color:#22c55e">时机</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RULES ===== -->
+  <div id="sec-rules" class="section">
+    <div class="sec">
+      <div class="st">葛兰碧八大法则（均线）</div>
+      <div class="rlist">
+        <div class="rule">买① 均线走平或上翘，价格从下方向上穿越均线 → 买入</div>
+        <div class="rule">买② 均线上升，价格暂时跌至均线附近后回升 → 加仓买入</div>
+        <div class="rule">买③ 均线上升，价格跌破均线后迅速回升 → 逢低买入</div>
+        <div class="rule">买④ 均线下跌，价格远低于均线急速下跌 → 超卖反弹买入</div>
+        <div class="rule r-sell">卖⑤ 均线走平或下弯，价格从上方向下穿越均线 → 卖出</div>
+        <div class="rule r-sell">卖⑥ 均线下降，价格暂时升至均线附近后回落 → 减仓卖出</div>
+        <div class="rule r-sell">卖⑦ 均线下降，价格升破均线后迅速回落 → 逢高卖出</div>
+        <div class="rule r-sell">卖⑧ 均线上升，价格远高于均线持续上升 → 超买考虑减仓</div>
+      </div>
+    </div>
+
+    <div class="sec sec-last">
+      <div class="st">风险管理与常见误区</div>
+      <div class="g2">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">风险管理铁律</div>
+          <div class="rlist">
+            <div class="rule r-sell">单笔止损不超过本金 2%</div>
+            <div class="rule r-sell">同向仓位总风险不超过 6%</div>
+            <div class="rule r-warn">盈亏比要求至少 2:1 再入场</div>
+            <div class="rule r-warn">连续亏损 3 次强制停止交易</div>
+            <div class="rule r-ok">盈利时使用追踪止损保护利润</div>
+            <div class="rule r-ok">分批建仓，分批离场，降低风险</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">常见误区</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="card" style="border-left:2px solid #ef4444;border-radius:0 8px 8px 0;padding:10px 12px">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">指标钝化</div>
+              <div class="desc">强势行情中 RSI、KDJ 可长期处于超买区，不能单纯依此做空，需结合趋势类指标。</div>
+            </div>
+            <div class="card" style="border-left:2px solid #f97316;border-radius:0 8px 8px 0;padding:10px 12px">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">假突破</div>
+              <div class="desc">价格突破必须配合成交量放大，缩量突破通常为假信号，风险极高。</div>
+            </div>
+            <div class="card" style="border-left:2px solid #eab308;border-radius:0 8px 8px 0;padding:10px 12px">
+              <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">信号滞后</div>
+              <div class="desc">均线和 MACD 均基于历史数据，行情快速变化时信号滞后，须结合市场背景预判。</div>
+            </div>
+          </div>
+          <div class="wbox">
+            <div class="wbox-icon">⚠</div>
+            <div class="wbox-text">技术指标为辅助工具，单一信号可靠性有限。建议 3-5 个指标共振确认，配合基本面分析，严格执行止损策略。</div>
+          </div>
         </div>
       </div>
     </div>
@@ -715,44 +904,40 @@
 
 <script>
 const klineData = [
-  {name:'大阳线',sig:'强势买入',type:'bull',body:[16,8,38],wick:[24,4,24,48]},
-  {name:'大阴线',sig:'强势卖出',type:'bear',body:[8,8,38],wick:[24,4,24,48]},
-  {name:'十字星',sig:'方向不明',type:'doji',body:[22,22,4],wick:[24,4,24,48]},
-  {name:'上影线',sig:'上方压力',type:'bear',body:[12,20,22],wick:[24,4,24,44]},
-  {name:'下影线',sig:'下方支撑',type:'bull',body:[12,8,22],wick:[24,4,24,44]},
-  {name:'长十字',sig:'强力反转',type:'doji',body:[23,22,2],wick:[24,4,24,50]},
+  { name:'大阳线', sig:'强势买入',
+    svg:'<rect x="19" y="10" width="10" height="30" fill="#22c55e" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="#22c55e" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="#22c55e" stroke-width="1.5"/>' },
+  { name:'大阴线', sig:'强势卖出',
+    svg:'<rect x="19" y="10" width="10" height="30" fill="#ef4444" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="#ef4444" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="#ef4444" stroke-width="1.5"/>' },
+  { name:'十字星', sig:'方向不明',
+    svg:'<rect x="20" y="22" width="8" height="4" fill="#888" rx="1"/><line x1="24" y1="22" x2="24" y2="6" stroke="#888" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="#888" stroke-width="1.5"/>' },
+  { name:'上影阳线', sig:'上方压力',
+    svg:'<rect x="19" y="26" width="10" height="14" fill="#22c55e" rx="1"/><line x1="24" y1="26" x2="24" y2="6" stroke="#22c55e" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="44" stroke="#22c55e" stroke-width="1.5"/>' },
+  { name:'下影阴线', sig:'下方支撑',
+    svg:'<rect x="19" y="12" width="10" height="14" fill="#ef4444" rx="1"/><line x1="24" y1="12" x2="24" y2="8" stroke="#ef4444" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="#ef4444" stroke-width="1.5"/>' },
+  { name:'纺锤线', sig:'多空均衡',
+    svg:'<rect x="19" y="20" width="10" height="10" fill="#888" rx="1"/><line x1="24" y1="20" x2="24" y2="6" stroke="#888" stroke-width="1.5"/><line x1="24" y1="30" x2="24" y2="46" stroke="#888" stroke-width="1.5"/>' },
 ];
 
-function drawKlineCard(d, i) {
-  const isBull = d.type === 'bull';
-  const isDoji = d.type === 'doji';
-  const color = isBull ? '#22c55e' : (isDoji ? '#6b7280' : '#ef4444');
-  const [bx, by, bh] = d.body;
-  const [wx, wy1, wx2, wy2] = d.wick;
-  return `<div class="kline-card" onclick="">
-    <svg class="kline-svg" width="48" height="54" viewBox="0 0 48 54">
-      <line x1="${wx}" y1="${wy1}" x2="${wx}" y2="${by}" stroke="${color}" stroke-width="1.5"/>
-      <rect x="${bx}" y="${by}" width="16" height="${bh}" fill="${color}" rx="1"/>
-      <line x1="${wx}" y1="${by+bh}" x2="${wx}" y2="${wy2}" stroke="${color}" stroke-width="1.5"/>
-    </svg>
-    <div class="kline-name">${d.name}</div>
-    <div class="kline-sig">${d.sig}</div>
-  </div>`;
-}
+document.getElementById('klineGrid').innerHTML = klineData.map(d =>
+  `<div class="kc">
+    <svg width="48" height="52" viewBox="0 0 48 52" style="display:block;margin:0 auto">${d.svg}</svg>
+    <div class="kn">${d.name}</div>
+    <div class="ks">${d.sig}</div>
+  </div>`
+).join('');
 
-document.getElementById('klineGrid').innerHTML = klineData.map(drawKlineCard).join('');
-
-function showSection(id) {
-  ['indicators','kline','phases','combo','rules'].forEach(s => {
-    document.getElementById('sec-'+s).style.display = s===id ? '' : 'none';
-  });
-  document.querySelectorAll('.nav-btn').forEach((b,i) => {
+function showSec(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nb').forEach((b, i) => {
     b.classList.toggle('active', ['indicators','kline','phases','combo','rules'][i] === id);
   });
 }
 
 function showPhase(idx) {
-  document.querySelectorAll('.phase').forEach((p,i) => p.classList.toggle('active', i===idx));
-  document.querySelectorAll('.phase-detail').forEach((d,i) => d.classList.toggle('show', i===idx));
+  document.querySelectorAll('.ph').forEach((p, i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.pd').forEach((d, i) => d.classList.toggle('show', i === idx));
 }
 </script>
+</body>
+</html>
