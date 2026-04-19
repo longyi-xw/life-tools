@@ -33,6 +33,11 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 .sbox input{background:var(--bg2);border:1px solid var(--bc);color:var(--t1);padding:4px 8px 4px 26px;border-radius:5px;font-size:10px;font-family:inherit;width:140px;outline:0;transition:all .2s}
 .sbox input:focus{border-color:var(--a1);width:170px}
 .sbox::before{content:'⌕';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:12px}
+.sbox-drop{position:absolute;top:100%;left:0;right:0;margin-top:3px;background:var(--bg1);border:1px solid var(--bc);border-radius:5px;max-height:200px;overflow-y:auto;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.sbox-drop.vis{display:block}
+.sbox-item{padding:6px 10px;font-size:10px;color:var(--t2);cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.03)}
+.sbox-item:hover{background:var(--bg2);color:var(--a1)}
+.sbox-item .si-en{color:var(--t3);font-size:9px}
 .ltog{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t2);cursor:pointer;user-select:none;flex-shrink:0}
 .ltog input{accent-color:var(--a1);width:14px;height:14px}
 
@@ -95,6 +100,7 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 @keyframes spin{to{transform:rotate(360deg)}}
 .country-label{fill:rgba(255,255,255,.5);font-family:'Noto Sans SC','DM Sans',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(10,14,23,.85);stroke-width:2.5px;stroke-linejoin:round}
 .country-label.major{fill:rgba(255,255,255,.8);font-weight:600}
+.geo-label{fill:rgba(100,180,230,.45);font-family:'DM Sans','Noto Sans SC',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;font-style:italic;letter-spacing:.5px}
 .country-path{fill:var(--land);stroke:rgba(255,255,255,.1);stroke-width:.4;cursor:pointer;transition:fill .12s}
 .country-path:hover{fill:var(--lh)}.country-path.selected{fill:var(--la);stroke:var(--a1);stroke-width:1}
 .graticule{fill:none;stroke:rgba(255,255,255,.035);stroke-width:.4}
@@ -140,7 +146,7 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
   <button class="menu-btn" id="menuBtn" onclick="toggleSidebar()">☰</button>
   <div class="logo"><div class="logo-i">🌐</div><div class="logo-t"><span>Geo</span>Strategy</div></div>
   <div class="spacer"></div>
-  <div class="sbox"><input type="text" id="searchInput" placeholder="搜索国家..."/></div>
+  <div class="sbox"><input type="text" id="searchInput" placeholder="搜索国家..." autocomplete="off"/><div class="sbox-drop" id="searchDrop"></div></div>
   <div class="vtog"><button id="btn3d" class="active" onclick="setView('3d')">3D</button><button id="btn2d" onclick="setView('2d')">2D</button></div>
   <label class="ltog"><input type="checkbox" id="labelTog" checked onchange="toggleLabels()"/><span data-i18n="labels">地名</span></label>
   <button class="cb" onclick="toggleLang()">🌐 <span id="langLbl">EN</span></button>
@@ -267,7 +273,7 @@ function initMap(){
 
 async function loadWorld(){
   try{
-    const d=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    const d=await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json');
     S.wd=d;S.ct=topojson.feature(d,d.objects.countries);
     renderC();renderLbl();renderMM();
     document.getElementById('lov').classList.add('hid');
@@ -285,9 +291,47 @@ function renderC(){
   g.select('.globe-outline').attr('d',path);g.select('.sphere').attr('d',path);g.select('.graticule').attr('d',path);
 }
 
+/* Key geographic features */
+const GEO_LABELS=[
+  {zh:'波斯湾',en:'Persian Gulf',lat:26.5,lng:51.5,s:8},
+  {zh:'霍尔木兹海峡',en:'Strait of Hormuz',lat:26.6,lng:56.3,s:7},
+  {zh:'马六甲海峡',en:'Malacca Strait',lat:2.5,lng:101.5,s:7},
+  {zh:'南海',en:'South China Sea',lat:14,lng:115,s:9},
+  {zh:'东海',en:'East China Sea',lat:29,lng:125,s:8},
+  {zh:'地中海',en:'Mediterranean Sea',lat:35,lng:18,s:9},
+  {zh:'黑海',en:'Black Sea',lat:43.5,lng:35,s:8},
+  {zh:'红海',en:'Red Sea',lat:20,lng:38.5,s:8},
+  {zh:'苏伊士运河',en:'Suez Canal',lat:30.5,lng:32.3,s:6},
+  {zh:'巴拿马运河',en:'Panama Canal',lat:9.1,lng:-79.7,s:6},
+  {zh:'台湾海峡',en:'Taiwan Strait',lat:24.5,lng:119.5,s:7},
+  {zh:'北大西洋',en:'North Atlantic',lat:40,lng:-35,s:10},
+  {zh:'南大西洋',en:'South Atlantic',lat:-20,lng:-15,s:10},
+  {zh:'北太平洋',en:'North Pacific',lat:30,lng:-170,s:10},
+  {zh:'南太平洋',en:'South Pacific',lat:-25,lng:-140,s:10},
+  {zh:'印度洋',en:'Indian Ocean',lat:-15,lng:75,s:10},
+  {zh:'北冰洋',en:'Arctic Ocean',lat:80,lng:0,s:9},
+  {zh:'白令海峡',en:'Bering Strait',lat:65.8,lng:-169,s:7},
+  {zh:'英吉利海峡',en:'English Channel',lat:50.2,lng:-1.3,s:6},
+  {zh:'直布罗陀海峡',en:'Gibraltar Strait',lat:35.95,lng:-5.6,s:6},
+  {zh:'亚丁湾',en:'Gulf of Aden',lat:12.5,lng:47,s:7},
+  {zh:'曼德海峡',en:'Bab el-Mandeb',lat:12.6,lng:43.3,s:6},
+  {zh:'莫桑比克海峡',en:'Mozambique Ch.',lat:-17,lng:42,s:7},
+  {zh:'墨西哥湾',en:'Gulf of Mexico',lat:25,lng:-90,s:8},
+  {zh:'加勒比海',en:'Caribbean Sea',lat:15,lng:-75,s:8},
+  {zh:'阿拉伯海',en:'Arabian Sea',lat:15,lng:64,s:8},
+  {zh:'孟加拉湾',en:'Bay of Bengal',lat:14,lng:87,s:8},
+  {zh:'日本海',en:'Sea of Japan',lat:40,lng:135,s:8},
+  {zh:'里海',en:'Caspian Sea',lat:41,lng:51,s:8},
+  {zh:'波罗的海',en:'Baltic Sea',lat:58,lng:20,s:7},
+  {zh:'北海',en:'North Sea',lat:56,lng:3,s:7},
+  {zh:'朝鲜海峡',en:'Korea Strait',lat:34.5,lng:129,s:6},
+  {zh:'龙目海峡',en:'Lombok Strait',lat:-8.5,lng:115.7,s:6},
+];
+
 function renderLbl(){
   lblG.selectAll('*').remove();
   if(!S.showLbl||!S.ct)return;
+  /* Country name labels */
   S.ct.features.forEach(f=>{
     const id=f.id,nm=S.lang==='zh'?(ZH[id]||''):(EN[id]||'');if(!nm)return;
     const ct=d3.geoCentroid(f),pos=proj(ct);if(!pos)return;
@@ -300,6 +344,19 @@ function renderLbl(){
     lblG.append('text').attr('class','country-label'+(mj?' major':'')).attr('x',pos[0]).attr('y',pos[1])
       .attr('data-lng',ct[0]).attr('data-lat',ct[1]).style('font-size',fs+'px').text(nm);
   });
+  /* Geographic water body labels */
+  const geoThreshold=S.view==='3d'?1.0:0.8;
+  if(S.scale>=geoThreshold){
+    GEO_LABELS.forEach(gl=>{
+      const co=[gl.lng,gl.lat],pos=proj(co);if(!pos)return;
+      if(S.view==='3d'&&d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;
+      let fs=gl.s;
+      if(S.view==='2d')fs=Math.min(gl.s/Math.max(S.scale*.6,.3),18);
+      lblG.append('text').attr('class','geo-label').attr('x',pos[0]).attr('y',pos[1])
+        .attr('data-lng',gl.lng).attr('data-lat',gl.lat)
+        .style('font-size',fs+'px').text(S.lang==='zh'?gl.zh:gl.en);
+    });
+  }
 }
 
 function renderMM(){if(!S.ct)return;mmSvg.selectAll('.mc').remove();mmSvg.selectAll('.mc').data(S.ct.features).enter().append('path').attr('class','mc').attr('d',mmPh).attr('fill','#1a2744').attr('stroke','rgba(255,255,255,.06)').attr('stroke-width',.2);}
@@ -343,8 +400,11 @@ function setupZoom(){
   });
   svgNode.addEventListener('pointermove',ev=>{
     if(!rotDrag||S.view!=='3d')return;
-    const dx=ev.clientX-rotDrag.x,dy=ev.clientY-rotDrag.y,s=.35;
-    const nr=[rotStart[0]+dx*s,Math.max(-90,Math.min(90,rotStart[1]-dy*s)),0];
+    const dx=ev.clientX-rotDrag.x,dy=ev.clientY-rotDrag.y;
+    /* Damping: sensitivity decreases with zoom level for precise control when zoomed in */
+    const baseSens=0.35;
+    const damping=baseSens/Math.max(S.scale,0.5);
+    const nr=[rotStart[0]+dx*damping,Math.max(-90,Math.min(90,rotStart[1]-dy*damping)),0];
     S.rot=nr;proj.rotate(nr);updAll();
   });
   svgNode.addEventListener('pointerup',()=>{rotDrag=null;});
@@ -486,7 +546,63 @@ function doZoom(k){svg.transition().duration(200).call(zoomB.scaleBy,k);}
 function resetV(){S.rot=[0,-20,0];if(S.view==='3d')proj.rotate(S.rot);svg.transition().duration(350).call(zoomB.transform,d3.zoomIdentity);S.scale=1;g.attr('transform',null);lblG.attr('transform',null);if(S.view==='3d'){proj.scale(Math.min(W,H)/2.3);updAll();}else renderLbl();document.getElementById('stZ').textContent='1.0x';}
 
 /* ═══════ SEARCH ═══════ */
-function setupSearch(){const inp=document.getElementById('searchInput');inp.addEventListener('input',function(){const q=this.value.trim().toLowerCase();if(!q)return;for(const[id,nm]of Object.entries(ZH)){if(nm.includes(q)||(EN[id]||'').toLowerCase().includes(q)){const el=g.select(`[data-id="${id}"]`);if(!el.empty()){selC(el.datum(),el.node());this.blur();return;}}}});inp.addEventListener('keydown',function(e){if(e.key==='Enter')this.dispatchEvent(new Event('input'));});}
+function setupSearch(){
+  const inp=document.getElementById('searchInput');
+  const drop=document.getElementById('searchDrop');
+  let selIdx=-1;
+
+  inp.addEventListener('input',function(){
+    const q=this.value.trim().toLowerCase();
+    selIdx=-1;
+    if(!q||q.length<1){drop.classList.remove('vis');drop.innerHTML='';return;}
+    /* Collect matches (max 8) */
+    const matches=[];
+    for(const[id,nm]of Object.entries(ZH)){
+      const en=(EN[id]||'').toLowerCase();
+      if(nm.includes(q)||en.includes(q)){
+        matches.push({id,zh:nm,en:EN[id]||''});
+        if(matches.length>=8)break;
+      }
+    }
+    if(!matches.length){drop.classList.remove('vis');drop.innerHTML='';return;}
+    drop.innerHTML=matches.map((m,i)=>`<div class="sbox-item" data-idx="${i}" data-id="${m.id}"><span>${m.zh}</span><span class="si-en">${m.en}</span></div>`).join('');
+    drop.classList.add('vis');
+    /* Click on item */
+    drop.querySelectorAll('.sbox-item').forEach(el=>{
+      el.addEventListener('mousedown',function(e){
+        e.preventDefault();
+        const cid=this.getAttribute('data-id');
+        pickSearch(cid);
+      });
+    });
+  });
+
+  inp.addEventListener('keydown',function(e){
+    const items=drop.querySelectorAll('.sbox-item');
+    if(e.key==='ArrowDown'){e.preventDefault();selIdx=Math.min(selIdx+1,items.length-1);hlItem(items);}
+    else if(e.key==='ArrowUp'){e.preventDefault();selIdx=Math.max(selIdx-1,0);hlItem(items);}
+    else if(e.key==='Enter'){
+      e.preventDefault();
+      if(selIdx>=0&&items[selIdx]){pickSearch(items[selIdx].getAttribute('data-id'));}
+      else if(items.length>0){pickSearch(items[0].getAttribute('data-id'));}
+    }
+    else if(e.key==='Escape'){drop.classList.remove('vis');drop.innerHTML='';}
+  });
+
+  inp.addEventListener('blur',function(){setTimeout(()=>{drop.classList.remove('vis');},200);});
+  inp.addEventListener('focus',function(){if(this.value.trim())this.dispatchEvent(new Event('input'));});
+
+  function hlItem(items){
+    items.forEach((el,i)=>{el.style.background=i===selIdx?'var(--bg2)':'';el.style.color=i===selIdx?'var(--a1)':'';});
+  }
+  function pickSearch(cid){
+    const el=g.select(`[data-id="${cid}"]`);
+    if(!el.empty()){selC(el.datum(),el.node());}
+    inp.value=S.lang==='zh'?(ZH[cid]||''):(EN[cid]||'');
+    drop.classList.remove('vis');drop.innerHTML='';
+    inp.blur();
+  }
+}
 
 /* ═══════ RESIZE ═══════ */
 window.addEventListener('resize',()=>{const c=document.getElementById('mapC');W=c.clientWidth;H=c.clientHeight;svg.attr('width',W).attr('height',H);proj.translate([W/2,H/2]);if(S.view==='3d')proj.scale(Math.min(W,H)/2.3*S.scale);else proj.scale(Math.min(W,H)/3.5);path=d3.geoPath().projection(proj);if(S.ct){renderC();renderLbl();}});
