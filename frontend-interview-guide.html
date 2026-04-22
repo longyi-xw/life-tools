@@ -1447,7 +1447,7 @@ const [a, b] = await Promise.all([fetchA(), fetchB()]);</code></pre>
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <p class="ans-content ">防抖（debounce）：一段时间内只执行最后一次。应用：搜索输入、窗口 resize。</p>
-<p class="ans-content ">节流（throttle）：一段时间内只执行一次。应用：滚动事件、按钮防连击。</p>
+<p class="ans-content ">节流（throttle）：每隔一段时间执行一次。应用：滚动事件、按钮防连击。</p>
 <pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 防抖
 function debounce(fn, delay = 300) {
   let timer = null;
