@@ -278,15 +278,18 @@ body.quiz-mode .sidebar {
 /* 主内容：左侧留出侧边栏宽度 */
 .main {
   margin-left: 280px;
-  padding: 56px 72px;
+  padding: 56px 42px;
   transition: padding-top 0.2s, margin-left 0.2s;
+  display: flex;
+  justify-content: center;
 }
 
-/* 内部阅读宽度控制 */
-.main > * {
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+/* 内部阅读宽度控制：所有内容都在这层，左边缘自然对齐
+   padding 为左右的 "装饰延伸区"，负 margin 元素在这里延展而不会溢出 */
+.main-inner {
+  width: 100%;
+  max-width: 920px;  /* 860 阅读 + 左右各 30 装饰余地 */
+  padding: 0 30px;
 }
 
 .cover {
@@ -468,9 +471,11 @@ h2 {
   font-size: 24px;
   color: var(--primary-light);
   margin: 48px 0 20px;
-  padding-left: 12px;
+  padding-left: 16px;
   border-left: 4px solid var(--primary);
   font-weight: 600;
+  /* 负 margin 让装饰条伸到正文基线以左，文字对齐正文基线 */
+  margin-left: -20px;
 }
 
 h3 {
@@ -496,7 +501,8 @@ p { margin: 12px 0; color: var(--text); }
   scroll-margin-top: 80px;
   transition: background 1.5s;
   border-radius: 8px;
-  padding: 4px;
+  /* 不设左右padding，让内部元素的 negative margin 能直接延伸到 main-inner 边缘 */
+  padding: 4px 0;
 }
 
 .qa-block.highlight {
@@ -518,6 +524,9 @@ p { margin: 12px 0; color: var(--text); }
   background: linear-gradient(to right, var(--bg-code), transparent);
   border-left: 4px solid var(--primary);
   border-radius: 0 6px 6px 0;
+  /* 负 margin 让装饰条伸到基线以左 */
+  margin-left: -22px;
+  margin-right: -22px;  /* 题目框右侧也延伸，更有整体感 */
 }
 
 .q-num {
@@ -674,13 +683,13 @@ li.level-1::before {
   top: 0;
 }
 
-/* 代码块 */
+/* 代码块：左对齐到正文基线 */
 pre.code-block {
   background: var(--bg-code);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 16px 18px;
-  margin: 12px 0;
+  margin: 12px -19px;  /* 负 margin 让边框+内边距 延伸到基线外 */
   overflow-x: auto;
   font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
   font-size: 13.5px;
@@ -704,12 +713,12 @@ pre.code-block code {
   letter-spacing: 0.1em;
 }
 
-/* 提示框 */
+/* 提示框：装饰条延伸到基线左，文字对齐 */
 .tip {
   background: var(--bg-tip);
   border-left: 4px solid var(--accent);
   padding: 12px 16px;
-  margin: 16px 0;
+  margin: 16px -20px 16px -20px;  /* 左右对称延伸 */
   border-radius: 0 4px 4px 0;
   color: var(--text);
   font-size: 14.5px;
@@ -721,9 +730,9 @@ pre.code-block code {
   margin-right: 6px;
 }
 
-/* 表格 */
+/* 表格：左右延伸以匹配 tip/code 的视觉宽度 */
 .table-wrap {
-  margin: 16px 0;
+  margin: 16px -20px;
   overflow-x: auto;
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -899,40 +908,46 @@ body.sidebar-open .sidebar-overlay {
     box-shadow: var(--shadow-lg);
   }
 
-  /* 打开状态滑入 */
   body.sidebar-open .sidebar {
     transform: translateX(0);
   }
 
-  /* 答题模式下侧边栏也一样滑入，但要盖住横幅 */
   body.quiz-mode .sidebar {
     top: 0;
     height: 100vh;
   }
 
-  /* 主内容全宽，顶部留出汉堡按钮空间 */
+  /* 主内容全宽 */
   .main {
     margin-left: 0;
-    padding: 76px 20px 40px;
+    padding: 76px 0 40px;
+  }
+
+  .main-inner {
+    padding: 0 20px;
   }
 
   body.quiz-mode .main {
-    padding-top: 100px;  /* 36 横幅 + 64 汉堡按钮区 */
+    padding-top: 100px;
   }
 
-  /* 横幅在汉堡按钮下方 */
   body.quiz-mode .menu-toggle {
     top: 50px;
   }
+
+  /* 移动端缩小装饰延伸，避免溢出 */
+  h2 { margin-left: -14px; padding-left: 10px; }
+  .question { margin-left: -14px; margin-right: -14px; padding: 12px 14px; }
+  .tip { margin-left: -14px; margin-right: -14px; padding: 10px 14px; }
+  pre.code-block { margin-left: -14px; margin-right: -14px; padding: 14px; }
+  .table-wrap { margin-left: -14px; margin-right: -14px; }
 
   .cover h1 { font-size: 36px; }
   h1.chapter { font-size: 26px; }
   h2 { font-size: 20px; }
 
-  /* 搜索下拉在手机端也向上弹（因为搜索框仍在侧边栏底部） */
   .search-results { bottom: 100%; top: auto; }
 
-  /* 目录页响应式 */
   .toc-page { padding: 40px 0 60px; }
   .toc-item { grid-template-columns: 40px 1fr; gap: 8px; padding: 10px 6px; }
   .toc-desc { display: none; }
@@ -940,8 +955,6 @@ body.sidebar-open .sidebar-overlay {
   .toc-name { font-size: 15px; }
 
   .cover { padding: 60px 0 80px; }
-
-  /* 封面 .cover-tip 换行 */
   .cover-tip { flex-wrap: wrap; gap: 10px; }
 }
 
@@ -1015,7 +1028,8 @@ body.sidebar-open .sidebar-overlay {
   </aside>
 
   <main class="main">
-    <section class="cover" id="sec-1">
+    <div class="main-inner">
+      <section class="cover" id="sec-1">
       <h1>前端面试复习宝典</h1>
       <p class="cover-sub">—— 高频题 · 系统化 · 长期复习 ——</p>
       <div class="cover-meta">
@@ -1307,7 +1321,6 @@ obj.arrow();   // undefined  —— 箭头函数不绑定 this</code></pre>
 }</code></pre>
 </div></article>
 <h2 class="ans-content">1.2 异步与 Event Loop（考察深度）</h2>
-</div></article>
 <article class="qa-block" data-num="8" id="q8">
     <div class="question">
       <span class="q-num">Q8</span>
@@ -1419,8 +1432,8 @@ const b = await fetchB();
 
 // ✅ 并行，快
 const [a, b] = await Promise.all([fetchA(), fetchB()]);</code></pre>
-<h2 class="ans-content">1.3 手写高频题（必会）</h2>
 </div></article>
+<h2 class="ans-content">1.3 手写高频题（必会）</h2>
 <article class="qa-block" data-num="12" id="q12">
     <div class="question">
       <span class="q-num">Q12</span>
@@ -1543,8 +1556,8 @@ const unique2 = arr =&gt; arr.filter((item, i) =&gt; arr.indexOf(item) === i);
 // 3. reduce
 const unique3 = arr =&gt; arr.reduce((acc, cur) =&gt; 
   acc.includes(cur) ? acc : [...acc, cur], []);</code></pre>
-<h2 class="ans-content">1.4 ES6+ 新特性</h2>
 </div></article>
+<h2 class="ans-content">1.4 ES6+ 新特性</h2>
 <article class="qa-block" data-num="16" id="q16">
     <div class="question">
       <span class="q-num">Q16</span>
@@ -1648,10 +1661,10 @@ class Dog extends Animal {
   }
 }</code></pre>
 <div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>class extends 本质就是寄生组合继承的语法糖，面试说出这一点能加分。</div>
+</div></article>
 <h1 id="sec-4" class="chapter">第二章  Vue2 &amp; Vue3 深度 —— 你的主战场</h1>
 <p class="ans-content p-italic" style="color:595959">结合你简历：Vue2（藏族州清单系统、阅卷系统）+ Vue3（海上风电、水上预警、华阳伏龙），面试重点考 Vue3 的响应式、组合式 API、性能优化，同时会对比 Vue2。本章 22 题。</p>
 <h2 class="ans-content">2.1 Vue3 核心原理</h2>
-</div></article>
 <article class="qa-block" data-num="21" id="q21">
     <div class="question">
       <span class="q-num">Q21</span>
@@ -1770,8 +1783,8 @@ watchEffect(() =&gt; {
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">props / emits：父子组件通信（推荐 defineProps、defineEmits）。</li><li class="level-0">v-model：props + emit 的语法糖，Vue3 支持多个 v-model。</li><li class="level-0">provide / inject：跨层级通信（祖 → 孙）。</li><li class="level-0">Pinia（推荐）或 Vuex：全局状态管理。</li><li class="level-0">ref（组件实例）+ defineExpose：父访问子。</li><li class="level-0">事件总线：Vue3 移除了 $on/$off，可用 mitt 等库替代（但不推荐，用 Pinia 更好）。</li><li class="level-0">Teleport：把子组件 DOM 传送到别处，通信依然用上述方式。</li></ul>
-<h2 class="ans-content">2.2 Vue2 重要概念（对比用）</h2>
 </div></article>
+<h2 class="ans-content">2.2 Vue2 重要概念（对比用）</h2>
 <article class="qa-block" data-num="27" id="q27">
     <div class="question">
       <span class="q-num">Q27</span>
@@ -1811,8 +1824,8 @@ this.arr.splice(index, 1, value);</code></pre>
 <p class="ans-content ">key 是虚拟 DOM 对节点的唯一标识，作用是帮助 diff 算法高效识别节点的复用、新增、删除、移动。</p>
 <p class="ans-content ">面试官追问：为什么不能用 index 作 key？</p>
 <ul class="ans-content"><li class="level-0">当列表顺序变化（插入、删除、排序），index 会变，导致 key 变化，Vue 可能复用错误的 DOM，引发状态错乱（如 input 输入框值跑到别的行）。</li><li class="level-0">正确做法：使用唯一且稳定的 id 作为 key。</li></ul>
-<h2 class="ans-content">2.3 Vue 全家桶 &amp; 路由</h2>
 </div></article>
+<h2 class="ans-content">2.3 Vue 全家桶 &amp; 路由</h2>
 <article class="qa-block" data-num="29" id="q29">
     <div class="question">
       <span class="q-num">Q29</span>
@@ -1857,8 +1870,8 @@ export const useUserStore = defineStore('user', {
     }
   }
 });</code></pre>
-<h2 class="ans-content">2.4 Vue 深度题（加分项）</h2>
 </div></article>
+<h2 class="ans-content">2.4 Vue 深度题（加分项）</h2>
 <article class="qa-block" data-num="31" id="q31">
     <div class="question">
       <span class="q-num">Q31</span>
@@ -1965,8 +1978,8 @@ console.log(this.$refs.list.children.length);  // 最新值</code></pre>
 <div class="ans-content ans-label">【参考答案】</div>
 <p class="ans-content ">准备 2-3 个真实坑，面试官爱听具体经历。示例：</p>
 <ul class="ans-content"><li class="level-0">坑 1：reactive 解构丢失响应性 —— 解决：用 toRefs(state) 或 storeToRefs(useStore())。</li><li class="level-0">坑 2：watch 深度监听性能问题 —— 解决：改用 watchEffect 精确依赖，或用 shallow 版本。</li><li class="level-0">坑 3：setup 中异步操作后访问 ref 时机不对 —— 解决：用 onMounted + await nextTick。</li><li class="level-0">坑 4：Element Plus 按需引入后样式丢失 —— 解决：检查 vite.config 的 Components 插件配置。</li></ul>
-<h2 class="ans-content">2.5 UniApp / 小程序（你的简历涉及）</h2>
 </div></article>
+<h2 class="ans-content">2.5 UniApp / 小程序（你的简历涉及）</h2>
 <article class="qa-block" data-num="37" id="q37">
     <div class="question">
       <span class="q-num">Q37</span>
@@ -2002,8 +2015,8 @@ console.log(this.$refs.list.children.length);  // 最新值</code></pre>
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">运行环境：小程序是双线程（逻辑层 JSCore / V8 + 视图层 WebView），H5 是单线程。</li><li class="level-0">DOM：小程序没有 DOM 和 BOM，不能操作 window / document。</li><li class="level-0">API：小程序用 wx.xxx 系列 API，不支持部分 Web API（如 Cookie）。</li><li class="level-0">渲染：小程序的 UI 由原生渲染组件 + WebView 混合，H5 完全是 WebView。</li><li class="level-0">通信：小程序逻辑层和视图层通信需要序列化，频繁通信会卡顿。</li></ul>
-<h2 class="ans-content">2.6 组件封装题（结合你的项目）</h2>
 </div></article>
+<h2 class="ans-content">2.6 组件封装题（结合你的项目）</h2>
 <article class="qa-block" data-num="39" id="q39">
     <div class="question">
       <span class="q-num">Q39</span>
@@ -2064,10 +2077,10 @@ export function showModal(options) {
     app.mount(container);
   });
 }</code></pre>
+</div></article>
 <h1 id="sec-5" class="chapter">第三章  TypeScript &amp; CSS —— 进阶必备</h1>
 <p class="ans-content p-italic" style="color:595959">TS 是 2026 年中高级前端必考，结合你项目已用的 Vue3 + TS 场景提问。CSS 考查布局、响应式、动画，重点别在冷门伪类上。本章 18 题。</p>
 <h2 class="ans-content">3.1 TypeScript 核心</h2>
-</div></article>
 <article class="qa-block" data-num="41" id="q41">
     <div class="question">
       <span class="q-num">Q41</span>
@@ -2223,8 +2236,8 @@ interface Props {
   count?: number;
 }
 const props = withDefaults(defineProps&lt;Props&gt;(), { count: 0 });</code></pre>
-<h2 class="ans-content">3.2 CSS 核心</h2>
 </div></article>
+<h2 class="ans-content">3.2 CSS 核心</h2>
 <article class="qa-block" data-num="48" id="q48">
     <div class="question">
       <span class="q-num">Q48</span>
@@ -2387,8 +2400,8 @@ body { font-size: clamp(16px, 4vw, 24px); }</code></pre>
 <p class="ans-content ">优先级从高到低：</p>
 <ul class="ans-content"><li class="level-0">!important（慎用）。</li><li class="level-0">内联样式 style=&quot;...&quot; —— 权重 1000。</li><li class="level-0">ID 选择器 #id —— 权重 100。</li><li class="level-0">类 / 属性 / 伪类 .class [attr] :hover —— 权重 10。</li><li class="level-0">标签 / 伪元素 div ::before —— 权重 1。</li><li class="level-0">通配符 * —— 权重 0。</li></ul>
 <p class="ans-content ">优先级相同时，后定义的覆盖先定义的。</p>
-<h2 class="ans-content">3.3 CSS 预处理器 &amp; 工程化</h2>
 </div></article>
+<h2 class="ans-content">3.3 CSS 预处理器 &amp; 工程化</h2>
 <article class="qa-block" data-num="57" id="q57">
     <div class="question">
       <span class="q-num">Q57</span>
@@ -2425,10 +2438,10 @@ body { font-size: clamp(16px, 4vw, 24px); }</code></pre>
 /* Vue2 或 SCSS */
 ::v-deep .child-class { color: red; }
 /deep/ .child-class { color: red; }  /* 已废弃 */</code></pre>
+</div></article>
 <h1 id="sec-6" class="chapter">第四章  Webpack / Vite 工程化</h1>
 <p class="ans-content p-italic" style="color:595959">你的简历有 Webpack（藏族州、新都区）、Vite（海上风电、华阳伏龙、水上预警）的实际项目经验。本章 12 题重点考察原理和优化。</p>
 <h2 class="ans-content">4.1 Webpack 原理</h2>
-</div></article>
 <article class="qa-block" data-num="59" id="q59">
     <div class="question">
       <span class="q-num">Q59</span>
@@ -2509,8 +2522,8 @@ body { font-size: clamp(16px, 4vw, 24px); }</code></pre>
 <p class="ans-content ">流程：</p>
 <ul class="ans-content"><li class="level-0">webpack-dev-server 启动时，通过 WebSocket 和浏览器建立长连接。</li><li class="level-0">文件改动 → Webpack 重新编译 → 生成新的 manifest.json 和 hotUpdate 文件。</li><li class="level-0">服务端通过 WebSocket 推送新 hash 给浏览器。</li><li class="level-0">浏览器端 HMR Runtime 通过 JSONP 拉取更新文件，替换变化的模块，保留状态。</li></ul>
 <p class="ans-content ">这就是为什么改 Vue 组件不会刷新整个页面、输入框里的内容不会丢失。</p>
-<h2 class="ans-content">4.2 Vite 原理</h2>
 </div></article>
+<h2 class="ans-content">4.2 Vite 原理</h2>
 <article class="qa-block" data-num="64" id="q64">
     <div class="question">
       <span class="q-num">Q64</span>
@@ -2613,8 +2626,8 @@ build: {
     }
   }
 }</code></pre>
-<h2 class="ans-content">4.3 工程化实践</h2>
 </div></article>
+<h2 class="ans-content">4.3 工程化实践</h2>
 <article class="qa-block" data-num="69" id="q69">
     <div class="question">
       <span class="q-num">Q69</span>
@@ -2652,10 +2665,10 @@ packages:
 
 // apps/web 中引用 packages/ui
 { &quot;dependencies&quot;: { &quot;@scope/ui&quot;: &quot;workspace:*&quot; } }</code></pre>
+</div></article>
 <h1 id="sec-7" class="chapter">第五章  浏览器原理 · 网络 · 性能 · 安全</h1>
 <p class="ans-content p-italic" style="color:595959">最容易被深挖的一章，基本每家公司必问。本章 25 题覆盖 “从 URL 输入到页面呈现” 这条主线上的所有节点。</p>
 <h2 class="ans-content">5.1 浏览器原理</h2>
-</div></article>
 <article class="qa-block" data-num="71" id="q71">
     <div class="question">
       <span class="q-num">Q71</span>
@@ -2720,8 +2733,8 @@ packages:
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <div class="ans-content table-wrap"><table><colgroup><col style="width:14.14%"><col style="width:21.21%"><col style="width:21.21%"><col style="width:21.21%"><col style="width:22.22%"></colgroup><thead><tr><th>特性</th><th>Cookie</th><th>LocalStorage</th><th>SessionStorage</th><th>IndexedDB</th></tr></thead><tbody><tr><td>容量</td><td>4KB</td><td>5-10MB</td><td>5-10MB</td><td>无限（磁盘）</td></tr><tr><td>生命周期</td><td>可设置 expires</td><td>永久（需手动清）</td><td>标签页关闭即清</td><td>永久</td></tr><tr><td>跨标签</td><td>同源共享</td><td>同源共享</td><td>不共享</td><td>同源共享</td></tr><tr><td>随请求发送</td><td>自动</td><td>不</td><td>不</td><td>不</td></tr><tr><td>API</td><td>document.cookie（原始）</td><td>同步</td><td>同步</td><td>异步</td></tr><tr><td>适用</td><td>会话、身份验证</td><td>偏好设置、离线数据</td><td>表单临时状态</td><td>大量结构化数据</td></tr></tbody></table></div>
-<h2 class="ans-content">5.2 网络协议</h2>
 </div></article>
+<h2 class="ans-content">5.2 网络协议</h2>
 <article class="qa-block" data-num="75" id="q75">
     <div class="question">
       <span class="q-num">Q75</span>
@@ -2833,8 +2846,8 @@ export default defineConfig({
 <p class="ans-content " style="color:C00000">缺点：</p>
 <ul class="ans-content"><li class="level-0">无法主动失效：签发后到过期前一直有效（可以通过服务器黑名单解决）。</li><li class="level-0">体积大：比 session id 大。</li><li class="level-0">Payload 可读（只是 base64 编码不是加密），不能放敏感信息。</li></ul>
 <p class="ans-content ">进阶：双 Token 机制（access token 短期 + refresh token 长期），拦截器无感刷新。</p>
-<h2 class="ans-content">5.3 前端安全</h2>
 </div></article>
+<h2 class="ans-content">5.3 前端安全</h2>
 <article class="qa-block" data-num="81" id="q81">
     <div class="question">
       <span class="q-num">Q81</span>
@@ -2885,8 +2898,8 @@ export default defineConfig({
 <p class="ans-content ">攻击方式：用透明 iframe 嵌入目标网站，诱导用户点击。</p>
 <p class="ans-content ">防御：</p>
 <ul class="ans-content"><li class="level-0">响应头 X-Frame-Options: DENY / SAMEORIGIN（旧方案）。</li><li class="level-0">CSP 指令 frame-ancestors（新方案）。</li><li class="level-0">JS 判断：if (top !== self) top.location = self.location。</li></ul>
-<h2 class="ans-content">5.4 性能优化</h2>
 </div></article>
+<h2 class="ans-content">5.4 性能优化</h2>
 <article class="qa-block" data-num="84" id="q84">
     <div class="question">
       <span class="q-num">Q84</span>
@@ -2988,8 +3001,8 @@ const onScroll = (e) =&gt; {
 <ul class="ans-content"><li class="level-0">未清理的定时器 setInterval / setTimeout。</li><li class="level-0">未解绑的事件监听（window.addEventListener 后组件卸载未 remove）。</li><li class="level-0">闭包引用了大对象。</li><li class="level-0">DOM 引用：JS 变量持有已删除 DOM 的引用。</li><li class="level-0">console.log 大对象（开发环境）。</li><li class="level-0">第三方库实例未销毁（ECharts、Cesium Viewer）。</li></ul>
 <p class="ans-content ">检测工具：</p>
 <ul class="ans-content"><li class="level-0">Chrome DevTools Memory 面板 → Heap snapshot，查看 Detached DOM。</li><li class="level-0">Performance Monitor 持续监控内存曲线。</li><li class="level-0">Memory Leak Detector 类插件。</li></ul>
-<h2 class="ans-content">5.5 综合与场景题</h2>
 </div></article>
+<h2 class="ans-content">5.5 综合与场景题</h2>
 <article class="qa-block" data-num="89" id="q89">
     <div class="question">
       <span class="q-num">Q89</span>
@@ -3127,10 +3140,10 @@ const onScroll = (e) =&gt; {
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <div class="ans-content table-wrap"><table><colgroup><col style="width:22.50%"><col style="width:40.00%"><col style="width:37.50%"></colgroup><thead><tr><th>对比项</th><th>Vue</th><th>React</th></tr></thead><tbody><tr><td>数据流</td><td>双向绑定（v-model 语法糖）</td><td>单向数据流</td></tr><tr><td>模板</td><td>模板语法（HTML + 指令）</td><td>JSX</td></tr><tr><td>响应式</td><td>Proxy（Vue3）</td><td>手动调用 setState / useState</td></tr><tr><td>更新粒度</td><td>组件级别 + 精确依赖</td><td>整棵组件树 diff</td></tr><tr><td>状态管理</td><td>Pinia / Vuex</td><td>Redux / Zustand / MobX</td></tr><tr><td>学习曲线</td><td>渐进、平缓</td><td>更陡（JSX + 函数式）</td></tr><tr><td>适用</td><td>中小型到大型</td><td>大型应用</td></tr></tbody></table></div>
+</div></article>
 <h1 id="sec-8" class="chapter">第六章  大屏可视化 &amp; GIS —— 你的项目优势</h1>
 <p class="ans-content p-italic" style="color:595959">你的简历中 Cesium、OpenLayers、ECharts、Mars3d、海康 SDK、WebRTC 都有实战，这章建议重点打磨 —— 面试官听到你熟悉这些会追问很细，答好了就是很强的差异化优势。本章 15 题。</p>
 <h2 class="ans-content">6.1 ECharts 与数据可视化</h2>
-</div></article>
 <article class="qa-block" data-num="96" id="q96">
     <div class="question">
       <span class="q-num">Q96</span>
@@ -3273,8 +3286,8 @@ function resize() {
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">自适应方案坑：scale 方案下元素的 hover、事件位置不受影响，但模态框、右键菜单要注意用 transform 容器内定位。</li><li class="level-0">字体模糊：scale 放大时字体可能模糊，需要提高字号或用 SVG 字体图标。</li><li class="level-0">地图组件 resize：scale 改变后，ECharts / Cesium / OpenLayers 的地图容器 canvas 尺寸不变，需手动 chart.resize() / viewer.resize()。</li><li class="level-0">动画卡顿：大量 SVG / 复杂 CSS 动画同时跑，用 requestAnimationFrame 批处理或 Web Worker 分担。</li><li class="level-0">大屏触摸屏兼容：点击 → 改用 touch 事件；避免 hover 触发的交互。</li><li class="level-0">显卡驱动：大屏客户现场的电脑可能显卡老旧，WebGL 性能差，提前降级方案。</li></ul>
-<h2 class="ans-content">6.2 OpenLayers / Cesium</h2>
 </div></article>
+<h2 class="ans-content">6.2 OpenLayers / Cesium</h2>
 <article class="qa-block" data-num="101" id="q101">
     <div class="question">
       <span class="q-num">Q101</span>
@@ -3365,8 +3378,8 @@ function pointInPolygon(point, polygon) {
 }</code></pre>
 <p class="ans-content p-bold">生产环境优化：</p>
 <ul class="ans-content"><li class="level-0">OpenLayers / Turf.js 有现成方法 booleanPointInPolygon（底层 RBush 空间索引）。</li><li class="level-0">船只大量时，用 R-Tree 空间索引快速剪枝：先判断点在哪个围栏的 bbox 内。</li><li class="level-0">后端地理数据库（PostGIS）可以用 ST_Contains 做服务端判断。</li></ul>
-<h2 class="ans-content">6.3 海康 / WebRTC 视频接入</h2>
 </div></article>
+<h2 class="ans-content">6.3 海康 / WebRTC 视频接入</h2>
 <article class="qa-block" data-num="105" id="q105">
     <div class="question">
       <span class="q-num">Q105</span>
@@ -3426,8 +3439,8 @@ await pc.setRemoteDescription(new RTCSessionDescription(answer));</code></pre>
 <div class="ans-content ans-label">【参考答案】</div>
 <p class="ans-content ">大屏同时播放 9/16/25 路视频流，常见优化：</p>
 <ul class="ans-content"><li class="level-0">硬解：video 标签 hardware decode（检查 codec 是否 H.264/H.265）。</li><li class="level-0">降低非主视频的分辨率和帧率。</li><li class="level-0">不可见的视频暂停（IntersectionObserver 监听）。</li><li class="level-0">控制并发：超过 N 路时，优先级最低的自动降质或暂停。</li><li class="level-0">定期释放内存：长时间播放后 destroy 重建 Player。</li></ul>
-<h2 class="ans-content">6.4 GIS 专项</h2>
 </div></article>
+<h2 class="ans-content">6.4 GIS 专项</h2>
 <article class="qa-block" data-num="108" id="q108">
     <div class="question">
       <span class="q-num">Q108</span>
@@ -3470,10 +3483,10 @@ await pc.setRemoteDescription(new RTCSessionDescription(answer));</code></pre>
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">高德/百度：封装好的 SDK，内置中国业务（POI、导航、路径规划），但数据绑定中国服务商，离不开联网。</li><li class="level-0">OpenLayers：开源地图库，可接入任意瓦片源，适合自建地图服务（军工、企业内网）。</li><li class="level-0">你项目中的水上预警、风电场通常内网部署，用 OpenLayers 接企业自有瓦片服务更合适。</li></ul>
+</div></article>
 <h1 id="sec-9" class="chapter">第七章  React 基础速成 —— 补齐短板</h1>
 <p class="ans-content p-italic" style="color:595959">你的简历主要是 Vue 栈，但当前市场 React 岗位也很多。这一章帮你达到 “面试官问 React 基础题不会挂” 的程度。不需要深究源码，能讲清 Hook、生命周期、状态管理即可。本章 18 题。</p>
 <h2 class="ans-content">7.1 React 核心概念</h2>
-</div></article>
 <article class="qa-block" data-num="111" id="q111">
     <div class="question">
       <span class="q-num">Q111</span>
@@ -3531,8 +3544,8 @@ const el = jsx('h1', { className: 'title', children: 'Hello' });</code></pre>
 <p class="ans-content ">函数组件 + Hooks 的优势：</p>
 <ul class="ans-content"><li class="level-0">函数式更简洁，没有 this。</li><li class="level-0">逻辑按功能组织（而不是按生命周期分散）。</li><li class="level-0">自定义 Hook 轻松复用状态逻辑。</li><li class="level-0">更好的性能（函数组件开销小）。</li></ul>
 <p class="ans-content ">2026 年：除了少量历史项目，新写组件全部函数组件 + Hooks。</p>
-<h2 class="ans-content">7.2 Hooks 核心</h2>
 </div></article>
+<h2 class="ans-content">7.2 Hooks 核心</h2>
 <article class="qa-block" data-num="114" id="q114">
     <div class="question">
       <span class="q-num">Q114</span>
@@ -3705,8 +3718,8 @@ function UserList() {
   if (error) return &lt;div&gt;{error.message}&lt;/div&gt;;
   return &lt;ul&gt;{data.map(u =&gt; &lt;li&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;
 }</code></pre>
-<h2 class="ans-content">7.3 React 高级</h2>
 </div></article>
+<h2 class="ans-content">7.3 React 高级</h2>
 <article class="qa-block" data-num="120" id="q120">
     <div class="question">
       <span class="q-num">Q120</span>
@@ -3853,10 +3866,10 @@ const ref = useRef();
 <p class="ans-content ">正向话术（背下来，面试遇到就用）：</p>
 <p class="ans-content ">“虽然我主要用 Vue3，但 React 的核心思想和 Vue 有很多共通点：虚拟 DOM、组件化、单向数据流。我业余时间也学习了 React Hooks 和 Next.js 的基础，做过小型 demo。我相信以我 6 年的前端基础，切换到 React 栈不会是问题，大概 1-2 周能上手主力开发。”</p>
 <p class="ans-content " style="color:C00000">避免说：“我不会 React”（直接减分）、“React 比 Vue 差”（贬低对方技术栈）。</p>
+</div></article>
 <h1 id="sec-10" class="chapter">第八章  Python / FastAPI 面试题 —— 加分项</h1>
 <p class="ans-content p-italic" style="color:595959">你主攻前端，但 FastAPI 全栈经验（安装维护记录管理系统）是巨大亮点。本章 20 题，重点放在：Python 基础、FastAPI 核心、和前端协作的场景题。面试能答出 80% 就是很强的加分。</p>
 <h2 class="ans-content">8.1 Python 基础必会（前端岗也可能问）</h2>
-</div></article>
 <article class="qa-block" data-num="129" id="q129">
     <div class="question">
       <span class="q-num">Q129</span>
@@ -3997,8 +4010,8 @@ def db_session():
 
 with db_session() as db:
     users = db.query(User).all()</code></pre>
-<h2 class="ans-content">8.2 FastAPI 核心（你项目用过）</h2>
 </div></article>
+<h2 class="ans-content">8.2 FastAPI 核心（你项目用过）</h2>
 <article class="qa-block" data-num="135" id="q135">
     <div class="question">
       <span class="q-num">Q135</span>
@@ -4319,8 +4332,8 @@ def send_notification(email: str, msg: str):
 async def register(email: str, bg: BackgroundTasks):
     bg.add_task(send_notification, email, 'Welcome!')
     return {'status': 'ok'}  # 立即返回，后台继续发邮件</code></pre>
-<h2 class="ans-content">8.3 前后端协作 &amp; 部署</h2>
 </div></article>
+<h2 class="ans-content">8.3 前后端协作 &amp; 部署</h2>
 <article class="qa-block" data-num="145" id="q145">
     <div class="question">
       <span class="q-num">Q145</span>
@@ -4402,10 +4415,10 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       </div>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">Middleware 埋点：记录每个请求的响应时间。</li><li class="level-0">Python cProfile / py-spy：函数级性能分析。</li><li class="level-0">慢 SQL：MySQL 慢查询日志 + EXPLAIN 分析。</li><li class="level-0">数据库连接池：检查 pool_size、是否连接耗尽。</li><li class="level-0">异步阻塞检查：看是否在 async 里误用了同步库。</li><li class="level-0">APM 工具：Sentry、Prometheus + Grafana。</li></ul>
+</div></article>
 <h1 id="sec-11" class="chapter">第九章  AI 辅助开发与工作流 —— 新兴热点</h1>
 <p class="ans-content p-italic" style="color:595959">你简历已经写了使用 Claude、Gemini Pro、DeepSeek、OpenCode 等工具，这章是 2026 年新兴高频考察点。答好了能显著拉开差距。本章 15 题，分为：工具认知、工作流实践、企业落地。</p>
 <h2 class="ans-content">9.1 AI 编程工具认知</h2>
-</div></article>
 <article class="qa-block" data-num="149" id="q149">
     <div class="question">
       <span class="q-num">Q149</span>
@@ -4453,8 +4466,8 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
 <p class="ans-content ">两种 AI 编程范式：</p>
 <ul class="ans-content"><li class="level-0">Vibe Coding（氛围编程）：自然语言描述想法，AI 自由发挥，开发者侧重意图表达和结果验证。适合原型探索、新功能快速试水。</li><li class="level-0">Spec Coding（规范编程）：先写详细规格文档（Spec），AI 按规范生成代码，开发者侧重规范设计和代码审查。适合生产级项目、团队协作。</li></ul>
 <p class="ans-content ">实际项目：原型阶段用 Vibe，进入正式开发后切换到 Spec。两者结合效率最高。</p>
-<h2 class="ans-content">9.2 AI 工作流实践（面试亮点）</h2>
 </div></article>
+<h2 class="ans-content">9.2 AI 工作流实践（面试亮点）</h2>
 <article class="qa-block" data-num="152" id="q152">
     <div class="question">
       <span class="q-num">Q152</span>
@@ -4542,8 +4555,8 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
 <p class="ans-content ">典型应用：</p>
 <ul class="ans-content"><li class="level-0">code-review-skill：定义好审查维度（可读性、异常处理、边界、安全、性能），直接调用，不用每次都重写 Prompt。</li><li class="level-0">api-endpoint-generator：按项目统一响应结构和异常模型生成标准化接口代码。</li><li class="level-0">database-access-review：审查数据库访问逻辑，重点关注索引使用和慢查询风险。</li></ul>
 <p class="ans-content ">好处：团队协作时，所有人共用同一套 Skill，产出稳定、风格一致。</p>
-<h2 class="ans-content">9.3 企业 AI 工作流（Leader 面高频）</h2>
 </div></article>
+<h2 class="ans-content">9.3 企业 AI 工作流（Leader 面高频）</h2>
 <article class="qa-block" data-num="157" id="q157">
     <div class="question">
       <span class="q-num">Q157</span>
@@ -4664,10 +4677,10 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
 <div class="ans-content ans-label">【参考答案】</div>
 <p class="ans-content ">口头禅：“AI 取代的不是工程师，是不用 AI 的工程师。”</p>
 <p class="ans-content ">展开：前端工作 = 业务理解 + 技术实现 + 用户体验 + 团队协作。AI 擅长第二项，但前后三项仍然需要人。未来 1-2 年内 AI 会成为前端的标配，不会用的人会逐步被淘汰，会用的人效率翻倍。对我而言，拥抱 AI、把它作为能力的放大器，就是最好的应对方式。</p>
+</div></article>
 <h1 id="sec-12" class="chapter">第十一章  AI Agent 工程师面试题 —— 2026 最热方向</h1>
 <p class="ans-content p-italic" style="color:595959">2026 年 AI Agent 是应用层最火的方向，需求量增长 25%+。结合你已有的 FastAPI + AI 工具使用经验，稍加深入就是一个强转型方向。本章 25 题覆盖：LLM 基础、Agent 架构、RAG 系统、向量数据库、MCP/A2A 协议、框架选型、生产踩坑。</p>
 <h2 class="ans-content">11.1 LLM 基础认知</h2>
-</div></article>
 <article class="qa-block" data-num="164" id="q164">
     <div class="question">
       <span class="q-num">Q164</span>
@@ -4761,8 +4774,8 @@ A: 让我一步步思考：
 
 Q: 小红有 10 元，买笔花了 3.5 元，买本花了 2.8 元，还剩多少？
 A:&quot;&quot;&quot;</code></pre>
-<h2 class="ans-content">11.2 Agent 架构与规划</h2>
 </div></article>
+<h2 class="ans-content">11.2 Agent 架构与规划</h2>
 <article class="qa-block" data-num="169" id="q169">
     <div class="question">
       <span class="q-num">Q169</span>
@@ -4855,8 +4868,8 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content p-bold" style="color:C00000">挑战：</p>
 <ul class="ans-content"><li class="level-0">通信开销：Agent 间传递信息的 token 成本。</li><li class="level-0">状态同步：多个 Agent 共享状态的一致性问题。</li><li class="level-0">错误传播：一个 Agent 失败可能影响整条链。</li><li class="level-0">调度复杂度：谁先谁后、谁主谁辅。</li><li class="level-0">成本失控：多 Agent 串联调用，单次任务可能烧十几美元。</li></ul>
 <p class="ans-content ">典型架构：Supervisor 主管模式 或 Peer-to-Peer 对等模式（A2A 协议正在标准化后者）。</p>
-<h2 class="ans-content">11.3 RAG（检索增强生成）</h2>
 </div></article>
+<h2 class="ans-content">11.3 RAG（检索增强生成）</h2>
 <article class="qa-block" data-num="174" id="q174">
     <div class="question">
       <span class="q-num">Q174</span>
@@ -4938,8 +4951,8 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content p-bold">生成阶段指标：</p>
 <ul class="ans-content"><li class="level-0">Faithfulness（忠实度）：答案是否基于检索内容，没有幻觉。</li><li class="level-0">Answer Relevancy：答案是否真的回答了问题。</li><li class="level-0">Context Precision：提供的上下文中相关部分的占比。</li></ul>
 <p class="ans-content ">主流工具：RAGAS、TruLens、LangSmith Evaluations，都支持 LLM-as-a-Judge。</p>
-<h2 class="ans-content">11.4 向量数据库</h2>
 </div></article>
+<h2 class="ans-content">11.4 向量数据库</h2>
 <article class="qa-block" data-num="178" id="q178">
     <div class="question">
       <span class="q-num">Q178</span>
@@ -4986,8 +4999,8 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <div class="ans-content ans-label">【参考答案】</div>
 <div class="ans-content table-wrap"><table><colgroup><col style="width:20.00%"><col style="width:37.78%"><col style="width:42.22%"></colgroup><thead><tr><th>度量</th><th>特点</th><th>适用</th></tr></thead><tbody><tr><td>余弦相似度</td><td>只看方向，不看长度，-1 到 1</td><td>文本语义检索（最常用）</td></tr><tr><td>点积</td><td>方向 + 长度都考虑</td><td>向量已归一化时等同余弦</td></tr><tr><td>欧氏距离</td><td>几何距离</td><td>图像特征、需要考虑幅度</td></tr></tbody></table></div>
 <div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>实践中：文本 embedding 通常用余弦相似度或归一化后的点积。大部分 OpenAI / BGE 模型输出已经 L2 归一化。</div>
-<h2 class="ans-content">11.5 框架与协议</h2>
 </div></article>
+<h2 class="ans-content">11.5 框架与协议</h2>
 <article class="qa-block" data-num="181" id="q181">
     <div class="question">
       <span class="q-num">Q181</span>
@@ -5074,8 +5087,8 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content ">核心特性：</p>
 <ul class="ans-content"><li class="level-0">标准化事件流：text-delta、tool-call、tool-result、error 等统一事件类型。</li><li class="level-0">基于 SSE：服务器发送事件，适合流式响应。</li><li class="level-0">前端组件库：配套的 React/Vue 组件展示 Agent 思考过程。</li></ul>
 <p class="ans-content ">对你这个前端转 AI Agent 方向的人，AG-UI 是最有亲和力的切入点 —— 你的前端经验能直接发挥。</p>
-<h2 class="ans-content">11.6 生产实战</h2>
 </div></article>
+<h2 class="ans-content">11.6 生产实战</h2>
 <article class="qa-block" data-num="186" id="q186">
     <div class="question">
       <span class="q-num">Q186</span>
@@ -5151,8 +5164,8 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content p-bold">⑤ 运营层：</p>
 <ul class="ans-content"><li class="level-0">观测：LangSmith 全链路 trace。</li><li class="level-0">评估：线上每日采样 100 条人工标注，算满意度。</li><li class="level-0">兜底：关键操作（退款、改订单）必须二次确认 + 人工审核。</li><li class="level-0">护栏：输入侧防注入，输出侧防 PII 泄漏。</li></ul>
 <div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>成功指标：自动化解决率、平均对话成本、用户满意度、首次解决率。能说出这些让面试官觉得你真落地过。</div>
-<h2 class="ans-content">11.7 职业与选型（面试心态）</h2>
 </div></article>
+<h2 class="ans-content">11.7 职业与选型（面试心态）</h2>
 <article class="qa-block" data-num="190" id="q190">
     <div class="question">
       <span class="q-num">Q190</span>
@@ -5187,6 +5200,7 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content p-bold" style="color:C00000">风险：</p>
 <ul class="ans-content"><li class="level-0">技术变化快：半年前的最佳实践可能已经过时。</li><li class="level-0">泡沫：部分 Agent 岗位是 PPT 需求，实际在做 demo。</li><li class="level-0">基础要求高：要懂 LLM + 后端工程 + 前端交互 + 评估体系，是综合能力。</li><li class="level-0">巨头挤压：OpenAI / Anthropic 发的官方 Agent 工具可能让中间层框架贬值。</li></ul>
 <p class="ans-content ">建议策略：先不裸辞，用 side project 做一个完整 Agent 项目，能写进简历 + 能面试讲清楚，再看市场反馈决定是否全面转型。</p>
+</div></article>
 <h1 id="sec-13" class="chapter">第十章  30 天复习计划 &amp; 艾宾浩斯曲线</h1>
 <p class="ans-content p-italic" style="color:595959">考虑到当前市场环境和你需要长期备战，这章给你一套可执行的复习体系。不求一次记住所有，而是通过科学间隔多次回顾，把知识变成长期记忆。</p>
 <h2 class="ans-content">10.1 艾宾浩斯遗忘曲线原理</h2>
@@ -5232,6 +5246,7 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content" style="text-align:center"><span style="font-weight:600;color:1F4E79;font-size:13px">祝你早日拿到心仪的 offer </span><span style="font-size:13px">🎉</span></p>
 <p class="ans-content" style="text-align:center"><span style="font-style:italic;color:7F7F7F;font-size:11px">—— 完 ——</span></p>
 
+    </div>
   </main>
 
   <button class="back-top" id="backTop" title="回到顶部">↑</button>
@@ -5433,20 +5448,40 @@ window.addEventListener('scroll', () => {
 });
 backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-// 侧边栏高亮
-const chapters = document.querySelectorAll('h1.chapter, #sec-1');
+// 侧边栏高亮：基于 scroll 位置精确计算当前章节
+const chapters = [...document.querySelectorAll('h1.chapter, #sec-1')];
 const navItems = document.querySelectorAll('.sidebar nav a');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const id = entry.target.id;
-      navItems.forEach(n => n.classList.remove('active'));
-      const active = document.querySelector('.sidebar nav a[href="#' + id + '"]');
-      if (active) active.classList.add('active');
+
+function updateActiveNav() {
+  // 找到最后一个 scrollY 已经过去的章节标题
+  const scrollY = window.scrollY + 120; // 偏移量（让章节刚进入视口上方时就切换）
+  let currentId = chapters[0]?.id;
+  for (const ch of chapters) {
+    if (ch.offsetTop <= scrollY) {
+      currentId = ch.id;
+    } else {
+      break;
     }
+  }
+  navItems.forEach(n => {
+    const isActive = n.getAttribute('href') === '#' + currentId;
+    n.classList.toggle('active', isActive);
   });
-}, { rootMargin: '-20% 0px -70% 0px' });
-chapters.forEach(c => observer.observe(c));
+}
+
+// 用 requestAnimationFrame 节流
+let rafPending = false;
+window.addEventListener('scroll', () => {
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(() => {
+      updateActiveNav();
+      rafPending = false;
+    });
+  }
+});
+// 初始化
+updateActiveNav();
 
 // ===== 移动端抽屉菜单 =====
 const menuToggle = document.getElementById('menuToggle');
