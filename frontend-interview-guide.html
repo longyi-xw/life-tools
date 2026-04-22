@@ -55,23 +55,20 @@ body {
   font-feature-settings: "palt" 1;
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 100vh;
-}
-
-/* 侧边栏：flex 布局，controls 固定底部 */
+/* 桌面：侧边栏 fixed 固定，主内容 margin-left 让位 */
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  height: 100vh;
   font-size: 14px;
   display: flex;
   flex-direction: column;
-  transition: top 0.2s, height 0.2s;
+  z-index: 40;
+  transition: transform 0.28s ease;
 }
 
 /* 答题模式下，侧边栏避让顶部横幅 */
@@ -278,12 +275,18 @@ body.quiz-mode .sidebar {
   line-height: 1.5;
 }
 
-/* 主内容 */
+/* 主内容：左侧留出侧边栏宽度 */
 .main {
+  margin-left: 280px;
   padding: 56px 72px;
+  transition: padding-top 0.2s, margin-left 0.2s;
+}
+
+/* 内部阅读宽度控制 */
+.main > * {
   max-width: 900px;
-  margin: 0 auto;
-  transition: padding-top 0.2s;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .cover {
@@ -807,35 +810,155 @@ body.quiz-mode .main { padding-top: 56px; }
   justify-content: center;
 }
 
+/* ===== 移动端专用：汉堡按钮 + 关闭按钮 + 遮罩 ===== */
+.menu-toggle {
+  display: none;  /* 桌面端默认隐藏 */
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  z-index: 50;
+  padding: 12px 10px;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+  transition: all 0.2s;
+}
+
+/* 汉堡按钮激活状态（变成 X） */
+body.sidebar-open .menu-toggle span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+body.sidebar-open .menu-toggle span:nth-child(2) {
+  opacity: 0;
+}
+body.sidebar-open .menu-toggle span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+.sidebar-close {
+  display: none;  /* 桌面端隐藏 */
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-soft);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s;
+}
+
+.sidebar-close:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 30;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+body.sidebar-open .sidebar-overlay {
+  display: block;
+  opacity: 1;
+}
+
+/* ===== 平板 & 手机响应式 ===== */
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
+  /* 显示汉堡按钮 */
+  .menu-toggle { display: flex; }
+  .sidebar-close { display: flex; align-items: center; justify-content: center; }
+
+  /* 侧边栏默认移到屏幕外 */
   .sidebar {
-    position: static;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    display: block;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
   }
-  body.quiz-mode .sidebar { top: auto; height: auto; }
-  .sidebar-scroll { overflow: visible; padding: 0 20px 20px; }
-  .main { padding: 32px 20px; }
+
+  /* 打开状态滑入 */
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* 答题模式下侧边栏也一样滑入，但要盖住横幅 */
+  body.quiz-mode .sidebar {
+    top: 0;
+    height: 100vh;
+  }
+
+  /* 主内容全宽，顶部留出汉堡按钮空间 */
+  .main {
+    margin-left: 0;
+    padding: 76px 20px 40px;
+  }
+
+  body.quiz-mode .main {
+    padding-top: 100px;  /* 36 横幅 + 64 汉堡按钮区 */
+  }
+
+  /* 横幅在汉堡按钮下方 */
+  body.quiz-mode .menu-toggle {
+    top: 50px;
+  }
+
   .cover h1 { font-size: 36px; }
   h1.chapter { font-size: 26px; }
   h2 { font-size: 20px; }
-  body.quiz-mode .main { padding-top: 56px; }
-  .search-results { top: 100%; bottom: auto; margin-bottom: 0; margin-top: 4px; }
-  /* 目录页 */
+
+  /* 搜索下拉在手机端也向上弹（因为搜索框仍在侧边栏底部） */
+  .search-results { bottom: 100%; top: auto; }
+
+  /* 目录页响应式 */
   .toc-page { padding: 40px 0 60px; }
   .toc-item { grid-template-columns: 40px 1fr; gap: 8px; padding: 10px 6px; }
-  .toc-desc { display: none; }  /* 窄屏隐藏描述 */
+  .toc-desc { display: none; }
   .toc-num { font-size: 15px; }
   .toc-name { font-size: 15px; }
+
+  .cover { padding: 60px 0 80px; }
+
+  /* 封面 .cover-tip 换行 */
+  .cover-tip { flex-wrap: wrap; gap: 10px; }
+}
+
+/* 超小屏 */
+@media (max-width: 480px) {
+  .main { padding: 76px 16px 30px; }
+  .cover h1 { font-size: 28px; }
+  h1.chapter { font-size: 22px; }
+  .question { padding: 10px 12px; }
+  .q-title { font-size: 15px; }
 }
 
 @media print {
-  .sidebar, .back-top, .controls, .quiz-banner, .qa-toggle, .qa-input-area { display: none !important; }
-  .layout { display: block; }
-  .main { padding: 0 !important; max-width: none; }
+  .sidebar, .back-top, .controls, .quiz-banner, .qa-toggle,
+  .qa-input-area, .menu-toggle, .sidebar-overlay { display: none !important; }
+  .main { margin-left: 0 !important; padding: 0 !important; max-width: none; }
+  .main > * { max-width: none; }
   h1.chapter { page-break-before: always; }
   pre.code-block, .question { page-break-inside: avoid; }
   body.quiz-mode .qa-answer .ans-content { display: revert !important; }
@@ -849,14 +972,24 @@ body.quiz-mode .main { padding-top: 56px; }
 </head>
 <body>
   <div class="quiz-banner">✏️ 答题模式 · 先尝试回答再点「显示答案」对比参考答案</div>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-brand">面试复习宝典</div>
-        <div class="sidebar-sub">Interview Handbook · 2026</div>
-      </div>
-      <div class="sidebar-scroll">
-        <nav><a href="#sec-1">封面</a>
+
+  <!-- 移动端汉堡按钮（桌面端隐藏） -->
+  <button class="menu-toggle" id="menuToggle" aria-label="打开目录">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- 移动端侧边栏打开时的遮罩 -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">面试复习宝典</div>
+      <div class="sidebar-sub">Interview Handbook · 2026</div>
+      <!-- 移动端关闭按钮 -->
+      <button class="sidebar-close" id="sidebarClose" aria-label="关闭目录">×</button>
+    </div>
+    <div class="sidebar-scroll">
+      <nav><a href="#sec-1">封面</a>
 <a href="#sec-2">前言</a>
 <a href="#sec-3"><span class="nav-num">01</span>第一章 · JavaScript 核心</a>
 <a href="#sec-4"><span class="nav-num">02</span>第二章 · Vue2 &amp; Vue3</a>
@@ -869,20 +1002,20 @@ body.quiz-mode .main { padding-top: 56px; }
 <a href="#sec-11"><span class="nav-num">09</span>第九章 · AI 辅助开发</a>
 <a href="#sec-12"><span class="nav-num">10</span>第十一章 · AI Agent 工程师</a>
 <a href="#sec-13"><span class="nav-num">11</span>第十章 · 30 天复习计划</a></nav>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索题目（Ctrl+K）">
+        <div class="search-results" id="searchResults"></div>
       </div>
-      <div class="controls">
-        <div class="search-wrap">
-          <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索题目（Ctrl+K）">
-          <div class="search-results" id="searchResults"></div>
-        </div>
-        <button class="theme-toggle" id="themeToggle">🌙 深色模式</button>
-        <button class="quiz-toggle" id="quizToggle">✏️ 进入答题模式</button>
-        <div class="progress-info">191 道题 · 11 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
-      </div>
-    </aside>
+      <button class="theme-toggle" id="themeToggle">🌙 深色模式</button>
+      <button class="quiz-toggle" id="quizToggle">✏️ 进入答题模式</button>
+      <div class="progress-info">191 道题 · 11 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
+    </div>
+  </aside>
 
-    <main class="main">
-      <section class="cover" id="sec-1">
+  <main class="main">
+    <section class="cover" id="sec-1">
       <h1>前端面试复习宝典</h1>
       <p class="cover-sub">—— 高频题 · 系统化 · 长期复习 ——</p>
       <div class="cover-meta">
@@ -5099,8 +5232,7 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content" style="text-align:center"><span style="font-weight:600;color:1F4E79;font-size:13px">祝你早日拿到心仪的 offer </span><span style="font-size:13px">🎉</span></p>
 <p class="ans-content" style="text-align:center"><span style="font-style:italic;color:7F7F7F;font-size:11px">—— 完 ——</span></p>
 
-    </main>
-  </div>
+  </main>
 
   <button class="back-top" id="backTop" title="回到顶部">↑</button>
 
@@ -5316,12 +5448,44 @@ const observer = new IntersectionObserver((entries) => {
 }, { rootMargin: '-20% 0px -70% 0px' });
 chapters.forEach(c => observer.observe(c));
 
+// ===== 移动端抽屉菜单 =====
+const menuToggle = document.getElementById('menuToggle');
+const sidebarClose = document.getElementById('sidebarClose');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function openSidebar() {
+  document.body.classList.add('sidebar-open');
+}
+function closeSidebar() {
+  document.body.classList.remove('sidebar-open');
+}
+
+if (menuToggle) {
+  menuToggle.addEventListener('click', () => {
+    if (document.body.classList.contains('sidebar-open')) closeSidebar();
+    else openSidebar();
+  });
+}
+if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+
+// 移动端：点击导航链接后自动关闭侧边栏
+document.querySelectorAll('.sidebar nav a, .toc-item').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 900) closeSidebar();
+  });
+});
+
 // 快捷键
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
     searchBox.focus();
     searchBox.select();
+  }
+  // Esc 关闭侧边栏（移动端）
+  if (e.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
+    closeSidebar();
   }
 });
 </script>
