@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>前端面试复习宝典</title>
+  <title>前端面试复习宝典 · 龙秀文</title>
   <style>
 :root {
   --bg: #fafaf7;
@@ -858,8 +858,8 @@ body.quiz-mode .main { padding-top: 56px; }
 /* 回到顶部 */
 .back-top {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  right: calc(30px + env(safe-area-inset-right, 0px));
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -1022,6 +1022,11 @@ body.sidebar-open .sidebar-overlay {
 
   .cover { padding: 60px 0 80px; }
   .cover-tip { flex-wrap: wrap; gap: 10px; }
+  /* 平板/手机端回顶按钮上移，避免遮挡 */
+  .back-top {
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    right: 20px;
+  }
 }
 
 /* 超小屏 */
@@ -1031,6 +1036,14 @@ body.sidebar-open .sidebar-overlay {
   h1.chapter { font-size: 22px; }
   .question { padding: 10px 12px; }
   .q-title { font-size: 15px; }
+  /* 移动端回顶按钮上移，避免被浏览器底部工具栏/Home Indicator 遮挡 */
+  .back-top {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
 }
 
 @media print {
@@ -1089,7 +1102,7 @@ body.sidebar-open .sidebar-overlay {
       </div>
       <button class="theme-toggle" id="themeToggle">🌙 深色模式</button>
       <button class="quiz-toggle" id="quizToggle">✏️ 进入答题模式</button>
-      <div class="progress-info">191 道题 · 11 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
+      <div class="progress-info">205 道题 · 11 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
     </div>
   </aside>
 
@@ -1150,13 +1163,13 @@ body.sidebar-open .sidebar-overlay {
           <span class="toc-num">V</span>
           <span class="toc-name">浏览器 · 网络 · 性能 · 安全</span>
           <span class="toc-dots"></span>
-          <span class="toc-desc">25 题 · 大厂必问</span>
+          <span class="toc-desc">32 题 · 大厂必问</span>
         </a>
         <a class="toc-item" href="#sec-8">
           <span class="toc-num">VI</span>
           <span class="toc-name">大屏可视化 &amp; GIS</span>
           <span class="toc-dots"></span>
-          <span class="toc-desc">15 题 · 你的优势</span>
+          <span class="toc-desc">22 题 · 你的优势</span>
         </a>
         <a class="toc-item highlight-chapter" href="#sec-9">
           <span class="toc-num">VII</span>
@@ -3401,6 +3414,313 @@ const onScroll = (e) =&gt; {
 <div class="ans-content ans-label">【参考答案】</div>
 <div class="ans-content table-wrap"><table><colgroup><col style="width:22.50%"><col style="width:40.00%"><col style="width:37.50%"></colgroup><thead><tr><th>对比项</th><th>Vue</th><th>React</th></tr></thead><tbody><tr><td>数据流</td><td>双向绑定（v-model 语法糖）</td><td>单向数据流</td></tr><tr><td>模板</td><td>模板语法（HTML + 指令）</td><td>JSX</td></tr><tr><td>响应式</td><td>Proxy（Vue3）</td><td>手动调用 setState / useState</td></tr><tr><td>更新粒度</td><td>组件级别 + 精确依赖</td><td>整棵组件树 diff</td></tr><tr><td>状态管理</td><td>Pinia / Vuex</td><td>Redux / Zustand / MobX</td></tr><tr><td>学习曲线</td><td>渐进、平缓</td><td>更陡（JSX + 函数式）</td></tr><tr><td>适用</td><td>中小型到大型</td><td>大型应用</td></tr></tbody></table></div>
 </div></article>
+<h2 class="ans-content">5.7 SSR 服务端渲染深化（Nuxt / Next）</h2>
+<article class="qa-block" data-num="199" id="q199">
+    <div class="question">
+      <span class="q-num">Q199</span>
+      <span class="q-title">SSR 服务端渲染的实现原理是什么？</span>
+      <span class="q-tag">★★★ 必懂</span>
+      <button class="qa-toggle" data-num="199" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="199" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">服务端跑组件 → 字符串 HTML → 客户端 hydration 接管</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Node 跑 React/Vue 组件 → renderToString</span><span class="anchor-arrow">→</span><span class="anchor-kw">返回 HTML 给浏览器</span><span class="anchor-arrow">→</span><span class="anchor-kw">浏览器渲染骨架（FCP 快）</span><span class="anchor-arrow">→</span><span class="anchor-kw">客户端再加载 JS</span><span class="anchor-arrow">→</span><span class="anchor-kw">Hydration（同构）：JS 接管 DOM 事件</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">预制菜：服务端把饭菜（HTML）做好直接端上桌，客户端再'激活'菜的互动（事件绑定）</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">SSR（Server-Side Rendering）让服务端先渲染出 HTML，浏览器拿到后立刻可见，再用 JS 接管交互。</p>
+<p class="ans-content p-bold ">完整流程 5 步：</p>
+<ul class="ans-content"><li class="level-0">1. 浏览器请求页面 → 服务端 Node 收到请求。</li><li class="level-0">2. 服务端跑组件代码（React/Vue 同构组件），调用 renderToString() 把组件树转成 HTML 字符串。</li><li class="level-0">3. 服务端把 HTML（含 SEO 内容）+ 序列化的初始数据返回给浏览器。</li><li class="level-0">4. 浏览器立即显示 HTML（FCP 快、SEO 友好）。</li><li class="level-0">5. 浏览器加载 JS bundle，执行 hydration（注水）：把事件监听器绑定到已有 DOM，让页面变可交互。</li></ul>
+<p class="ans-content p-bold ">React 18 SSR 最简实现：</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 服务端（Express）
+import { renderToString } from 'react-dom/server';
+import App from './App';
+
+app.get('*', (req, res) =&gt; {
+  const html = renderToString(&lt;App url={req.url} /&gt;);
+  res.send(`
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+      &lt;head&gt;&lt;title&gt;SSR Demo&lt;/title&gt;&lt;/head&gt;
+      &lt;body&gt;
+        &lt;div id="root"&gt;${html}&lt;/div&gt;
+        &lt;script&gt;window.__INITIAL_STATE__ = ${JSON.stringify(initialData)}&lt;/script&gt;
+        &lt;script src="/client.js"&gt;&lt;/script&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  `);
+});
+
+// 客户端（client.js）
+import { hydrateRoot } from 'react-dom/client';
+import App from './App';
+
+hydrateRoot(document.getElementById('root'), &lt;App /&gt;);
+//  ↑ hydrate 而不是 render：复用现有 DOM，只绑定事件</code></pre>
+<p class="ans-content p-bold ">核心难点：同构（Isomorphic）</p>
+<ul class="ans-content"><li class="level-0">同一份代码要能在服务端和客户端跑：避免使用 window/document 等浏览器 API。</li><li class="level-0">数据预取：服务端要先取数据再渲染（getServerSideProps / asyncData）。</li><li class="level-0">状态序列化：服务端的 state 通过 window.__INITIAL_STATE__ 传给客户端，避免重复请求。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>SSR vs CSR 取舍：CSR 加载快（CDN）但首屏白屏；SSR 首屏快（FCP）但服务器压力大、TTI 不一定快（要等 JS 下载完才能交互）。</div>
+</div></article>
+<article class="qa-block" data-num="200" id="q200">
+    <div class="question">
+      <span class="q-num">Q200</span>
+      <span class="q-title">什么是 Hydration（注水）？为什么会有 Hydration 失败问题？</span>
+      <span class="q-tag">★★★ 大厂高频</span>
+      <button class="qa-toggle" data-num="200" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="200" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Hydration = 把 JS 注入到服务端 HTML 让它'活'起来</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">客户端 React 复用服务端 DOM</span><span class="anchor-arrow">→</span><span class="anchor-kw">对比虚拟 DOM 树是否一致</span><span class="anchor-arrow">→</span><span class="anchor-kw">不一致就抛 Hydration mismatch</span><span class="anchor-arrow">→</span><span class="anchor-kw">原因：日期/随机数/浏览器特性</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Hydration（注水/水合）= 客户端 JS 给服务端渲染出来的 HTML 添加事件监听和响应式能力的过程。</p>
+<p class="ans-content p-bold ">为什么不直接 render？</p>
+<p class="ans-content ">如果客户端用 render() 会重新创建整个 DOM 树，浪费工作；hydrate() 复用服务端已有的 DOM，只绑定事件，性能更好。</p>
+<p class="ans-content p-bold ">Hydration mismatch（注水失败）：</p>
+<p class="ans-content ">客户端渲染结果和服务端不一致时抛错。常见原因：</p>
+<ul class="ans-content"><li class="level-0">服务端和客户端的时间/时区不同 → new Date().toLocaleString() 输出不同。</li><li class="level-0">随机数 Math.random()、UUID 每次结果不同。</li><li class="level-0">用了 window.innerWidth、navigator.userAgent 等浏览器 API。</li><li class="level-0">存了 localStorage / cookie 在客户端 useEffect 设进 state。</li><li class="level-0">HTML 标签嵌套不合法（&lt;p&gt; 里嵌 &lt;div&gt;），浏览器自动修正后和服务端 HTML 不同。</li></ul>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// ❌ Hydration mismatch 案例
+function BadComponent() {
+  return &lt;p&gt;当前时间：{new Date().toLocaleString()}&lt;/p&gt;;
+  //                  ↑ 服务端时间和客户端不同
+}
+
+// ✅ 解决方案 1：useEffect 在客户端再渲染
+function GoodComponent() {
+  const [time, setTime] = useState(null);
+  useEffect(() =&gt; { setTime(new Date().toLocaleString()); }, []);
+  return &lt;p&gt;当前时间：{time ?? '加载中...'}&lt;/p&gt;;
+}
+
+// ✅ 解决方案 2：suppressHydrationWarning（小范围）
+&lt;p suppressHydrationWarning&gt;{new Date().toISOString()}&lt;/p&gt;
+
+// ✅ 解决方案 3：dynamic + ssr: false（Next.js）
+const ClientOnly = dynamic(() =&gt; import('./Component'), { ssr: false });</code></pre>
+<p class="ans-content p-bold ">React 18+ 改进：</p>
+<ul class="ans-content"><li class="level-0">Selective Hydration：可逐部分 hydration（不必等整页 JS 都下完）。</li><li class="level-0">Streaming SSR：服务端流式输出 HTML，配合 Suspense 渐进式渲染。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>调试 Hydration mismatch：打开 React DevTools Console，找到 'Text content does not match' 报错，对比服务端和客户端的输出。</div>
+</div></article>
+<article class="qa-block" data-num="201" id="q201">
+    <div class="question">
+      <span class="q-num">Q201</span>
+      <span class="q-title">Nuxt 3 的关键特性？相比 Nuxt 2 有哪些升级？</span>
+      <span class="q-tag">★★ Vue 必备</span>
+      <button class="qa-toggle" data-num="201" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="201" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Nuxt 3 = Vue 3 + Vite + Nitro + 文件路由 + 自动导入</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Vue 3 + Composition API</span><span class="anchor-arrow">→</span><span class="anchor-kw">Vite 构建（开发飞快）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Nitro 服务引擎（多端部署）</span><span class="anchor-arrow">→</span><span class="anchor-kw">pages/ 文件路由</span><span class="anchor-arrow">→</span><span class="anchor-kw">自动导入组件/composables</span><span class="anchor-arrow">→</span><span class="anchor-kw">useFetch/useAsyncData</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Nuxt 3 是 Vue 生态的全栈框架，对标 Next.js。</p>
+<p class="ans-content p-bold ">6 大关键特性：</p>
+<ul class="ans-content"><li class="level-0">Vue 3 + Composition API：原生支持 setup 语法。</li><li class="level-0">Vite 构建：开发启动 &lt; 1s，HMR 飞快。</li><li class="level-0">Nitro 引擎：可部署到 Node、Vercel、Netlify、Cloudflare Workers、Deno 等多种环境。</li><li class="level-0">文件路由：pages/ 文件结构自动生成路由。</li><li class="level-0">自动导入：components/、composables/、utils/ 下的文件自动可用，无需 import。</li><li class="level-0">useFetch / useAsyncData：内置数据请求 composables，自动处理 SSR 数据序列化。</li></ul>
+<p class="ans-content p-bold ">常用代码：</p>
+<pre class="ans-content code-block"><div class="code-lang">Vue</div><code>&lt;!-- pages/users/[id].vue —— 自动路由 /users/:id --&gt;
+&lt;script setup&gt;
+const route = useRoute();              // 自动导入
+const { data, pending, error } = await useFetch(`/api/users/${route.params.id}`);
+//                         ↑ SSR + 客户端都能用，自动避免重复请求
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div v-if="pending"&gt;加载中...&lt;/div&gt;
+  &lt;div v-else-if="error"&gt;出错了&lt;/div&gt;
+  &lt;div v-else&gt;
+    &lt;h1&gt;{{ data.name }}&lt;/h1&gt;
+    &lt;p&gt;{{ data.email }}&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;!-- server/api/users/[id].get.ts —— Nitro API 路由 --&gt;
+export default defineEventHandler(async (event) =&gt; {
+  const id = getRouterParam(event, 'id');
+  return await db.user.findById(id);
+});</code></pre>
+<p class="ans-content p-bold ">vs Nuxt 2 升级点：</p>
+<ul class="ans-content"><li class="level-0">性能：Vite 替代 Webpack，启动和 HMR 都快。</li><li class="level-0">TS 一等公民：原生 TS 支持，类型推导更好。</li><li class="level-0">部署灵活：Nitro 可生成多端 adapter，不再绑死 Node。</li><li class="level-0">Composition API + Suspense：异步组件原生支持。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>对比 Next.js：API 设计更接近 Vue 风格（useXxx），SSR/SSG/ISR 三种模式都支持，部署更灵活。</div>
+</div></article>
+<article class="qa-block" data-num="202" id="q202">
+    <div class="question">
+      <span class="q-num">Q202</span>
+      <span class="q-title">Next.js 14/15 的 App Router 和 Pages Router 的区别？</span>
+      <span class="q-tag">★★★ React 必问</span>
+      <button class="qa-toggle" data-num="202" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="202" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">App Router 是新（基于 RSC）/ Pages Router 是旧（兼容用）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">app/ 目录（新）</span><span class="anchor-arrow">→</span><span class="anchor-kw">pages/ 目录（旧）</span><span class="anchor-arrow">→</span><span class="anchor-kw">App Router：默认 Server Components</span><span class="anchor-arrow">→</span><span class="anchor-kw">支持 Streaming + Suspense</span><span class="anchor-arrow">→</span><span class="anchor-kw">嵌套布局（layout.tsx）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Server Actions</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Next.js 13 引入 App Router（app/ 目录），是基于 React Server Components（RSC）的全新架构，2024+ 推荐。</p>
+<p class="ans-content p-bold ">核心区别：</p>
+<pre class="ans-content code-block"><div class="code-lang">TypeScript</div><code>// === Pages Router（旧，pages/ 目录）===
+// pages/users/[id].js
+export async function getServerSideProps({ params }) {
+  const user = await fetch(...).then(r =&gt; r.json());
+  return { props: { user } };
+}
+export default function UserPage({ user }) {
+  return &lt;div&gt;{user.name}&lt;/div&gt;;
+}
+
+// === App Router（新，app/ 目录）===
+// app/users/[id]/page.tsx
+export default async function UserPage({ params }) {
+  // 直接在组件里 await，这是 Server Component
+  const user = await fetch(`/api/users/${params.id}`).then(r =&gt; r.json());
+  return &lt;div&gt;{user.name}&lt;/div&gt;;
+}
+
+// 嵌套布局：app/users/layout.tsx
+export default function UsersLayout({ children }) {
+  return (
+    &lt;div&gt;
+      &lt;nav&gt;用户菜单&lt;/nav&gt;
+      {children}
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p class="ans-content p-bold ">App Router 的核心优势：</p>
+<ul class="ans-content"><li class="level-0">默认 Server Components：组件在服务端跑，可直接读数据库、读文件，零 JS 发送到客户端。</li><li class="level-0">Streaming SSR：HTML 流式发送，配合 loading.tsx 可渐进式渲染。</li><li class="level-0">嵌套布局（layout.tsx）：每层路由都可以有自己的布局，不会重复挂载。</li><li class="level-0">Server Actions：在客户端组件里直接调用服务端函数（'use server'），无需写 API 路由。</li><li class="level-0">并行路由 + 拦截路由：复杂 UI 模式（弹窗路由、平行模块）。</li></ul>
+<p class="ans-content p-bold ">迁移建议：</p>
+<ul class="ans-content"><li class="level-0">新项目直接 App Router，不用犹豫。</li><li class="level-0">老项目可以渐进迁移，App Router 和 Pages Router 可共存。</li><li class="level-0">App Router 学习曲线陡，要理解 Server vs Client Components 的边界。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>Server Component 默认用 / 客户端组件加 'use client'。能放服务端就放服务端，能省 JS 包大小。</div>
+</div></article>
+<article class="qa-block" data-num="203" id="q203">
+    <div class="question">
+      <span class="q-num">Q203</span>
+      <span class="q-title">什么是 React Server Components（RSC）？和传统 SSR 的区别？</span>
+      <span class="q-tag">★★★ 2026 前沿</span>
+      <button class="qa-toggle" data-num="203" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="203" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">RSC = 组件级 SSR：组件能在服务端跑，零 JS 发到客户端</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Server Components 默认</span><span class="anchor-arrow">→</span><span class="anchor-kw">Client Components 加 'use client'</span><span class="anchor-arrow">→</span><span class="anchor-kw">Server 组件不能用 useState/useEffect</span><span class="anchor-arrow">→</span><span class="anchor-kw">Client 组件不能 import 数据库</span><span class="anchor-arrow">→</span><span class="anchor-kw">二者可嵌套（Server 包裹 Client）</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">RSC 是 React 2023+ 的新模型，把组件分成两种：Server Components（服务端跑）和 Client Components（客户端跑）。</p>
+<p class="ans-content p-bold ">vs 传统 SSR：</p>
+<ul class="ans-content"><li class="level-0">传统 SSR：整个组件树服务端跑一遍生成 HTML，然后客户端再跑一遍 hydration（双重执行）。所有组件代码都要打包到客户端。</li><li class="level-0">RSC：Server Component 只在服务端执行，结果序列化为特殊格式发到客户端，客户端不执行也不打包它的代码。仅 Client Components 会被打包发到客户端。</li><li class="level-0">结果：更少的 JS bundle、更快的 TTI、能直接在组件里访问数据库 / 文件系统。</li></ul>
+<p class="ans-content p-bold ">代码示例：</p>
+<pre class="ans-content code-block"><div class="code-lang">TypeScript</div><code>// app/posts/page.tsx —— Server Component（默认）
+import db from '@/lib/db';
+import LikeButton from './LikeButton';
+
+export default async function PostsPage() {
+  // 直接读数据库，代码不发到客户端
+  const posts = await db.post.findMany();
+  return (
+    &lt;div&gt;
+      {posts.map(p =&gt; (
+        &lt;article key={p.id}&gt;
+          &lt;h2&gt;{p.title}&lt;/h2&gt;
+          &lt;p&gt;{p.content}&lt;/p&gt;
+          &lt;LikeButton postId={p.id} /&gt;   {/* Client Component */}
+        &lt;/article&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+
+// app/posts/LikeButton.tsx —— Client Component
+'use client';   // ← 关键标记
+import { useState } from 'react';
+
+export default function LikeButton({ postId }) {
+  const [liked, setLiked] = useState(false);
+  return (
+    &lt;button onClick={() =&gt; setLiked(!liked)}&gt;
+      {liked ? '❤️' : '🤍'}
+    &lt;/button&gt;
+  );
+}</code></pre>
+<p class="ans-content p-bold ">使用规则：</p>
+<ul class="ans-content"><li class="level-0">Server Components 不能用 useState、useEffect、事件监听（无客户端交互）。</li><li class="level-0">Client Components 不能 import 服务端代码（如数据库 client）。</li><li class="level-0">Server 可以包裹 Client，但 Client 不能直接 import Server（可以 children 传递）。</li><li class="level-0">Props 从 Server 传到 Client 必须是可序列化的（不能传函数、Date 等）。</li></ul>
+<p class="ans-content p-bold ">收益：</p>
+<ul class="ans-content"><li class="level-0">Bundle 减小（RSC 的代码不打包）。</li><li class="level-0">首屏更快（数据获取在服务端，不需要二次请求）。</li><li class="level-0">更安全（敏感逻辑不暴露给客户端）。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>RSC 是 Next.js App Router 的核心。Vue 阵营对应的是 Nuxt 的 Server Components（实验中）。</div>
+</div></article>
+<article class="qa-block" data-num="204" id="q204">
+    <div class="question">
+      <span class="q-num">Q204</span>
+      <span class="q-title">SSR 项目里数据预取的几种方式？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="204" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="204" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 框架方案：Nuxt useFetch / Next 直接 await / Old Pages getServerSideProps</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Nuxt 3：useFetch / useAsyncData（同构）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Next App Router：组件内直接 await</span><span class="anchor-arrow">→</span><span class="anchor-kw">Next Pages Router：getServerSideProps / getStaticProps</span><span class="anchor-arrow">→</span><span class="anchor-kw">都需序列化初始数据传客户端</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">SSR 关键挑战：服务端先取数据再渲染，且要避免客户端再请求一次。</p>
+<p class="ans-content p-bold ">Nuxt 3：</p>
+<pre class="ans-content code-block"><div class="code-lang">Vue</div><code>&lt;script setup&gt;
+// 同构请求：服务端先调，结果序列化到 nuxt-state，客户端复用
+const { data, pending } = await useFetch('/api/posts');
+//                          ↑ 自动判断当前在服务端还是客户端
+
+// 控制更细：useAsyncData
+const { data: user } = await useAsyncData('user', () =&gt; $fetch(`/api/users/${id}`));
+
+// 仅服务端跑：useLazyAsyncData
+const { data, pending } = useLazyAsyncData('news', () =&gt; $fetch('/api/news'));
+&lt;/script&gt;</code></pre>
+<p class="ans-content p-bold ">Next.js App Router：</p>
+<pre class="ans-content code-block"><div class="code-lang">TypeScript</div><code>// 直接在 Server Component 里 await，自动是服务端预取
+async function PostsPage() {
+  const posts = await fetch('https://api.example.com/posts').then(r =&gt; r.json());
+  // ↑ Next 已优化 fetch，会自动去重 + 缓存
+  return &lt;div&gt;{posts.map(p =&gt; &lt;div key={p.id}&gt;{p.title}&lt;/div&gt;)}&lt;/div&gt;;
+}
+
+// 想强制重新验证：
+fetch(url, { next: { revalidate: 60 } });   // 60s 内返回缓存
+fetch(url, { cache: 'no-store' });           // 每次都拉新数据</code></pre>
+<p class="ans-content p-bold ">Next.js Pages Router（旧）：</p>
+<pre class="ans-content code-block"><div class="code-lang">TypeScript</div><code>// SSR
+export async function getServerSideProps(context) {
+  const posts = await fetch('...').then(r =&gt; r.json());
+  return { props: { posts } };
+}
+
+// SSG
+export async function getStaticProps() { /* 构建时执行 */ }
+
+// ISR（增量静态再生）
+export async function getStaticProps() {
+  return { props: {...}, revalidate: 60 };  // 每 60 秒重新生成
+}</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>数据预取的核心是「序列化」：服务端拿到数据，挂在 window.__NUXT__ / window.__NEXT_DATA__ 里传给客户端，hydration 时复用。</div>
+</div></article>
+<article class="qa-block" data-num="205" id="q205">
+    <div class="question">
+      <span class="q-num">Q205</span>
+      <span class="q-title">SSR 项目的部署架构和常见痛点？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="205" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="205" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 模式部署 + 5 大痛点</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Node 服务器（PM2 + Nginx）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Serverless（Vercel/Lambda）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Edge（Cloudflare Workers）</span><span class="anchor-arrow">→</span><span class="anchor-kw">痛点：内存泄漏 / Hydration 失败 / SEO / 第三方库不兼容 / 缓存</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content p-bold ">3 种部署架构：</p>
+<ul class="ans-content"><li class="level-0">传统 Node 服务器：PM2 + Nginx，需自己运维，可控性高。适合大流量企业项目。</li><li class="level-0">Serverless：Vercel / AWS Lambda / 阿里云函数计算，按请求付费，自动伸缩，零运维。适合中小流量。</li><li class="level-0">Edge Runtime：Cloudflare Workers / Vercel Edge，在 CDN 边缘节点运行 SSR，全球低延迟。仅支持轻量逻辑（无 Node API）。</li></ul>
+<p class="ans-content p-bold ">5 大痛点 &amp; 解决：</p>
+<ul class="ans-content"><li class="level-0">1. 内存泄漏：Node 进程长时间运行，闭包/全局变量易堆积。解：限制每个进程处理请求数（PM2 max-memory-restart）。</li><li class="level-0">2. Hydration 失败：服务端和客户端渲染不一致。解：用 ClientOnly 包裹依赖浏览器 API 的组件。</li><li class="level-0">3. SEO：虽然 SSR 能给搜索引擎看 HTML，但首屏过长仍影响 SEO。解：监控 LCP、用 SSG/ISR 加速。</li><li class="level-0">4. 第三方库不兼容：很多库假设有 window，SSR 时报错。解：动态导入 + ssr: false（Next dynamic）。</li><li class="level-0">5. 缓存：API 响应缓存 vs 用户个性化数据。解：分层缓存（公共数据 CDN 缓存，个性化数据 stale-while-revalidate）。</li></ul>
+<p class="ans-content p-bold ">项目场景判断：</p>
+<ul class="ans-content"><li class="level-0">中后台管理系统通常不需要 SSR（CSR + 路由懒加载即可，权限敏感数据也不该 SSR 给搜索引擎看）。</li><li class="level-0">营销页 / 落地页 / 文档站：SSG（构建时生成静态 HTML，CDN 加速最快）。</li><li class="level-0">用户内容页（博客、商品详情）：ISR（构建时生成 + 后台增量更新）。</li><li class="level-0">重 SEO 的电商首页 / 列表页：SSR（每次都重新渲染保证数据最新）。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>SSR 不是必选项 —— 90% 的中后台不需要 SSR，CSR 配合骨架屏 + 路由懒加载更合适。问 SSR 时也要会说「我们项目不用 SSR 是因为 X」。</div>
+</div></article>
 <h1 id="sec-8" class="chapter">第六章  大屏可视化 &amp; GIS —— 你的项目优势</h1>
 <p class="ans-content p-italic" style="color:595959">你的简历中 Cesium、OpenLayers、ECharts、Mars3d、海康 SDK、WebRTC 都有实战，这章建议重点打磨 —— 面试官听到你熟悉这些会追问很细，答好了就是很强的差异化优势。本章 15 题。</p>
 <h2 class="ans-content">6.1 ECharts 与数据可视化</h2>
@@ -3759,9 +4079,284 @@ await pc.setRemoteDescription(new RTCSessionDescription(answer));</code></pre>
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">高德/百度：封装好的 SDK，内置中国业务（POI、导航、路径规划），但数据绑定中国服务商，离不开联网。</li><li class="level-0">OpenLayers：开源地图库，可接入任意瓦片源，适合自建地图服务（军工、企业内网）。</li><li class="level-0">你项目中的水上预警、风电场通常内网部署，用 OpenLayers 接企业自有瓦片服务更合适。</li></ul>
 </div></article>
+<h2 class="ans-content">6.4 D3.js / Three.js —— 自定义可视化与 3D 渲染</h2>
+<article class="qa-block" data-num="192" id="q192">
+    <div class="question">
+      <span class="q-num">Q192</span>
+      <span class="q-title">D3.js 和 ECharts 的区别？什么场景选哪个？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="192" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="192" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">D3 底层灵活（自定义图表）/ ECharts 上层易用（标准图表）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">D3：基于 SVG/Canvas 的底层库</span><span class="anchor-arrow">→</span><span class="anchor-kw">ECharts：开箱即用的高级图表库</span><span class="anchor-arrow">→</span><span class="anchor-kw">D3 适合：定制化、新颖的可视化</span><span class="anchor-arrow">→</span><span class="anchor-kw">ECharts 适合：标准业务图表（柱/线/饼/地图）</span><span class="anchor-arrow">→</span><span class="anchor-kw">可结合：D3 算布局，ECharts 渲染</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">两者层级不同，不是直接竞品：</p>
+<ul class="ans-content"><li class="level-0">D3.js（Data-Driven Documents）：底层数据可视化库，提供数据-视觉的映射工具（scale、axis、shape generator），SVG/Canvas 渲染需要自己写。</li><li class="level-0">ECharts：基于 ZRender 的高级图表库，开箱即用，配置驱动（option），常见图表已封装。</li></ul>
+<p class="ans-content p-bold ">选型建议：</p>
+<ul class="ans-content"><li class="level-0">ECharts：业务大屏 90% 的场景（柱/线/饼/散点/地图/雷达），开发快、文档全、性能好。</li><li class="level-0">D3：力导向图、桑基图、和弦图、Tree、Voronoi、地理投影等定制化可视化，或对交互细节要求极高的场景。</li><li class="level-0">AntV G6/X6：图编辑器场景，可作为 D3 的国产替代。</li></ul>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// D3：手动绘制柱状图
+const svg = d3.select('svg');
+const xScale = d3.scaleBand().domain(data.map(d =&gt; d.name)).range([0, 400]);
+const yScale = d3.scaleLinear().domain([0, d3.max(data, d =&gt; d.value)]).range([200, 0]);
+svg.selectAll('rect').data(data).enter()
+  .append('rect')
+  .attr('x', d =&gt; xScale(d.name))
+  .attr('y', d =&gt; yScale(d.value))
+  .attr('width', xScale.bandwidth())
+  .attr('height', d =&gt; 200 - yScale(d.value));
+
+// ECharts：配置驱动
+echarts.init(dom).setOption({
+  xAxis: { type: 'category', data: data.map(d =&gt; d.name) },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: data.map(d =&gt; d.value) }]
+});</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话：D3 是'画笔'，ECharts 是'模板'。常规图表 ECharts，特殊定制 D3。</div>
+</div></article>
+<article class="qa-block" data-num="193" id="q193">
+    <div class="question">
+      <span class="q-num">Q193</span>
+      <span class="q-title">D3.js 的核心概念有哪些？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="193" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="193" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">5 大核心：选择集 / 数据绑定 / 比例尺 / 坐标轴 / 形状生成器</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Selection（d3.select / selectAll）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Data Join（data + enter/update/exit）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Scale（scaleLinear / scaleBand / scaleTime）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Axis（d3.axisBottom）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Shape generator（line/area/arc/pie）</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">D3 的核心 5 块：</p>
+<ul class="ans-content"><li class="level-0">Selection（选择集）：d3.select('svg') 选单个，selectAll('rect') 选多个，链式调用 .attr() / .style() / .on()。</li><li class="level-0">Data Join（数据绑定）：.data(arr) 后通过 enter/update/exit 三态生命周期管理 DOM。</li><li class="level-0">Scale（比例尺）：把数据域（domain）映射到值域（range）。常用 scaleLinear（连续）、scaleBand（分类）、scaleTime（时间）、scaleOrdinal（序数）。</li><li class="level-0">Axis（坐标轴）：d3.axisBottom(scale) 自动根据 scale 生成刻度。</li><li class="level-0">Shape generator（形状生成器）：d3.line()、d3.arc()、d3.pie()、d3.area() 把数据转成 SVG 路径字符串。</li></ul>
+<p class="ans-content p-bold ">Data Join 三态记忆：</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// enter: 新数据多于 DOM → 创建新 DOM
+// update: 数据和 DOM 一一对应 → 更新属性
+// exit: 数据少于 DOM → 删除多余 DOM
+
+const sel = svg.selectAll('rect').data(arr, d =&gt; d.id);  // 第二参 key 函数
+sel.exit().remove();
+sel.enter().append('rect').merge(sel)  // 合并 enter 和 update
+   .attr('x', d =&gt; xScale(d.name))
+   .attr('y', d =&gt; yScale(d.value));
+
+// D3 v6+ 推荐 .join()
+sel.join(
+  enter =&gt; enter.append('rect').attr('y', 200).attr('height', 0),
+  update =&gt; update,
+  exit =&gt; exit.remove()
+);</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>画图思路：先 scale 把数据映射到坐标系，再 selection + data join 创建 DOM，最后 axis 加坐标轴。</div>
+</div></article>
+<article class="qa-block" data-num="194" id="q194">
+    <div class="question">
+      <span class="q-num">Q194</span>
+      <span class="q-title">用 D3 画一个力导向图（Force Layout）的核心思路？</span>
+      <span class="q-tag">★★ 项目可讲</span>
+      <button class="qa-toggle" data-num="194" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="194" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 步：节点-边数据 / Simulation 物理引擎 / tick 更新位置</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">nodes + links 数据格式</span><span class="anchor-arrow">→</span><span class="anchor-kw">d3.forceSimulation()</span><span class="anchor-arrow">→</span><span class="anchor-kw">forceLink/forceManyBody/forceCenter</span><span class="anchor-arrow">→</span><span class="anchor-kw">on('tick') 更新 cx/cy</span><span class="anchor-arrow">→</span><span class="anchor-kw">drag 拖动交互</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">D3 力导向图基于物理引擎，节点像粒子，边像弹簧。</p>
+<p class="ans-content p-bold ">3 步实现：</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. 数据格式（节点 + 边）
+const nodes = [{ id: 'A' }, { id: 'B' }, { id: 'C' }];
+const links = [{ source: 'A', target: 'B' }, { source: 'B', target: 'C' }];
+
+// 2. 创建物理引擎模拟
+const simulation = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d =&gt; d.id).distance(80))
+  .force('charge', d3.forceManyBody().strength(-200))
+  .force('center', d3.forceCenter(width / 2, height / 2));
+
+// 3. 渲染节点和边，tick 时更新位置
+const link = svg.selectAll('line').data(links).enter().append('line');
+const node = svg.selectAll('circle').data(nodes).enter().append('circle')
+  .attr('r', 8)
+  .call(d3.drag()
+    .on('start', e =&gt; { simulation.alphaTarget(0.3).restart(); e.subject.fx = e.subject.x; })
+    .on('drag', e =&gt; { e.subject.fx = e.x; e.subject.fy = e.y; })
+    .on('end', e =&gt; { simulation.alphaTarget(0); e.subject.fx = null; }));
+
+simulation.on('tick', () =&gt; {
+  link.attr('x1', d =&gt; d.source.x).attr('y1', d =&gt; d.source.y)
+      .attr('x2', d =&gt; d.target.x).attr('y2', d =&gt; d.target.y);
+  node.attr('cx', d =&gt; d.x).attr('cy', d =&gt; d.y);
+});</code></pre>
+<p class="ans-content p-bold ">性能优化：</p>
+<ul class="ans-content"><li class="level-0">节点 &gt; 500 时改用 Canvas 渲染（避免 SVG 节点过多）。</li><li class="level-0">alphaDecay 调小可让动画更平稳，调大让收敛更快。</li><li class="level-0">节点固定位置：fx/fy 写死后不会被力影响。</li><li class="level-0">数据量大时分层显示（先聚类，缩放展开）。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>项目场景：网络拓扑、关系图谱、好友关系。配合 dataZoom 和 lasso 选择更佳。</div>
+</div></article>
+<article class="qa-block" data-num="195" id="q195">
+    <div class="question">
+      <span class="q-num">Q195</span>
+      <span class="q-title">Three.js 的三大核心组件？最小可运行场景的代码？</span>
+      <span class="q-tag">★★ 必背</span>
+      <button class="qa-toggle" data-num="195" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="195" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 核心：Scene / Camera / Renderer。1 物体 4 步：几何 + 材质 + Mesh + add</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Scene（场景）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Camera（相机：透视/正交）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Renderer（渲染器：WebGL）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Geometry + Material → Mesh</span><span class="anchor-arrow">→</span><span class="anchor-kw">renderer.render(scene, camera)</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">拍电影：Scene 是片场，Camera 是摄影机，Renderer 是放映机；Mesh 是演员（骨架 + 衣服）</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Three.js 是 WebGL 的封装库，让 3D 渲染变得简单。</p>
+<p class="ans-content p-bold ">3 大核心组件：</p>
+<ul class="ans-content"><li class="level-0">Scene（场景）：所有 3D 物体的容器，类似 SVG 的 root。</li><li class="level-0">Camera（相机）：决定从哪个角度看场景。透视相机（PerspectiveCamera）有近大远小，正交相机（OrthographicCamera）无透视。</li><li class="level-0">Renderer（渲染器）：把场景渲染到 Canvas，主流是 WebGLRenderer。</li></ul>
+<p class="ans-content p-bold ">最小可运行场景：</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import * as THREE from 'three';
+
+// 1. 场景
+const scene = new THREE.Scene();
+
+// 2. 相机（视角 75°，宽高比，近裁剪面，远裁剪面）
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// 3. 渲染器
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 4. 创建一个立方体
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+// 5. 渲染循环
+function animate() {
+  requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+animate();</code></pre>
+<p class="ans-content p-bold ">常见物体材质：</p>
+<ul class="ans-content"><li class="level-0">MeshBasicMaterial：不受光照影响，适合调试。</li><li class="level-0">MeshLambertMaterial：受光照（漫反射），日常用。</li><li class="level-0">MeshStandardMaterial：PBR 物理渲染，最真实但耗性能。</li><li class="level-0">ShaderMaterial：自定义 GLSL shader。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>背诵 4 步：几何（Geometry）+ 材质（Material）→ Mesh → add to Scene → renderer.render。</div>
+</div></article>
+<article class="qa-block" data-num="196" id="q196">
+    <div class="question">
+      <span class="q-num">Q196</span>
+      <span class="q-title">Three.js 项目性能优化的常用手段？</span>
+      <span class="q-tag">★★★ 项目实战</span>
+      <button class="qa-toggle" data-num="196" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="196" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">6 招：合并几何 / 实例化 / LOD / 视锥剔除 / 复用材质 / 关闭阴影</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">BufferGeometryUtils.mergeGeometries 合并</span><span class="anchor-arrow">→</span><span class="anchor-kw">InstancedMesh 实例化（同 Mesh 渲染上千个）</span><span class="anchor-arrow">→</span><span class="anchor-kw">LOD 远处用低面数</span><span class="anchor-arrow">→</span><span class="anchor-kw">frustumCulled 视锥剔除</span><span class="anchor-arrow">→</span><span class="anchor-kw">复用材质和纹理</span><span class="anchor-arrow">→</span><span class="anchor-kw">关阴影/降阴影分辨率</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Three.js 性能瓶颈通常在 drawCall 和顶点数量。</p>
+<p class="ans-content p-bold ">6 大优化手段：</p>
+<ul class="ans-content"><li class="level-0">合并几何（减少 drawCall）：相同材质的多个静态 Mesh 用 BufferGeometryUtils.mergeGeometries 合成一个。</li><li class="level-0">实例化渲染（InstancedMesh）：同一 Mesh 渲染上千个（如森林、人群），一次 drawCall。</li><li class="level-0">LOD（Level of Detail）：远处的物体自动切换到低面数模型。THREE.LOD 类。</li><li class="level-0">视锥剔除：默认开启 frustumCulled = true，相机看不到的不渲染。</li><li class="level-0">复用资源：同样的纹理、材质共用一个实例（不要每个 Mesh new 一个）。</li><li class="level-0">阴影优化：关闭不必要的 castShadow/receiveShadow，调小 shadowMap.mapSize。</li></ul>
+<p class="ans-content p-bold ">关键代码：</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. InstancedMesh（最重要的优化）
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshLambertMaterial();
+const count = 10000;
+const mesh = new THREE.InstancedMesh(geometry, material, count);
+const matrix = new THREE.Matrix4();
+for (let i = 0; i &lt; count; i++) {
+  matrix.setPosition(Math.random() * 100, 0, Math.random() * 100);
+  mesh.setMatrixAt(i, matrix);
+}
+scene.add(mesh);  // 1 次 drawCall 渲染 1 万个立方体
+
+// 2. LOD
+const lod = new THREE.LOD();
+lod.addLevel(highDetailMesh, 0);
+lod.addLevel(midDetailMesh, 50);
+lod.addLevel(lowDetailMesh, 200);
+scene.add(lod);
+
+// 3. 销毁释放（防内存泄漏）
+function disposeMesh(mesh) {
+  mesh.geometry.dispose();
+  if (Array.isArray(mesh.material)) mesh.material.forEach(m =&gt; m.dispose());
+  else mesh.material.dispose();
+}</code></pre>
+<p class="ans-content p-bold ">监控工具：</p>
+<ul class="ans-content"><li class="level-0">stats.js：FPS / MS / Memory 三件套。</li><li class="level-0">renderer.info：drawCalls / triangles / textures 数量。</li><li class="level-0">Spector.js：抓 WebGL 帧分析。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>性能瓶颈优先级：drawCall &gt; 顶点数 &gt; 纹理 &gt; 阴影 &gt; 后期处理。先用 InstancedMesh 把 drawCall 降下来。</div>
+</div></article>
+<article class="qa-block" data-num="197" id="q197">
+    <div class="question">
+      <span class="q-num">Q197</span>
+      <span class="q-title">Three.js 如何加载 GLTF 模型？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="197" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="197" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">GLTFLoader + DracoLoader（压缩）+ KTX2Loader（纹理压缩）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">GLTFLoader 加载 .gltf/.glb</span><span class="anchor-arrow">→</span><span class="anchor-kw">DracoLoader 解码 Draco 几何压缩</span><span class="anchor-arrow">→</span><span class="anchor-kw">KTX2Loader 解码 KTX2 纹理</span><span class="anchor-arrow">→</span><span class="anchor-kw">loader.load(url, onSuccess, onProgress, onError)</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">GLTF 是 Three.js 推荐的 3D 模型格式（行业标准）。.glb 是二进制版本，更小。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
+
+const loader = new GLTFLoader();
+
+// Draco 几何压缩（模型小 90%+）
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/draco/');
+loader.setDRACOLoader(dracoLoader);
+
+// KTX2 纹理压缩（GPU 友好）
+const ktx2Loader = new KTX2Loader().setTranscoderPath('/basis/').detectSupport(renderer);
+loader.setKTX2Loader(ktx2Loader);
+
+loader.load(
+  '/models/scene.glb',
+  (gltf) =&gt; {
+    scene.add(gltf.scene);
+    if (gltf.animations.length) {
+      const mixer = new THREE.AnimationMixer(gltf.scene);
+      mixer.clipAction(gltf.animations[0]).play();
+    }
+  },
+  (progress) =&gt; console.log((progress.loaded / progress.total * 100) + '% loaded'),
+  (error) =&gt; console.error(error)
+);</code></pre>
+<p class="ans-content p-bold ">优化建议：</p>
+<ul class="ans-content"><li class="level-0">用 gltf-pipeline 离线压缩 → Draco + KTX2，模型从几十 MB 压到几 MB。</li><li class="level-0">复杂场景用 ScenePreloader 预加载所有资源后再渲染。</li><li class="level-0">Loader 实例可复用，不要每次 new。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>流程：建模师导出 .glb → gltf-pipeline 压缩 → 前端 GLTFLoader + Draco/KTX2 加载。</div>
+</div></article>
+<article class="qa-block" data-num="198" id="q198">
+    <div class="question">
+      <span class="q-num">Q198</span>
+      <span class="q-title">Cesium 和 Three.js 的区别？项目里如何选？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="198" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="198" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Cesium 偏地理（地球+地形）/ Three.js 通用 3D（自由场景）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Cesium：3D 地球 + 地理坐标系（WGS84）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Three.js：自由 3D 场景（笛卡尔坐标）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Cesium 内置：地形/影像/3D Tiles</span><span class="anchor-arrow">→</span><span class="anchor-kw">Three 灵活但需自建一切</span><span class="anchor-arrow">→</span><span class="anchor-kw">可结合：Three 渲染 Cesium 矢量</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">两者都是 3D 库，但场景定位不同：</p>
+<ul class="ans-content"><li class="level-0">Cesium：基于 WebGL 的 3D 地球库，自带地形、影像、3D Tiles（城市建模）支持，使用 WGS84 地理坐标。适合数字地球、城市建模、智慧城市、军事 GIS。</li><li class="level-0">Three.js：通用 3D 引擎，自由度高，使用笛卡尔坐标。适合产品展示、3D 游戏、可视化数据艺术、VR/AR。</li></ul>
+<p class="ans-content p-bold ">选型场景对照：</p>
+<ul class="ans-content"><li class="level-0">需要地图/地球/地理坐标 → Cesium</li><li class="level-0">纯 3D 场景（产品展示、数据可视化、艺术效果）→ Three.js</li><li class="level-0">城市数字孪生 → Cesium（3D Tiles 是行业标准）</li><li class="level-0">VR/AR/游戏化 3D → Three.js（生态更全，可与 React-three-fiber 结合）</li></ul>
+<p class="ans-content p-bold ">可结合使用：</p>
+<ul class="ans-content"><li class="level-0">Cesium 上叠加 Three.js：通过 Cesium.Primitive 或 ScreenSpaceCameraController 共享相机。</li><li class="level-0">ThreeBox（Mapbox + Three）：在地图上加 3D 场景。</li><li class="level-0">你的智海项目：基础地理用 Cesium，复杂船舶 3D 模型用 Three.js 渲染后投影到 Cesium 坐标系。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话：选 Cesium 因为「要地图」，选 Three 因为「要自由」。</div>
+</div></article>
 <h1 id="sec-9" class="chapter">第七章  React 基础速成 —— 补齐短板</h1>
-<p class="ans-content p-italic" style="color:595959">你的简历主要是 Vue 栈，但当前市场 React 岗位也很多。这一章帮你达到 “面试官问 React 基础题不会挂” 的程度。不需要深究源码，能讲清 Hook、生命周期、状态管理即可。本章 18 题。</p>
-<h2 class="ans-content">7.1 React 核心概念</h2>
+<p class="ans-content p-italic" style="color:#595959">你的简历主要是 Vue 栈，但当前市场 React 岗位也很多。本章按"基础 → Hooks 实战 → 高级原理"三段递进，每题都给代码示例 + Vue3 对比，让你既能速成 React，又能借机回顾 Vue3 原理。本章 18 题。</p>
+<h2 class="ans-content">7.1 React 基础概念</h2>
 <article class="qa-block" data-num="111" id="q111">
     <div class="question">
       <span class="q-num">Q111</span>
@@ -3773,37 +4368,67 @@ await pc.setRemoteDescription(new RTCSessionDescription(answer));</code></pre>
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="111" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">UI = f(state)：状态驱动视图，单向数据流</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">核心思想 UI = f(state)</span><span class="anchor-arrow">→</span><span class="anchor-kw">vs Vue：JSX + 整体重新执行</span><span class="anchor-arrow">→</span><span class="anchor-kw">vs Vue：单向数据流（vs 双向 v-model）</span><span class="anchor-arrow">→</span><span class="anchor-kw">更新粒度：组件级（Vue3 是属性级）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">UI = f(state)：状态驱动视图，单向数据流</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">UI = f(state)</span><span class="anchor-arrow">→</span><span class="anchor-kw">声明式而非命令式</span><span class="anchor-arrow">→</span><span class="anchor-kw">单向数据流</span><span class="anchor-arrow">→</span><span class="anchor-kw">组件即函数</span><span class="anchor-arrow">→</span><span class="anchor-kw">JSX 是 JS 不是模板</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">Vue 像智能管家（你改数据它自动同步），React 像菜谱机（你给食材，它每次重新做一遍菜）</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">React 核心思想：UI = f(state)。状态驱动视图，一切都是组件。</p>
-<p class="ans-content ">和 Vue 的根本区别：</p>
-<ul class="ans-content"><li class="level-0">思维模式：Vue 是 “数据变化会自动追踪”（响应式）；React 是 “每次 state 变化就整个组件重新执行”。</li><li class="level-0">模板：Vue 用模板 + 指令；React 用 JSX（JS 写 UI）。</li><li class="level-0">数据流：Vue 双向绑定（v-model 糖）；React 单向数据流（父传子通过 props，子改父通过回调）。</li><li class="level-0">更新粒度：Vue3 靠 Proxy 精确知道哪个数据变了；React 整棵子树重新渲染（通过 memo 手动优化）。</li></ul>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>面试说法：“Vue 是框架，约束更多；React 更像库，自由度更高。两者没有绝对优劣，Vue 工程化开箱即用，React 生态需要自己选型。”</div>
+<p class="ans-content ">React 核心思想：UI = f(state)。给定 state，组件函数计算出 UI。</p>
+<h3 class="ans-content">代码对比：实现一个计数器</h3>
+<pre class="ans-content code-block"><div class="code-lang">JSX vs Vue</div><code>// React（函数组件）
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;p&gt;计数：{count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+1&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Vue3（Composition API）
+&lt;script setup&gt;
+const count = ref(0);
+&lt;/script&gt;
+&lt;template&gt;
+  &lt;div&gt;
+    &lt;p&gt;计数：{{ count }}&lt;/p&gt;
+    &lt;button @click=&quot;count++&quot;&gt;+1&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+<h3 class="ans-content">4 个核心区别</h3>
+<ul class="ans-content"><li class="level-0">更新机制：Vue3 用 Proxy 精确知道哪个数据变了，组件级响应；React 整个组件函数重新执行，diff 出变化。</li><li class="level-0">数据流：Vue v-model 双向绑定（语法糖）；React 单向流，要双向就 value + onChange 自己写。</li><li class="level-0">模板：Vue 用真模板（编译器优化更多）；React 用 JSX（本质是 JS，自由度高）。</li><li class="level-0">心智模型：Vue 写起来像 HTML 增强；React 写起来像写 JavaScript。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话总结：「Vue 是框架，约束多但开箱即用；React 是库，自由度高但要自己选型」。</div>
 </div></article>
 <article class="qa-block" data-num="112" id="q112">
     <div class="question">
       <span class="q-num">Q112</span>
       <span class="q-title">JSX 是什么？如何工作？</span>
-      <span class="q-tag">★</span>
+      <span class="q-tag">★ 必答</span>
       <button class="qa-toggle" data-num="112" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="112" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">JSX = JS 写 UI，编译为 React.createElement / jsx()</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">语法糖 React.createElement</span><span class="anchor-arrow">→</span><span class="anchor-kw">React 17+ 改用 jsx-runtime（不需 import React）</span><span class="anchor-arrow">→</span><span class="anchor-kw">class → className</span><span class="anchor-arrow">→</span><span class="anchor-kw">事件用驼峰 onClick</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">JSX 不是模板，是 JS 语法糖：编译为 createElement / jsx() 调用</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">JSX 编译为函数调用</span><span class="anchor-arrow">→</span><span class="anchor-kw">React 17+ 自动 import</span><span class="anchor-arrow">→</span><span class="anchor-kw">class → className</span><span class="anchor-arrow">→</span><span class="anchor-kw">事件驼峰 onClick</span><span class="anchor-arrow">→</span><span class="anchor-kw">{} 嵌入表达式</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">JSX 是 JS 的语法扩展，长得像 HTML，编译后变成 React.createElement 调用。</p>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// JSX
-const el = &lt;h1 className=&quot;title&quot;&gt;Hello&lt;/h1&gt;;
+<p class="ans-content ">JSX 是 JavaScript 的语法扩展，看起来像 HTML，但本质是 JS 函数调用。</p>
+<h3 class="ans-content">编译过程</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 你写的 JSX
+const el = &lt;h1 className=&quot;title&quot;&gt;Hello, {name}&lt;/h1&gt;;
 
-// 编译后
-const el = React.createElement('h1', { className: 'title' }, 'Hello');
+// Babel 编译后（React 16）
+const el = React.createElement(
+  &#x27;h1&#x27;,
+  { className: &#x27;title&#x27; },
+  &#x27;Hello, &#x27;, name
+);
 
-// React 17+ 新 JSX 转换后
-import { jsx } from 'react/jsx-runtime';
-const el = jsx('h1', { className: 'title', children: 'Hello' });</code></pre>
-<p class="ans-content ">注意点：class → className、for → htmlFor、事件用驼峰 onClick。</p>
+// React 17+ 用新 jsx-runtime（不再需要 import React）
+import { jsx } from &#x27;react/jsx-runtime&#x27;;
+const el = jsx(&#x27;h1&#x27;, { className: &#x27;title&#x27;, children: [&#x27;Hello, &#x27;, name] });</code></pre>
+<h3 class="ans-content">和 Vue 模板的对比</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:15%"><col style="width:40%"><col style="width:45%"></colgroup><thead><tr><th>维度</th><th>JSX</th><th>Vue 模板</th></tr></thead><tbody><tr><td>本质</td><td>JS 表达式</td><td>HTML 字符串（经编译器解析）</td></tr><tr><td>条件</td><td>{cond &amp;&amp; &lt;X /&gt;} 或三元</td><td>v-if / v-else</td></tr><tr><td>循环</td><td>{list.map(x =&gt; &lt;X key={x.id} /&gt;)}</td><td>v-for=&quot;x in list&quot; :key</td></tr><tr><td>编译时优化</td><td>几乎无（runtime 全部 diff）</td><td>PatchFlags / 静态提升 / Block 树</td></tr><tr><td>心智</td><td>JS 表达式自由组合</td><td>约定的指令集</td></tr></tbody></table></div>
+<h3 class="ans-content">JSX 4 个易错点</h3>
+<ul class="ans-content"><li class="level-0">class 要写成 className（class 是 JS 关键字）。</li><li class="level-0">for 要写成 htmlFor。</li><li class="level-0">样式是对象不是字符串：style={{ color: &#x27;red&#x27; }}。</li><li class="level-0">必须有唯一根元素，或用 &lt;Fragment&gt;...&lt;/Fragment&gt; / &lt;&gt;...&lt;/&gt;。</li></ul>
 </div></article>
 <article class="qa-block" data-num="113" id="q113">
     <div class="question">
@@ -3816,18 +4441,42 @@ const el = jsx('h1', { className: 'title', children: 'Hello' });</code></pre>
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="113" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">类组件靠 this，函数组件靠 Hooks（无 this 更简洁）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">类：this 烦、生命周期分散、复用难</span><span class="anchor-arrow">→</span><span class="anchor-kw">函数 + Hooks：按功能组织、自定义 Hook 复用</span><span class="anchor-arrow">→</span><span class="anchor-kw">性能：函数组件更轻</span><span class="anchor-arrow">→</span><span class="anchor-kw">现代：函数组件优先</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">函数组件 + Hooks 一统天下，类组件几乎不写新的</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">类组件 this/setState/lifecycle 烦</span><span class="anchor-arrow">→</span><span class="anchor-kw">函数组件按功能组织</span><span class="anchor-arrow">→</span><span class="anchor-kw">Hooks 解决逻辑复用难</span><span class="anchor-arrow">→</span><span class="anchor-kw">现代项目函数组件优先</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">类组件问题：this 绑定困扰、生命周期逻辑分散、状态逻辑复用只能靠 HOC / render props（结构嵌套多）。</p>
-<p class="ans-content ">函数组件 + Hooks 的优势：</p>
-<ul class="ans-content"><li class="level-0">函数式更简洁，没有 this。</li><li class="level-0">逻辑按功能组织（而不是按生命周期分散）。</li><li class="level-0">自定义 Hook 轻松复用状态逻辑。</li><li class="level-0">更好的性能（函数组件开销小）。</li></ul>
-<p class="ans-content ">2026 年：除了少量历史项目，新写组件全部函数组件 + Hooks。</p>
+<p class="ans-content ">类组件（Class Component）是早期写法，函数组件（Function Component）+ Hooks 是 React 16.8 后的现代写法。</p>
+<h3 class="ans-content">代码对比</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 类组件（旧）
+class Counter extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+    this.inc = this.inc.bind(this);  // ← this 绑定烦
+  }
+  componentDidMount() { /* ... */ }
+  componentWillUnmount() { /* ... */ }
+  inc() { this.setState({ count: this.state.count + 1 }); }
+  render() {
+    return &lt;button onClick={this.inc}&gt;{this.state.count}&lt;/button&gt;;
+  }
+}
+
+// 函数组件（现代）
+function Counter() {
+  const [count, setCount] = useState(0);
+  useEffect(() =&gt; {
+    /* mount + cleanup 都在这里 */
+    return () =&gt; { /* cleanup */ };
+  }, []);
+  return &lt;button onClick={() =&gt; setCount(c =&gt; c + 1)}&gt;{count}&lt;/button&gt;;
+}</code></pre>
+<h3 class="ans-content">为什么 Hooks 出现？</h3>
+<ul class="ans-content"><li class="level-0">类组件的 this 容易出错（事件处理要 bind）。</li><li class="level-0">生命周期分散：相关逻辑被拆到不同钩子（如订阅在 mount，取消在 unmount）。</li><li class="level-0">逻辑复用难：HOC、render props 嵌套深，容易 wrapper hell。</li><li class="level-0">Hooks 让逻辑按功能聚合（一个 useEffect 管 mount + cleanup）+ 自定义 Hook 复用。</li></ul>
+<p class="ans-content " style="color:595959">⚖️ 类比 Vue：Vue2 Options API ≈ React 类组件（生命周期分散）；Vue3 Composition API ≈ React Hooks（按功能组织）。</p>
 </div></article>
-<h2 class="ans-content">7.2 Hooks 核心</h2>
 <article class="qa-block" data-num="114" id="q114">
     <div class="question">
       <span class="q-num">Q114</span>
-      <span class="q-title">useState 的使用和原理</span>
+      <span class="q-title">React 的 Props 如何工作？子怎么传值给父？</span>
       <span class="q-tag">★★</span>
       <button class="qa-toggle" data-num="114" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -3835,179 +4484,289 @@ const el = jsx('h1', { className: 'title', children: 'Hello' });</code></pre>
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="114" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useState：异步更新 + 函数式更新（拿最新值）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">[val, setVal] = useState(initial)</span><span class="anchor-arrow">→</span><span class="anchor-kw">异步：连续 setVal 用函数式 prev =&gt; prev+1</span><span class="anchor-arrow">→</span><span class="anchor-kw">懒初始化：useState(() =&gt; 计算)</span><span class="anchor-arrow">→</span><span class="anchor-kw">原理：链表存 hooks 状态</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Props 只读 + 单向流：父→子用 props，子→父用回调</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Props 只读不可改</span><span class="anchor-arrow">→</span><span class="anchor-kw">单向数据流</span><span class="anchor-arrow">→</span><span class="anchor-kw">子改父：传回调函数</span><span class="anchor-arrow">→</span><span class="anchor-kw">解构 + 默认值</span><span class="anchor-arrow">→</span><span class="anchor-kw">TS 用 interface Props</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>const [count, setCount] = useState(0);
+<p class="ans-content ">Props 是父组件传给子组件的数据，只读（不能在子组件里改）。要双向通信就靠回调。</p>
+<h3 class="ans-content">代码示例</h3>
+<pre class="ans-content code-block"><div class="code-lang">TSX</div><code>// React
+function Child({ name, onSubmit }) {
+  return (
+    &lt;button onClick={() =&gt; onSubmit(name)}&gt;提交 {name}&lt;/button&gt;
+  );
+}
 
-// 异步更新，以下写法有问题：
-setCount(count + 1);
-setCount(count + 1);  // 两次都是 count+1，最终只加 1
+function Parent() {
+  const handle = (val) =&gt; console.log(&#x27;收到&#x27;, val);
+  return &lt;Child name=&quot;Tom&quot; onSubmit={handle} /&gt;;
+}
 
-// 正确：函数式更新
-setCount(prev =&gt; prev + 1);
-setCount(prev =&gt; prev + 1);  // 最终 +2
-
-// 懒初始化（只有首次渲染执行）
-const [data, setData] = useState(() =&gt; expensiveCalc());</code></pre>
-<p class="ans-content ">原理：React 内部用链表维护每个组件的 hooks 状态，按调用顺序对应。所以 Hooks 不能在循环 / 条件 / 嵌套中使用。</p>
+// TS 类型
+interface ChildProps {
+  name: string;
+  onSubmit: (name: string) =&gt; void;
+}
+function Child({ name, onSubmit }: ChildProps) { /* ... */ }</code></pre>
+<h3 class="ans-content">和 Vue3 的对比</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:12%"><col style="width:44%"><col style="width:44%"></colgroup><thead><tr><th>场景</th><th>React</th><th>Vue3</th></tr></thead><tbody><tr><td>父→子</td><td>&lt;Child name={x} /&gt;</td><td>:name=&quot;x&quot;</td></tr><tr><td>子→父</td><td>传回调 onSubmit={fn}</td><td>emit(&#x27;submit&#x27;, val)</td></tr><tr><td>双向</td><td>value + onChange 自己写</td><td>v-model（语法糖）</td></tr><tr><td>类型</td><td>TS interface Props</td><td>defineProps&lt;Props&gt;()</td></tr></tbody></table></div>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>React 实现 v-model 等价：value={v} + onChange={e =&gt; setV(e.target.value)}。Vue 那一行 v-model 就是这两行的语法糖。</div>
 </div></article>
 <article class="qa-block" data-num="115" id="q115">
     <div class="question">
       <span class="q-num">Q115</span>
-      <span class="q-title">useEffect 的用法和陷阱</span>
-      <span class="q-tag">★★★ 必问</span>
+      <span class="q-title">useState 的用法和 4 个要点？</span>
+      <span class="q-tag">★★ 必问</span>
       <button class="qa-toggle" data-num="115" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="115" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">依赖数组决定执行时机，清理函数防泄漏</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">[]：仅挂载执行一次</span><span class="anchor-arrow">→</span><span class="anchor-kw">[deps]：deps 变化时执行</span><span class="anchor-arrow">→</span><span class="anchor-kw">无依赖：每次渲染都执行</span><span class="anchor-arrow">→</span><span class="anchor-kw">返回函数：清理（unmount/下次执行前）</span><span class="anchor-arrow">→</span><span class="anchor-kw">陷阱：闭包过期、对象依赖</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useState 4 要点：异步更新 / 函数式更新 / 懒初始化 / 不可变更新</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">useState 返回 [val, setter]</span><span class="anchor-arrow">→</span><span class="anchor-kw">异步合并多次更新</span><span class="anchor-arrow">→</span><span class="anchor-kw">函数式 prev =&gt; prev+1（拿最新）</span><span class="anchor-arrow">→</span><span class="anchor-kw">懒初始化 useState(() =&gt; 计算)</span><span class="anchor-arrow">→</span><span class="anchor-kw">对象/数组要新引用</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. 组件挂载 + 每次更新都执行
-useEffect(() =&gt; { /* ... */ });
+<p class="ans-content ">useState 是函数组件管理状态的最基础 Hook。</p>
+<h3 class="ans-content">4 个要点</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. 基本用法
+const [count, setCount] = useState(0);
 
-// 2. 仅挂载时执行一次（相当于 componentDidMount）
-useEffect(() =&gt; { /* ... */ }, []);
+// 2. 异步更新（合并）—— 多次调用只触发一次重渲
+setCount(count + 1);
+setCount(count + 1);
+setCount(count + 1);
+// 上面看起来 +3，实际只 +1（因为 count 是当前快照）
 
-// 3. 依赖变化时执行
-useEffect(() =&gt; { /* ... */ }, [userId]);
+// 3. 函数式更新 —— 拿到最新值
+setCount(prev =&gt; prev + 1);
+setCount(prev =&gt; prev + 1);
+setCount(prev =&gt; prev + 1);
+// 这样才真正 +3
 
-// 4. 清理副作用（相当于 componentWillUnmount）
-useEffect(() =&gt; {
-  const timer = setInterval(...);
-  return () =&gt; clearInterval(timer);  // 清理函数
-}, []);</code></pre>
-<p class="ans-content " style="color:C00000">常见陷阱：</p>
-<ul class="ans-content"><li class="level-0">依赖数组不完整：ESLint 会警告 exhaustive-deps，少写依赖可能导致闭包陷阱（拿到旧值）。</li><li class="level-0">依赖是对象/数组：每次渲染新建引用导致 effect 反复执行 —— 用 useMemo 缓存依赖。</li><li class="level-0">在 effect 中 setState 但没有依赖控制 → 无限循环。</li><li class="level-0">React 18 严格模式下 effect 会执行两次（检测副作用），要保证清理函数正确。</li></ul>
+// 4. 懒初始化 —— 复杂初值只计算一次
+const [data, setData] = useState(() =&gt; {
+  return JSON.parse(localStorage.getItem(&#x27;data&#x27;) || &#x27;{}&#x27;);
+});
+
+// 5. 对象/数组：必须新引用才会触发更新
+const [user, setUser] = useState({ name: &#x27;A&#x27; });
+user.name = &#x27;B&#x27;;            // ❌ 不触发更新
+setUser({ ...user, name: &#x27;B&#x27; });  // ✅
+setUser(prev =&gt; ({ ...prev, name: &#x27;B&#x27; }));  // ✅ 推荐</code></pre>
+<h3 class="ans-content">和 Vue3 ref 的对比</h3>
+<ul class="ans-content"><li class="level-0">Vue3 ref：value.xxx = 新值 → 自动触发更新（Proxy）。</li><li class="level-0">React useState：必须 setState 调用才触发。</li><li class="level-0">Vue3 reactive 对象修改属性即响应；React 必须创建新引用（不可变更新）。</li><li class="level-0">原因：React 用 Object.is 比较新旧 state，引用不变就不渲染。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>常见 bug：在 setTimeout / 异步回调里用闭包内的 count，永远是旧值 —— 用函数式更新就解决。</div>
 </div></article>
+<h2 class="ans-content">7.2 Hooks 实战</h2>
 <article class="qa-block" data-num="116" id="q116">
     <div class="question">
       <span class="q-num">Q116</span>
-      <span class="q-title">useMemo 和 useCallback 的区别？</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">useEffect 的用法和陷阱？</span>
+      <span class="q-tag">★★★ 超高频</span>
       <button class="qa-toggle" data-num="116" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="116" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useMemo 缓存值，useCallback 缓存函数</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">useMemo(fn, deps) → 值</span><span class="anchor-arrow">→</span><span class="anchor-kw">useCallback(fn, deps) → 函数</span><span class="anchor-arrow">→</span><span class="anchor-kw">useCallback(fn, deps) ≡ useMemo(()=&gt;fn, deps)</span><span class="anchor-arrow">→</span><span class="anchor-kw">用法：传给 memo 子组件、昂贵计算</span><span class="anchor-arrow">→</span><span class="anchor-kw">陷阱：滥用反而开销大</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useEffect = 副作用 + 清理：mount/update/unmount 三合一</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">副作用：请求/订阅/计时器</span><span class="anchor-arrow">→</span><span class="anchor-kw">依赖数组控制时机</span><span class="anchor-arrow">→</span><span class="anchor-kw">返回函数 = 清理</span><span class="anchor-arrow">→</span><span class="anchor-kw">[] 仅 mount</span><span class="anchor-arrow">→</span><span class="anchor-kw">无依赖每次都跑（避免）</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">useEffect 像签合同：依赖项变化就重新签 → 签新合同前先把旧合同的约定（清理）解除</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">两者都用于性能优化，都接收 fn 和依赖数组。</p>
-<ul class="ans-content"><li class="level-0">useMemo(fn, deps)：缓存 fn 的执行结果（值）。</li><li class="level-0">useCallback(fn, deps)：缓存 fn 本身（函数引用）。</li></ul>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// useMemo 缓存昂贵计算
-const doubled = useMemo(() =&gt; count * 2, [count]);
+<p class="ans-content ">useEffect 处理副作用（数据请求、订阅、DOM 操作、计时器等）。</p>
+<h3 class="ans-content">4 种使用模式</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 模式 1：仅 mount 时执行（相当于 Vue 的 onMounted）
+useEffect(() =&gt; {
+  console.log(&#x27;挂载了&#x27;);
+}, []);  // 空依赖
 
-// useCallback 缓存函数引用（传给 memo 子组件避免重渲染）
-const handleClick = useCallback(() =&gt; {
-  console.log(count);
-}, [count]);
+// 模式 2：依赖变化时执行（相当于 Vue 的 watch）
+useEffect(() =&gt; {
+  console.log(&#x27;id 变了：&#x27;, id);
+}, [id]);
 
-// 等价关系
-useCallback(fn, deps) === useMemo(() =&gt; fn, deps);</code></pre>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>使用原则：不要无脑包 useMemo/useCallback。大多数场景开销比收益大。只在子组件是 memo 且依赖此函数、或计算真的昂贵时才用。</div>
+// 模式 3：每次渲染都执行（很少用，容易死循环）
+useEffect(() =&gt; {
+  console.log(&#x27;每次渲染&#x27;);
+});
+
+// 模式 4：完整生命周期（含清理）
+useEffect(() =&gt; {
+  const timer = setInterval(() =&gt; console.log(&#x27;tick&#x27;), 1000);
+  // 清理函数：组件卸载时 + 依赖变化前都会执行
+  return () =&gt; clearInterval(timer);
+}, []);</code></pre>
+<h3 class="ans-content">4 个常见陷阱</h3>
+<ul class="ans-content"><li class="level-0">依赖数组不全：ESLint 报 exhaustive-deps，少写依赖会拿到旧值（闭包陷阱）。</li><li class="level-0">依赖是对象/数组：每次渲染新建引用 → effect 反复执行 → 用 useMemo 包裹依赖。</li><li class="level-0">在 effect 里 setState 但没控好依赖 → 无限循环。</li><li class="level-0">React 18 严格模式下 effect 在开发环境执行 2 次（检测副作用）—— 必须保证清理函数对称。</li></ul>
+<h3 class="ans-content">和 Vue3 的对比</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:43%"><col style="width:43%"></colgroup><thead><tr><th>场景</th><th>Vue3</th><th>React</th></tr></thead><tbody><tr><td>挂载</td><td>onMounted(() =&gt; {...})</td><td>useEffect(() =&gt; {...}, [])</td></tr><tr><td>卸载</td><td>onBeforeUnmount(() =&gt; {...})</td><td>useEffect 里 return () =&gt; {...}</td></tr><tr><td>监听变化</td><td>watch(id, fn)</td><td>useEffect(fn, [id])</td></tr><tr><td>清理</td><td>返回 fn 或多个钩子</td><td>返回函数（同一处）</td></tr></tbody></table></div>
 </div></article>
 <article class="qa-block" data-num="117" id="q117">
     <div class="question">
       <span class="q-num">Q117</span>
-      <span class="q-title">useRef 有哪些用法？</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">useMemo 和 useCallback 的区别和使用场景？</span>
+      <span class="q-tag">★★ 必问</span>
       <button class="qa-toggle" data-num="117" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="117" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useRef 4 用法：DOM ref / 可变值 / 上一次值 / 实例</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">DOM 引用 ref={inputRef}</span><span class="anchor-arrow">→</span><span class="anchor-kw">可变值 ref.current（不触发重渲）</span><span class="anchor-arrow">→</span><span class="anchor-kw">保存上一次 props/state</span><span class="anchor-arrow">→</span><span class="anchor-kw">保存定时器/WebSocket 实例</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useMemo 缓存值，useCallback 缓存函数</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">useMemo(fn, deps) → 缓存值</span><span class="anchor-arrow">→</span><span class="anchor-kw">useCallback(fn, deps) → 缓存函数</span><span class="anchor-arrow">→</span><span class="anchor-kw">等价 useCallback = useMemo(()=&gt;fn)</span><span class="anchor-arrow">→</span><span class="anchor-kw">用法 1：传给 memo 子组件</span><span class="anchor-arrow">→</span><span class="anchor-kw">用法 2：作为其他 Hook 的依赖</span><span class="anchor-arrow">→</span><span class="anchor-kw">陷阱：滥用反而开销</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<ul class="ans-content"><li class="level-0">获取 DOM 引用：&lt;input ref={inputRef} /&gt;</li><li class="level-0">保存可变值（不触发重渲染）：ref.current = anything。</li><li class="level-0">保存前一次的 state / props。</li><li class="level-0">保存定时器 ID、WebSocket 实例等。</li></ul>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 保存上一次 props
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() =&gt; { ref.current = value; });
-  return ref.current;
-}</code></pre>
+<p class="ans-content ">两者都用于性能优化，避免不必要的重渲染。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import { useMemo, useCallback, memo } from &#x27;react&#x27;;
+
+function Parent({ list }) {
+  const [count, setCount] = useState(0);
+
+  // ❌ 每次渲染都新建数组（破坏子组件 memo）
+  // const filtered = list.filter(x =&gt; x.active);
+
+  // ✅ list 不变就缓存结果
+  const filtered = useMemo(() =&gt; list.filter(x =&gt; x.active), [list]);
+
+  // ❌ 每次新建函数（破坏子组件 memo）
+  // const handleClick = (id) =&gt; console.log(id);
+
+  // ✅ 缓存函数引用
+  const handleClick = useCallback((id) =&gt; console.log(id), []);
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; setCount(c =&gt; c+1)}&gt;{count}&lt;/button&gt;
+      &lt;ChildList data={filtered} onClick={handleClick} /&gt;
+    &lt;/&gt;
+  );
+}
+
+// 子组件用 memo 包裹，props 不变就跳过渲染
+const ChildList = memo(function ChildList({ data, onClick }) {
+  return data.map(x =&gt; &lt;Item key={x.id} onClick={onClick} {...x} /&gt;);
+});</code></pre>
+<h3 class="ans-content">等价关系</h3>
+<p class="ans-content ">useCallback(fn, deps) 完全等价于 useMemo(() =&gt; fn, deps)。前者只是后者的语法糖。</p>
+<h3 class="ans-content">和 Vue3 computed 的对比</h3>
+<ul class="ans-content"><li class="level-0">Vue3 computed：自动追踪依赖，无需手动列依赖数组。</li><li class="level-0">React useMemo：必须手动写依赖数组，少写 / 多写都有 bug。</li><li class="level-0">Vue3 computed 永远缓存（依赖不变就不重算）。</li><li class="level-0">React useMemo 也缓存，但若组件被卸载缓存就丢失。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>不要无脑包 useMemo/useCallback —— 缓存本身有开销。只在「① 传给 memo 子组件 ② 作为其他 Hook 依赖 ③ 昂贵计算」时使用。</div>
 </div></article>
 <article class="qa-block" data-num="118" id="q118">
     <div class="question">
       <span class="q-num">Q118</span>
-      <span class="q-title">useContext 的用法？什么时候用，什么时候不用？</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">useRef 的几种用法？和 Vue3 的 ref 一样吗？</span>
+      <span class="q-tag">★★ 必问</span>
       <button class="qa-toggle" data-num="118" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="118" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Context 解决 props drilling，频繁变化用 Zustand</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">createContext + Provider + useContext</span><span class="anchor-arrow">→</span><span class="anchor-kw">适合：主题/登录/语言</span><span class="anchor-arrow">→</span><span class="anchor-kw">value 变化所有消费者重渲</span><span class="anchor-arrow">→</span><span class="anchor-kw">频繁变化用专门状态库</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">useRef 4 用法：DOM 引用 / 可变值 / 上次值 / 实例存储</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">DOM ref={inputRef}</span><span class="anchor-arrow">→</span><span class="anchor-kw">可变值 ref.current（不触发渲染）</span><span class="anchor-arrow">→</span><span class="anchor-kw">保存上一次 props/state</span><span class="anchor-arrow">→</span><span class="anchor-kw">保存定时器/WebSocket 实例</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">useRef 像组件的&#x27;抽屉&#x27;：放进去不会让组件重新渲染，但取出来永远是最新的</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. 创建 Context
-const ThemeContext = createContext('light');
+<p class="ans-content ">useRef 返回一个对象 {current: ...}，跨渲染保持引用，**修改 current 不触发重新渲染**。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 用法 1：DOM 引用（最常见）
+function Form() {
+  const inputRef = useRef(null);
+  useEffect(() =&gt; {
+    inputRef.current.focus();  // 自动聚焦
+  }, []);
+  return &lt;input ref={inputRef} /&gt;;
+}
 
-// 2. 提供值
-&lt;ThemeContext.Provider value=&quot;dark&quot;&gt;
-  &lt;App /&gt;
-&lt;/ThemeContext.Provider&gt;
+// 用法 2：保存可变值（不需要触发渲染）
+function Stopwatch() {
+  const [time, setTime] = useState(0);
+  const timerRef = useRef(null);
+  const start = () =&gt; {
+    timerRef.current = setInterval(() =&gt; setTime(t =&gt; t+1), 1000);
+  };
+  const stop = () =&gt; clearInterval(timerRef.current);
+  return &lt;div&gt;{time} &lt;button onClick={start}&gt;开始&lt;/button&gt;&lt;/div&gt;;
+}
 
-// 3. 消费
-function Button() {
-  const theme = useContext(ThemeContext);
-  return &lt;button className={theme}&gt;Click&lt;/button&gt;;
+// 用法 3：保存上一次的 props/state
+function usePrev(value) {
+  const ref = useRef();
+  useEffect(() =&gt; { ref.current = value; });
+  return ref.current;
+}
+
+// 用法 4：保存第三方库实例（如 ECharts/Map）
+function Chart() {
+  const containerRef = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() =&gt; {
+    chartRef.current = echarts.init(containerRef.current);
+    return () =&gt; chartRef.current?.dispose();
+  }, []);
+  return &lt;div ref={containerRef} style={{height: 400}} /&gt;;
 }</code></pre>
-<p class="ans-content ">何时用：解决 props drilling（props 层层传递）。主题、登录态、语言等全局偏好。</p>
-<p class="ans-content ">何时不用：频繁变化的全局状态 → 用 Zustand / Redux。Context value 变化会让所有消费者组件重新渲染，性能差。</p>
+<h3 class="ans-content">和 Vue3 ref 的对比 ⚠️</h3>
+<ul class="ans-content"><li class="level-0">Vue3 的 ref(0) → 响应式包装，改 .value 会触发更新。</li><li class="level-0">React 的 useRef(0) → 普通容器，改 .current **不触发**更新。</li><li class="level-0">Vue3 的 ref={inputRef} 在 &lt;template&gt; 里 → 自动获取 DOM。</li><li class="level-0">React 的 ref={inputRef} → 传给 React，挂载后写 inputRef.current。</li><li class="level-0">**同名不同物，最容易混淆的概念**。</li></ul>
 </div></article>
 <article class="qa-block" data-num="119" id="q119">
     <div class="question">
       <span class="q-num">Q119</span>
-      <span class="q-title">自定义 Hook 怎么写？举一个实际例子</span>
-      <span class="q-tag">★★★</span>
+      <span class="q-title">自定义 Hook 怎么写？举 3 个实战例子</span>
+      <span class="q-tag">★★</span>
       <button class="qa-toggle" data-num="119" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="119" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">use 开头的函数 + 内部用其他 Hook = 自定义 Hook</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">命名以 use 开头</span><span class="anchor-arrow">→</span><span class="anchor-kw">内部可用任何 Hook</span><span class="anchor-arrow">→</span><span class="anchor-kw">返回值任意</span><span class="anchor-arrow">→</span><span class="anchor-kw">复用状态逻辑（不复用 UI）</span><span class="anchor-arrow">→</span><span class="anchor-kw">示例：useRequest/useDebounce/useToggle</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">函数名 use 开头 + 内部用其他 Hook = 自定义 Hook</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">命名以 use 开头</span><span class="anchor-arrow">→</span><span class="anchor-kw">内部可调用任何 Hook</span><span class="anchor-arrow">→</span><span class="anchor-kw">返回值任意</span><span class="anchor-arrow">→</span><span class="anchor-kw">复用状态逻辑（不是 UI）</span><span class="anchor-arrow">→</span><span class="anchor-kw">vs HOC：更简洁、无嵌套</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">自定义 Hook 就是一个以 use 开头的函数，内部可以用其他 Hook。作用：复用状态逻辑。</p>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// useRequest - 封装请求状态
-function useRequest(url) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() =&gt; {
-    const controller = new AbortController();
-    setLoading(true);
-    fetch(url, { signal: controller.signal })
-      .then(res =&gt; res.json())
-      .then(setData)
-      .catch(err =&gt; {
-        if (err.name !== 'AbortError') setError(err);
-      })
-      .finally(() =&gt; setLoading(false));
-
-    return () =&gt; controller.abort();  // 清理
-  }, [url]);
-
-  return { data, loading, error };
+<p class="ans-content ">自定义 Hook 是把多个 Hook 组合成可复用的逻辑。是 React 复用代码的最优解。</p>
+<h3 class="ans-content">3 个实战例子</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 例 1：useToggle —— 布尔切换
+function useToggle(initial = false) {
+  const [value, setValue] = useState(initial);
+  const toggle = useCallback(() =&gt; setValue(v =&gt; !v), []);
+  return [value, toggle];
+}
+// 用法
+function Modal() {
+  const [open, toggleOpen] = useToggle();
+  return &lt;button onClick={toggleOpen}&gt;{open ? &#x27;关闭&#x27; : &#x27;打开&#x27;}&lt;/button&gt;;
 }
 
-// 使用
-function UserList() {
-  const { data, loading, error } = useRequest('/api/users');
-  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
-  if (error) return &lt;div&gt;{error.message}&lt;/div&gt;;
-  return &lt;ul&gt;{data.map(u =&gt; &lt;li&gt;{u.name}&lt;/li&gt;)}&lt;/ul&gt;;
+// 例 2：useDebounce —— 输入防抖
+function useDebounce(value, delay = 300) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() =&gt; {
+    const timer = setTimeout(() =&gt; setDebounced(value), delay);
+    return () =&gt; clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+// 用法
+function Search() {
+  const [text, setText] = useState(&#x27;&#x27;);
+  const debounced = useDebounce(text, 500);
+  useEffect(() =&gt; {
+    if (debounced) fetch(&#x27;/api?q=&#x27; + debounced);
+  }, [debounced]);
+  return &lt;input value={text} onChange={e =&gt; setText(e.target.value)} /&gt;;
+}
+
+// 例 3：useRequest —— 数据请求
+function useRequest(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() =&gt; {
+    setLoading(true);
+    fetch(url).then(r =&gt; r.json())
+      .then(setData)
+      .catch(setError)
+      .finally(() =&gt; setLoading(false));
+  }, [url]);
+  return { data, loading, error };
 }</code></pre>
+<h3 class="ans-content">和 Vue3 Composables 的对比</h3>
+<ul class="ans-content"><li class="level-0">完全相同的概念！Vue3 叫「组合式函数」，命名习惯 useXxx。</li><li class="level-0">Vue3 useDebounce / useRequest 等也是组合 ref/computed/watch 的函数。</li><li class="level-0">差别只在底层 Hook 不同（React useState/useEffect vs Vue3 ref/watch）。</li><li class="level-0">VueUse、ahooks 都是这种思路的 Hook 库。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>自定义 Hook 是 React 取代 Mixin / HOC / render props 的银弹。任何重复的 useState + useEffect 组合都应抽成自定义 Hook。</div>
 </div></article>
-<h2 class="ans-content">7.3 React 高级</h2>
 <article class="qa-block" data-num="120" id="q120">
     <div class="question">
       <span class="q-num">Q120</span>
-      <span class="q-title">React 的虚拟 DOM 和 diff 算法</span>
+      <span class="q-title">Context 怎么用？什么时候用 vs 状态管理库？</span>
       <span class="q-tag">★★</span>
       <button class="qa-toggle" data-num="120" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -4015,150 +4774,359 @@ function UserList() {
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="120" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">vDOM diff 3 策略：Tree 同层 / Component 同类型复用 / Element 用 key</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Tree diff：只比同层</span><span class="anchor-arrow">→</span><span class="anchor-kw">Component diff：同类型复用，不同类型重建</span><span class="anchor-arrow">→</span><span class="anchor-kw">Element diff：key 区分</span><span class="anchor-arrow">→</span><span class="anchor-kw">key 必须稳定唯一</span><span class="anchor-arrow">→</span><span class="anchor-kw">避免 index 当 key</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Context = 跨层级传递数据，避免 props 透传</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">createContext + Provider + useContext</span><span class="anchor-arrow">→</span><span class="anchor-kw">解决 props drilling</span><span class="anchor-arrow">→</span><span class="anchor-kw">value 变化所有消费者重渲</span><span class="anchor-arrow">→</span><span class="anchor-kw">频繁变化用 Zustand/Jotai</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">Virtual DOM：用 JS 对象描述 DOM 结构，变化时先在虚拟 DOM 比较，计算最小变更再应用到真实 DOM。</p>
-<p class="ans-content ">React diff 的三个策略：</p>
-<ul class="ans-content"><li class="level-0">Tree diff：只对比同层节点，跨层级的移动会销毁重建。</li><li class="level-0">Component diff：同类型组件复用实例；不同类型销毁重建。</li><li class="level-0">Element diff：同级子节点用 key 区分，没有 key 会按 index 对比。</li></ul>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>所以列表必须加 key —— 这是 React 和 Vue 共通的硬要求。</div>
+<p class="ans-content ">Context 用于跨多层组件传递数据（如主题、登录用户、语言），避免 props 一层层传（drilling）。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import { createContext, useContext, useState } from &#x27;react&#x27;;
+
+// 1. 创建 Context
+const ThemeContext = createContext(&#x27;light&#x27;);
+
+// 2. Provider 提供值
+function App() {
+  const [theme, setTheme] = useState(&#x27;dark&#x27;);
+  return (
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Header /&gt;
+      &lt;Main /&gt;
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// 3. 任意深度的子组件 useContext 取值
+function ThemeToggle() {
+  const { theme, setTheme } = useContext(ThemeContext);
+  return (
+    &lt;button onClick={() =&gt; setTheme(theme === &#x27;dark&#x27; ? &#x27;light&#x27; : &#x27;dark&#x27;)}&gt;
+      切换 ({theme})
+    &lt;/button&gt;
+  );
+}</code></pre>
+<h3 class="ans-content">常见坑：性能问题</h3>
+<ul class="ans-content"><li class="level-0">value 变化时，所有 useContext 消费者都会重新渲染。</li><li class="level-0">频繁变化的状态（如鼠标位置、表单输入）不要放 Context。</li><li class="level-0">可以拆多个 Context（数据 vs 操作分开）减小影响范围。</li><li class="level-0">频繁变化的全局状态用 Zustand / Jotai / Redux Toolkit。</li></ul>
+<h3 class="ans-content">和 Vue3 的对比</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:16%"><col style="width:42%"><col style="width:42%"></colgroup><thead><tr><th>场景</th><th>Vue3</th><th>React</th></tr></thead><tbody><tr><td>跨层传递</td><td>provide / inject</td><td>createContext + useContext</td></tr><tr><td>响应式</td><td>默认响应（ref 自动更新）</td><td>Provider value 变才重渲</td></tr><tr><td>性能</td><td>细粒度（只更新依赖）</td><td>粗粒度（消费者全更新）</td></tr></tbody></table></div>
 </div></article>
+<h2 class="ans-content">7.3 高级与原理</h2>
 <article class="qa-block" data-num="121" id="q121">
     <div class="question">
       <span class="q-num">Q121</span>
-      <span class="q-title">React Fiber 架构是什么？</span>
-      <span class="q-tag">★★★</span>
+      <span class="q-title">React 状态管理方案对比？2026 怎么选？</span>
+      <span class="q-tag">★★ 选型必问</span>
       <button class="qa-toggle" data-num="121" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="121" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">可中断渲染 + 双缓存 + 优先级调度</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Fiber 节点是工作单元</span><span class="anchor-arrow">→</span><span class="anchor-kw">current vs workInProgress 双树</span><span class="anchor-arrow">→</span><span class="anchor-kw">时间切片（5ms 让出主线程）</span><span class="anchor-arrow">→</span><span class="anchor-kw">优先级（用户输入 &gt; 动画 &gt; 数据）</span><span class="anchor-arrow">→</span><span class="anchor-kw">concurrent 模式（useTransition）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">5 大状态管理：Context / Redux / Zustand / Jotai / MobX</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">小型 Context+useReducer</span><span class="anchor-arrow">→</span><span class="anchor-kw">大型 Redux Toolkit</span><span class="anchor-arrow">→</span><span class="anchor-kw">中型推荐 Zustand（极简）</span><span class="anchor-arrow">→</span><span class="anchor-kw">原子化 Jotai/Recoil</span><span class="anchor-arrow">→</span><span class="anchor-kw">响应式 MobX（接近 Vue）</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">React 16 前：递归 diff 整棵树，过程不可打断，长任务会阻塞主线程导致卡顿。</p>
-<p class="ans-content ">Fiber：把渲染工作拆成小单元，可以中断、恢复、优先级调度。</p>
-<p class="ans-content ">核心机制：</p>
-<ul class="ans-content"><li class="level-0">Fiber 节点：每个组件对应一个 Fiber 节点，存状态、优先级、指向父/子/兄弟。</li><li class="level-0">双缓存：current Fiber 树（当前屏幕显示）+ workInProgress 树（正在构建），完成后切换。</li><li class="level-0">时间切片：借助浏览器空闲时间（requestIdleCallback 思想）执行渲染，每个任务不超过 5ms。</li><li class="level-0">优先级：用户输入 &gt; 动画 &gt; 数据请求，高优先级打断低优先级。</li></ul>
-<p class="ans-content ">React 18 的 concurrent 特性（useTransition、useDeferredValue）基于 Fiber。</p>
+<p class="ans-content ">React 没有内置状态管理（Vue 的 Pinia 是官方），生态百花齐放，2026 主流：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:22%"><col style="width:38%"><col style="width:40%"></colgroup><thead><tr><th>方案</th><th>特点</th><th>适合</th></tr></thead><tbody><tr><td>Context + useReducer</td><td>原生，无依赖</td><td>小型项目、主题/登录</td></tr><tr><td>Redux Toolkit</td><td>成熟、严谨、DevTools 强</td><td>大型企业项目、严格架构</td></tr><tr><td>Zustand</td><td>极简（创建-用），无 Provider</td><td>中小型、快速开发（推荐）</td></tr><tr><td>Jotai / Recoil</td><td>原子化（atom），细粒度</td><td>复杂派生状态、协同编辑</td></tr><tr><td>MobX</td><td>响应式（类似 Vue）</td><td>习惯 Vue 思维的</td></tr></tbody></table></div>
+<h3 class="ans-content">Zustand 极简示例（推荐选型）</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import { create } from &#x27;zustand&#x27;;
+
+// 1. 创建 store
+const useUserStore = create((set) =&gt; ({
+  user: null,
+  login: (user) =&gt; set({ user }),
+  logout: () =&gt; set({ user: null }),
+}));
+
+// 2. 任何组件直接用，不需要 Provider
+function Profile() {
+  const { user, logout } = useUserStore();
+  return user ? (
+    &lt;div&gt;{user.name} &lt;button onClick={logout}&gt;退出&lt;/button&gt;&lt;/div&gt;
+  ) : &lt;Login /&gt;;
+}</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>选型口诀：「小项目 Context，中项目 Zustand，大项目 Redux Toolkit，复杂状态 Jotai」。简历上写 Zustand + Pinia 跨框架经验是加分项。</div>
 </div></article>
 <article class="qa-block" data-num="122" id="q122">
     <div class="question">
       <span class="q-num">Q122</span>
-      <span class="q-title">受控组件和非受控组件？</span>
-      <span class="q-tag">★</span>
+      <span class="q-title">React 性能优化的 8 个手段？给出关键代码</span>
+      <span class="q-tag">★★★ 大厂必问</span>
       <button class="qa-toggle" data-num="122" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="122" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">受控 React 管，非受控 DOM 管（ref 读）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">受控：value + onChange</span><span class="anchor-arrow">→</span><span class="anchor-kw">非受控：ref.current.value</span><span class="anchor-arrow">→</span><span class="anchor-kw">推荐受控（可控状态/校验）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">React 性能优化 8 招：memo / useMemo / useCallback / lazy / 虚拟列表 / key / 状态下沉 / Transition</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">React.memo 组件级缓存</span><span class="anchor-arrow">→</span><span class="anchor-kw">useMemo/useCallback 避免新引用</span><span class="anchor-arrow">→</span><span class="anchor-kw">React.lazy + Suspense 懒加载</span><span class="anchor-arrow">→</span><span class="anchor-kw">react-window 虚拟列表</span><span class="anchor-arrow">→</span><span class="anchor-kw">稳定 key</span><span class="anchor-arrow">→</span><span class="anchor-kw">状态下沉（局部化）</span><span class="anchor-arrow">→</span><span class="anchor-kw">useTransition 标记非紧急更新</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">受控组件：表单值由 React state 管理。输入时 onChange → setState → value 更新。</p>
-<p class="ans-content ">非受控组件：值由 DOM 自己维护，React 用 ref 读取。</p>
-<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 受控（推荐）
-const [val, setVal] = useState('');
-&lt;input value={val} onChange={e =&gt; setVal(e.target.value)} /&gt;
+<p class="ans-content ">React 默认整棵子树重渲染，需要手动优化。8 个核心手段：</p>
+<h3 class="ans-content">① 组件缓存（memo）</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>const Child = memo(function Child({ data }) {
+  // props 浅比较未变就跳过渲染
+  return &lt;div&gt;{data.name}&lt;/div&gt;;
+});
 
-// 非受控
-const ref = useRef();
-&lt;input ref={ref} defaultValue=&quot;hello&quot; /&gt;
-// 读取时：ref.current.value</code></pre>
+// 注意：data 必须引用稳定（用 useMemo 包），否则 memo 失效
+const data = useMemo(() =&gt; ({ name: &#x27;A&#x27; }), []);</code></pre>
+<h3 class="ans-content">② 路由级懒加载</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>const Profile = lazy(() =&gt; import(&#x27;./Profile&#x27;));
+
+&lt;Suspense fallback={&lt;Loading /&gt;}&gt;
+  &lt;Profile /&gt;
+&lt;/Suspense&gt;</code></pre>
+<h3 class="ans-content">③ 虚拟列表（万级数据必备）</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>import { FixedSizeList } from &#x27;react-window&#x27;;
+
+&lt;FixedSizeList itemCount={10000} itemSize={50} height={600} width=&quot;100%&quot;&gt;
+  {({ index, style }) =&gt; &lt;div style={style}&gt;{list[index].name}&lt;/div&gt;}
+&lt;/FixedSizeList&gt;</code></pre>
+<h3 class="ans-content">④ useTransition 优先级标记（React 18+）</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>const [isPending, startTransition] = useTransition();
+
+const handleSearch = (q) =&gt; {
+  setQuery(q);                          // 紧急（立即更新输入框）
+  startTransition(() =&gt; {
+    setResults(filter(list, q));        // 非紧急（可被打断）
+  });
+};</code></pre>
+<h3 class="ans-content">⑤ 其他要点</h3>
+<ul class="ans-content"><li class="level-0">稳定的 key：列表必须用业务 ID 当 key，不要用 index。</li><li class="level-0">状态下沉：把状态放到最近使用它的组件，避免父组件重渲染连带所有子。</li><li class="level-0">避免行内对象/函数：会导致 memo 失效（每次新引用）。</li><li class="level-0">useDeferredValue：延迟更新非紧急的派生值。</li></ul>
 </div></article>
 <article class="qa-block" data-num="123" id="q123">
     <div class="question">
       <span class="q-num">Q123</span>
-      <span class="q-title">React 状态管理方案对比</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">React Fiber 是什么？解决了什么问题？</span>
+      <span class="q-tag">★★★ 难度题</span>
       <button class="qa-toggle" data-num="123" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="123" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">5 大状态管理：Context+useReducer / Redux / Zustand / MobX / Jotai</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Context（小型偏好）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Redux Toolkit（大型严格）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Zustand（推荐：极简）</span><span class="anchor-arrow">→</span><span class="anchor-kw">MobX（响应式）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Jotai/Recoil（原子化）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Fiber = 可中断渲染单元 + 双缓存 + 优先级调度</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Fiber 节点是工作单元</span><span class="anchor-arrow">→</span><span class="anchor-kw">current vs workInProgress 双树</span><span class="anchor-arrow">→</span><span class="anchor-kw">时间切片（5ms 让出主线程）</span><span class="anchor-arrow">→</span><span class="anchor-kw">优先级（Lane 模型）</span><span class="anchor-arrow">→</span><span class="anchor-kw">concurrent 模式（useTransition）</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">老 React 像一次性烤完整桌菜（不能停），Fiber 像分小段烤（用户来加菜可以暂停先做新的）</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<div class="ans-content table-wrap"><table><colgroup><col style="width:21.28%"><col style="width:42.55%"><col style="width:36.17%"></colgroup><thead><tr><th>方案</th><th>特点</th><th>适用</th></tr></thead><tbody><tr><td>Context + useReducer</td><td>React 自带，无需第三方</td><td>小型、全局偏好</td></tr><tr><td>Redux (Toolkit)</td><td>严格流程、DevTools 强大、社区成熟</td><td>大型复杂、多团队</td></tr><tr><td>Zustand</td><td>API 极简、体积小（~1KB）、类 Hook</td><td>中小项目、推荐首选</td></tr><tr><td>MobX</td><td>响应式、类似 Vue 风格</td><td>偏好响应式编程的团队</td></tr><tr><td>Jotai / Recoil</td><td>原子化状态、细粒度订阅</td><td>对性能敏感的大应用</td></tr></tbody></table></div>
-<p class="ans-content ">2026 年推荐：新项目选 Zustand，大型老项目用 Redux Toolkit。</p>
+<p class="ans-content ">Fiber 是 React 16+ 的协调器架构。核心目标：让渲染过程**可中断**，避免长任务卡顿。</p>
+<h3 class="ans-content">3 个核心机制</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. Fiber 节点 = 工作单元
+//    每个组件对应一个 Fiber，包含 type/props/state/child/sibling/return 等
+//    diff 时遍历 Fiber 树，每个 Fiber 是一次原子工作
+
+// 2. 双缓存（current ↔ workInProgress）
+//    current 树：屏幕上正在显示的
+//    workInProgress 树：内存中正在构建的
+//    构建完毕后 commit 阶段一次性切换（避免页面闪烁）
+
+// 3. 时间切片（Concurrent Mode）
+//    每 5ms 让出主线程给浏览器（处理用户输入、动画）
+//    requestIdleCallback 思路（自己实现 scheduler）
+
+// 4. Lane 模型（优先级）
+//    用户输入 &gt; 动画 &gt; 数据更新 &gt; 转场
+//    高优先级可打断低优先级</code></pre>
+<h3 class="ans-content">Concurrent Features 实战</h3>
+<ul class="ans-content"><li class="level-0">useTransition：标记非紧急更新（搜索结果过滤），不阻塞输入。</li><li class="level-0">useDeferredValue：延迟派生值（防抖大计算）。</li><li class="level-0">Suspense + lazy：组件级异步加载，渲染过程中可「挂起」等待。</li><li class="level-0">Server Components（React 19 稳定）：服务端渲染部分组件。</li></ul>
+<h3 class="ans-content">Vue3 没有 Fiber 但同样高效，为什么？</h3>
+<ul class="ans-content"><li class="level-0">Vue3 响应式精确，只重渲变化的组件（粒度细）。</li><li class="level-0">React 整棵子树重渲，所以需要 Fiber 来切片避免卡顿。</li><li class="level-0">两条不同思路：Vue3 减少工作量，React 拆分长任务。</li></ul>
 </div></article>
 <article class="qa-block" data-num="124" id="q124">
     <div class="question">
       <span class="q-num">Q124</span>
-      <span class="q-title">React 性能优化</span>
-      <span class="q-tag">★★ 几乎必考</span>
+      <span class="q-title">React 虚拟 DOM 和 diff 算法？和 Vue3 谁更快？</span>
+      <span class="q-tag">★★★ 原理题</span>
       <button class="qa-toggle" data-num="124" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="124" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">8 招：memo / useMemo / lazy / 虚拟列表 / 避免行内 / 状态下沉 / Transition</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">React.memo 组件级缓存</span><span class="anchor-arrow">→</span><span class="anchor-kw">useMemo/useCallback</span><span class="anchor-arrow">→</span><span class="anchor-kw">React.lazy + Suspense 懒加载</span><span class="anchor-arrow">→</span><span class="anchor-kw">react-window 虚拟列表</span><span class="anchor-arrow">→</span><span class="anchor-kw">避免行内对象/函数（破 memo）</span><span class="anchor-arrow">→</span><span class="anchor-kw">状态下沉到使用者</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">VDOM diff 3 策略：同层比较 / 同类型复用 / key 区分</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">VDOM = JS 对象描述 UI</span><span class="anchor-arrow">→</span><span class="anchor-kw">diff 复杂度 O(n)（牺牲精度）</span><span class="anchor-arrow">→</span><span class="anchor-kw">同层 diff（不跨层比较）</span><span class="anchor-arrow">→</span><span class="anchor-kw">类型不同直接重建</span><span class="anchor-arrow">→</span><span class="anchor-kw">key 用于列表对比</span><span class="anchor-arrow">→</span><span class="anchor-kw">Vue3 多了 PatchFlags 优化</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<ul class="ans-content"><li class="level-0">React.memo：组件级别缓存，props 相同时跳过渲染。</li><li class="level-0">useMemo / useCallback：缓存值 / 函数。</li><li class="level-0">懒加载：React.lazy + Suspense 实现代码分割。</li><li class="level-0">虚拟列表：react-window、react-virtualized。</li><li class="level-0">避免行内对象/函数作为 props（每次渲染新建引用会导致 memo 失效）。</li><li class="level-0">状态下沉：把频繁变化的 state 放到真正使用它的子组件里。</li><li class="level-0">React 18 新特性：useTransition 标记非紧急更新、useDeferredValue 延迟昂贵计算。</li></ul>
+<p class="ans-content ">虚拟 DOM 是用 JS 对象描述 UI 结构，diff 算法对比新旧两棵树，找出最小变更。</p>
+<h3 class="ans-content">React diff 的 3 大策略</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. Tree diff：只比较同层节点（不跨层移动）
+//    旧:  &lt;A&gt;&lt;B/&gt;&lt;/A&gt;      新:  &lt;C&gt;&lt;A&gt;&lt;B/&gt;&lt;/A&gt;&lt;/C&gt;
+//    React 会把 A 和它的 B 都重建（即使移到 C 下）
+
+// 2. Component diff：相同类型组件复用，不同类型整体重建
+//    &lt;Button /&gt;  →  &lt;Button /&gt;   ✓ 复用
+//    &lt;Button /&gt;  →  &lt;Link /&gt;     ✗ 重建
+
+// 3. Element diff：列表用 key 区分
+//    无 key：按位置 diff，删除中间项会&quot;位移&quot;
+//    有 key：按 key 找同一节点，最小化 DOM 操作</code></pre>
+<h3 class="ans-content">React diff vs Vue3 diff</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:16%"><col style="width:42%"><col style="width:42%"></colgroup><thead><tr><th>维度</th><th>React diff</th><th>Vue3 diff</th></tr></thead><tbody><tr><td>触发</td><td>整棵子树（被动）</td><td>响应式精确触发（主动）</td></tr><tr><td>编译时优化</td><td>几乎无</td><td>PatchFlags 标记动态节点</td></tr><tr><td>列表 diff</td><td>key + 双指针</td><td>key + 双端 + 最长递增子序列</td></tr><tr><td>静态节点</td><td>也参与 diff</td><td>提升到渲染外，跳过 diff</td></tr><tr><td>效果</td><td>中规中矩</td><td>更快（编译期优化多）</td></tr></tbody></table></div>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>Vue3 借鉴了 ivi、inferno 等的优化，patch 性能业界领先。React 选择「运行时通用」，靠 Fiber 架构保住交互流畅。两套不同设计哲学。</div>
 </div></article>
 <article class="qa-block" data-num="125" id="q125">
     <div class="question">
       <span class="q-num">Q125</span>
-      <span class="q-title">React Router 5 和 6 的主要区别？</span>
-      <span class="q-tag">★</span>
+      <span class="q-title">Hooks 为什么不能在条件 / 循环里调用？原理是什么？</span>
+      <span class="q-tag">★★★ 原理题</span>
       <button class="qa-toggle" data-num="125" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="125" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">v6：Routes 替 Switch / useNavigate 替 useHistory / Outlet 嵌套</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">v6 自动精确匹配</span><span class="anchor-arrow">→</span><span class="anchor-kw">useNavigate (replace useHistory)</span><span class="anchor-arrow">→</span><span class="anchor-kw">&lt;Outlet /&gt; 渲染嵌套子路由</span><span class="anchor-arrow">→</span><span class="anchor-kw">v6 体积减半</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Hook 必须按相同顺序调用：单链表存放（按调用顺序对应）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Fiber 节点上挂 hooks 链表</span><span class="anchor-arrow">→</span><span class="anchor-kw">按调用顺序对应</span><span class="anchor-arrow">→</span><span class="anchor-kw">条件/循环/嵌套调用 → 顺序错乱</span><span class="anchor-arrow">→</span><span class="anchor-kw">ESLint react-hooks/rules-of-hooks 自动检测</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<ul class="ans-content"><li class="level-0">v6 用 Routes 替代 Switch，自动精确匹配。</li><li class="level-0">v6 组件式路由配置更简洁，去掉 render/children props。</li><li class="level-0">v6 新增 useNavigate 替代 useHistory。</li><li class="level-0">v6 支持嵌套路由 &lt;Outlet /&gt; 渲染子路由。</li><li class="level-0">v6 体积减小一半。</li></ul>
+<p class="ans-content ">React 的 Hooks 规则：**只能在函数组件最顶层调用**，不能在条件/循环/嵌套函数里。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// ✅ 正确
+function Comp() {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  useEffect(() =&gt; {/*...*/}, []);
+}
+
+// ❌ 错误（条件调用）
+function Comp({ flag }) {
+  if (flag) {
+    const [a, setA] = useState(0);  // 每次条件不同，hooks 顺序错乱
+  }
+  const [b, setB] = useState(0);
+}</code></pre>
+<h3 class="ans-content">原理：单链表 + 调用顺序</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// React 内部（简化版）
+let currentFiber;
+let hookIndex = 0;
+
+function useState(initial) {
+  const fiber = currentFiber;
+  // 第一次渲染：创建新 hook，挂到 fiber.hooks 链表
+  // 后续渲染：按 hookIndex 取出对应位置的 hook
+  let hook = fiber.hooks[hookIndex];
+  if (!hook) {
+    hook = { state: initial, queue: [] };
+    fiber.hooks[hookIndex] = hook;
+  }
+  hookIndex++;
+  return [hook.state, (val) =&gt; { /* update */ }];
+}
+
+// 关键：每次渲染必须按相同顺序调用，hookIndex 才能对得上
+// 条件调用 → 第二次少一个，后续全错位</code></pre>
+<h3 class="ans-content">和 Vue3 setup 的对比</h3>
+<ul class="ans-content"><li class="level-0">Vue3 setup 只执行一次（组件实例化时），ref/computed 都是返回响应式对象。</li><li class="level-0">React 函数组件**每次渲染都重新执行**，靠 hooks 链表保持状态。</li><li class="level-0">所以 Vue3 不需要「调用顺序」规则，写法更自由。</li><li class="level-0">React 这个限制是函数组件 + 状态分离的代价。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>ESLint 插件 react-hooks/rules-of-hooks 会自动检测违反规则的代码。新项目必装。</div>
 </div></article>
 <article class="qa-block" data-num="126" id="q126">
     <div class="question">
       <span class="q-num">Q126</span>
-      <span class="q-title">Next.js 和 CRA（Create React App）的区别？</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">终极对比：React 和 Vue3 各自的设计哲学？</span>
+      <span class="q-tag">★★ 跨框架题必答</span>
       <button class="qa-toggle" data-num="126" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="126" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Next.js 全栈框架 / CRA 已废弃</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Next.js：SSR/SSG/ISR + 文件路由</span><span class="anchor-arrow">→</span><span class="anchor-kw">App Router + Server Components</span><span class="anchor-arrow">→</span><span class="anchor-kw">Vite + React 是 SPA 替代</span><span class="anchor-arrow">→</span><span class="anchor-kw">CRA 已不推荐</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">React vs Vue3 = 自由 vs 规范 / 拆分长任务 vs 精确响应</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">响应式：React 手动 / Vue3 Proxy</span><span class="anchor-arrow">→</span><span class="anchor-kw">更新粒度：React 子树 / Vue3 组件级</span><span class="anchor-arrow">→</span><span class="anchor-kw">DSL：JSX / 模板</span><span class="anchor-arrow">→</span><span class="anchor-kw">调度：Fiber 切片 / 不需要</span><span class="anchor-arrow">→</span><span class="anchor-kw">生态：自由选型 / 开箱即用</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<ul class="ans-content"><li class="level-0">CRA：纯 CSR 脚手架，启动快但首屏慢、SEO 差。2023 年已被 React 官方不推荐。</li><li class="level-0">Next.js：全栈框架，支持 SSR / SSG / ISR、自带路由（基于文件系统）、API Routes、图片优化等。</li><li class="level-0">Next.js 14/15 推出 App Router + React Server Components，未来趋势。</li></ul>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>2026 年 React 新项目：Next.js（SSR/SSG）或 Vite + React（SPA），不再用 CRA。</div>
+<p class="ans-content ">一张表说清两大框架的根本不同（面试时直接用这张表回答）：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:43%"><col style="width:43%"></colgroup><thead><tr><th>维度</th><th>React 18+</th><th>Vue 3</th></tr></thead><tbody><tr><td>设计哲学</td><td>JS 库（自由）</td><td>渐进式框架（约定）</td></tr><tr><td>响应式</td><td>手动 setState</td><td>Proxy 自动追踪</td></tr><tr><td>更新粒度</td><td>整棵子树重渲（靠 memo 优化）</td><td>组件级精确（依赖收集）</td></tr><tr><td>DSL</td><td>JSX（JS 表达式）</td><td>模板（HTML 增强）</td></tr><tr><td>编译期优化</td><td>几乎无</td><td>PatchFlags / 静态提升</td></tr><tr><td>调度</td><td>Fiber 时间切片（拆任务）</td><td>无（粒度小，不需要）</td></tr><tr><td>双向绑定</td><td>手动 value+onChange</td><td>v-model 语法糖</td></tr><tr><td>状态管理</td><td>Zustand/Redux/Jotai 等多选</td><td>Pinia（官方）</td></tr><tr><td>生态</td><td>百花齐放</td><td>官方齐全（Router/Pinia）</td></tr><tr><td>学习曲线</td><td>陡（JSX + 函数式）</td><td>平缓（先模板再 setup）</td></tr></tbody></table></div>
+<h3 class="ans-content">用 6 年前端经验切入 React 的话术</h3>
+<p class="ans-content " style="color:595959">「我主要用 Vue3，但学过 React Hooks 和 Next.js。两者核心思想相通：组件化 + 数据驱动。我熟悉 Vue3 的响应式原理（Proxy + 依赖收集），上手 React 的不同点主要是：① 手动管理状态（useState）② JSX 替代模板 ③ memo/useMemo 替代自动响应。给我 1-2 周适应就能正常输出。」</p>
 </div></article>
+<h2 class="ans-content">7.4 生态与新特性</h2>
 <article class="qa-block" data-num="127" id="q127">
     <div class="question">
       <span class="q-num">Q127</span>
-      <span class="q-title">React 19 / Next.js 16 有哪些新特性？</span>
-      <span class="q-tag">★★★ 前沿题</span>
+      <span class="q-title">Next.js 是什么？App Router 的核心？</span>
+      <span class="q-tag">★★ 必问</span>
       <button class="qa-toggle" data-num="127" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="127" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Server Components / use Hook / Actions / Turbopack / PPR</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">React 19：Server Components 稳定</span><span class="anchor-arrow">→</span><span class="anchor-kw">新 Hook：use() / useOptimistic / useActionState</span><span class="anchor-arrow">→</span><span class="anchor-kw">Server Actions（表单直调）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Next 16：Turbopack 默认 / PPR</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Next.js = React 的 Nuxt：SSR/SSG/ISR + 文件路由 + API Routes</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">文件路由 app/ 目录</span><span class="anchor-arrow">→</span><span class="anchor-kw">Server Components（默认）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Client Components 标 &#x27;use client&#x27;</span><span class="anchor-arrow">→</span><span class="anchor-kw">数据获取：fetch + cache</span><span class="anchor-arrow">→</span><span class="anchor-kw">Turbopack 替代 Webpack</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<ul class="ans-content"><li class="level-0">React 19 稳定了 Server Components：组件在服务端执行，减小客户端 bundle。</li><li class="level-0">新 Hook：use()（可以 await Promise）、useOptimistic（乐观更新）、useActionState（表单 action 状态）。</li><li class="level-0">Actions：服务端函数，表单直接调用，自动处理 loading/error。</li><li class="level-0">Next.js 16：Turbopack 成为默认打包工具（基于 Rust，比 Webpack 快 10x）。</li><li class="level-0">PPR（Partial Pre-Rendering）：静态 + 动态内容混合渲染。</li></ul>
-<p class="ans-content ">不要求深究，面试知道个大概能聊即可。</p>
+<p class="ans-content ">Next.js 是 React 生态最主流的全栈框架，相当于 Vue 的 Nuxt。2026 已是 React 项目的事实默认。</p>
+<h3 class="ans-content">App Router（13+）核心</h3>
+<pre class="ans-content code-block"><div class="code-lang">TSX</div><code>// app/blog/[slug]/page.tsx —— 文件路径即路由
+
+// Server Component（默认，零客户端 JS）
+export default async function BlogPost({ params }) {
+  const post = await fetchPost(params.slug);  // 服务端获取
+  return &lt;article&gt;{post.content}&lt;/article&gt;;
+}
+
+// Client Component（需要交互时）
+&#x27;use client&#x27;;
+import { useState } from &#x27;react&#x27;;
+export default function Counter() {
+  const [n, setN] = useState(0);
+  return &lt;button onClick={() =&gt; setN(n+1)}&gt;{n}&lt;/button&gt;;
+}
+
+// API Route（app/api/users/route.ts）
+export async function GET() {
+  return Response.json({ users: [...] });
+}</code></pre>
+<h3 class="ans-content">4 种渲染模式</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:22%"><col style="width:30%"><col style="width:48%"></colgroup><thead><tr><th>模式</th><th>什么时候渲染</th><th>适合场景</th></tr></thead><tbody><tr><td>SSG（静态生成）</td><td>构建时</td><td>博客、文档、营销页</td></tr><tr><td>SSR（服务端渲染）</td><td>每次请求</td><td>用户主页、个性化内容</td></tr><tr><td>ISR（增量再生）</td><td>首次请求 + 定时刷新</td><td>电商列表、新闻</td></tr><tr><td>CSR（客户端渲染）</td><td>浏览器</td><td>管理后台、纯交互应用</td></tr></tbody></table></div>
+<h3 class="ans-content">和 Nuxt 的对比</h3>
+<ul class="ans-content"><li class="level-0">本质相同：都是 SSR/SSG 全栈框架，文件路由，API Routes。</li><li class="level-0">Nuxt 3 + Vue3 = Next.js + React。</li><li class="level-0">Next.js 强在生态（Vercel、社区）；Nuxt 强在 DX（自动 import）。</li><li class="level-0">Vue 项目用 Nuxt，React 项目用 Next，几乎不用其他选项。</li></ul>
 </div></article>
 <article class="qa-block" data-num="128" id="q128">
     <div class="question">
       <span class="q-num">Q128</span>
-      <span class="q-title">对比 React 和 Vue，面试怎么展现你愿意学？</span>
-      <span class="q-tag">★★ 行为题</span>
+      <span class="q-title">React 19 和 Next.js 16 有哪些重要新特性？</span>
+      <span class="q-tag">★★ 2026 必问</span>
       <button class="qa-toggle" data-num="128" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="128" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">话术模板：核心思想共通 + Hooks 学过 + 1-2 周上手</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">承认主用 Vue，但学过 React Hooks/Next</span><span class="anchor-arrow">→</span><span class="anchor-kw">强调 6 年前端基础</span><span class="anchor-arrow">→</span><span class="anchor-kw">1-2 周上手主力开发</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">2026 React/Next 5 大新特性：RSC / use Hook / Actions / Turbopack / PPR</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Server Components（稳定）</span><span class="anchor-arrow">→</span><span class="anchor-kw">use() 替代 useEffect 数据获取</span><span class="anchor-arrow">→</span><span class="anchor-kw">Server Actions（表单直调）</span><span class="anchor-arrow">→</span><span class="anchor-kw">useOptimistic 乐观更新</span><span class="anchor-arrow">→</span><span class="anchor-kw">Turbopack 默认 + PPR</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">正向话术（背下来，面试遇到就用）：</p>
-<p class="ans-content ">“虽然我主要用 Vue3，但 React 的核心思想和 Vue 有很多共通点：虚拟 DOM、组件化、单向数据流。我业余时间也学习了 React Hooks 和 Next.js 的基础，做过小型 demo。我相信以我 6 年的前端基础，切换到 React 栈不会是问题，大概 1-2 周能上手主力开发。”</p>
-<p class="ans-content " style="color:C00000">避免说：“我不会 React”（直接减分）、“React 比 Vue 差”（贬低对方技术栈）。</p>
+<p class="ans-content ">React 19（2024 年底发布）+ Next.js 16（2026 春发布）带来的核心新特性：</p>
+<h3 class="ans-content">① React Server Components（RSC）—— 最大变革</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 默认是 Server Component（在服务器执行，零客户端 JS）
+async function ProductList() {
+  const products = await db.query(&#x27;SELECT * FROM products&#x27;);  // 直接查 DB
+  return products.map(p =&gt; &lt;Product key={p.id} {...p} /&gt;);
+}
+
+// 需要交互时切到 Client Component
+&#x27;use client&#x27;;
+function AddToCart({ id }) {
+  const [count, setCount] = useState(1);
+  return &lt;button onClick={() =&gt; setCount(c+1)}&gt;+1 ({count})&lt;/button&gt;;
+}</code></pre>
+<h3 class="ans-content">② use() Hook —— 替代 useEffect 取数据</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 老写法：useEffect 取数据
+useEffect(() =&gt; {
+  fetch(&#x27;/api/user&#x27;).then(r =&gt; r.json()).then(setUser);
+}, []);
+
+// 新写法：use Hook（结合 Suspense）
+function UserProfile() {
+  const user = use(fetchUser());  // 自动配合 Suspense 等待
+  return &lt;div&gt;{user.name}&lt;/div&gt;;
+}</code></pre>
+<h3 class="ans-content">③ Server Actions —— 表单直接调服务端</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// &#x27;use server&#x27; 函数可以直接在 form action 里调用
+async function saveUser(formData) {
+  &#x27;use server&#x27;;
+  await db.users.create(Object.fromEntries(formData));
+}
+
+&lt;form action={saveUser}&gt;
+  &lt;input name=&quot;name&quot; /&gt;
+  &lt;button&gt;保存&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<h3 class="ans-content">④ useOptimistic —— 乐观更新</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>const [optimistic, addOptimistic] = useOptimistic(
+  todos,
+  (state, newTodo) =&gt; [...state, newTodo]
+);
+
+const handleAdd = async (text) =&gt; {
+  addOptimistic({ id: &#x27;tmp&#x27;, text, pending: true });  // 立即显示
+  await actuallyAdd(text);                              // 后台请求
+};</code></pre>
+<h3 class="ans-content">⑤ Next.js 16 重大更新</h3>
+<ul class="ans-content"><li class="level-0">Turbopack 默认（替代 Webpack，开发提速 10x）。</li><li class="level-0">PPR（Partial Prerendering）部分预渲染：静态壳 + 动态填充。</li><li class="level-0">next/after：响应返回后异步处理。</li><li class="level-0">Cache 系统重写更可控。</li><li class="level-0">use cache 指令显式标记可缓存数据。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>面试加分话术：「我关注 React 19 的 Server Components，它解决了 SSR 一次性把数据/JS 都打包发的问题，是 React 全栈化的重要一步。Next.js 16 的 PPR 让静态部分秒出，动态部分流式渲染，体验显著提升。」</div>
 </div></article>
 <h1 id="sec-10" class="chapter">第八章  Python / FastAPI 面试题 —— 加分项</h1>
 <p class="ans-content p-italic" style="color:595959">你主攻前端，但 FastAPI 全栈经验（安装维护记录管理系统）是巨大亮点。本章 20 题，重点放在：Python 基础、FastAPI 核心、和前端协作的场景题。面试能答出 80% 就是很强的加分。</p>
@@ -5608,7 +6576,7 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
   <button class="back-top" id="backTop" title="回到顶部">↑</button>
 
   <script>
-const QUESTIONS = [{"num":1,"title":"说说 JS 的基本数据类型，如何判断数据类型？","tag":"字节、腾讯高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 js 的基本数据类型，如何判断数据类型？ 字节、腾讯高频"},{"num":2,"title":"var、let、const 的区别？","tag":"几乎必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"var、let、const 的区别？ 几乎必问"},{"num":3,"title":"== 和 === 的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"== 和 === 的区别？ ★"},{"num":4,"title":"谈谈你对闭包的理解？应用场景？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"谈谈你对闭包的理解？应用场景？ ★★"},{"num":5,"title":"说说 JavaScript 的原型和原型链","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 javascript 的原型和原型链 ★★"},{"num":6,"title":"this 指向的判断规则？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"this 指向的判断规则？ ★★"},{"num":7,"title":"浅拷贝和深拷贝的区别？如何实现深拷贝？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"浅拷贝和深拷贝的区别？如何实现深拷贝？ ★★"},{"num":8,"title":"说说 Event Loop（事件循环）","tag":"★★★ 超高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 event loop（事件循环） ★★★ 超高频"},{"num":9,"title":"手写一个简易 Promise","tag":"★★★ 字节、阿里必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写一个简易 promise ★★★ 字节、阿里必问"},{"num":10,"title":"Promise.all / allSettled / race / any 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"promise.all / allsettled / race / any 的区别？ ★★"},{"num":11,"title":"async/await 和 Promise 的关系？有什么优势？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"async/await 和 promise 的关系？有什么优势？ ★★"},{"num":12,"title":"手写防抖和节流","tag":"★★ 几乎必考","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写防抖和节流 ★★ 几乎必考"},{"num":13,"title":"手写 call / apply / bind","tag":"★★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写 call / apply / bind ★★★"},{"num":14,"title":"手写数组扁平化（flat）","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组扁平化（flat） ★★"},{"num":15,"title":"手写数组去重（多种方法）","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组去重（多种方法） ★"},{"num":16,"title":"箭头函数和普通函数的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"箭头函数和普通函数的区别？ ★"},{"num":17,"title":"解构赋值有哪些用法？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"解构赋值有哪些用法？ ★"},{"num":18,"title":"Map / Set / WeakMap / WeakSet 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"map / set / weakmap / weakset 的区别？ ★★"},{"num":19,"title":"Proxy 和 Object.defineProperty 的区别？","tag":"★★★ Vue 面试必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"proxy 和 object.defineproperty 的区别？ ★★★ vue 面试必问"},{"num":20,"title":"一次讲清 JS 继承的各种方式","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"一次讲清 js 继承的各种方式 ★★"},{"num":21,"title":"Vue3 相比 Vue2 做了哪些优化？","tag":"★★ 必问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 相比 vue2 做了哪些优化？ ★★ 必问"},{"num":22,"title":"Vue3 响应式原理 —— Proxy + Reflect","tag":"★★★ 超高频","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 响应式原理 —— proxy + reflect ★★★ 超高频"},{"num":23,"title":"ref 和 reactive 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"ref 和 reactive 的区别？ ★★"},{"num":24,"title":"computed 和 watch 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"computed 和 watch 的区别？ ★★"},{"num":25,"title":"Vue3 生命周期钩子有哪些？和 Vue2 的对应关系？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 生命周期钩子有哪些？和 vue2 的对应关系？ ★★"},{"num":26,"title":"Vue3 组件通信方式有哪些？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 组件通信方式有哪些？ ★★"},{"num":27,"title":"Vue2 为什么不能检测数组索引变化和对象新增属性？","tag":"★★ 经典题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue2 为什么不能检测数组索引变化和对象新增属性？ ★★ 经典题"},{"num":28,"title":"Vue 中 key 的作用是什么？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 中 key 的作用是什么？ ★★"},{"num":29,"title":"Vue Router 中 hash 和 history 模式的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue router 中 hash 和 history 模式的区别？ ★★"},{"num":30,"title":"Pinia 和 Vuex 的区别？为什么 Vue3 推荐 Pinia？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"pinia 和 vuex 的区别？为什么 vue3 推荐 pinia？ ★"},{"num":31,"title":"Vue 有了响应式系统，为什么还需要虚拟 DOM 和 diff？","tag":"★★★ 字节爱问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 有了响应式系统，为什么还需要虚拟 dom 和 diff？ ★★★ 字节爱问"},{"num":32,"title":"Vue3 编译时做了哪些优化？","tag":"★★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 编译时做了哪些优化？ ★★★"},{"num":33,"title":"说说 Vue 的 nextTick 原理","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 nexttick 原理 ★★"},{"num":34,"title":"说说 Vue 的 keep-alive","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 keep-alive ★★"},{"num":35,"title":"Vue 项目做过哪些性能优化？","tag":"★★★ 项目题必答","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 项目做过哪些性能优化？ ★★★ 项目题必答"},{"num":36,"title":"你在 Vue3 项目中踩过什么坑？","tag":"★★ 行为题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在 vue3 项目中踩过什么坑？ ★★ 行为题"},{"num":37,"title":"UniApp 一套代码多端运行的原理？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"uniapp 一套代码多端运行的原理？ ★★"},{"num":38,"title":"小程序和 H5 的区别？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"小程序和 h5 的区别？ ★"},{"num":39,"title":"你在项目中如何封装通用组件？以地图组件为例","tag":"★★ 项目亮点","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在项目中如何封装通用组件？以地图组件为例 ★★ 项目亮点"},{"num":40,"title":"如何实现一个全局弹窗组件（不依赖 UI 库）？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"如何实现一个全局弹窗组件（不依赖 ui 库）？ ★★"},{"num":41,"title":"TS 基础类型有哪些？any / unknown / never 的区别？","tag":"★★ 必问","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 基础类型有哪些？any / unknown / never 的区别？ ★★ 必问"},{"num":42,"title":"interface 和 type 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"interface 和 type 的区别？ ★★"},{"num":43,"title":"什么是泛型？举个实际例子","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"什么是泛型？举个实际例子 ★★"},{"num":44,"title":"TS 常用内置工具类型有哪些？","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 常用内置工具类型有哪些？ ★★★"},{"num":45,"title":"说说条件类型和 infer","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"说说条件类型和 infer ★★★"},{"num":46,"title":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？ ★★"},{"num":47,"title":"Vue3 + TS 中，defineProps 的类型写法？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"vue3 + ts 中，defineprops 的类型写法？ ★"},{"num":48,"title":"盒模型 —— 标准盒模型和 IE 盒模型的区别？","tag":"★ 必会","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"盒模型 —— 标准盒模型和 ie 盒模型的区别？ ★ 必会"},{"num":49,"title":"水平垂直居中的 N 种方法","tag":"★★ 必背","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"水平垂直居中的 n 种方法 ★★ 必背"},{"num":50,"title":"BFC 是什么？解决什么问题？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"bfc 是什么？解决什么问题？ ★★"},{"num":51,"title":"Flex 和 Grid 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"flex 和 grid 的区别？ ★★"},{"num":52,"title":"移动端 1px 问题如何解决？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"移动端 1px 问题如何解决？ ★★"},{"num":53,"title":"响应式布局的常见方案？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"响应式布局的常见方案？ ★★"},{"num":54,"title":"CSS 动画性能优化的关键点？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 动画性能优化的关键点？ ★★"},{"num":55,"title":"CSS 重排（Reflow）和重绘（Repaint）的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 重排（reflow）和重绘（repaint）的区别？ ★★"},{"num":56,"title":"CSS 选择器的优先级和计算规则？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 选择器的优先级和计算规则？ ★"},{"num":57,"title":"Sass/Less 和 Tailwind CSS 的区别？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"sass/less 和 tailwind css 的区别？ ★"},{"num":58,"title":"如何实现 CSS 深度作用域（scoped）和样式穿透？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"如何实现 css 深度作用域（scoped）和样式穿透？ ★★"},{"num":59,"title":"Webpack 的构建流程？","tag":"★★ 必会","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的构建流程？ ★★ 必会"},{"num":60,"title":"Loader 和 Plugin 的区别？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"loader 和 plugin 的区别？ ★★"},{"num":61,"title":"常用 Webpack 性能优化手段","tag":"★★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"常用 webpack 性能优化手段 ★★★"},{"num":62,"title":"Webpack 的 Tree Shaking 原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的 tree shaking 原理？ ★★"},{"num":63,"title":"HMR（热模块替换）原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"hmr（热模块替换）原理？ ★★"},{"num":64,"title":"Vite 为什么比 Webpack 快？","tag":"★★★ 字节高频","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 为什么比 webpack 快？ ★★★ 字节高频"},{"num":65,"title":"Vite 的预构建是什么？为什么需要？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的预构建是什么？为什么需要？ ★★"},{"num":66,"title":"Vite 的 HMR 和 Webpack 的 HMR 有什么不同？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的 hmr 和 webpack 的 hmr 有什么不同？ ★★"},{"num":67,"title":"Vite 和 Webpack 如何选择？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 和 webpack 如何选择？ ★★"},{"num":68,"title":"Webpack 和 Vite 有哪些代码分割策略？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 和 vite 有哪些代码分割策略？ ★★"},{"num":69,"title":"CI/CD 流程你是怎么搭的？","tag":"★★ 结合你的 Jenkins 经验","chapter":"第四章  Webpack / Vite 工程化","keywords":"ci/cd 流程你是怎么搭的？ ★★ 结合你的 jenkins 经验"},{"num":70,"title":"Monorepo 的优势？pnpm workspace 了解吗？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"monorepo 的优势？pnpm workspace 了解吗？ ★★"},{"num":71,"title":"从输入 URL 到页面呈现的全过程？","tag":"★★★ 大厂必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"从输入 url 到页面呈现的全过程？ ★★★ 大厂必问"},{"num":72,"title":"浏览器的缓存机制？强缓存和协商缓存的区别？","tag":"★★ 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器的缓存机制？强缓存和协商缓存的区别？ ★★ 必问"},{"num":73,"title":"浏览器渲染流程？什么是回流和重绘？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器渲染流程？什么是回流和重绘？ ★★"},{"num":74,"title":"Cookie / LocalStorage / SessionStorage / IndexedDB 的区别？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"cookie / localstorage / sessionstorage / indexeddb 的区别？ ★"},{"num":75,"title":"HTTP/1.1、HTTP/2、HTTP/3 的区别？","tag":"★★★ 2026 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http/1.1、http/2、http/3 的区别？ ★★★ 2026 必问"},{"num":76,"title":"HTTP 和 HTTPS 的区别？HTTPS 加密流程？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http 和 https 的区别？https 加密流程？ ★★"},{"num":77,"title":"TCP 三次握手和四次挥手？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"tcp 三次握手和四次挥手？ ★★"},{"num":78,"title":"WebSocket 和 HTTP / SSE 的区别？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"websocket 和 http / sse 的区别？ ★★"},{"num":79,"title":"前端跨域的常见解决方案？","tag":"★★ 必会","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端跨域的常见解决方案？ ★★ 必会"},{"num":80,"title":"JWT 认证机制的原理和优缺点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"jwt 认证机制的原理和优缺点？ ★★"},{"num":81,"title":"XSS 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"xss 攻击和防御 ★★"},{"num":82,"title":"CSRF 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"csrf 攻击和防御 ★★"},{"num":83,"title":"点击劫持（ClickJacking）和防御","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"点击劫持（clickjacking）和防御 ★"},{"num":84,"title":"核心 Web 性能指标（Core Web Vitals）是什么？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"核心 web 性能指标（core web vitals）是什么？ ★★"},{"num":85,"title":"前端性能优化的完整清单？","tag":"★★★ 大厂爱问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端性能优化的完整清单？ ★★★ 大厂爱问"},{"num":86,"title":"SPA 首屏白屏优化方案？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"spa 首屏白屏优化方案？ ★★★"},{"num":87,"title":"虚拟列表（Virtual List）的实现原理？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"虚拟列表（virtual list）的实现原理？ ★★★"},{"num":88,"title":"内存泄漏的常见场景和检测？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"内存泄漏的常见场景和检测？ ★★"},{"num":89,"title":"谈谈 SSR / SSG / CSR 的区别和选型","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"谈谈 ssr / ssg / csr 的区别和选型 ★★"},{"num":90,"title":"微前端是什么？有哪些方案？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"微前端是什么？有哪些方案？ ★★"},{"num":91,"title":"PWA 是什么？核心技术？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"pwa 是什么？核心技术？ ★"},{"num":92,"title":"前端监控体系如何搭建？","tag":"★★ 项目亮点","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端监控体系如何搭建？ ★★ 项目亮点"},{"num":93,"title":"Nginx 配置 history 模式和 gzip 怎么写？","tag":"★ 运维基础","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nginx 配置 history 模式和 gzip 怎么写？ ★ 运维基础"},{"num":94,"title":"大文件分片上传 + 断点续传如何实现？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"大文件分片上传 + 断点续传如何实现？ ★★★"},{"num":95,"title":"React 和 Vue 的核心区别？","tag":"★★ 跨框架题","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"react 和 vue 的核心区别？ ★★ 跨框架题"},{"num":96,"title":"ECharts 的底层渲染原理？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 的底层渲染原理？ ★★"},{"num":97,"title":"ECharts 性能优化（十万级数据不卡顿）","tag":"★★★ 你项目亮点","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 性能优化（十万级数据不卡顿） ★★★ 你项目亮点"},{"num":98,"title":"ECharts 在 Vue 项目中如何封装？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 在 vue 项目中如何封装？ ★★"},{"num":99,"title":"大屏项目自适应方案？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏项目自适应方案？ ★★"},{"num":100,"title":"大屏开发有哪些容易踩的坑？","tag":"★★ 结合你的项目","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏开发有哪些容易踩的坑？ ★★ 结合你的项目"},{"num":101,"title":"OpenLayers 和 Cesium 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"openlayers 和 cesium 的区别？什么场景选哪个？ ★★"},{"num":102,"title":"用 OpenLayers 封装船舶渲染引擎的思路？","tag":"★★★ 项目深挖题","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 openlayers 封装船舶渲染引擎的思路？ ★★★ 项目深挖题"},{"num":103,"title":"Cesium 大场景性能优化","tag":"★★★ 新都区项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 大场景性能优化 ★★★ 新都区项目可讲"},{"num":104,"title":"预警围栏判定算法的实现思路？","tag":"★★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"预警围栏判定算法的实现思路？ ★★★"},{"num":105,"title":"说说海康 SDK 和 WebRTC 接入的流程","tag":"★★ 项目深挖","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"说说海康 sdk 和 webrtc 接入的流程 ★★ 项目深挖"},{"num":106,"title":"WebRTC 和 HLS / flv.js 的区别？什么场景选什么？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webrtc 和 hls / flv.js 的区别？什么场景选什么？ ★★"},{"num":107,"title":"多路视频同时播放的性能优化？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"多路视频同时播放的性能优化？ ★★"},{"num":108,"title":"WebGIS 中矢量数据和栅格数据的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webgis 中矢量数据和栅格数据的区别？ ★"},{"num":109,"title":"WMTS / WMS / TMS 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"wmts / wms / tms 的区别？ ★"},{"num":110,"title":"高德 / 百度地图和 OpenLayers 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"高德 / 百度地图和 openlayers 的区别？ ★"},{"num":111,"title":"React 的核心思想？和 Vue 的根本区别？","tag":"★★ 跨框架题必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的核心思想？和 vue 的根本区别？ ★★ 跨框架题必问"},{"num":112,"title":"JSX 是什么？如何工作？","tag":"★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"jsx 是什么？如何工作？ ★"},{"num":113,"title":"函数组件 vs 类组件？为什么 Hooks 出现？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"函数组件 vs 类组件？为什么 hooks 出现？ ★★"},{"num":114,"title":"useState 的使用和原理","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usestate 的使用和原理 ★★"},{"num":115,"title":"useEffect 的用法和陷阱","tag":"★★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useeffect 的用法和陷阱 ★★★ 必问"},{"num":116,"title":"useMemo 和 useCallback 的区别？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usememo 和 usecallback 的区别？ ★★"},{"num":117,"title":"useRef 有哪些用法？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useref 有哪些用法？ ★★"},{"num":118,"title":"useContext 的用法？什么时候用，什么时候不用？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usecontext 的用法？什么时候用，什么时候不用？ ★★"},{"num":119,"title":"自定义 Hook 怎么写？举一个实际例子","tag":"★★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"自定义 hook 怎么写？举一个实际例子 ★★★"},{"num":120,"title":"React 的虚拟 DOM 和 diff 算法","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的虚拟 dom 和 diff 算法 ★★"},{"num":121,"title":"React Fiber 架构是什么？","tag":"★★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react fiber 架构是什么？ ★★★"},{"num":122,"title":"受控组件和非受控组件？","tag":"★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"受控组件和非受控组件？ ★"},{"num":123,"title":"React 状态管理方案对比","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 状态管理方案对比 ★★"},{"num":124,"title":"React 性能优化","tag":"★★ 几乎必考","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 性能优化 ★★ 几乎必考"},{"num":125,"title":"React Router 5 和 6 的主要区别？","tag":"★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react router 5 和 6 的主要区别？ ★"},{"num":126,"title":"Next.js 和 CRA（Create React App）的区别？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"next.js 和 cra（create react app）的区别？ ★★"},{"num":127,"title":"React 19 / Next.js 16 有哪些新特性？","tag":"★★★ 前沿题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 19 / next.js 16 有哪些新特性？ ★★★ 前沿题"},{"num":128,"title":"对比 React 和 Vue，面试怎么展现你愿意学？","tag":"★★ 行为题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"对比 react 和 vue，面试怎么展现你愿意学？ ★★ 行为题"},{"num":129,"title":"Python 的可变类型和不可变类型？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的可变类型和不可变类型？ ★"},{"num":130,"title":"列表、元组、字典、集合的区别？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"列表、元组、字典、集合的区别？ ★"},{"num":131,"title":"Python 的装饰器是什么？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的装饰器是什么？ ★★"},{"num":132,"title":"Python 的 GIL 是什么？对性能有什么影响？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的 gil 是什么？对性能有什么影响？ ★★"},{"num":133,"title":"list 的常用切片和推导式？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"list 的常用切片和推导式？ ★"},{"num":134,"title":"with 语句和上下文管理器？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"with 语句和上下文管理器？ ★"},{"num":135,"title":"为什么选 FastAPI？相比 Flask / Django 有什么优势？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"为什么选 fastapi？相比 flask / django 有什么优势？ ★★"},{"num":136,"title":"FastAPI 的基本用法？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的基本用法？ ★"},{"num":137,"title":"Pydantic 是什么？怎么做数据验证？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"pydantic 是什么？怎么做数据验证？ ★★"},{"num":138,"title":"FastAPI 的依赖注入系统怎么用？","tag":"★★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的依赖注入系统怎么用？ ★★★"},{"num":139,"title":"同步和异步路由什么时候选哪个？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"同步和异步路由什么时候选哪个？ ★★"},{"num":140,"title":"FastAPI 如何做 JWT 认证？","tag":"★★ 你项目用过","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做 jwt 认证？ ★★ 你项目用过"},{"num":141,"title":"FastAPI 如何配置 CORS 跨域？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何配置 cors 跨域？ ★"},{"num":142,"title":"FastAPI 怎么接 SQLAlchemy？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 怎么接 sqlalchemy？ ★★"},{"num":143,"title":"FastAPI 如何做文件上传？大文件如何处理？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做文件上传？大文件如何处理？ ★★"},{"num":144,"title":"FastAPI 的后台任务和 Celery 区别？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的后台任务和 celery 区别？ ★★"},{"num":145,"title":"你在安装维护记录系统里，前后端是怎么设计接口规范的？","tag":"★★★ 项目亮点","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"你在安装维护记录系统里，前后端是怎么设计接口规范的？ ★★★ 项目亮点"},{"num":146,"title":"FastAPI 项目如何部署？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 项目如何部署？ ★★"},{"num":147,"title":"数据库表结构设计，你是怎么考虑的？","tag":"★★ 项目深挖","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"数据库表结构设计，你是怎么考虑的？ ★★ 项目深挖"},{"num":148,"title":"FastAPI 的性能瓶颈怎么定位？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的性能瓶颈怎么定位？ ★★"},{"num":149,"title":"你日常用哪些 AI 编程工具？怎么选？","tag":"★ 开场题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你日常用哪些 ai 编程工具？怎么选？ ★ 开场题"},{"num":150,"title":"Cursor 和 Claude Code 有什么区别？","tag":"★★ 2026 高频","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"cursor 和 claude code 有什么区别？ ★★ 2026 高频"},{"num":151,"title":"Vibe Coding 和 Spec Coding 的区别？","tag":"★★ 概念题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"vibe coding 和 spec coding 的区别？ ★★ 概念题"},{"num":152,"title":"日常开发怎么把 AI 融入工作流？给个具体例子","tag":"★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"日常开发怎么把 ai 融入工作流？给个具体例子 ★★ 必问"},{"num":153,"title":"AI 生成的代码你怎么保证质量？","tag":"★★★ 深度题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 生成的代码你怎么保证质量？ ★★★ 深度题"},{"num":154,"title":"如何写出让 AI 更懂你的 Prompt？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"如何写出让 ai 更懂你的 prompt？ ★★"},{"num":155,"title":"MCP（Model Context Protocol）是什么？","tag":"★★ 前沿热点","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"mcp（model context protocol）是什么？ ★★ 前沿热点"},{"num":156,"title":"Claude Skills 是什么？怎么用？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"claude skills 是什么？怎么用？ ★★"},{"num":157,"title":"你理解的企业级成熟 AI 工作流是什么样？","tag":"★★★ 核心问题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你理解的企业级成熟 ai 工作流是什么样？ ★★★ 核心问题"},{"num":158,"title":"AI 时代，前端工程师的核心竞争力是什么？","tag":"★★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 时代，前端工程师的核心竞争力是什么？ ★★★ 必问"},{"num":159,"title":"初级程序员会被 AI 淘汰吗？","tag":"★★ 行为题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"初级程序员会被 ai 淘汰吗？ ★★ 行为题"},{"num":160,"title":"AI 工作流的风险和规避？","tag":"★★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 工作流的风险和规避？ ★★★"},{"num":161,"title":"前端开发用 AI 的一个失败案例？","tag":"★★ 真实感题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"前端开发用 ai 的一个失败案例？ ★★ 真实感题"},{"num":162,"title":"未来 3 年，你怎么规划自己的技术成长？","tag":"★★ 终面爱问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"未来 3 年，你怎么规划自己的技术成长？ ★★ 终面爱问"},{"num":163,"title":"你认为 AI 能取代前端工程师吗？","tag":"★★ 哲学题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你认为 ai 能取代前端工程师吗？ ★★ 哲学题"},{"num":164,"title":"什么是 LLM？它和传统 NLP 模型的本质区别？","tag":"★ 开场题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 llm？它和传统 nlp 模型的本质区别？ ★ 开场题"},{"num":165,"title":"Transformer 的自注意力机制？为什么比 RNN 更适合处理长序列？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"transformer 的自注意力机制？为什么比 rnn 更适合处理长序列？ ★★"},{"num":166,"title":"Temperature、Top-p、Top-k 采样参数的区别？","tag":"★★ 调参必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"temperature、top-p、top-k 采样参数的区别？ ★★ 调参必问"},{"num":167,"title":"幻觉（Hallucination）是什么？怎么缓解？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"幻觉（hallucination）是什么？怎么缓解？ ★★★"},{"num":168,"title":"Prompt Engineering 的核心技巧？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"prompt engineering 的核心技巧？ ★★"},{"num":169,"title":"什么是 AI Agent？它和普通 LLM 调用的本质区别？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 ai agent？它和普通 llm 调用的本质区别？ ★★★ 必问"},{"num":170,"title":"ReAct、CoT、ToT 三种规划方法的区别？","tag":"★★★ 2026 高频","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"react、cot、tot 三种规划方法的区别？ ★★★ 2026 高频"},{"num":171,"title":"Agent 常见失败模式？如何解决？","tag":"★★★ 实战题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 常见失败模式？如何解决？ ★★★ 实战题"},{"num":172,"title":"如何设计一个生产级的 Agent 框架？","tag":"★★★ 架构题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何设计一个生产级的 agent 框架？ ★★★ 架构题"},{"num":173,"title":"多 Agent 协作的优势和挑战？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"多 agent 协作的优势和挑战？ ★★"},{"num":174,"title":"RAG 的完整流程？相比微调的优势？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 的完整流程？相比微调的优势？ ★★★ 必问"},{"num":175,"title":"RAG 检索质量差？怎么优化？","tag":"★★★ 生产题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 检索质量差？怎么优化？ ★★★ 生产题"},{"num":176,"title":"\"Lost in the Middle\" 问题是什么？怎么解决？","tag":"★★★ 2026 前沿","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"\"lost in the middle\" 问题是什么？怎么解决？ ★★★ 2026 前沿"},{"num":177,"title":"如何评估 RAG 系统的效果？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何评估 rag 系统的效果？ ★★"},{"num":178,"title":"主流向量数据库对比？怎么选？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"主流向量数据库对比？怎么选？ ★★"},{"num":179,"title":"向量检索的原理？HNSW 算法怎么工作？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"向量检索的原理？hnsw 算法怎么工作？ ★★★"},{"num":180,"title":"相似度计算用余弦相似度还是点积？欧氏距离呢？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"相似度计算用余弦相似度还是点积？欧氏距离呢？ ★★"},{"num":181,"title":"LangChain、LangGraph、LlamaIndex 的区别？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain、langgraph、llamaindex 的区别？ ★★★"},{"num":182,"title":"LangChain 有什么劣势？如果让你设计 Agent 框架你会怎么优化？","tag":"★★★ 深度追问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain 有什么劣势？如果让你设计 agent 框架你会怎么优化？ ★★★ 深度追问"},{"num":183,"title":"MCP（Model Context Protocol）是什么？","tag":"★★★ 2026 热点","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"mcp（model context protocol）是什么？ ★★★ 2026 热点"},{"num":184,"title":"A2A（Agent-to-Agent）协议了解吗？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"a2a（agent-to-agent）协议了解吗？ ★★"},{"num":185,"title":"AG-UI 协议是什么？","tag":"★★ 前端相关","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ag-ui 协议是什么？ ★★ 前端相关"},{"num":186,"title":"Agent 应用的成本怎么控制？","tag":"★★ 落地题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的成本怎么控制？ ★★ 落地题"},{"num":187,"title":"怎么给 Agent 加护栏（Guardrails）保证安全？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"怎么给 agent 加护栏（guardrails）保证安全？ ★★"},{"num":188,"title":"Agent 应用的可观测性怎么做？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的可观测性怎么做？ ★★"},{"num":189,"title":"给你个项目 —— 为企业做一个客服 Agent，你怎么设计？","tag":"★★★ 系统设计题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"给你个项目 —— 为企业做一个客服 agent，你怎么设计？ ★★★ 系统设计题"},{"num":190,"title":"你从前端/全栈转 AI Agent，优势是什么？","tag":"★★ 转型话术","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"你从前端/全栈转 ai agent，优势是什么？ ★★ 转型话术"},{"num":191,"title":"AI Agent 方向值得转吗？风险是什么？","tag":"★ 思考题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ai agent 方向值得转吗？风险是什么？ ★ 思考题"}];
+const QUESTIONS = [{"num":1,"title":"说说 JS 的基本数据类型，如何判断数据类型？","tag":"字节、腾讯高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 js 的基本数据类型，如何判断数据类型？ 字节、腾讯高频"},{"num":2,"title":"var、let、const 的区别？","tag":"几乎必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"var、let、const 的区别？ 几乎必问"},{"num":3,"title":"== 和 === 的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"== 和 === 的区别？ ★"},{"num":4,"title":"谈谈你对闭包的理解？应用场景？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"谈谈你对闭包的理解？应用场景？ ★★"},{"num":5,"title":"说说 JavaScript 的原型和原型链","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 javascript 的原型和原型链 ★★"},{"num":6,"title":"this 指向的判断规则？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"this 指向的判断规则？ ★★"},{"num":7,"title":"浅拷贝和深拷贝的区别？如何实现深拷贝？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"浅拷贝和深拷贝的区别？如何实现深拷贝？ ★★"},{"num":8,"title":"说说 Event Loop（事件循环）","tag":"★★★ 超高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 event loop（事件循环） ★★★ 超高频"},{"num":9,"title":"手写一个简易 Promise","tag":"★★★ 字节、阿里必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写一个简易 promise ★★★ 字节、阿里必问"},{"num":10,"title":"Promise.all / allSettled / race / any 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"promise.all / allsettled / race / any 的区别？ ★★"},{"num":11,"title":"async/await 和 Promise 的关系？有什么优势？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"async/await 和 promise 的关系？有什么优势？ ★★"},{"num":12,"title":"手写防抖和节流","tag":"★★ 几乎必考","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写防抖和节流 ★★ 几乎必考"},{"num":13,"title":"手写 call / apply / bind","tag":"★★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写 call / apply / bind ★★★"},{"num":14,"title":"手写数组扁平化（flat）","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组扁平化（flat） ★★"},{"num":15,"title":"手写数组去重（多种方法）","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组去重（多种方法） ★"},{"num":16,"title":"箭头函数和普通函数的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"箭头函数和普通函数的区别？ ★"},{"num":17,"title":"解构赋值有哪些用法？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"解构赋值有哪些用法？ ★"},{"num":18,"title":"Map / Set / WeakMap / WeakSet 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"map / set / weakmap / weakset 的区别？ ★★"},{"num":19,"title":"Proxy 和 Object.defineProperty 的区别？","tag":"★★★ Vue 面试必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"proxy 和 object.defineproperty 的区别？ ★★★ vue 面试必问"},{"num":20,"title":"一次讲清 JS 继承的各种方式","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"一次讲清 js 继承的各种方式 ★★"},{"num":21,"title":"Vue3 相比 Vue2 做了哪些优化？","tag":"★★ 必问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 相比 vue2 做了哪些优化？ ★★ 必问"},{"num":22,"title":"Vue3 响应式原理 —— Proxy + Reflect","tag":"★★★ 超高频","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 响应式原理 —— proxy + reflect ★★★ 超高频"},{"num":23,"title":"ref 和 reactive 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"ref 和 reactive 的区别？ ★★"},{"num":24,"title":"computed 和 watch 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"computed 和 watch 的区别？ ★★"},{"num":25,"title":"Vue3 生命周期钩子有哪些？和 Vue2 的对应关系？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 生命周期钩子有哪些？和 vue2 的对应关系？ ★★"},{"num":26,"title":"Vue3 组件通信方式有哪些？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 组件通信方式有哪些？ ★★"},{"num":27,"title":"Vue2 为什么不能检测数组索引变化和对象新增属性？","tag":"★★ 经典题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue2 为什么不能检测数组索引变化和对象新增属性？ ★★ 经典题"},{"num":28,"title":"Vue 中 key 的作用是什么？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 中 key 的作用是什么？ ★★"},{"num":29,"title":"Vue Router 中 hash 和 history 模式的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue router 中 hash 和 history 模式的区别？ ★★"},{"num":30,"title":"Pinia 和 Vuex 的区别？为什么 Vue3 推荐 Pinia？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"pinia 和 vuex 的区别？为什么 vue3 推荐 pinia？ ★"},{"num":31,"title":"Vue 有了响应式系统，为什么还需要虚拟 DOM 和 diff？","tag":"★★★ 字节爱问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 有了响应式系统，为什么还需要虚拟 dom 和 diff？ ★★★ 字节爱问"},{"num":32,"title":"Vue3 编译时做了哪些优化？","tag":"★★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 编译时做了哪些优化？ ★★★"},{"num":33,"title":"说说 Vue 的 nextTick 原理","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 nexttick 原理 ★★"},{"num":34,"title":"说说 Vue 的 keep-alive","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 keep-alive ★★"},{"num":35,"title":"Vue 项目做过哪些性能优化？","tag":"★★★ 项目题必答","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 项目做过哪些性能优化？ ★★★ 项目题必答"},{"num":36,"title":"你在 Vue3 项目中踩过什么坑？","tag":"★★ 行为题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在 vue3 项目中踩过什么坑？ ★★ 行为题"},{"num":37,"title":"UniApp 一套代码多端运行的原理？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"uniapp 一套代码多端运行的原理？ ★★"},{"num":38,"title":"小程序和 H5 的区别？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"小程序和 h5 的区别？ ★"},{"num":39,"title":"你在项目中如何封装通用组件？以地图组件为例","tag":"★★ 项目亮点","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在项目中如何封装通用组件？以地图组件为例 ★★ 项目亮点"},{"num":40,"title":"如何实现一个全局弹窗组件（不依赖 UI 库）？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"如何实现一个全局弹窗组件（不依赖 ui 库）？ ★★"},{"num":41,"title":"TS 基础类型有哪些？any / unknown / never 的区别？","tag":"★★ 必问","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 基础类型有哪些？any / unknown / never 的区别？ ★★ 必问"},{"num":42,"title":"interface 和 type 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"interface 和 type 的区别？ ★★"},{"num":43,"title":"什么是泛型？举个实际例子","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"什么是泛型？举个实际例子 ★★"},{"num":44,"title":"TS 常用内置工具类型有哪些？","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 常用内置工具类型有哪些？ ★★★"},{"num":45,"title":"说说条件类型和 infer","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"说说条件类型和 infer ★★★"},{"num":46,"title":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？ ★★"},{"num":47,"title":"Vue3 + TS 中，defineProps 的类型写法？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"vue3 + ts 中，defineprops 的类型写法？ ★"},{"num":48,"title":"盒模型 —— 标准盒模型和 IE 盒模型的区别？","tag":"★ 必会","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"盒模型 —— 标准盒模型和 ie 盒模型的区别？ ★ 必会"},{"num":49,"title":"水平垂直居中的 N 种方法","tag":"★★ 必背","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"水平垂直居中的 n 种方法 ★★ 必背"},{"num":50,"title":"BFC 是什么？解决什么问题？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"bfc 是什么？解决什么问题？ ★★"},{"num":51,"title":"Flex 和 Grid 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"flex 和 grid 的区别？ ★★"},{"num":52,"title":"移动端 1px 问题如何解决？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"移动端 1px 问题如何解决？ ★★"},{"num":53,"title":"响应式布局的常见方案？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"响应式布局的常见方案？ ★★"},{"num":54,"title":"CSS 动画性能优化的关键点？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 动画性能优化的关键点？ ★★"},{"num":55,"title":"CSS 重排（Reflow）和重绘（Repaint）的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 重排（reflow）和重绘（repaint）的区别？ ★★"},{"num":56,"title":"CSS 选择器的优先级和计算规则？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 选择器的优先级和计算规则？ ★"},{"num":57,"title":"Sass/Less 和 Tailwind CSS 的区别？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"sass/less 和 tailwind css 的区别？ ★"},{"num":58,"title":"如何实现 CSS 深度作用域（scoped）和样式穿透？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"如何实现 css 深度作用域（scoped）和样式穿透？ ★★"},{"num":59,"title":"Webpack 的构建流程？","tag":"★★ 必会","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的构建流程？ ★★ 必会"},{"num":60,"title":"Loader 和 Plugin 的区别？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"loader 和 plugin 的区别？ ★★"},{"num":61,"title":"常用 Webpack 性能优化手段","tag":"★★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"常用 webpack 性能优化手段 ★★★"},{"num":62,"title":"Webpack 的 Tree Shaking 原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的 tree shaking 原理？ ★★"},{"num":63,"title":"HMR（热模块替换）原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"hmr（热模块替换）原理？ ★★"},{"num":64,"title":"Vite 为什么比 Webpack 快？","tag":"★★★ 字节高频","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 为什么比 webpack 快？ ★★★ 字节高频"},{"num":65,"title":"Vite 的预构建是什么？为什么需要？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的预构建是什么？为什么需要？ ★★"},{"num":66,"title":"Vite 的 HMR 和 Webpack 的 HMR 有什么不同？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的 hmr 和 webpack 的 hmr 有什么不同？ ★★"},{"num":67,"title":"Vite 和 Webpack 如何选择？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 和 webpack 如何选择？ ★★"},{"num":68,"title":"Webpack 和 Vite 有哪些代码分割策略？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 和 vite 有哪些代码分割策略？ ★★"},{"num":69,"title":"CI/CD 流程你是怎么搭的？","tag":"★★ 结合你的 Jenkins 经验","chapter":"第四章  Webpack / Vite 工程化","keywords":"ci/cd 流程你是怎么搭的？ ★★ 结合你的 jenkins 经验"},{"num":70,"title":"Monorepo 的优势？pnpm workspace 了解吗？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"monorepo 的优势？pnpm workspace 了解吗？ ★★"},{"num":71,"title":"从输入 URL 到页面呈现的全过程？","tag":"★★★ 大厂必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"从输入 url 到页面呈现的全过程？ ★★★ 大厂必问"},{"num":72,"title":"浏览器的缓存机制？强缓存和协商缓存的区别？","tag":"★★ 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器的缓存机制？强缓存和协商缓存的区别？ ★★ 必问"},{"num":73,"title":"浏览器渲染流程？什么是回流和重绘？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器渲染流程？什么是回流和重绘？ ★★"},{"num":74,"title":"Cookie / LocalStorage / SessionStorage / IndexedDB 的区别？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"cookie / localstorage / sessionstorage / indexeddb 的区别？ ★"},{"num":75,"title":"HTTP/1.1、HTTP/2、HTTP/3 的区别？","tag":"★★★ 2026 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http/1.1、http/2、http/3 的区别？ ★★★ 2026 必问"},{"num":76,"title":"HTTP 和 HTTPS 的区别？HTTPS 加密流程？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http 和 https 的区别？https 加密流程？ ★★"},{"num":77,"title":"TCP 三次握手和四次挥手？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"tcp 三次握手和四次挥手？ ★★"},{"num":78,"title":"WebSocket 和 HTTP / SSE 的区别？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"websocket 和 http / sse 的区别？ ★★"},{"num":79,"title":"前端跨域的常见解决方案？","tag":"★★ 必会","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端跨域的常见解决方案？ ★★ 必会"},{"num":80,"title":"JWT 认证机制的原理和优缺点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"jwt 认证机制的原理和优缺点？ ★★"},{"num":81,"title":"XSS 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"xss 攻击和防御 ★★"},{"num":82,"title":"CSRF 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"csrf 攻击和防御 ★★"},{"num":83,"title":"点击劫持（ClickJacking）和防御","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"点击劫持（clickjacking）和防御 ★"},{"num":84,"title":"核心 Web 性能指标（Core Web Vitals）是什么？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"核心 web 性能指标（core web vitals）是什么？ ★★"},{"num":85,"title":"前端性能优化的完整清单？","tag":"★★★ 大厂爱问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端性能优化的完整清单？ ★★★ 大厂爱问"},{"num":86,"title":"SPA 首屏白屏优化方案？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"spa 首屏白屏优化方案？ ★★★"},{"num":87,"title":"虚拟列表（Virtual List）的实现原理？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"虚拟列表（virtual list）的实现原理？ ★★★"},{"num":88,"title":"内存泄漏的常见场景和检测？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"内存泄漏的常见场景和检测？ ★★"},{"num":89,"title":"谈谈 SSR / SSG / CSR 的区别和选型","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"谈谈 ssr / ssg / csr 的区别和选型 ★★"},{"num":90,"title":"微前端是什么？有哪些方案？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"微前端是什么？有哪些方案？ ★★"},{"num":91,"title":"PWA 是什么？核心技术？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"pwa 是什么？核心技术？ ★"},{"num":92,"title":"前端监控体系如何搭建？","tag":"★★ 项目亮点","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端监控体系如何搭建？ ★★ 项目亮点"},{"num":93,"title":"Nginx 配置 history 模式和 gzip 怎么写？","tag":"★ 运维基础","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nginx 配置 history 模式和 gzip 怎么写？ ★ 运维基础"},{"num":94,"title":"大文件分片上传 + 断点续传如何实现？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"大文件分片上传 + 断点续传如何实现？ ★★★"},{"num":95,"title":"React 和 Vue 的核心区别？","tag":"★★ 跨框架题","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"react 和 vue 的核心区别？ ★★ 跨框架题"},{"num":96,"title":"ECharts 的底层渲染原理？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 的底层渲染原理？ ★★"},{"num":97,"title":"ECharts 性能优化（十万级数据不卡顿）","tag":"★★★ 你项目亮点","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 性能优化（十万级数据不卡顿） ★★★ 你项目亮点"},{"num":98,"title":"ECharts 在 Vue 项目中如何封装？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 在 vue 项目中如何封装？ ★★"},{"num":99,"title":"大屏项目自适应方案？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏项目自适应方案？ ★★"},{"num":100,"title":"大屏开发有哪些容易踩的坑？","tag":"★★ 结合你的项目","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏开发有哪些容易踩的坑？ ★★ 结合你的项目"},{"num":101,"title":"OpenLayers 和 Cesium 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"openlayers 和 cesium 的区别？什么场景选哪个？ ★★"},{"num":102,"title":"用 OpenLayers 封装船舶渲染引擎的思路？","tag":"★★★ 项目深挖题","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 openlayers 封装船舶渲染引擎的思路？ ★★★ 项目深挖题"},{"num":103,"title":"Cesium 大场景性能优化","tag":"★★★ 新都区项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 大场景性能优化 ★★★ 新都区项目可讲"},{"num":104,"title":"预警围栏判定算法的实现思路？","tag":"★★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"预警围栏判定算法的实现思路？ ★★★"},{"num":105,"title":"说说海康 SDK 和 WebRTC 接入的流程","tag":"★★ 项目深挖","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"说说海康 sdk 和 webrtc 接入的流程 ★★ 项目深挖"},{"num":106,"title":"WebRTC 和 HLS / flv.js 的区别？什么场景选什么？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webrtc 和 hls / flv.js 的区别？什么场景选什么？ ★★"},{"num":107,"title":"多路视频同时播放的性能优化？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"多路视频同时播放的性能优化？ ★★"},{"num":108,"title":"WebGIS 中矢量数据和栅格数据的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webgis 中矢量数据和栅格数据的区别？ ★"},{"num":109,"title":"WMTS / WMS / TMS 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"wmts / wms / tms 的区别？ ★"},{"num":110,"title":"高德 / 百度地图和 OpenLayers 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"高德 / 百度地图和 openlayers 的区别？ ★"},{"num":111,"title":"React 的核心思想？和 Vue 的根本区别？","tag":"★★ 跨框架题必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的核心思想？和 vue 的根本区别？ ★★ 跨框架题必问"},{"num":112,"title":"JSX 是什么？如何工作？","tag":"★ 必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"jsx 是什么？如何工作？ ★ 必答"},{"num":113,"title":"函数组件 vs 类组件？为什么 Hooks 出现？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"函数组件 vs 类组件？为什么 hooks 出现？ ★★"},{"num":114,"title":"React 的 Props 如何工作？子怎么传值给父？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的 props 如何工作？子怎么传值给父？ ★★"},{"num":115,"title":"useState 的用法和 4 个要点？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usestate 的用法和 4 个要点？ ★★ 必问"},{"num":116,"title":"useEffect 的用法和陷阱？","tag":"★★★ 超高频","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useeffect 的用法和陷阱？ ★★★ 超高频"},{"num":117,"title":"useMemo 和 useCallback 的区别和使用场景？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usememo 和 usecallback 的区别和使用场景？ ★★ 必问"},{"num":118,"title":"useRef 的几种用法？和 Vue3 的 ref 一样吗？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useref 的几种用法？和 vue3 的 ref 一样吗？ ★★ 必问"},{"num":119,"title":"自定义 Hook 怎么写？举 3 个实战例子","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"自定义 hook 怎么写？举 3 个实战例子 ★★"},{"num":120,"title":"Context 怎么用？什么时候用 vs 状态管理库？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"context 怎么用？什么时候用 vs 状态管理库？ ★★"},{"num":121,"title":"React 状态管理方案对比？2026 怎么选？","tag":"★★ 选型必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 状态管理方案对比？2026 怎么选？ ★★ 选型必问"},{"num":122,"title":"React 性能优化的 8 个手段？给出关键代码","tag":"★★★ 大厂必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 性能优化的 8 个手段？给出关键代码 ★★★ 大厂必问"},{"num":123,"title":"React Fiber 是什么？解决了什么问题？","tag":"★★★ 难度题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react fiber 是什么？解决了什么问题？ ★★★ 难度题"},{"num":124,"title":"React 虚拟 DOM 和 diff 算法？和 Vue3 谁更快？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 虚拟 dom 和 diff 算法？和 vue3 谁更快？ ★★★ 原理题"},{"num":125,"title":"Hooks 为什么不能在条件 / 循环里调用？原理是什么？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"hooks 为什么不能在条件 / 循环里调用？原理是什么？ ★★★ 原理题"},{"num":126,"title":"终极对比：React 和 Vue3 各自的设计哲学？","tag":"★★ 跨框架题必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"终极对比：react 和 vue3 各自的设计哲学？ ★★ 跨框架题必答"},{"num":127,"title":"Next.js 是什么？App Router 的核心？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"next.js 是什么？app router 的核心？ ★★ 必问"},{"num":128,"title":"React 19 和 Next.js 16 有哪些重要新特性？","tag":"★★ 2026 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 19 和 next.js 16 有哪些重要新特性？ ★★ 2026 必问"},{"num":129,"title":"Python 的可变类型和不可变类型？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的可变类型和不可变类型？ ★"},{"num":130,"title":"列表、元组、字典、集合的区别？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"列表、元组、字典、集合的区别？ ★"},{"num":131,"title":"Python 的装饰器是什么？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的装饰器是什么？ ★★"},{"num":132,"title":"Python 的 GIL 是什么？对性能有什么影响？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的 gil 是什么？对性能有什么影响？ ★★"},{"num":133,"title":"list 的常用切片和推导式？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"list 的常用切片和推导式？ ★"},{"num":134,"title":"with 语句和上下文管理器？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"with 语句和上下文管理器？ ★"},{"num":135,"title":"为什么选 FastAPI？相比 Flask / Django 有什么优势？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"为什么选 fastapi？相比 flask / django 有什么优势？ ★★"},{"num":136,"title":"FastAPI 的基本用法？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的基本用法？ ★"},{"num":137,"title":"Pydantic 是什么？怎么做数据验证？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"pydantic 是什么？怎么做数据验证？ ★★"},{"num":138,"title":"FastAPI 的依赖注入系统怎么用？","tag":"★★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的依赖注入系统怎么用？ ★★★"},{"num":139,"title":"同步和异步路由什么时候选哪个？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"同步和异步路由什么时候选哪个？ ★★"},{"num":140,"title":"FastAPI 如何做 JWT 认证？","tag":"★★ 你项目用过","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做 jwt 认证？ ★★ 你项目用过"},{"num":141,"title":"FastAPI 如何配置 CORS 跨域？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何配置 cors 跨域？ ★"},{"num":142,"title":"FastAPI 怎么接 SQLAlchemy？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 怎么接 sqlalchemy？ ★★"},{"num":143,"title":"FastAPI 如何做文件上传？大文件如何处理？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做文件上传？大文件如何处理？ ★★"},{"num":144,"title":"FastAPI 的后台任务和 Celery 区别？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的后台任务和 celery 区别？ ★★"},{"num":145,"title":"你在安装维护记录系统里，前后端是怎么设计接口规范的？","tag":"★★★ 项目亮点","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"你在安装维护记录系统里，前后端是怎么设计接口规范的？ ★★★ 项目亮点"},{"num":146,"title":"FastAPI 项目如何部署？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 项目如何部署？ ★★"},{"num":147,"title":"数据库表结构设计，你是怎么考虑的？","tag":"★★ 项目深挖","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"数据库表结构设计，你是怎么考虑的？ ★★ 项目深挖"},{"num":148,"title":"FastAPI 的性能瓶颈怎么定位？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的性能瓶颈怎么定位？ ★★"},{"num":149,"title":"你日常用哪些 AI 编程工具？怎么选？","tag":"★ 开场题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你日常用哪些 ai 编程工具？怎么选？ ★ 开场题"},{"num":150,"title":"Cursor 和 Claude Code 有什么区别？","tag":"★★ 2026 高频","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"cursor 和 claude code 有什么区别？ ★★ 2026 高频"},{"num":151,"title":"Vibe Coding 和 Spec Coding 的区别？","tag":"★★ 概念题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"vibe coding 和 spec coding 的区别？ ★★ 概念题"},{"num":152,"title":"日常开发怎么把 AI 融入工作流？给个具体例子","tag":"★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"日常开发怎么把 ai 融入工作流？给个具体例子 ★★ 必问"},{"num":153,"title":"AI 生成的代码你怎么保证质量？","tag":"★★★ 深度题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 生成的代码你怎么保证质量？ ★★★ 深度题"},{"num":154,"title":"如何写出让 AI 更懂你的 Prompt？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"如何写出让 ai 更懂你的 prompt？ ★★"},{"num":155,"title":"MCP（Model Context Protocol）是什么？","tag":"★★ 前沿热点","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"mcp（model context protocol）是什么？ ★★ 前沿热点"},{"num":156,"title":"Claude Skills 是什么？怎么用？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"claude skills 是什么？怎么用？ ★★"},{"num":157,"title":"你理解的企业级成熟 AI 工作流是什么样？","tag":"★★★ 核心问题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你理解的企业级成熟 ai 工作流是什么样？ ★★★ 核心问题"},{"num":158,"title":"AI 时代，前端工程师的核心竞争力是什么？","tag":"★★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 时代，前端工程师的核心竞争力是什么？ ★★★ 必问"},{"num":159,"title":"初级程序员会被 AI 淘汰吗？","tag":"★★ 行为题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"初级程序员会被 ai 淘汰吗？ ★★ 行为题"},{"num":160,"title":"AI 工作流的风险和规避？","tag":"★★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 工作流的风险和规避？ ★★★"},{"num":161,"title":"前端开发用 AI 的一个失败案例？","tag":"★★ 真实感题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"前端开发用 ai 的一个失败案例？ ★★ 真实感题"},{"num":162,"title":"未来 3 年，你怎么规划自己的技术成长？","tag":"★★ 终面爱问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"未来 3 年，你怎么规划自己的技术成长？ ★★ 终面爱问"},{"num":163,"title":"你认为 AI 能取代前端工程师吗？","tag":"★★ 哲学题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你认为 ai 能取代前端工程师吗？ ★★ 哲学题"},{"num":164,"title":"什么是 LLM？它和传统 NLP 模型的本质区别？","tag":"★ 开场题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 llm？它和传统 nlp 模型的本质区别？ ★ 开场题"},{"num":165,"title":"Transformer 的自注意力机制？为什么比 RNN 更适合处理长序列？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"transformer 的自注意力机制？为什么比 rnn 更适合处理长序列？ ★★"},{"num":166,"title":"Temperature、Top-p、Top-k 采样参数的区别？","tag":"★★ 调参必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"temperature、top-p、top-k 采样参数的区别？ ★★ 调参必问"},{"num":167,"title":"幻觉（Hallucination）是什么？怎么缓解？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"幻觉（hallucination）是什么？怎么缓解？ ★★★"},{"num":168,"title":"Prompt Engineering 的核心技巧？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"prompt engineering 的核心技巧？ ★★"},{"num":169,"title":"什么是 AI Agent？它和普通 LLM 调用的本质区别？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 ai agent？它和普通 llm 调用的本质区别？ ★★★ 必问"},{"num":170,"title":"ReAct、CoT、ToT 三种规划方法的区别？","tag":"★★★ 2026 高频","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"react、cot、tot 三种规划方法的区别？ ★★★ 2026 高频"},{"num":171,"title":"Agent 常见失败模式？如何解决？","tag":"★★★ 实战题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 常见失败模式？如何解决？ ★★★ 实战题"},{"num":172,"title":"如何设计一个生产级的 Agent 框架？","tag":"★★★ 架构题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何设计一个生产级的 agent 框架？ ★★★ 架构题"},{"num":173,"title":"多 Agent 协作的优势和挑战？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"多 agent 协作的优势和挑战？ ★★"},{"num":174,"title":"RAG 的完整流程？相比微调的优势？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 的完整流程？相比微调的优势？ ★★★ 必问"},{"num":175,"title":"RAG 检索质量差？怎么优化？","tag":"★★★ 生产题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 检索质量差？怎么优化？ ★★★ 生产题"},{"num":176,"title":"\"Lost in the Middle\" 问题是什么？怎么解决？","tag":"★★★ 2026 前沿","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"\"lost in the middle\" 问题是什么？怎么解决？ ★★★ 2026 前沿"},{"num":177,"title":"如何评估 RAG 系统的效果？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何评估 rag 系统的效果？ ★★"},{"num":178,"title":"主流向量数据库对比？怎么选？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"主流向量数据库对比？怎么选？ ★★"},{"num":179,"title":"向量检索的原理？HNSW 算法怎么工作？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"向量检索的原理？hnsw 算法怎么工作？ ★★★"},{"num":180,"title":"相似度计算用余弦相似度还是点积？欧氏距离呢？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"相似度计算用余弦相似度还是点积？欧氏距离呢？ ★★"},{"num":181,"title":"LangChain、LangGraph、LlamaIndex 的区别？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain、langgraph、llamaindex 的区别？ ★★★"},{"num":182,"title":"LangChain 有什么劣势？如果让你设计 Agent 框架你会怎么优化？","tag":"★★★ 深度追问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain 有什么劣势？如果让你设计 agent 框架你会怎么优化？ ★★★ 深度追问"},{"num":183,"title":"MCP（Model Context Protocol）是什么？","tag":"★★★ 2026 热点","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"mcp（model context protocol）是什么？ ★★★ 2026 热点"},{"num":184,"title":"A2A（Agent-to-Agent）协议了解吗？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"a2a（agent-to-agent）协议了解吗？ ★★"},{"num":185,"title":"AG-UI 协议是什么？","tag":"★★ 前端相关","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ag-ui 协议是什么？ ★★ 前端相关"},{"num":186,"title":"Agent 应用的成本怎么控制？","tag":"★★ 落地题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的成本怎么控制？ ★★ 落地题"},{"num":187,"title":"怎么给 Agent 加护栏（Guardrails）保证安全？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"怎么给 agent 加护栏（guardrails）保证安全？ ★★"},{"num":188,"title":"Agent 应用的可观测性怎么做？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的可观测性怎么做？ ★★"},{"num":189,"title":"给你个项目 —— 为企业做一个客服 Agent，你怎么设计？","tag":"★★★ 系统设计题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"给你个项目 —— 为企业做一个客服 agent，你怎么设计？ ★★★ 系统设计题"},{"num":190,"title":"你从前端/全栈转 AI Agent，优势是什么？","tag":"★★ 转型话术","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"你从前端/全栈转 ai agent，优势是什么？ ★★ 转型话术"},{"num":191,"title":"AI Agent 方向值得转吗？风险是什么？","tag":"★ 思考题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ai agent 方向值得转吗？风险是什么？ ★ 思考题"},{"num":192,"title":"D3.js 和 ECharts 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 和 echarts 的区别？什么场景选哪个？ ★★"},{"num":193,"title":"D3.js 的核心概念有哪些？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 的核心概念有哪些？ ★★"},{"num":194,"title":"用 D3 画一个力导向图（Force Layout）的核心思路？","tag":"★★ 项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 d3 画一个力导向图（force layout）的核心思路？ ★★ 项目可讲"},{"num":195,"title":"Three.js 的三大核心组件？最小可运行场景的代码？","tag":"★★ 必背","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 的三大核心组件？最小可运行场景的代码？ ★★ 必背"},{"num":196,"title":"Three.js 项目性能优化的常用手段？","tag":"★★★ 项目实战","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 项目性能优化的常用手段？ ★★★ 项目实战"},{"num":197,"title":"Three.js 如何加载 GLTF 模型？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 如何加载 gltf 模型？ ★★"},{"num":198,"title":"Cesium 和 Three.js 的区别？项目里如何选？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 和 three.js 的区别？项目里如何选？ ★★"},{"num":199,"title":"SSR 服务端渲染的实现原理是什么？","tag":"★★★ 必懂","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 服务端渲染的实现原理是什么？ ★★★ 必懂"},{"num":200,"title":"什么是 Hydration（注水）？为什么会有 Hydration 失败问题？","tag":"★★★ 大厂高频","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 hydration（注水）？为什么会有 hydration 失败问题？ ★★★ 大厂高频"},{"num":201,"title":"Nuxt 3 的关键特性？相比 Nuxt 2 有哪些升级？","tag":"★★ Vue 必备","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nuxt 3 的关键特性？相比 nuxt 2 有哪些升级？ ★★ vue 必备"},{"num":202,"title":"Next.js 14/15 的 App Router 和 Pages Router 的区别？","tag":"★★★ React 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"next.js 14/15 的 app router 和 pages router 的区别？ ★★★ react 必问"},{"num":203,"title":"什么是 React Server Components（RSC）？和传统 SSR 的区别？","tag":"★★★ 2026 前沿","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 react server components（rsc）？和传统 ssr 的区别？ ★★★ 2026 前沿"},{"num":204,"title":"SSR 项目里数据预取的几种方式？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目里数据预取的几种方式？ ★★"},{"num":205,"title":"SSR 项目的部署架构和常见痛点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目的部署架构和常见痛点？ ★★"}];
 
 // 主题切换
 const themeToggle = document.getElementById('themeToggle');
