@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>收益计算器 · Yield Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    --bg: #0f1410;
+    --bg-elev: #161c18;
+    --bg-card: #1a211c;
+    --line: #2a332d;
+    --line-soft: #232b26;
+    --ink: #e8e4d8;
+    --ink-dim: #9aa098;
+    --ink-faint: #6a716b;
+    --accent: #d4a574;
+    --accent-soft: #8a7355;
+    --positive: #7ba87b;
+    --negative: #c97b6c;
+    --serif: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    --sc: 'Noto Serif SC', serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sc);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  body {
+    background-image: 
+      radial-gradient(ellipse at top left, rgba(212, 165, 116, 0.04), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(123, 168, 123, 0.03), transparent 50%);
+  }
+  
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+  
+  /* Header */
+  .header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 60px;
+    height: 1px;
+    background: var(--accent);
+  }
+  
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  
+  .title {
+    font-family: var(--serif);
+    font-size: clamp(36px, 8vw, 52px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+  
+  .title em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+  }
+  
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-dim);
+    font-weight: 400;
+  }
+  
+  /* Tab Switcher */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    overflow: hidden;
+    background: var(--bg-elev);
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 16px 12px;
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-family: var(--sc);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    border-right: 1px solid var(--line);
+  }
+  
+  .tab:last-child { border-right: none; }
+  
+  .tab .tab-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent-soft);
+    margin-right: 8px;
+    letter-spacing: 0.1em;
+  }
+  
+  .tab.active {
+    color: var(--ink);
+    background: var(--bg-card);
+  }
+  
+  .tab.active .tab-num { color: var(--accent); }
+  
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--accent);
+  }
+  
+  /* Panel */
+  .panel {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  
+  .panel.active { display: block; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Form */
+  .form-section {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    padding: 24px 20px;
+    margin-bottom: 20px;
+  }
+  
+  .section-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  
+  .section-label h3 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink);
+  }
+  
+  .section-label .index {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.2em;
+  }
+  
+  .field {
+    margin-bottom: 18px;
+  }
+  
+  .field:last-child { margin-bottom: 0; }
+  
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  
+  .field label .hint {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-faint);
+    font-size: 12px;
+    margin-left: 6px;
+  }
+  
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 400;
+    border-radius: 0;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .input-wrap input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  
+  .input-wrap input::placeholder {
+    color: var(--ink-faint);
+    font-family: var(--serif);
+    font-style: italic;
+  }
+  
+  .input-wrap .unit {
+    position: absolute;
+    right: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    pointer-events: none;
+    letter-spacing: 0.1em;
+  }
+  
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .btn {
+    flex: 1;
+    padding: 16px;
+    font-family: var(--sc);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 500;
+  }
+  
+  .btn-primary:hover { background: #e6b88a; border-color: #e6b88a; }
+  .btn-primary:active { transform: translateY(1px); }
+  
+  .btn-ghost:hover { border-color: var(--accent-soft); color: var(--accent); }
+  
+  /* Result */
+  .result {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    display: none;
+  }
+  
+  .result.show {
+    display: block;
+    animation: revealUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .result::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-soft) 50%, transparent 100%);
+  }
+  
+  .result-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  
+  .result-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  
+  .result-headline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-dim);
+    font-weight: 400;
+  }
+  
+  .result-body {
+    padding: 24px;
+  }
+  
+  .figure-grand {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  
+  .figure-label {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+  
+  .figure-value {
+    font-family: var(--mono);
+    font-size: clamp(36px, 9vw, 48px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  
+  .figure-value.positive { color: var(--positive); }
+  .figure-value.negative { color: var(--negative); }
+  
+  .figure-value .sign {
+    font-size: 0.6em;
+    margin-right: 4px;
+  }
+  
+  .figure-value .unit-suffix {
+    font-size: 0.4em;
+    color: var(--ink-faint);
+    margin-left: 6px;
+    font-weight: 300;
+  }
+  
+  .breakdown {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 24px;
+    margin-bottom: 24px;
+  }
+  
+  .breakdown-item {
+    border-left: 1px solid var(--line);
+    padding-left: 14px;
+  }
+  
+  .breakdown-item .b-label {
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  
+  .breakdown-item .b-value {
+    font-family: var(--mono);
+    font-size: 17px;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  
+  .breakdown-item .b-value.accent { color: var(--accent); }
+  
+  .calc-detail {
+    background: var(--bg);
+    border: 1px solid var(--line-soft);
+    padding: 18px;
+    margin-top: 8px;
+  }
+  
+  .calc-detail .cd-title {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  
+  .calc-detail .cd-line {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dim);
+    line-height: 1.9;
+    word-break: break-all;
+  }
+  
+  .calc-detail .cd-line .op { color: var(--accent-soft); margin: 0 6px; }
+  .calc-detail .cd-line .res { color: var(--ink); font-weight: 500; }
+  
+  /* Notes */
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-faint);
+    text-align: center;
+    line-height: 1.7;
+  }
+  
+  .footer-note .ornament {
+    color: var(--accent);
+    margin: 0 8px;
+    letter-spacing: 0.3em;
+  }
+  
+  /* Toggle for bond mode */
+  .toggle-mode {
+    display: flex;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    margin-bottom: 18px;
+  }
+  
+  .toggle-mode button {
+    flex: 1;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-family: var(--sc);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .toggle-mode button.active {
+    background: var(--bg-card);
+    color: var(--accent);
+  }
+  
+  /* Error state */
+  .error-msg {
+    color: var(--negative);
+    font-size: 12px;
+    font-family: var(--serif);
+    font-style: italic;
+    margin-top: 6px;
+    display: none;
+  }
+  
+  .error-msg.show { display: block; }
+  
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  input[type="number"] { -moz-appearance: textfield; }
+  
+  @media (max-width: 480px) {
+    .container { padding: 24px 16px 60px; }
+    .form-section { padding: 20px 16px; }
+    .result-body { padding: 20px 16px; }
+    .result-header { padding: 20px 16px 14px; }
+    .breakdown { grid-template-columns: 1fr; gap: 16px; }
+    .row { grid-template-columns: 1fr; gap: 16px; }
+    .tab { font-size: 13px; padding: 14px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header class="header">
+    <div class="eyebrow">Personal Finance · 个人理财</div>
+    <h1 class="title">收益<em>计算</em></h1>
+    <p class="subtitle">Yield Calculator for Funds &amp; Bonds</p>
+  </header>
+  
+  <div class="tabs">
+    <button class="tab active" data-tab="fund">
+      <span class="tab-num">01</span>基金 Fund
+    </button>
+    <button class="tab" data-tab="bond">
+      <span class="tab-num">02</span>债券 Bond
+    </button>
+  </div>
+  
+  <!-- ============ FUND PANEL ============ -->
+  <section class="panel active" id="panel-fund">
+    
+    <div class="form-section">
+      <div class="section-label">
+        <h3>Net Asset Value</h3>
+        <span class="index">— 净值数据</span>
+      </div>
+      
+      <div class="field">
+        <label>投入本金 <span class="hint">/ principal</span></label>
+        <div class="input-wrap">
+          <input type="number" id="f-principal" placeholder="10000" inputmode="decimal" step="0.01">
+          <span class="unit">CNY</span>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label>买入净值 <span class="hint">/ entry NAV</span></label>
+          <div class="input-wrap">
+            <input type="number" id="f-nav-buy" placeholder="1.0000" inputmode="decimal" step="0.0001">
+          </div>
+        </div>
+        <div class="field">
+          <label>当前净值 <span class="hint">/ current NAV</span></label>
+          <div class="input-wrap">
+            <input type="number" id="f-nav-now" placeholder="1.1479" inputmode="decimal" step="0.0001">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-section">
+      <div class="section-label">
+        <h3>Fees &amp; Period</h3>
+        <span class="index">— 费用与期间</span>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label>申购费率 <span class="hint">/ buy</span></label>
+          <div class="input-wrap">
+            <input type="number" id="f-fee-buy" placeholder="0.15" inputmode="decimal" step="0.01">
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>赎回费率 <span class="hint">/ sell</span></label>
+          <div class="input-wrap">
+            <input type="number" id="f-fee-sell" placeholder="0.50" inputmode="decimal" step="0.01">
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field">
+        <label>持有天数 <span class="hint">/ holding days，用于年化</span></label>
+        <div class="input-wrap">
+          <input type="number" id="f-days" placeholder="90" inputmode="numeric" step="1">
+          <span class="unit">DAYS</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="resetFund()">清空</button>
+      <button class="btn btn-primary" onclick="calcFund()">计算收益 →</button>
+    </div>
+    
+    <div class="result" id="fund-result">
+      <div class="result-header">
+        <div class="result-eyebrow">Result · 计算结果</div>
+        <div class="result-headline" id="f-headline">基金持有收益</div>
+      </div>
+      <div class="result-body">
+        <div class="figure-grand">
+          <div class="figure-label">净收益 · Net Profit</div>
+          <div class="figure-value" id="f-profit">¥ 0.00</div>
+        </div>
+        
+        <div class="breakdown">
+          <div class="breakdown-item">
+            <div class="b-label">Shares 持有份额</div>
+            <div class="b-value" id="f-shares">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Market Value 当前市值</div>
+            <div class="b-value" id="f-market">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Total Fees 总费用</div>
+            <div class="b-value" id="f-fees">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Return 持有期收益率</div>
+            <div class="b-value accent" id="f-return">—</div>
+          </div>
+          <div class="breakdown-item" style="grid-column: 1 / -1;">
+            <div class="b-label">Annualized 年化收益率</div>
+            <div class="b-value accent" id="f-annual">—</div>
+          </div>
+        </div>
+        
+        <div class="calc-detail">
+          <div class="cd-title">— 计算过程</div>
+          <div class="cd-line" id="f-detail"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- ============ BOND PANEL ============ -->
+  <section class="panel" id="panel-bond">
+    
+    <div class="toggle-mode">
+      <button class="active" data-bond-mode="hold">持有到期</button>
+      <button data-bond-mode="sell">中途卖出</button>
+    </div>
+    
+    <div class="form-section">
+      <div class="section-label">
+        <h3>Bond Details</h3>
+        <span class="index">— 债券要素</span>
+      </div>
+      
+      <div class="field">
+        <label>投入本金 <span class="hint">/ 买入金额，按面值计</span></label>
+        <div class="input-wrap">
+          <input type="number" id="b-principal" placeholder="10000" inputmode="decimal" step="0.01">
+          <span class="unit">CNY</span>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label>买入价格 <span class="hint">/ 面值100</span></label>
+          <div class="input-wrap">
+            <input type="number" id="b-price-buy" placeholder="100" inputmode="decimal" step="0.01">
+          </div>
+        </div>
+        <div class="field" id="b-price-sell-field" style="display:none;">
+          <label>卖出价格 <span class="hint">/ exit</span></label>
+          <div class="input-wrap">
+            <input type="number" id="b-price-sell" placeholder="101.50" inputmode="decimal" step="0.01">
+          </div>
+        </div>
+        <div class="field" id="b-price-face-field">
+          <label>到期面值 <span class="hint">/ face</span></label>
+          <div class="input-wrap">
+            <input type="number" id="b-price-face" placeholder="100" inputmode="decimal" step="0.01" value="100">
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label>票面利率 <span class="hint">/ coupon</span></label>
+          <div class="input-wrap">
+            <input type="number" id="b-coupon" placeholder="3.00" inputmode="decimal" step="0.01">
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>持有天数 <span class="hint">/ days</span></label>
+          <div class="input-wrap">
+            <input type="number" id="b-days" placeholder="365" inputmode="numeric" step="1">
+            <span class="unit">DAYS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="resetBond()">清空</button>
+      <button class="btn btn-primary" onclick="calcBond()">计算收益 →</button>
+    </div>
+    
+    <div class="result" id="bond-result">
+      <div class="result-header">
+        <div class="result-eyebrow">Result · 计算结果</div>
+        <div class="result-headline" id="b-headline">债券持有收益</div>
+      </div>
+      <div class="result-body">
+        <div class="figure-grand">
+          <div class="figure-label">净收益 · Total Return</div>
+          <div class="figure-value" id="b-profit">¥ 0.00</div>
+        </div>
+        
+        <div class="breakdown">
+          <div class="breakdown-item">
+            <div class="b-label">Coupon 利息收益</div>
+            <div class="b-value" id="b-interest">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Capital Gain 价差收益</div>
+            <div class="b-value" id="b-spread">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Return 持有期收益率</div>
+            <div class="b-value accent" id="b-return">—</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="b-label">Annualized 年化收益率</div>
+            <div class="b-value accent" id="b-annual">—</div>
+          </div>
+        </div>
+        
+        <div class="calc-detail">
+          <div class="cd-title">— 计算过程</div>
+          <div class="cd-line" id="b-detail"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <p class="footer-note">
+    <span class="ornament">—</span>
+    数据仅供参考，不构成投资建议<br>
+    Numbers here are for reference. Markets are uncertain.
+    <span class="ornament">—</span>
+  </p>
+  
+</div>
+
+<script>
+  // ============ Tab switching ============
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+  
+  // ============ Bond mode toggle ============
+  let bondMode = 'hold';
+  document.querySelectorAll('[data-bond-mode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-bond-mode]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      bondMode = btn.dataset.bondMode;
+      
+      const sellField = document.getElementById('b-price-sell-field');
+      const faceField = document.getElementById('b-price-face-field');
+      
+      if (bondMode === 'sell') {
+        sellField.style.display = '';
+        faceField.style.display = 'none';
+      } else {
+        sellField.style.display = 'none';
+        faceField.style.display = '';
+      }
+    });
+  });
+  
+  // ============ Helpers ============
+  function fmt(n, d = 2) {
+    if (!isFinite(n)) return '—';
+    return n.toLocaleString('zh-CN', { 
+      minimumFractionDigits: d, 
+      maximumFractionDigits: d 
+    });
+  }
+  
+  function fmtMoney(n) {
+    const sign = n < 0 ? '-' : '';
+    return sign + '¥ ' + fmt(Math.abs(n), 2);
+  }
+  
+  function fmtPct(n) {
+    if (!isFinite(n)) return '—';
+    return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+  }
+  
+  function getNum(id, def = 0) {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? def : v;
+  }
+  
+  function setProfitDisplay(elId, value) {
+    const el = document.getElementById(elId);
+    el.className = 'figure-value';
+    if (value > 0.005) {
+      el.classList.add('positive');
+      el.innerHTML = '<span class="sign">+</span>¥ ' + fmt(value, 2);
+    } else if (value < -0.005) {
+      el.classList.add('negative');
+      el.innerHTML = '<span class="sign">−</span>¥ ' + fmt(Math.abs(value), 2);
+    } else {
+      el.innerHTML = '¥ 0.00';
+    }
+  }
+  
+  // ============ FUND CALCULATION ============
+  function calcFund() {
+    const principal = getNum('f-principal');
+    const navBuy = getNum('f-nav-buy');
+    const navNow = getNum('f-nav-now');
+    const feeBuyPct = getNum('f-fee-buy');
+    const feeSellPct = getNum('f-fee-sell');
+    const days = getNum('f-days');
+    
+    if (principal <= 0 || navBuy <= 0 || navNow <= 0) {
+      alert('请填写本金、买入净值、当前净值（必须 > 0）');
+      return;
+    }
+    
+    // Fee structure: buy fee deducted from principal first
+    const buyFee = principal * (feeBuyPct / 100);
+    const investedAmount = principal - buyFee;
+    const shares = investedAmount / navBuy;
+    const marketValue = shares * navNow;
+    const sellFee = marketValue * (feeSellPct / 100);
+    const netReceive = marketValue - sellFee;
+    const profit = netReceive - principal;
+    const totalFees = buyFee + sellFee;
+    const returnRate = (profit / principal) * 100;
+    const annualized = days > 0 ? returnRate * (365 / days) : NaN;
+    
+    // Display
+    setProfitDisplay('f-profit', profit);
+    document.getElementById('f-shares').textContent = fmt(shares, 2) + ' 份';
+    document.getElementById('f-market').textContent = '¥ ' + fmt(marketValue, 2);
+    document.getElementById('f-fees').textContent = '¥ ' + fmt(totalFees, 2);
+    document.getElementById('f-return').textContent = fmtPct(returnRate);
+    document.getElementById('f-annual').textContent = isFinite(annualized) ? fmtPct(annualized) : '— (需填写天数)';
+    
+    // Headline based on profit
+    const headline = document.getElementById('f-headline');
+    if (profit > 0) headline.textContent = '一笔不错的收成';
+    else if (profit < 0) headline.textContent = '暂时浮亏，请稍安';
+    else headline.textContent = '不赔不赚';
+    
+    // Calculation detail
+    document.getElementById('f-detail').innerHTML = `
+      申购费 = ${principal} <span class="op">×</span> ${feeBuyPct}% <span class="op">=</span> <span class="res">¥${fmt(buyFee, 2)}</span><br>
+      实际申购金额 = ${principal} <span class="op">−</span> ${fmt(buyFee, 2)} <span class="op">=</span> <span class="res">¥${fmt(investedAmount, 2)}</span><br>
+      持有份额 = ${fmt(investedAmount, 2)} <span class="op">÷</span> ${navBuy} <span class="op">=</span> <span class="res">${fmt(shares, 4)} 份</span><br>
+      当前市值 = ${fmt(shares, 4)} <span class="op">×</span> ${navNow} <span class="op">=</span> <span class="res">¥${fmt(marketValue, 2)}</span><br>
+      赎回费 = ${fmt(marketValue, 2)} <span class="op">×</span> ${feeSellPct}% <span class="op">=</span> <span class="res">¥${fmt(sellFee, 2)}</span><br>
+      到手金额 = ${fmt(marketValue, 2)} <span class="op">−</span> ${fmt(sellFee, 2)} <span class="op">=</span> <span class="res">¥${fmt(netReceive, 2)}</span><br>
+      净收益 = ${fmt(netReceive, 2)} <span class="op">−</span> ${principal} <span class="op">=</span> <span class="res">¥${fmt(profit, 2)}</span>
+    `;
+    
+    const result = document.getElementById('fund-result');
+    result.classList.add('show');
+    setTimeout(() => result.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  
+  function resetFund() {
+    ['f-principal','f-nav-buy','f-nav-now','f-fee-buy','f-fee-sell','f-days'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('fund-result').classList.remove('show');
+  }
+  
+  // ============ BOND CALCULATION ============
+  function calcBond() {
+    const principal = getNum('b-principal');
+    const priceBuy = getNum('b-price-buy');
+    const coupon = getNum('b-coupon');
+    const days = getNum('b-days');
+    
+    let priceExit;
+    if (bondMode === 'sell') {
+      priceExit = getNum('b-price-sell');
+    } else {
+      priceExit = getNum('b-price-face', 100);
+    }
+    
+    if (principal <= 0 || priceBuy <= 0 || priceExit <= 0 || days <= 0) {
+      alert('请填写本金、买入价格、卖出/到期价格、持有天数（必须 > 0）');
+      return;
+    }
+    
+    // Coupon interest: principal × coupon% × (days/365)
+    const interest = principal * (coupon / 100) * (days / 365);
+    
+    // Capital gain: principal × (priceExit - priceBuy) / priceBuy
+    const spread = principal * (priceExit - priceBuy) / priceBuy;
+    
+    const profit = interest + spread;
+    const returnRate = (profit / principal) * 100;
+    const annualized = returnRate * (365 / days);
+    
+    // Display
+    setProfitDisplay('b-profit', profit);
+    document.getElementById('b-interest').textContent = '¥ ' + fmt(interest, 2);
+    
+    const spreadEl = document.getElementById('b-spread');
+    if (spread > 0.005) spreadEl.textContent = '+¥ ' + fmt(spread, 2);
+    else if (spread < -0.005) spreadEl.textContent = '−¥ ' + fmt(Math.abs(spread), 2);
+    else spreadEl.textContent = '¥ 0.00';
+    
+    document.getElementById('b-return').textContent = fmtPct(returnRate);
+    document.getElementById('b-annual').textContent = fmtPct(annualized);
+    
+    // Headline
+    const headline = document.getElementById('b-headline');
+    if (bondMode === 'hold') headline.textContent = '债券持有到期收益';
+    else headline.textContent = '债券中途卖出收益';
+    
+    // Detail
+    const exitLabel = bondMode === 'hold' ? '到期面值' : '卖出价格';
+    document.getElementById('b-detail').innerHTML = `
+      利息收益 = ${principal} <span class="op">×</span> ${coupon}% <span class="op">×</span> (${days}/365) <span class="op">=</span> <span class="res">¥${fmt(interest, 2)}</span><br>
+      价差收益 = ${principal} <span class="op">×</span> (${priceExit} <span class="op">−</span> ${priceBuy}) <span class="op">÷</span> ${priceBuy} <span class="op">=</span> <span class="res">${spread >= 0 ? '+' : '−'}¥${fmt(Math.abs(spread), 2)}</span><br>
+      ${exitLabel} = ${priceExit}<br>
+      总收益 = 利息 <span class="op">+</span> 价差 <span class="op">=</span> <span class="res">${profit >= 0 ? '+' : '−'}¥${fmt(Math.abs(profit), 2)}</span><br>
+      持有期收益率 = ${fmt(profit, 2)} <span class="op">÷</span> ${principal} <span class="op">=</span> <span class="res">${fmtPct(returnRate)}</span><br>
+      年化收益率 = ${fmtPct(returnRate)} <span class="op">×</span> (365/${days}) <span class="op">=</span> <span class="res">${fmtPct(annualized)}</span>
+    `;
+    
+    const result = document.getElementById('bond-result');
+    result.classList.add('show');
+    setTimeout(() => result.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  
+  function resetBond() {
+    ['b-principal','b-price-buy','b-price-sell','b-price-face','b-coupon','b-days'].forEach(id => {
+      const el = document.getElementById(id);
+      if (id === 'b-price-face') el.value = '100';
+      else el.value = '';
+    });
+    document.getElementById('bond-result').classList.remove('show');
+  }
+</script>
+
+</body>
+</html>
