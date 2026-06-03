@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>前端面试复习宝典</title>
+  <title>前端面试复习宝典 · 龙秀文</title>
   <style>
 :root {
   --bg: #fafaf7;
@@ -288,7 +288,7 @@ body.quiz-mode .sidebar {
    padding 为左右的 "装饰延伸区"，负 margin 元素在这里延展而不会溢出 */
 .main-inner {
   width: 100%;
-  max-width: 96%;//920px;  /* 860 阅读 + 左右各 30 装饰余地 */
+  max-width: 920px;  /* 860 阅读 + 左右各 30 装饰余地 */
   padding: 0 30px;
 }
 
@@ -505,14 +505,15 @@ p { margin: 12px 0; color: var(--text); }
   padding: 4px 0;
 }
 
-.qa-block.highlight {
-  background: rgba(196, 119, 10, 0.12);
-  animation: highlight 2s ease-out;
+.qa-block.highlight .q-title {
+  animation: titleHighlight 2.4s ease-out;
+  border-radius: 4px;
 }
 
-@keyframes highlight {
-  0% { background: rgba(196, 119, 10, 0.25); }
-  100% { background: transparent; }
+@keyframes titleHighlight {
+  0%   { background: rgba(196, 119, 10, 0.45); box-shadow: 0 0 0 4px rgba(196, 119, 10, 0.45); }
+  30%  { background: rgba(196, 119, 10, 0.35); box-shadow: 0 0 0 4px rgba(196, 119, 10, 0.35); }
+  100% { background: transparent; box-shadow: 0 0 0 4px transparent; }
 }
 
 .question {
@@ -1060,6 +1061,93 @@ body.sidebar-open .sidebar-overlay {
   background: var(--primary);
   color: var(--bg);
 }
+
+/* ===== 复习计划弹窗 ===== */
+.plan-fab {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #c4770a, #a9620a);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .2s, transform .1s;
+  box-shadow: 0 2px 8px rgba(196,119,10,0.3);
+}
+.plan-fab:hover { filter: brightness(1.08); }
+.plan-fab:active { transform: scale(0.98); }
+
+.plan-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+  animation: planFade .2s ease-out;
+}
+.plan-modal-overlay.show { display: flex; align-items: center; justify-content: center; }
+@keyframes planFade { from { opacity: 0; } to { opacity: 1; } }
+
+.plan-modal {
+  background: var(--bg, #fdfbf7);
+  width: min(880px, 92vw);
+  max-height: 88vh;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  animation: planSlide .25s ease-out;
+  overflow: hidden;
+}
+@keyframes planSlide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.plan-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border, #e8e0d4);
+  background: var(--bg, #fdfbf7);
+  flex-shrink: 0;
+}
+.plan-modal-title { font-size: 16px; font-weight: 700; color: var(--text, #2b2b2b); }
+.plan-modal-close {
+  width: 30px; height: 30px;
+  border: none; border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  font-size: 15px; cursor: pointer; color: var(--text, #2b2b2b);
+  transition: background .2s;
+}
+.plan-modal-close:hover { background: rgba(0,0,0,0.12); }
+
+.plan-modal-body {
+  padding: 20px 24px 32px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.plan-modal-body h1.chapter {
+  font-size: 20px;
+  margin-top: 0;
+  border: none;
+  padding: 0;
+}
+
+/* 移动端全屏 */
+@media (max-width: 768px) {
+  .plan-modal {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  .plan-modal-body { padding: 16px 14px 40px; }
+  .plan-modal-body h1.chapter { font-size: 17px; }
+}
 </style>
 </head>
 <body>
@@ -1093,7 +1181,7 @@ body.sidebar-open .sidebar-overlay {
 <a href="#sec-10"><span class="nav-num">08</span>第八章 · Python / FastAPI</a>
 <a href="#sec-11"><span class="nav-num">09</span>第九章 · AI 辅助开发</a>
 <a href="#sec-12"><span class="nav-num">10</span>第十一章 · AI Agent 工程师</a>
-<a href="#sec-13"><span class="nav-num">11</span>第十章 · 30 天复习计划</a></nav>
+<a href="#sec-14"><span class="nav-num">11</span>第十二章 · 移动端开发实战</a></nav>
     </div>
     <div class="controls">
       <div class="search-wrap">
@@ -1102,7 +1190,8 @@ body.sidebar-open .sidebar-overlay {
       </div>
       <button class="theme-toggle" id="themeToggle">🌙 深色模式</button>
       <button class="quiz-toggle" id="quizToggle">✏️ 进入答题模式</button>
-      <div class="progress-info">205 道题 · 11 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
+      <button class="plan-fab" id="planFab">📅 查看 30 天复习计划</button>
+      <div class="progress-info">227 道题 · 12 个章节<br>Ctrl/⌘ + K 搜索 · ↑↓ 选择 · Enter 跳转</div>
     </div>
   </aside>
 
@@ -1163,7 +1252,7 @@ body.sidebar-open .sidebar-overlay {
           <span class="toc-num">V</span>
           <span class="toc-name">浏览器 · 网络 · 性能 · 安全</span>
           <span class="toc-dots"></span>
-          <span class="toc-desc">32 题 · 大厂必问</span>
+          <span class="toc-desc">39 题 · 大厂必问</span>
         </a>
         <a class="toc-item" href="#sec-8">
           <span class="toc-num">VI</span>
@@ -1181,7 +1270,7 @@ body.sidebar-open .sidebar-overlay {
           <span class="toc-num">VIII</span>
           <span class="toc-name">Python / FastAPI 面试题</span>
           <span class="toc-dots"></span>
-          <span class="toc-desc">20 题 · 全栈加分项</span>
+          <span class="toc-desc">26 题 · 全栈加分项</span>
         </a>
         <a class="toc-item highlight-chapter" href="#sec-11">
           <span class="toc-num">IX</span>
@@ -1195,11 +1284,11 @@ body.sidebar-open .sidebar-overlay {
           <span class="toc-dots"></span>
           <span class="toc-desc">28 题 · 2026 最热方向</span>
         </a>
-        <a class="toc-item" href="#sec-13">
-          <span class="toc-num">终</span>
-          <span class="toc-name">30 天复习计划 &amp; 艾宾浩斯曲线</span>
+        <a class="toc-item highlight-chapter" href="#sec-14">
+          <span class="toc-num">XI</span>
+          <span class="toc-name">移动端开发实战</span>
           <span class="toc-dots"></span>
-          <span class="toc-desc">行动指南</span>
+          <span class="toc-desc">9 题 · 跨端/小程序/H5</span>
         </a>
       </div>
     </section>
@@ -1235,6 +1324,17 @@ body.sidebar-open .sidebar-overlay {
 <p class="ans-content ">当前 2026 年前端市场竞争激烈，八股文 “固化” 严重，面试官问的 80% 是可预测的题目。保持耐心，坚持 1-3 个月高强度复习，拿到 offer 只是时间问题。</p>
 <p class="ans-content ">另外：不要纠结 “会不会被 AI 淘汰”。能熟练使用 AI 工具（你已经做到）并有扎实项目经验的前端，反而是市场稀缺的。</p>
 <p class="ans-content p-bold" style="color:1F4E79">好了，翻开第一章开始吧。加油。</p>
+<h2 class="ans-content">6. 自我介绍模板（高级前端）</h2>
+<p class="ans-content p-italic ">面试第一印象的关键。一个好的自我介绍要在 1-2 分钟内讲清：你是谁、核心能力、代表项目、与岗位的匹配点。下面给你一份可直接套用的模板（已结合你的背景），背熟并根据岗位微调。</p>
+<h3 class="ans-content">① 标准版（1.5 分钟，通用）</h3>
+<div class="ans-content tip"><span class="tip-label">📝 模板：</span>面试官好，我叫龙秀文，有 6 年前端开发经验，目前是前端团队负责人。<br><br>技术上，我主攻 Vue2/Vue3 + TypeScript 技术栈，在大屏数据可视化和 GIS 方向有比较深的积累——熟练使用 ECharts、OpenLayers、Cesium，做过多个百万级数据量的可视化大屏，也封装过通用的地图渲染引擎。除了前端，我还具备 Python + FastAPI 的全栈能力，能独立完成一个中小型项目的前后端。<br><br>项目方面，我主导过海上风电智慧预警平台和海关水上监控系统，负责大屏架构设计、地图引擎二次封装、海康视频 SDK + WebRTC 接入，以及预警围栏算法的实现。作为团队负责人，我也负责技术选型、代码规范制定和团队 AI 工作流的落地。<br><br>我平时会把 AI 工具（Cursor、Claude 等）深度融入开发流程来提效。这个岗位我看到需要[XX 技术/方向]，正好和我的[可视化/全栈/工程化]经验匹配，所以很感兴趣。</div>
+<h3 class="ans-content">② 精简版（40 秒，快节奏面试）</h3>
+<div class="ans-content tip"><span class="tip-label">📝 模板：</span>面试官好，我是龙秀文，6 年前端经验，现任前端负责人。核心技术是 Vue3 + TypeScript，专长是大屏可视化和 GIS（ECharts / Cesium / OpenLayers），同时有 Python/FastAPI 全栈能力。代表项目是海上风电和海关水上监控的可视化预警平台，负责架构、地图引擎封装和视频接入。期待能在贵公司的[XX 方向]继续深入。</div>
+<h3 class="ans-content">③ 自我介绍的 4 个黄金结构</h3>
+<ul class="ans-content"><li class="level-0">一句话定位：姓名 + 年限 + 当前角色（如「6 年前端，团队负责人」），让面试官 3 秒建立印象。</li><li class="level-0">核心技术栈：主攻方向 + 差异化优势。你的差异化是「可视化 + GIS + 全栈」，要重点突出。</li><li class="level-0">代表项目：1-2 个最能体现能力的项目，讲清你的角色和技术亮点（带技术名词）。</li><li class="level-0">匹配岗位：呼应 JD 里的关键需求，说明你为什么合适。这一句最能打动面试官。</li></ul>
+<h3 class="ans-content">④ 自我介绍的注意事项</h3>
+<ul class="ans-content"><li class="level-0">控制时长：1-2 分钟，别超过 2 分钟。面试官时间宝贵，冗长会扣印象分。</li><li class="level-0">突出差异化：别人都会 Vue，你的优势是「可视化大屏 + GIS + 全栈」，这是稀缺标签，重点讲。</li><li class="level-0">用数字说话：「百万级数据量」「多个大屏项目」比「做过一些项目」有力得多。</li><li class="level-0">为追问埋钩子：故意留一两个亮点（如「预警围栏算法」「地图引擎封装」），引导面试官往你擅长的方向问。</li><li class="level-0">针对岗位微调：投可视化岗就重点讲大屏；投全栈岗就强调 FastAPI；投 React 岗就提你的跨框架学习能力。</li><li class="level-0">别背稿子感：练到自然口语化，像聊天而非朗读。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>自我介绍是唯一你能 100% 提前准备、完全可控的环节。一定要打磨到滚瓜烂熟，并准备「标准版 + 精简版」两个版本应对不同节奏。把面试官的注意力引导到你最擅长的「可视化 + GIS」上。</div>
 <h1 id="sec-3" class="chapter">第一章  JavaScript / ES6 核心 —— 必背基石</h1>
 <p class="ans-content p-italic" style="color:595959">本章共 20 题，全部是前端面试的 “入门敲门砖”。答不上来这些题，后面讲什么都白搭。建议本章全部背到脱口而出。</p>
 <h2 class="ans-content">1.1 基础概念（必背）</h2>
@@ -3721,6 +3821,226 @@ export async function getStaticProps() {
 <ul class="ans-content"><li class="level-0">中后台管理系统通常不需要 SSR（CSR + 路由懒加载即可，权限敏感数据也不该 SSR 给搜索引擎看）。</li><li class="level-0">营销页 / 落地页 / 文档站：SSG（构建时生成静态 HTML，CDN 加速最快）。</li><li class="level-0">用户内容页（博客、商品详情）：ISR（构建时生成 + 后台增量更新）。</li><li class="level-0">重 SEO 的电商首页 / 列表页：SSR（每次都重新渲染保证数据最新）。</li></ul>
 <div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>SSR 不是必选项 —— 90% 的中后台不需要 SSR，CSR 配合骨架屏 + 路由懒加载更合适。问 SSR 时也要会说「我们项目不用 SSR 是因为 X」。</div>
 </div></article>
+<h2 class="ans-content">5.Y diff 算法 · WebAssembly · Web Worker</h2>
+<p class="ans-content p-italic ">本节补充三个高频深度题：虚拟 DOM diff 的完整原理、WebAssembly、Web Worker。前者是框架原理必考，后两者是性能进阶热点。</p>
+<article class="qa-block" data-num="206" id="q206">
+    <div class="question">
+      <span class="q-num">Q206</span>
+      <span class="q-title">虚拟 DOM 的 diff 算法完整原理？</span>
+      <span class="q-tag">★★★ 框架原理必考</span>
+      <button class="qa-toggle" data-num="206" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="206" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">diff 三原则：同层比较 / 类型决定复用 / key 标识身份；复杂度 O(n³)→O(n)</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">传统 diff O(n³) 不可用</span><span class="anchor-arrow">→</span><span class="anchor-kw">只比较同层（Tree diff）</span><span class="anchor-arrow">→</span><span class="anchor-kw">类型相同才复用（Component diff）</span><span class="anchor-arrow">→</span><span class="anchor-kw">key 标识同一节点（Element diff）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Vue3 双端 + 最长递增子序列</span><span class="anchor-arrow">→</span><span class="anchor-kw">React Fiber 可中断</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">diff 像两摞卡片对比：不跨摞比（同层），卡片类型不同直接换新（类型），靠编号认出是同一张（key）</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">虚拟 DOM diff 的目标：用最小代价，把旧的 vDOM 树变成新的 vDOM 树，算出最少的真实 DOM 操作。</p>
+<h3 class="ans-content">① 为什么需要简化？</h3>
+<p class="ans-content ">两棵树做完整对比（最小编辑距离）的复杂度是 O(n³)，1000 个节点要十亿次运算，完全不可用。所以所有框架都做了三个「打折」假设把复杂度降到 O(n)。</p>
+<h3 class="ans-content">② 三大策略（React 和 Vue 通用）</h3>
+<ul class="ans-content"><li class="level-0">Tree diff（同层比较）：只比较同一层级的节点，不跨层移动。如果节点跨层级移动，直接删除旧的、创建新的（虽然理论上低效，但实际很少跨层移动）。</li><li class="level-0">Component diff（类型决定复用）：同一类型的组件/元素才复用并更新属性；类型不同（如 div → p）直接整个子树重建。</li><li class="level-0">Element diff（key 标识身份）：同层级的列表节点，通过 key 找出「同一个」节点，避免按位置错配。</li></ul>
+<h3 class="ans-content">③ 列表 diff 的关键：key</h3>
+<pre class="ans-content code-block"><div class="code-lang">diff 示意</div><code>// 无 key：按索引(index)逐个对比
+// 旧 [A, B, C]  新 [D, A, B, C]
+// 按位置：A→D(改), B→A(改), C→B(改), 多出C(新增) = 4 次操作 ❌
+
+// 有 key：通过 key 识别同一节点
+// 旧 [A, B, C]  新 [D, A, B, C]
+// 识别出 A B C 没变，只需在头部插入 D = 1 次操作 ✅
+
+// 所以列表渲染必须用稳定唯一的 key（业务 ID），不要用 index</code></pre>
+<h3 class="ans-content">④ React vs Vue3 的 diff 差异</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:43%"><col style="width:43%"></colgroup><thead><tr><th>维度</th><th>React</th><th>Vue3</th></tr></thead><tbody><tr><td>触发方式</td><td>setState 后整棵子树重新 render</td><td>响应式精确触发到组件</td></tr><tr><td>编译优化</td><td>几乎没有（运行时全量 diff）</td><td>PatchFlags 标记动态节点，静态跳过</td></tr><tr><td>列表算法</td><td>key + 单向遍历 + lastIndex</td><td>双端对比 + 最长递增子序列（LIS）</td></tr><tr><td>可中断</td><td>Fiber 架构，时间切片可中断</td><td>不可中断（但粒度小够快）</td></tr></tbody></table></div>
+<h3 class="ans-content">⑤ Vue3 双端 diff 简述</h3>
+<ul class="ans-content"><li class="level-0">新旧列表各设头尾两个指针，先做 4 种快速比对：旧头-新头、旧尾-新尾、旧头-新尾、旧尾-新头。</li><li class="level-0">命中就移动/复用，指针向中间收缩。</li><li class="level-0">都不命中时，对剩余节点建 key→index 映射表，用「最长递增子序列」算出最少移动次数。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>回答套路：①O(n³)→O(n) 的三个假设 → ②三大策略（同层/类型/key）→ ③key 的作用举例 → ④React/Vue3 差异。能讲到 LIS 就是加分项。</div>
+</div></article>
+<article class="qa-block" data-num="207" id="q207">
+    <div class="question">
+      <span class="q-num">Q207</span>
+      <span class="q-title">WebAssembly 是什么？解决什么问题？</span>
+      <span class="q-tag">★★ 性能进阶</span>
+      <button class="qa-toggle" data-num="207" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="207" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">WASM = 接近原生速度的字节码，跑在浏览器沙箱里</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">二进制字节码格式</span><span class="anchor-arrow">→</span><span class="anchor-kw">C/C++/Rust 编译产物</span><span class="anchor-arrow">→</span><span class="anchor-kw">接近原生性能</span><span class="anchor-arrow">→</span><span class="anchor-kw">和 JS 互操作</span><span class="anchor-arrow">→</span><span class="anchor-kw">运行在 WASM 虚拟机（沙箱）</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">JS 像现场翻译（边读边译），WASM 像提前译好的剧本（直接演），所以快</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">WebAssembly（简称 WASM）是一种二进制指令格式，运行在浏览器的虚拟机里，提供接近原生的执行速度。</p>
+<h3 class="ans-content">核心特点</h3>
+<ul class="ans-content"><li class="level-0">二进制格式：体积小、解析快（不像 JS 要解析文本）。</li><li class="level-0">接近原生性能：适合 CPU 密集型任务（图像/音视频处理、加密、物理引擎、3D）。</li><li class="level-0">多语言来源：C/C++/Rust/Go/AssemblyScript 都能编译成 WASM。</li><li class="level-0">和 JS 互操作：JS 调用 WASM 函数，WASM 也能回调 JS。</li><li class="level-0">安全沙箱：和 JS 一样跑在浏览器沙箱里，无法直接访问系统。</li></ul>
+<h3 class="ans-content">不是用来取代 JS</h3>
+<p class="ans-content ">WASM 不能直接操作 DOM（要通过 JS），它的定位是「JS 的性能补充」——把计算密集的部分交给 WASM，UI 交互仍由 JS 负责。</p>
+<h3 class="ans-content">典型应用</h3>
+<ul class="ans-content"><li class="level-0">Figma：图形渲染引擎用 C++ 编译成 WASM。</li><li class="level-0">Google Earth、AutoCAD Web 版。</li><li class="level-0">视频剪辑（ffmpeg.wasm）、图像处理（OpenCV.js）。</li><li class="level-0">游戏引擎（Unity、Unreal 的 Web 导出）。</li><li class="level-0">前端加解密、压缩（如 WASM 版的 brotli）。</li></ul>
+</div></article>
+<article class="qa-block" data-num="208" id="q208">
+    <div class="question">
+      <span class="q-num">Q208</span>
+      <span class="q-title">前端怎么调用 WebAssembly？数据怎么传？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="208" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="208" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">JS 调 WASM 4 步：编译 → 实例化 → 拿 exports → 调用</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">fetch .wasm 文件</span><span class="anchor-arrow">→</span><span class="anchor-kw">WebAssembly.instantiate</span><span class="anchor-arrow">→</span><span class="anchor-kw">instance.exports 拿函数</span><span class="anchor-arrow">→</span><span class="anchor-kw">JS 直接调用</span><span class="anchor-arrow">→</span><span class="anchor-kw">数据通过内存（Memory）传递</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">前端使用 WASM 的标准流程：加载 .wasm 文件 → 实例化 → 通过 exports 调用导出的函数。</p>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 方式 1：手动加载（理解原理）
+const response = await fetch(&#x27;add.wasm&#x27;);
+const bytes = await response.arrayBuffer();
+const { instance } = await WebAssembly.instantiate(bytes, {
+  // importObject：JS 提供给 WASM 的函数/内存
+  env: { jsLog: (x) =&gt; console.log(x) }
+});
+// 调用 WASM 导出的函数
+const result = instance.exports.add(1, 2);  // 3
+
+// 方式 2：流式编译（推荐，边下载边编译）
+const { instance } = await WebAssembly.instantiateStreaming(
+  fetch(&#x27;add.wasm&#x27;),
+  importObject
+);
+
+// 方式 3：实际项目用工具链（Rust 例子）
+// wasm-pack build → 生成 JS 胶水代码 + .wasm
+import init, { add } from &#x27;./pkg/my_lib.js&#x27;;
+await init();
+add(1, 2);</code></pre>
+<h3 class="ans-content">数据传递的坑</h3>
+<ul class="ans-content"><li class="level-0">WASM 和 JS 只能直接传数字（i32/i64/f32/f64）。</li><li class="level-0">字符串、数组等复杂数据要通过共享的线性内存（WebAssembly.Memory）传递。</li><li class="level-0">实际开发用 wasm-bindgen（Rust）、Emscripten（C/C++）自动生成胶水代码处理这些。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>面试只要能说出「fetch → instantiate → exports 调用」三步 + 「复杂数据走 Memory」就够了，细节有工具链处理。</div>
+</div></article>
+<article class="qa-block" data-num="209" id="q209">
+    <div class="question">
+      <span class="q-num">Q209</span>
+      <span class="q-title">什么场景该用 WebAssembly？什么场景不该用？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="209" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="209" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">该用 WASM 看 3 点：CPU 密集 / 已有 C++Rust 库 / 性能瓶颈在计算</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">CPU 密集型才值得</span><span class="anchor-arrow">→</span><span class="anchor-kw">DOM 操作别用（要绕 JS）</span><span class="anchor-arrow">→</span><span class="anchor-kw">已有 C/C++/Rust 库可复用</span><span class="anchor-arrow">→</span><span class="anchor-kw">首次加载有成本</span><span class="anchor-arrow">→</span><span class="anchor-kw">先 profile 再决定</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">WASM 不是银弹，要判断场景是否合适。</p>
+<h3 class="ans-content">适合用 WASM</h3>
+<ul class="ans-content"><li class="level-0">CPU 密集计算：图像/视频处理、音频编解码、加解密、压缩、物理模拟、3D 渲染。</li><li class="level-0">已有 C/C++/Rust 代码库想搬到 Web（如 ffmpeg、OpenCV、SQLite）。</li><li class="level-0">需要稳定可预测的性能（JS 的 JIT 有时会「性能悬崖」）。</li></ul>
+<h3 class="ans-content">不适合用 WASM</h3>
+<ul class="ans-content"><li class="level-0">频繁操作 DOM 的逻辑：WASM 不能直接碰 DOM，要反复跨 JS 边界，反而更慢。</li><li class="level-0">普通业务逻辑：JS 已经够快，引入 WASM 增加复杂度不值得。</li><li class="level-0">小型任务：WASM 模块加载和 JS↔WASM 通信有固定开销，小任务得不偿失。</li></ul>
+<h3 class="ans-content">性能要点</h3>
+<ul class="ans-content"><li class="level-0">JS↔WASM 边界调用有成本，要「大块」调用而非高频小调用。</li><li class="level-0">首次加载需要下载 + 编译 .wasm，可用 instantiateStreaming 优化。</li><li class="level-0">决策前先用 Performance 面板 profile，确认瓶颈真在计算上。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话判断：「计算重、DOM 轻、有现成 C/Rust 库」就上 WASM，否则用 JS。</div>
+</div></article>
+<article class="qa-block" data-num="210" id="q210">
+    <div class="question">
+      <span class="q-num">Q210</span>
+      <span class="q-title">Web Worker 是什么？解决什么问题？</span>
+      <span class="q-tag">★★ 性能进阶</span>
+      <button class="qa-toggle" data-num="210" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="210" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Web Worker = 后台线程：不阻塞 UI，但不能碰 DOM</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">独立线程（不阻塞主线程）</span><span class="anchor-arrow">→</span><span class="anchor-kw">postMessage 通信</span><span class="anchor-arrow">→</span><span class="anchor-kw">无法访问 DOM/window</span><span class="anchor-arrow">→</span><span class="anchor-kw">数据结构化克隆传递</span><span class="anchor-arrow">→</span><span class="anchor-kw">适合大量计算</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">主线程是前台收银员（要随时应对顾客=UI），Worker 是后厨（埋头做菜=计算），靠传菜窗口（postMessage）沟通</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">JS 是单线程的，长时间计算会阻塞 UI（页面卡死）。Web Worker 提供后台线程，把耗时计算挪出主线程。</p>
+<h3 class="ans-content">核心特点</h3>
+<ul class="ans-content"><li class="level-0">独立线程：运行在和主线程隔离的环境，不阻塞 UI 渲染和交互。</li><li class="level-0">通信靠消息：主线程和 Worker 通过 postMessage / onmessage 收发消息。</li><li class="level-0">不能访问 DOM：Worker 里没有 window、document、DOM API（有 fetch、setTimeout、IndexedDB）。</li><li class="level-0">数据隔离：传递的数据默认是「结构化克隆」（拷贝，不共享）。</li></ul>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// main.js（主线程）
+const worker = new Worker(&#x27;worker.js&#x27;);
+worker.postMessage({ type: &#x27;calc&#x27;, data: bigArray });
+worker.onmessage = (e) =&gt; {
+  console.log(&#x27;计算结果：&#x27;, e.data);
+};
+worker.onerror = (e) =&gt; console.error(e);
+// 用完销毁
+// worker.terminate();
+
+// worker.js（worker 线程）
+self.onmessage = (e) =&gt; {
+  const { type, data } = e.data;
+  if (type === &#x27;calc&#x27;) {
+    const result = heavyCompute(data);  // 耗时计算不阻塞 UI
+    self.postMessage(result);
+  }
+};
+
+// Vite/Webpack 中用模块化 Worker（推荐）
+const worker = new Worker(new URL(&#x27;./worker.js&#x27;, import.meta.url), {
+  type: &#x27;module&#x27;
+});</code></pre>
+<h3 class="ans-content">典型应用</h3>
+<ul class="ans-content"><li class="level-0">大数据计算：大数组排序/过滤、复杂统计。</li><li class="level-0">图像/视频处理：滤镜、像素操作、视频帧解析。</li><li class="level-0">加解密、压缩、大文件 hash（如分片上传算 MD5）。</li><li class="level-0">解析大型文件：大 JSON、Excel、CSV 解析。</li></ul>
+</div></article>
+<article class="qa-block" data-num="211" id="q211">
+    <div class="question">
+      <span class="q-num">Q211</span>
+      <span class="q-title">Web Worker 有哪几种？Service Worker 有什么不同？</span>
+      <span class="q-tag">★★</span>
+      <button class="qa-toggle" data-num="211" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="211" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 种 Worker：Dedicated 专用 / Shared 共享 / Service 拦截请求</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Dedicated Worker：1 对 1（最常用）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Shared Worker：多页面共享</span><span class="anchor-arrow">→</span><span class="anchor-kw">Service Worker：拦截网络请求（PWA/缓存）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Worklet：渲染/音频细分线程</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Worker 不止一种，按用途分几类：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:22%"><col style="width:38%"><col style="width:40%"></colgroup><thead><tr><th>类型</th><th>特点</th><th>用途</th></tr></thead><tbody><tr><td>Dedicated Worker</td><td>专属于创建它的页面（1对1）</td><td>通用后台计算（最常用）</td></tr><tr><td>Shared Worker</td><td>多个页面/标签共享同一个</td><td>跨标签页通信、共享连接</td></tr><tr><td>Service Worker</td><td>拦截网络请求，独立于页面</td><td>PWA 离线缓存、推送通知</td></tr><tr><td>Worklet</td><td>更轻量的细分线程</td><td>Paint/Audio/Animation Worklet</td></tr></tbody></table></div>
+<h3 class="ans-content">Service Worker 单独说（很重要）</h3>
+<ul class="ans-content"><li class="level-0">本质也是 Worker，但定位是「网络代理」——拦截页面发出的请求。</li><li class="level-0">生命周期：install → activate → fetch（拦截）。</li><li class="level-0">核心能力：离线缓存（Cache API）、后台同步、推送通知。</li><li class="level-0">是 PWA（渐进式 Web 应用）的技术基础。</li><li class="level-0">必须 HTTPS（或 localhost）才能用。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>区分口诀：「Dedicated 算东西，Shared 跨标签，Service 管网络」。面试问 Worker 一般指 Dedicated，问 PWA 才是 Service Worker。</div>
+</div></article>
+<article class="qa-block" data-num="212" id="q212">
+    <div class="question">
+      <span class="q-num">Q212</span>
+      <span class="q-title">Web Worker 怎么高效传递大数据？</span>
+      <span class="q-tag">★★ 实战题</span>
+      <button class="qa-toggle" data-num="212" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="212" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Worker 数据传递 2 招：结构化克隆（拷贝）/ Transferable（转移所有权零拷贝）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">默认结构化克隆（深拷贝，慢）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Transferable Objects（转移，零拷贝）</span><span class="anchor-arrow">→</span><span class="anchor-kw">ArrayBuffer 可转移</span><span class="anchor-arrow">→</span><span class="anchor-kw">SharedArrayBuffer 真共享内存</span><span class="anchor-arrow">→</span><span class="anchor-kw">大数据用 Transferable</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">Worker 通信的性能关键在数据传递方式。大数据用错方式会很慢。</p>
+<h3 class="ans-content">三种数据传递方式</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 1. 结构化克隆（默认）—— 深拷贝，大数据慢
+worker.postMessage({ data: bigArray });
+// 主线程的 bigArray 仍可用，但 Worker 拿到的是拷贝
+
+// 2. Transferable Objects —— 转移所有权，零拷贝（快）
+const buffer = new ArrayBuffer(1024 * 1024 * 100);  // 100MB
+worker.postMessage({ buffer }, [buffer]);  // 第二参数声明转移
+// 转移后主线程的 buffer 不可再用（所有权给了 Worker）
+
+// 3. SharedArrayBuffer —— 真正共享内存（最快，但有限制）
+const shared = new SharedArrayBuffer(1024);
+worker.postMessage({ shared });
+// 主线程和 Worker 同时读写同一块内存
+// 配合 Atomics 做同步；需要 COOP/COEP 响应头才能启用</code></pre>
+<h3 class="ans-content">选择建议</h3>
+<ul class="ans-content"><li class="level-0">小数据：默认结构化克隆即可，无需优化。</li><li class="level-0">大 ArrayBuffer（图像、文件）：用 Transferable，零拷贝转移，性能提升明显。</li><li class="level-0">需要主线程和 Worker 同时读写：用 SharedArrayBuffer + Atomics（注意需要特定安全响应头）。</li></ul>
+<h3 class="ans-content">实战：分片上传算 hash</h3>
+<pre class="ans-content code-block"><div class="code-lang">JavaScript</div><code>// 主线程把文件分片丢给 Worker 算 MD5，不卡 UI
+const worker = new Worker(&#x27;hash-worker.js&#x27;);
+worker.postMessage({ chunks });  // chunks 是 ArrayBuffer 数组
+worker.onmessage = (e) =&gt; {
+  const fileHash = e.data;  // 算好的 hash
+  startUpload(fileHash);
+};</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>面试加分：知道默认是「结构化克隆（拷贝）」，大数据要用「Transferable 转移所有权」实现零拷贝，就超过大部分候选人了。</div>
+</div></article>
 <h1 id="sec-8" class="chapter">第六章  大屏可视化 &amp; GIS —— 你的项目优势</h1>
 <p class="ans-content p-italic" style="color:595959">你的简历中 Cesium、OpenLayers、ECharts、Mars3d、海康 SDK、WebRTC 都有实战，这章建议重点打磨 —— 面试官听到你熟悉这些会追问很细，答好了就是很强的差异化优势。本章 15 题。</p>
 <h2 class="ans-content">6.1 ECharts 与数据可视化</h2>
@@ -5697,13 +6017,354 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
 <div class="ans-content ans-label">【参考答案】</div>
 <ul class="ans-content"><li class="level-0">Middleware 埋点：记录每个请求的响应时间。</li><li class="level-0">Python cProfile / py-spy：函数级性能分析。</li><li class="level-0">慢 SQL：MySQL 慢查询日志 + EXPLAIN 分析。</li><li class="level-0">数据库连接池：检查 pool_size、是否连接耗尽。</li><li class="level-0">异步阻塞检查：看是否在 async 里误用了同步库。</li><li class="level-0">APM 工具：Sentry、Prometheus + Grafana。</li></ul>
 </div></article>
+<h2 class="ans-content">8.X FastAPI 实战进阶</h2>
+<p class="ans-content p-italic ">补充一批实际项目中高频遇到的 FastAPI 实战题：异步陷阱、中间件、限流缓存、WebSocket、统一响应、日志与测试。这些比基础语法更能体现工程能力。</p>
+<article class="qa-block" data-num="222" id="q222">
+    <div class="question">
+      <span class="q-num">Q222</span>
+      <span class="q-title">FastAPI 异步路由最大的坑是什么？</span>
+      <span class="q-tag">★★★ 实战必踩</span>
+      <button class="qa-toggle" data-num="222" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="222" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">async 路由里用同步阻塞库 = 卡死整个事件循环</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">async def 里禁止同步阻塞（requests/time.sleep/同步 DB）</span><span class="anchor-arrow">→</span><span class="anchor-kw">要么全异步库（httpx/asyncpg）</span><span class="anchor-arrow">→</span><span class="anchor-kw">要么用 def（FastAPI 自动放线程池）</span><span class="anchor-arrow">→</span><span class="anchor-kw">CPU 密集用 run_in_executor / 进程池</span><span class="anchor-arrow">→</span><span class="anchor-kw">阻塞会拖垮并发</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">事件循环像独轮车快递员，async 里写同步阻塞 = 让他原地等包裹，整条线都堵死</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">这是 FastAPI 最大的实战陷阱：在 async 路由里调用同步阻塞代码，会阻塞整个事件循环，并发直接崩。</p>
+<h3 class="ans-content">错误示例</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code># ❌ 致命错误：async 路由里用同步阻塞库
+@app.get(&quot;/bad&quot;)
+async def bad():
+    resp = requests.get(&quot;https://api.example.com&quot;)  # 同步阻塞！
+    time.sleep(2)                                     # 阻塞事件循环！
+    return resp.json()
+# 后果：这个请求阻塞期间，整个服务无法处理任何其他请求
+
+# ✅ 正确 1：用异步库
+@app.get(&quot;/good1&quot;)
+async def good1():
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(&quot;https://api.example.com&quot;)
+    await asyncio.sleep(2)
+    return resp.json()
+
+# ✅ 正确 2：如果必须用同步库，路由用普通 def
+@app.get(&quot;/good2&quot;)
+def good2():                       # def 而非 async def
+    resp = requests.get(&quot;...&quot;)     # FastAPI 自动在线程池跑，不阻塞循环
+    return resp.json()
+
+# ✅ 正确 3：CPU 密集任务用 executor
+@app.get(&quot;/cpu&quot;)
+async def cpu_task():
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, heavy_compute, data)
+    return result</code></pre>
+<h3 class="ans-content">判断口诀</h3>
+<ul class="ans-content"><li class="level-0">I/O 密集 + 有异步库（httpx/asyncpg/aioredis）→ async def + await。</li><li class="level-0">I/O 密集 + 只有同步库（requests/同步 ORM）→ 用普通 def（FastAPI 放线程池）。</li><li class="level-0">CPU 密集（图像/加密/大计算）→ run_in_executor 或独立进程/Celery。</li><li class="level-0">绝对禁止：async def 里出现 requests、time.sleep、同步 DB 查询。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话：「async 路由里的每一行都必须是非阻塞的」。拿不准就用普通 def 让框架处理，最安全。</div>
+</div></article>
+<article class="qa-block" data-num="223" id="q223">
+    <div class="question">
+      <span class="q-num">Q223</span>
+      <span class="q-title">FastAPI 中间件怎么用？和全局异常处理？</span>
+      <span class="q-tag">★★ 实战</span>
+      <button class="qa-toggle" data-num="223" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="223" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">中间件 = 请求/响应的拦截器：日志 / 鉴权 / CORS / 耗时统计 / 异常兜底</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">@app.middleware(&#x27;http&#x27;)</span><span class="anchor-arrow">→</span><span class="anchor-kw">call_next 调用后续处理</span><span class="anchor-arrow">→</span><span class="anchor-kw">请求前后都能加逻辑</span><span class="anchor-arrow">→</span><span class="anchor-kw">顺序：注册逆序执行</span><span class="anchor-arrow">→</span><span class="anchor-kw">全局异常用 exception_handler</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">中间件在每个请求的「进入」和「返回」时执行，用于横切关注点（日志、鉴权、耗时统计）。</p>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>from fastapi import FastAPI, Request
+import time
+
+app = FastAPI()
+
+# 自定义中间件：统计耗时 + 加响应头
+@app.middleware(&quot;http&quot;)
+async def add_process_time(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)        # 执行后续处理
+    process_time = time.time() - start
+    response.headers[&quot;X-Process-Time&quot;] = str(process_time)
+    return response
+
+# 全局异常处理（不是中间件，但常配合）
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # 记录日志 + 返回统一错误格式
+    logger.error(f&quot;Unhandled: {exc}&quot;, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={&quot;code&quot;: 500, &quot;message&quot;: &quot;服务器内部错误&quot;, &quot;data&quot;: None}
+    )
+
+# 业务异常类
+from fastapi import HTTPException
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={&quot;code&quot;: exc.status_code, &quot;message&quot;: exc.detail, &quot;data&quot;: None}
+    )</code></pre>
+<h3 class="ans-content">中间件常见用途</h3>
+<ul class="ans-content"><li class="level-0">请求日志：记录 method、path、耗时、状态码。</li><li class="level-0">鉴权：统一校验 token（也可用 Depends 做得更细）。</li><li class="level-0">CORS：用内置 CORSMiddleware。</li><li class="level-0">请求 ID：给每个请求生成 trace_id，贯穿日志。</li><li class="level-0">限流、防重放。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>中间件 vs 依赖注入（Depends）：中间件是全局所有请求；Depends 可针对特定路由、能拿到解析后的参数。鉴权常用 Depends，日志/耗时用中间件。</div>
+</div></article>
+<article class="qa-block" data-num="224" id="q224">
+    <div class="question">
+      <span class="q-num">Q224</span>
+      <span class="q-title">FastAPI 怎么做接口限流和缓存？</span>
+      <span class="q-tag">★★★ 生产必备</span>
+      <button class="qa-toggle" data-num="224" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="224" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">限流靠 Redis 计数 / 缓存靠 Redis+装饰器：保护后端 + 提速</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">限流：slowapi / Redis 滑动窗口</span><span class="anchor-arrow">→</span><span class="anchor-kw">缓存：Redis + 自定义装饰器</span><span class="anchor-arrow">→</span><span class="anchor-kw">缓存键：函数名+参数 hash</span><span class="anchor-arrow">→</span><span class="anchor-kw">缓存失效：TTL + 主动删除</span><span class="anchor-arrow">→</span><span class="anchor-kw">防缓存击穿/雪崩</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">生产环境必备：限流防刷、缓存提速。两者通常都靠 Redis 实现。</p>
+<h3 class="ans-content">① 接口限流</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code># 方式 1：slowapi（基于 Redis）
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address, storage_uri=&quot;redis://localhost&quot;)
+
+@app.get(&quot;/api/data&quot;)
+@limiter.limit(&quot;10/minute&quot;)     # 每 IP 每分钟 10 次
+async def get_data(request: Request):
+    return {&quot;data&quot;: &quot;...&quot;}
+
+# 方式 2：手写 Redis 滑动窗口（更可控）
+async def rate_limit(user_id: str, limit=100, window=60):
+    key = f&quot;rate:{user_id}&quot;
+    count = await redis.incr(key)
+    if count == 1:
+        await redis.expire(key, window)
+    if count &gt; limit:
+        raise HTTPException(429, &quot;请求过于频繁&quot;)</code></pre>
+<h3 class="ans-content">② 接口缓存</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>import json, hashlib
+from functools import wraps
+
+def redis_cache(ttl=60):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            # 用函数名+参数生成缓存 key
+            raw = f&quot;{func.__name__}:{args}:{kwargs}&quot;
+            key = &quot;cache:&quot; + hashlib.md5(raw.encode()).hexdigest()
+            cached = await redis.get(key)
+            if cached:
+                return json.loads(cached)         # 命中缓存
+            result = await func(*args, **kwargs)  # 未命中，执行
+            await redis.setex(key, ttl, json.dumps(result))
+            return result
+        return wrapper
+    return decorator
+
+@app.get(&quot;/api/hot&quot;)
+@redis_cache(ttl=300)
+async def hot_data():
+    return await db.query_expensive()</code></pre>
+<h3 class="ans-content">缓存三大问题</h3>
+<ul class="ans-content"><li class="level-0">缓存穿透：查不存在的 key 反复打到 DB。解决：缓存空值 + 布隆过滤器。</li><li class="level-0">缓存击穿：热点 key 过期瞬间大量请求打到 DB。解决：互斥锁（只让一个请求重建缓存）。</li><li class="level-0">缓存雪崩：大量 key 同时过期。解决：TTL 加随机值，错开过期时间。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>限流和缓存都靠 Redis。能说出「缓存穿透/击穿/雪崩」三个问题及解法，是后端进阶的标志。</div>
+</div></article>
+<article class="qa-block" data-num="225" id="q225">
+    <div class="question">
+      <span class="q-num">Q225</span>
+      <span class="q-title">FastAPI 如何实现 WebSocket 实时通信？</span>
+      <span class="q-tag">★★ 实战（你大屏可讲）</span>
+      <button class="qa-toggle" data-num="225" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="225" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">FastAPI WebSocket：accept → 收发循环 → 连接管理器广播</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">@app.websocket 装饰器</span><span class="anchor-arrow">→</span><span class="anchor-kw">await websocket.accept()</span><span class="anchor-arrow">→</span><span class="anchor-kw">receive_text / send_text 循环</span><span class="anchor-arrow">→</span><span class="anchor-kw">ConnectionManager 管理多连接</span><span class="anchor-arrow">→</span><span class="anchor-kw">断开处理 WebSocketDisconnect</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">WebSocket 用于实时场景（聊天、通知、实时数据推送）。你的可视化大屏项目就可能用到实时数据推送。</p>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>from fastapi import WebSocket, WebSocketDisconnect
+
+# 连接管理器：管理所有活跃连接
+class ConnectionManager:
+    def __init__(self):
+        self.active: list[WebSocket] = []
+
+    async def connect(self, ws: WebSocket):
+        await ws.accept()
+        self.active.append(ws)
+
+    def disconnect(self, ws: WebSocket):
+        self.active.remove(ws)
+
+    async def broadcast(self, message: str):
+        for conn in self.active:
+            await conn.send_text(message)
+
+manager = ConnectionManager()
+
+@app.websocket(&quot;/ws/{client_id}&quot;)
+async def websocket_endpoint(ws: WebSocket, client_id: str):
+    await manager.connect(ws)
+    try:
+        while True:
+            data = await ws.receive_text()       # 接收消息
+            await manager.broadcast(f&quot;{client_id}: {data}&quot;)  # 广播
+    except WebSocketDisconnect:
+        manager.disconnect(ws)
+        await manager.broadcast(f&quot;{client_id} 离开了&quot;)
+
+# 服务端主动推送（如大屏实时数据）
+async def push_realtime_data():
+    while True:
+        data = await fetch_latest_ship_positions()
+        await manager.broadcast(json.dumps(data))
+        await asyncio.sleep(1)</code></pre>
+<h3 class="ans-content">生产注意点</h3>
+<ul class="ans-content"><li class="level-0">心跳保活：定时 ping/pong，检测死连接。</li><li class="level-0">鉴权：连接时通过 query 或首条消息传 token 校验。</li><li class="level-0">多实例部署：单机内存存连接不够，要用 Redis 发布订阅广播跨实例。</li><li class="level-0">异常处理：WebSocketDisconnect 要捕获，及时清理连接。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>能写出 ConnectionManager（连接管理 + 广播）+ 提到「多实例要 Redis 发布订阅」就是合格的实战答案。</div>
+</div></article>
+<article class="qa-block" data-num="226" id="q226">
+    <div class="question">
+      <span class="q-num">Q226</span>
+      <span class="q-title">FastAPI 接口怎么设计统一响应和分页？</span>
+      <span class="q-tag">★★ 工程规范</span>
+      <button class="qa-toggle" data-num="226" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="226" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">工程规范 2 件套：统一响应格式 + 分页封装</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">统一响应 {code, message, data}</span><span class="anchor-arrow">→</span><span class="anchor-kw">泛型 Response 模型</span><span class="anchor-arrow">→</span><span class="anchor-kw">分页 {total, items, page, size}</span><span class="anchor-arrow">→</span><span class="anchor-kw">offset/limit 或 cursor 游标</span><span class="anchor-arrow">→</span><span class="anchor-kw">依赖注入分页参数</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">实际项目里，统一响应格式和分页是基础工程规范，面试问「你怎么设计接口」时要答得出。</p>
+<h3 class="ans-content">① 统一响应格式</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>from pydantic import BaseModel
+from typing import Generic, TypeVar, Optional
+
+T = TypeVar(&quot;T&quot;)
+
+class Response(BaseModel, Generic[T]):
+    code: int = 0
+    message: str = &quot;success&quot;
+    data: Optional[T] = None
+
+# 使用：明确的类型提示 + 自动文档
+@app.get(&quot;/users/{id}&quot;, response_model=Response[UserOut])
+async def get_user(id: int):
+    user = await db.get_user(id)
+    return Response(data=user)</code></pre>
+<h3 class="ans-content">② 分页封装</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>class PageParams(BaseModel):
+    page: int = 1
+    size: int = 20
+
+class PageResult(BaseModel, Generic[T]):
+    total: int
+    items: list[T]
+    page: int
+    size: int
+
+# 依赖注入分页参数
+def pagination(page: int = 1, size: int = 20) -&gt; PageParams:
+    size = min(size, 100)            # 限制最大每页数量，防刷
+    return PageParams(page=page, size=size)
+
+@app.get(&quot;/users&quot;, response_model=Response[PageResult[UserOut]])
+async def list_users(p: PageParams = Depends(pagination)):
+    offset = (p.page - 1) * p.size
+    total = await db.count_users()
+    items = await db.query_users(offset=offset, limit=p.size)
+    return Response(data=PageResult(
+        total=total, items=items, page=p.page, size=p.size
+    ))</code></pre>
+<h3 class="ans-content">offset 分页 vs 游标分页</h3>
+<ul class="ans-content"><li class="level-0">offset/limit：简单直观，但深翻页（offset 很大）会慢，且数据变动会重复/遗漏。</li><li class="level-0">游标分页（cursor）：用上一页最后一条的 id/时间作为游标，性能稳定，适合无限滚动。</li><li class="level-0">大数据列表、信息流推荐用游标分页。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>接口设计题答「统一响应 {code,message,data} + 泛型 Response 模型 + 分页 PageResult + 深翻页用游标」就很专业。</div>
+</div></article>
+<article class="qa-block" data-num="227" id="q227">
+    <div class="question">
+      <span class="q-num">Q227</span>
+      <span class="q-title">FastAPI 项目怎么做日志和测试？</span>
+      <span class="q-tag">★★ 工程化</span>
+      <button class="qa-toggle" data-num="227" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="227" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">质量 2 件套：结构化日志（loguru+trace_id）+ pytest 测试（TestClient）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">loguru 结构化日志</span><span class="anchor-arrow">→</span><span class="anchor-kw">trace_id 贯穿请求链路</span><span class="anchor-arrow">→</span><span class="anchor-kw">pytest + TestClient</span><span class="anchor-arrow">→</span><span class="anchor-kw">依赖覆盖 dependency_overrides</span><span class="anchor-arrow">→</span><span class="anchor-kw">测试用独立 DB / mock</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">成熟项目的两个工程化标志：可观测的日志 + 自动化测试。</p>
+<h3 class="ans-content">① 结构化日志</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code>from loguru import logger
+import uuid
+from contextvars import ContextVar
+
+# 用 contextvar 存 trace_id，贯穿整个请求
+trace_id_var: ContextVar[str] = ContextVar(&quot;trace_id&quot;, default=&quot;&quot;)
+
+@app.middleware(&quot;http&quot;)
+async def log_middleware(request, call_next):
+    trace_id = str(uuid.uuid4())[:8]
+    trace_id_var.set(trace_id)
+    logger.info(f&quot;[{trace_id}] {request.method} {request.url.path}&quot;)
+    response = await call_next(request)
+    logger.info(f&quot;[{trace_id}] status={response.status_code}&quot;)
+    return response
+
+# 配置日志：分级、滚动、JSON 格式（生产用）
+logger.add(&quot;logs/app_{time}.log&quot;, rotation=&quot;100 MB&quot;,
+           retention=&quot;30 days&quot;, level=&quot;INFO&quot;, serialize=True)</code></pre>
+<h3 class="ans-content">② 接口测试</h3>
+<pre class="ans-content code-block"><div class="code-lang">Python</div><code># test_users.py
+from fastapi.testclient import TestClient
+from main import app, get_db
+
+client = TestClient(app)
+
+def test_get_user():
+    resp = client.get(&quot;/users/1&quot;)
+    assert resp.status_code == 200
+    assert resp.json()[&quot;code&quot;] == 0
+
+# 依赖覆盖：测试时用内存 DB 替换真实 DB
+def override_get_db():
+    return TestDatabase()
+
+app.dependency_overrides[get_db] = override_get_db
+
+# 异步测试用 httpx.AsyncClient + pytest-asyncio
+import pytest, httpx
+
+@pytest.mark.asyncio
+async def test_async():
+    async with httpx.AsyncClient(app=app, base_url=&quot;http://test&quot;) as ac:
+        resp = await ac.get(&quot;/users&quot;)
+    assert resp.status_code == 200</code></pre>
+<h3 class="ans-content">要点</h3>
+<ul class="ans-content"><li class="level-0">日志：用 trace_id 串联一次请求的所有日志，排查问题靠它。</li><li class="level-0">日志分级 + 滚动 + 保留期，生产用 JSON 格式便于采集（ELK/Loki）。</li><li class="level-0">测试：FastAPI 自带 TestClient，依赖注入可用 dependency_overrides 替换（mock DB/外部服务）。</li><li class="level-0">测试要用独立测试库，不要污染生产/开发数据。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>能说出「trace_id 贯穿日志」+「dependency_overrides 替换依赖做测试」两个点，就体现了真实工程经验。</div>
+</div></article>
 <h1 id="sec-11" class="chapter">第九章  AI 辅助开发与工作流 —— 新兴热点</h1>
-<p class="ans-content p-italic" style="color:595959">你简历已经写了使用 Claude、Gemini Pro、DeepSeek、OpenCode 等工具，这章是 2026 年新兴高频考察点。答好了能显著拉开差距。本章 15 题，分为：工具认知、工作流实践、企业落地。</p>
-<h2 class="ans-content">9.1 AI 编程工具认知</h2>
+<p class="ans-content p-italic" style="color:#595959">你简历已写了用 Claude、Gemini Pro、DeepSeek 等工具，这章是 2026 高频考察点。本章不纠结工具间的优劣对比，而是聚焦实战：有哪些工具及适用场景、如何审核 AI 代码、如何沉淀团队 Skills、有哪些优秀开源插件。答好能显著拉开差距。本章 15 题。</p>
+<h2 class="ans-content">9.1 AI 开发工具与使用场景</h2>
 <article class="qa-block" data-num="149" id="q149">
     <div class="question">
       <span class="q-num">Q149</span>
-      <span class="q-title">你日常用哪些 AI 编程工具？怎么选？</span>
+      <span class="q-title">你日常用哪些 AI 编程工具？分别什么场景？</span>
       <span class="q-tag">★ 开场题</span>
       <button class="qa-toggle" data-num="149" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5711,28 +6372,33 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="149" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">工具按场景选：补全 Copilot / 复杂 Cursor / 对话 Claude / 国产 DeepSeek</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Cursor/Claude Code（IDE）</span><span class="anchor-arrow">→</span><span class="anchor-kw">GitHub Copilot（轻量补全）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Claude/ChatGPT（对话）</span><span class="anchor-arrow">→</span><span class="anchor-kw">DeepSeek/通义灵码（国产）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Stitch/Lovart（设计稿→码）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">按场景分 5 类：IDE Agent / 补全 / 对话 / 设计转码 / 终端 Agent</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">IDE Agent：Cursor / Windsurf / Trae</span><span class="anchor-arrow">→</span><span class="anchor-kw">补全：GitHub Copilot / 通义灵码</span><span class="anchor-arrow">→</span><span class="anchor-kw">对话：Claude / ChatGPT / DeepSeek</span><span class="anchor-arrow">→</span><span class="anchor-kw">设计转码：v0 / Claude Design / Lovart</span><span class="anchor-arrow">→</span><span class="anchor-kw">终端 Agent：Claude Code / Gemini CLI</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">按场景讲（拿得出手的选 2-3 个就够）：</p>
-<ul class="ans-content"><li class="level-0">Cursor / Claude Code / Windsurf：AI 原生 IDE，适合复杂跨文件改动、项目级重构。</li><li class="level-0">GitHub Copilot：VSCode 插件，轻量，代码补全最丝滑，渐进式引入。</li><li class="level-0">Claude / Gemini Pro / ChatGPT：聊天式对话，做方案讨论、代码 review、写文档。</li><li class="level-0">DeepSeek / 通义灵码：国产模型，中文场景好，私有化部署友好。</li><li class="level-0">Stitch / Claude Design / Lovart：设计稿 → 代码，快速生成组件原型。</li></ul>
-<p class="ans-content p-bold">选型核心原则：</p>
-<ul class="ans-content"><li class="level-0">单文件、渐进补全 → Copilot。</li><li class="level-0">跨文件重构、复杂任务 → Cursor / Claude Code。</li><li class="level-0">讨论方案、调试思路 → 聊天式 AI。</li><li class="level-0">企业数据合规 → 选私有部署的国产模型。</li></ul>
+<p class="ans-content ">不纠结哪个最好，按「用它做什么」来分类罗列，面试时挑你真用过的 3-4 个讲。</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:16%"><col style="width:36%"><col style="width:48%"></colgroup><thead><tr><th>类别</th><th>代表工具</th><th>适用场景</th></tr></thead><tbody><tr><td>AI 原生 IDE</td><td>Cursor、Windsurf、Trae（国产）</td><td>跨文件重构、项目级改动、边写边问</td></tr><tr><td>代码补全</td><td>GitHub Copilot、通义灵码、CodeGeeX</td><td>日常编码的行内/块级补全，渐进引入</td></tr><tr><td>对话式 AI</td><td>Claude、ChatGPT、Gemini、DeepSeek</td><td>方案讨论、调试思路、Code Review、写文档</td></tr><tr><td>终端 Agent</td><td>Claude Code、Gemini CLI、OpenCode</td><td>自主执行多步任务、批量改造、脚本化</td></tr><tr><td>设计转码</td><td>v0、Claude Design、Lovart、Figma AI</td><td>设计稿/描述 → 组件原型代码</td></tr></tbody></table></div>
+<h3 class="ans-content">回答示范（结合你的栈）</h3>
+<p class="ans-content " style="color:595959">「我日常主力是 Cursor / Claude Code 做项目级开发，行内补全偶尔用 Copilot；方案讨论和 Code Review 用 Claude 对话；做原型快速出图用 v0 / Claude Design。国产模型 DeepSeek 在中文需求和私有化场景下用得多。」</p>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>不要背工具清单，按「场景」组织：IDE 改大改动、补全写日常、对话理思路、Agent 跑任务、设计转原型。挑你用过的具体讲体验。</div>
 </div></article>
 <article class="qa-block" data-num="150" id="q150">
     <div class="question">
       <span class="q-num">Q150</span>
-      <span class="q-title">Cursor 和 Claude Code 有什么区别？</span>
-      <span class="q-tag">★★ 2026 高频</span>
+      <span class="q-title">AI 工具怎么落地到开发？介入有哪些深度？</span>
+      <span class="q-tag">★★ 实践题</span>
       <button class="qa-toggle" data-num="150" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="150" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Cursor 副驾驶（Tab 补全）/ Claude Code 自动驾驶（Agent 执行）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Cursor：IDE + 协作式</span><span class="anchor-arrow">→</span><span class="anchor-kw">Claude Code：CLI/插件 + 自主执行</span><span class="anchor-arrow">→</span><span class="anchor-kw">速度：Cursor 快 / CC 深思</span><span class="anchor-arrow">→</span><span class="anchor-kw">搭配使用最佳</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 工具落地 3 层：补全（行级）/ 对话（思路）/ Agent（自主多步）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">补全：副驾驶，你主导</span><span class="anchor-arrow">→</span><span class="anchor-kw">对话：顾问，理清思路</span><span class="anchor-arrow">→</span><span class="anchor-kw">Agent：自动驾驶，交付任务</span><span class="anchor-arrow">→</span><span class="anchor-kw">从补全到 Agent 是信任递进</span><span class="anchor-arrow">→</span><span class="anchor-kw">关键是人始终把关</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<div class="ans-content table-wrap"><table><colgroup><col style="width:19.51%"><col style="width:37.80%"><col style="width:42.68%"></colgroup><thead><tr><th>维度</th><th>Cursor</th><th>Claude Code</th></tr></thead><tbody><tr><td>形态</td><td>IDE（基于 VSCode 分支）</td><td>终端 CLI + IDE 插件</td></tr><tr><td>交互风格</td><td>副驾驶：Tab 补全 + Chat 协作</td><td>自动驾驶：自主 Agent 执行任务</td></tr><tr><td>速度</td><td>快（Tab 补全近即时）</td><td>较慢（深度思考 + 规划）</td></tr><tr><td>适合场景</td><td>日常编码、小修小补</td><td>复杂重构、大任务拆分、Skills 固化</td></tr><tr><td>上下文</td><td>项目级 index + MCP</td><td>超长上下文 + 文件读取</td></tr></tbody></table></div>
-<p class="ans-content ">两者非对立关系，可以搭配使用：日常补全用 Cursor，大任务交给 Claude Code。</p>
+<p class="ans-content ">与其对比工具，不如讲清 AI 介入开发的三种「深度」，以及怎么组合使用。</p>
+<h3 class="ans-content">三种介入深度</h3>
+<ul class="ans-content"><li class="level-0">补全级（副驾驶）：你写代码，AI 补全下一行/下一块。你完全主导，AI 加速。适合熟悉的代码。</li><li class="level-0">对话级（顾问）：遇到不确定的方案/Bug，和 AI 讨论，让它给思路、解释、对比方案。决策权在你。</li><li class="level-0">Agent 级（自动驾驶）：把一个完整任务（如「给这个模块加单元测试」）交给 AI 自主执行多步——读代码、改文件、跑测试。你 review 结果。</li></ul>
+<h3 class="ans-content">实战组合</h3>
+<ul class="ans-content"><li class="level-0">探索新功能：先对话理清方案 → Agent 搭骨架 → 补全细化。</li><li class="level-0">改 Bug：对话定位 → 自己改或让 Agent 改 → 人工 review。</li><li class="level-0">重复劳动（加 CRUD、写测试、改样式）：直接交给 Agent。</li><li class="level-0">核心逻辑/复杂算法：自己写为主，AI 仅补全 + review。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>核心观点：「AI 介入越深，越要 review 严」。补全可以信任度高，Agent 产出必须人工把关。展现你「会用且能控」的态度。</div>
 </div></article>
 <article class="qa-block" data-num="151" id="q151">
     <div class="question">
@@ -5745,17 +6411,18 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="151" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Vibe（氛围）vs Spec（规范）：原型探索用 Vibe，生产用 Spec</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Vibe：自然语言 + AI 自由发挥</span><span class="anchor-arrow">→</span><span class="anchor-kw">Spec：先写规格 + AI 实现</span><span class="anchor-arrow">→</span><span class="anchor-kw">原型阶段 Vibe，正式开发 Spec</span><span class="anchor-arrow">→</span><span class="anchor-kw">结合最佳</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Vibe Coding（凭感觉）适合原型，Spec Coding（先规范）适合生产</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Vibe：自然语言描述，AI 自由发挥</span><span class="anchor-arrow">→</span><span class="anchor-kw">Spec：先写清规格/约束再让 AI 实现</span><span class="anchor-arrow">→</span><span class="anchor-kw">原型探索用 Vibe</span><span class="anchor-arrow">→</span><span class="anchor-kw">生产代码用 Spec</span><span class="anchor-arrow">→</span><span class="anchor-kw">组合：Vibe 探路 → Spec 固化</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">两种 AI 编程范式：</p>
-<ul class="ans-content"><li class="level-0">Vibe Coding（氛围编程）：自然语言描述想法，AI 自由发挥，开发者侧重意图表达和结果验证。适合原型探索、新功能快速试水。</li><li class="level-0">Spec Coding（规范编程）：先写详细规格文档（Spec），AI 按规范生成代码，开发者侧重规范设计和代码审查。适合生产级项目、团队协作。</li></ul>
-<p class="ans-content ">实际项目：原型阶段用 Vibe，进入正式开发后切换到 Spec。两者结合效率最高。</p>
+<p class="ans-content ">两种和 AI 协作的模式，2026 高频概念题。</p>
+<ul class="ans-content"><li class="level-0">Vibe Coding（氛围编程）：用自然语言描述想要什么，让 AI 自由发挥，快速出结果。适合原型、Demo、探索性开发。缺点：代码质量不可控、难维护。</li><li class="level-0">Spec Coding（规范编程）：先写清楚需求规格、接口约定、技术约束，再让 AI 按规格实现。适合生产级、团队协作。质量可控但前期投入大。</li></ul>
+<h3 class="ans-content">怎么结合</h3>
+<ul class="ans-content"><li class="level-0">项目初期/验证想法：Vibe 快速试错，跑通就行。</li><li class="level-0">确定方向后：把验证好的思路写成 Spec（接口、数据结构、边界），让 AI 重新规范实现。</li><li class="level-0">团队项目：始终 Spec 优先，配合项目 Skills（见后面题）保证风格统一。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话：「Vibe 探路，Spec 落地」。能讲出「原型用 Vibe、生产用 Spec、两者结合」就到位了。</div>
 </div></article>
-<h2 class="ans-content">9.2 AI 工作流实践（面试亮点）</h2>
 <article class="qa-block" data-num="152" id="q152">
     <div class="question">
       <span class="q-num">Q152</span>
-      <span class="q-title">日常开发怎么把 AI 融入工作流？给个具体例子</span>
+      <span class="q-title">日常开发怎么把 AI 融入工作流？举具体例子</span>
       <span class="q-tag">★★ 必问</span>
       <button class="qa-toggle" data-num="152" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5763,22 +6430,19 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="152" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 工作流 4 场景：新功能 / 跨项目迁移 / Code Review / 设计转码</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">新功能：讨论需求 → 架构 → 落地 → 沉淀文档</span><span class="anchor-arrow">→</span><span class="anchor-kw">跨项目：A 文件 + B 风格示例</span><span class="anchor-arrow">→</span><span class="anchor-kw">Code Review：AI 先审 + 人工把关</span><span class="anchor-arrow">→</span><span class="anchor-kw">设计图 → 组件草稿</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 工作流 4 场景：新功能 / 跨项目迁移 / Code Review / 设计转码</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">新功能：讨论→架构→实现→沉淀</span><span class="anchor-arrow">→</span><span class="anchor-kw">跨项目：给参考代码做风格迁移</span><span class="anchor-arrow">→</span><span class="anchor-kw">Review：AI 先审人把关</span><span class="anchor-arrow">→</span><span class="anchor-kw">设计稿→组件草稿</span><span class="anchor-arrow">→</span><span class="anchor-kw">每步都留检查点</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">结合你项目，可以这样讲（3-4 个具体场景）：</p>
-<p class="ans-content p-bold">场景 1：新功能开发 —— 四步工作流</p>
-<ul class="ans-content"><li class="level-0">① 先和 Claude 讨论需求，梳理模块边界 + 技术选型。</li><li class="level-0">② 让 AI 输出架构草稿（组件树、接口定义、数据模型）。</li><li class="level-0">③ 用 Cursor 在项目里落地代码，AI 补全具体实现。</li><li class="level-0">④ 功能完成后，让 AI 总结实现步骤，沉淀为 “新增接口标准流程” 的文档。</li></ul>
-<p class="ans-content p-bold">场景 2：跨项目代码迁移</p>
-<ul class="ans-content"><li class="level-0">把 A 项目的组件文件给 AI，同时给 B 项目的一段示例代码做风格参考，让 AI 按 B 项目风格重写，省去手动适配。</li></ul>
-<p class="ans-content p-bold">场景 3：Code Review 辅助</p>
-<ul class="ans-content"><li class="level-0">PR 提交后先让 AI 从可读性、异常处理、一致性、潜在风险四个维度审查，再人工判断。覆盖率高，但不能完全替代人工。</li></ul>
-<p class="ans-content p-bold">场景 4：设计图 → 代码</p>
-<ul class="ans-content"><li class="level-0">用 Claude Design / Stitch 根据设计图生成 Vue / React 组件草稿，人工再改细节。对简单落地页尤其高效。</li></ul>
+<p class="ans-content ">讲具体的工作流场景比讲工具更有说服力。给 4 个真实场景：</p>
+<ul class="ans-content"><li class="level-0">开发新功能：先和 AI 讨论需求和方案 → 让它出架构和文件结构 → 分步实现 → 把决策沉淀成文档/注释。</li><li class="level-0">跨项目迁移：把 A 项目的某功能 + B 项目的代码风格示例丢给 AI，让它「按 B 的风格实现 A 的功能」。</li><li class="level-0">Code Review：提交前让 AI 先审一遍（找 bug、安全、性能问题），人工再终审。AI 适合抓低级错误和遗漏。</li><li class="level-0">设计稿转码：把 Figma 截图/设计稿给 AI，生成组件骨架，再手动调细节和接入数据。</li></ul>
+<h3 class="ans-content">关键习惯</h3>
+<ul class="ans-content"><li class="level-0">给足上下文：项目技术栈、规范、相关代码。</li><li class="level-0">小步快跑：让 AI 一次做一件事，做完 review 再继续。</li><li class="level-0">留检查点：重要改动用 git 提交，方便回滚。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>面试时讲一个你真实用 AI 完成的任务（如「用 AI 给老项目批量加 TS 类型」），比抽象描述工作流更打动人。</div>
 </div></article>
+<h2 class="ans-content">9.2 如何审核 AI 编写的代码</h2>
 <article class="qa-block" data-num="153" id="q153">
     <div class="question">
       <span class="q-num">Q153</span>
-      <span class="q-title">AI 生成的代码你怎么保证质量？</span>
+      <span class="q-title">如何审核 AI 编写的代码？</span>
       <span class="q-tag">★★★ 深度题</span>
       <button class="qa-toggle" data-num="153" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5786,10 +6450,13 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="153" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">6 道质量门禁：架构 / 小步 / 单 Chat / 工具链 / 人审 / 监控</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">先定架构再让 AI 写</span><span class="anchor-arrow">→</span><span class="anchor-kw">一次只做一个小功能</span><span class="anchor-arrow">→</span><span class="anchor-kw">新对话避免上下文干扰</span><span class="anchor-arrow">→</span><span class="anchor-kw">ESLint/TS/单测把关</span><span class="anchor-arrow">→</span><span class="anchor-kw">关键逻辑必须人工理解</span><span class="anchor-arrow">→</span><span class="anchor-kw">上线加监控</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">审 AI 代码 6 查：正确性 / 安全 / 性能 / 边界 / 依赖 / 可维护</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">正确性：逻辑对不对、需求全不全</span><span class="anchor-arrow">→</span><span class="anchor-kw">安全：注入/越权/敏感信息</span><span class="anchor-arrow">→</span><span class="anchor-kw">性能：复杂度、N+1、内存</span><span class="anchor-arrow">→</span><span class="anchor-kw">边界：空值/异常/并发</span><span class="anchor-arrow">→</span><span class="anchor-kw">依赖：是否引入多余/过时包</span><span class="anchor-arrow">→</span><span class="anchor-kw">可维护：命名/可读/符合规范</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">审 AI 代码像审实习生的活：能跑只是及格线，要查它没考虑到的坑（边界、安全、性能）</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">AI 代码不能盲信，需要多层质量门禁。我的做法：</p>
-<ul class="ans-content"><li class="level-0">架构先行：在让 AI 动手前，先明确项目结构、模块职责、命名规范，防止 AI 重复实现已有功能。</li><li class="level-0">小步快跑：一次只让 AI 做一个小功能，不要一口气生成整个模块，便于 code review。</li><li class="level-0">单 Chat 专注：新功能或大改动开启新对话，避免历史上下文干扰。</li><li class="level-0">ESLint + TypeScript + 单元测试：用工程化手段把关。</li><li class="level-0">关键逻辑必须人工理解：核心业务、安全相关、性能敏感点绝不能完全依赖 AI。</li><li class="level-0">日志和埋点：AI 生成的接口上线后加监控，及时发现异常。</li></ul>
+<p class="ans-content ">AI 代码「能跑」不等于「能上线」。系统化审核 6 个维度：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:46%"><col style="width:40%"></colgroup><thead><tr><th>维度</th><th>重点检查</th><th>AI 常见问题</th></tr></thead><tbody><tr><td>正确性</td><td>逻辑对不对、需求覆盖全不全</td><td>漏掉边缘需求、误解意图</td></tr><tr><td>安全</td><td>SQL 注入、XSS、越权、密钥硬编码</td><td>直接拼 SQL、明文存密码</td></tr><tr><td>性能</td><td>时间复杂度、N+1 查询、内存泄漏</td><td>循环里查 DB、无分页全量加载</td></tr><tr><td>边界处理</td><td>空值、异常、并发、超长输入</td><td>只写 happy path，不处理异常</td></tr><tr><td>依赖</td><td>是否引入多余/过时/有漏洞的包</td><td>随手 import 冷门库、版本过时</td></tr><tr><td>可维护性</td><td>命名、可读性、是否符合项目规范</td><td>风格不一致、过度抽象/魔法值</td></tr></tbody></table></div>
+<h3 class="ans-content">实操流程</h3>
+<ul class="ans-content"><li class="level-0">先读懂再合并：绝不直接合并看不懂的 AI 代码。</li><li class="level-0">跑测试：让 AI 同时写测试用例，但测试也要审（AI 可能写「假装通过」的测试）。</li><li class="level-0">重点盯边界和安全：这是 AI 最容易忽略的，也是出事故的地方。</li><li class="level-0">小步提交：AI 改动也走正常 PR 流程 + Review。</li><li class="level-0">用工具兜底：ESLint、TS 类型检查、SonarQube、Snyk 扫描。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>态度要点：「把 AI 当能力强但缺乏项目上下文的实习生」。能跑是起点，审查重点放在它最容易忽略的边界、安全、性能上。</div>
 </div></article>
 <article class="qa-block" data-num="154" id="q154">
     <div class="question">
@@ -5802,12 +6469,23 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="154" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Prompt 5 原则：角色 / 上下文 / IO / 例子 / 分步</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">你是资深 X 工程师</span><span class="anchor-arrow">→</span><span class="anchor-kw">项目栈/规范/相关代码</span><span class="anchor-arrow">→</span><span class="anchor-kw">我有什么 → 要什么</span><span class="anchor-arrow">→</span><span class="anchor-kw">正例反例对比</span><span class="anchor-arrow">→</span><span class="anchor-kw">先列计划再实现</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">好 Prompt 5 要素：角色 / 上下文 / 明确输入输出 / 示例 / 分步</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">给角色：你是资深 X 工程师</span><span class="anchor-arrow">→</span><span class="anchor-kw">给上下文：栈/规范/相关代码</span><span class="anchor-arrow">→</span><span class="anchor-kw">明确 IO：我有什么、要什么</span><span class="anchor-arrow">→</span><span class="anchor-kw">给示例：正例反例对比</span><span class="anchor-arrow">→</span><span class="anchor-kw">要求分步：先列计划再实现</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">核心 5 条原则：</p>
-<ul class="ans-content"><li class="level-0">明确角色：“你是一个资深 Vue3 前端工程师...”</li><li class="level-0">提供上下文：项目技术栈、命名规范、目录结构、相关代码片段。</li><li class="level-0">说清楚输入输出：我有什么、要得到什么。</li><li class="level-0">给例子：正例（我想要这种风格）+ 反例（我不要这种）。</li><li class="level-0">分步思考：“先分析...再实现...最后输出...” 复杂任务强制 AI 给出计划。</li></ul>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>避免：“帮我写个登录页”（太模糊）。</div>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>好的 Prompt：“用 Vue3 + Element Plus + TS 写登录页，含账号/密码/验证码/记住我。样式参考 Tailwind，色值用我项目 primary: #1890ff。失败时弹 message。先列出组件结构，我确认后再写代码。”</div>
+<p class="ans-content ">写好 Prompt 能大幅提升 AI 产出质量。5 个核心要素：</p>
+<ul class="ans-content"><li class="level-0">给角色：「你是资深 Vue3 + TS 工程师」，让 AI 进入专业语境。</li><li class="level-0">给上下文：项目技术栈、代码规范、相关已有代码。上下文越足，产出越贴合。</li><li class="level-0">明确输入输出：「我有这个数据结构 X，需要一个函数返回 Y」，别让 AI 猜。</li><li class="level-0">给示例：正例（希望的样子）+ 反例（不要的样子），AI 模仿能力强。</li><li class="level-0">要求分步：复杂任务让它「先列实现计划，确认后再写代码」，避免一口气写错方向。</li></ul>
+<h3 class="ans-content">反面教材 vs 正面</h3>
+<pre class="ans-content code-block"><div class="code-lang">Prompt 对比</div><code>// ❌ 模糊
+&quot;帮我写个表格组件&quot;
+
+// ✅ 清晰
+&quot;你是资深 Vue3 工程师。基于 Element Plus，写一个可复用的表格组件：
+- Props: columns(列配置), data(数据), loading
+- 支持：分页、排序、空状态
+- 用 &lt;script setup lang=&#x27;ts&#x27;&gt;，遵循组合式 API
+- 先列出组件设计方案，我确认后再写完整代码&quot;
+
+</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>记忆：「角色 + 上下文 + 明确 IO + 示例 + 分步」。复杂任务一定要求 AI 先给方案再实现，能避免大量返工。</div>
 </div></article>
 <article class="qa-block" data-num="155" id="q155">
     <div class="question">
@@ -5820,32 +6498,37 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="155" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">MCP = AI 界 USB-C：让 AI 标准化对接外部工具</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">开放协议（Anthropic 提）</span><span class="anchor-arrow">→</span><span class="anchor-kw">MCP Server 提供工具/数据</span><span class="anchor-arrow">→</span><span class="anchor-kw">MCP Client 调用</span><span class="anchor-arrow">→</span><span class="anchor-kw">解决 M×N 集成问题</span><span class="anchor-arrow">→</span><span class="anchor-kw">2026 已成标准</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">MCP = AI 界的 USB-C：标准化连接 AI 和外部工具/数据</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">开放协议（Anthropic 提出）</span><span class="anchor-arrow">→</span><span class="anchor-kw">MCP Server 提供工具/数据</span><span class="anchor-arrow">→</span><span class="anchor-kw">MCP Client（AI 应用）调用</span><span class="anchor-arrow">→</span><span class="anchor-kw">解决 M×N 集成问题</span><span class="anchor-arrow">→</span><span class="anchor-kw">2026 已成事实标准</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">以前每个 AI 接每个工具都要单独适配（M×N），MCP 像 USB-C 统一接口，一次适配处处可用</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">MCP 是 Anthropic 提出的开放协议，让 AI 模型可以与外部工具、数据源标准化地连接（类似 AI 界的 USB-C）。</p>
-<p class="ans-content ">作用：</p>
-<ul class="ans-content"><li class="level-0">让 Claude 能接入数据库、API、文件系统、浏览器等外部资源。</li><li class="level-0">让第三方工具（Figma、Notion、Slack）能作为 AI 的 “能力扩展”。</li><li class="level-0">开发者写一个 MCP Server，就能把自己的工具接入任何支持 MCP 的 AI 客户端。</li></ul>
-<p class="ans-content ">对前端的意义：以后 AI 能直接操作你的设计稿、任务系统、CI/CD 流水线，工作流自动化程度大幅提升。</p>
+<p class="ans-content ">MCP（Model Context Protocol）是连接 AI 模型和外部工具/数据源的开放协议。</p>
+<ul class="ans-content"><li class="level-0">解决的问题：以前 N 个 AI 应用接 M 个工具要写 N×M 套对接，MCP 标准化后只需各实现一次。</li><li class="level-0">MCP Server：把某个能力（查数据库、读文件、调 API、操作 Git）封装成标准接口。</li><li class="level-0">MCP Client：AI 应用（如 Claude Desktop、Cursor）通过 MCP 协议调用这些 Server。</li><li class="level-0">类比：像 LSP（语言服务协议）统一了编辑器和语言工具，MCP 统一了 AI 和工具。</li></ul>
+<h3 class="ans-content">前端能做什么</h3>
+<ul class="ans-content"><li class="level-0">用现成的 MCP Server：连接 GitHub、数据库、文件系统、浏览器等。</li><li class="level-0">写自定义 MCP Server：把团队内部工具（部署、查日志、CI）封装给 AI 调用。</li><li class="level-0">在 Cursor / Claude Code 里配置 MCP，让 AI 直接操作你的开发环境。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>一句话：「MCP 是 AI 调用外部工具的标准协议，解决 M×N 集成问题，类比 USB-C / LSP」。2026 高频前沿题。</div>
 </div></article>
+<h2 class="ans-content">9.3 项目 Skills 与开源生态</h2>
 <article class="qa-block" data-num="156" id="q156">
     <div class="question">
       <span class="q-num">Q156</span>
-      <span class="q-title">Claude Skills 是什么？怎么用？</span>
-      <span class="q-tag">★★</span>
+      <span class="q-title">如何编写成熟的项目 Skills？</span>
+      <span class="q-tag">★★★ 工程化</span>
       <button class="qa-toggle" data-num="156" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="156" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">Claude Skills = 把常用 Prompt 打包成可调用技能</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">代码审查 skill</span><span class="anchor-arrow">→</span><span class="anchor-kw">API 接口生成 skill</span><span class="anchor-arrow">→</span><span class="anchor-kw">数据库审查 skill</span><span class="anchor-arrow">→</span><span class="anchor-kw">团队共享 → 风格一致</span><span class="anchor-arrow">→</span><span class="anchor-kw">降低 Prompt 重复</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">项目 Skills = 把团队规范/流程打包成 AI 可复用的能力包</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Skill = 说明书 + 脚本 + 资源</span><span class="anchor-arrow">→</span><span class="anchor-kw">沉淀团队规范/最佳实践</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 自动按需调用</span><span class="anchor-arrow">→</span><span class="anchor-kw">保证多人产出风格一致</span><span class="anchor-arrow">→</span><span class="anchor-kw">放进仓库版本管理</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">Skills 像给 AI 的&#x27;员工手册 + 工具箱&#x27;：新人（AI）来了照着手册干，产出自然符合团队标准</span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">Claude Skills 是让 AI 固化常用能力的机制 —— 把重复性的 Prompt 打包成一个可调用的 “技能”。</p>
-<p class="ans-content ">典型应用：</p>
-<ul class="ans-content"><li class="level-0">code-review-skill：定义好审查维度（可读性、异常处理、边界、安全、性能），直接调用，不用每次都重写 Prompt。</li><li class="level-0">api-endpoint-generator：按项目统一响应结构和异常模型生成标准化接口代码。</li><li class="level-0">database-access-review：审查数据库访问逻辑，重点关注索引使用和慢查询风险。</li></ul>
-<p class="ans-content ">好处：团队协作时，所有人共用同一套 Skill，产出稳定、风格一致。</p>
+<p class="ans-content ">Skills 是把「怎么做某类事」的知识打包，让 AI 能稳定、一致地执行。是团队规模化用 AI 的关键。</p>
+<h3 class="ans-content">一个成熟的项目 Skill 包含什么</h3>
+<ul class="ans-content"><li class="level-0">说明文档（核心）：什么时候用这个 Skill、步骤是什么、约束有哪些。写给 AI 看，要清晰无歧义。</li><li class="level-0">示例：正确产出的样板（如标准的组件模板、API 写法）。</li><li class="level-0">脚本/工具：可执行的辅助脚本（如生成、校验、格式化）。</li><li class="level-0">资源文件：模板、配置、规范文档引用。</li></ul>
+<h3 class="ans-content">怎么写好项目 Skills</h3>
+<ul class="ans-content"><li class="level-0">从重复劳动入手：团队反复做的事（建组件、写 CRUD、接口对接规范）最值得做成 Skill。</li><li class="level-0">把隐性知识显性化：老员工脑子里的「我们项目都这么写」写成明确规则。</li><li class="level-0">明确触发时机：让 AI 知道「遇到 X 情况就用这个 Skill」。</li><li class="level-0">给正反例：正确的样子 + 常见错误，AI 照着学。</li><li class="level-0">放进仓库版本管理：Skill 跟着项目演进，团队共享、迭代。</li></ul>
+<h3 class="ans-content">举例：前端团队常见 Skills</h3>
+<ul class="ans-content"><li class="level-0">「组件开发规范」Skill：统一的组件结构、Props 命名、注释风格。</li><li class="level-0">「API 对接」Skill：统一的请求封装、错误处理、类型定义生成。</li><li class="level-0">「代码审查」Skill：按团队 checklist 自动审 PR。</li><li class="level-0">「提交规范」Skill：生成符合 Conventional Commits 的 commit message。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>核心价值：「Skills 让 AI 产出符合团队规范，多人协作风格一致」。从「重复劳动 + 隐性知识显性化」切入讲，体现工程化思维。</div>
 </div></article>
-<h2 class="ans-content">9.3 企业 AI 工作流（Leader 面高频）</h2>
 <article class="qa-block" data-num="157" id="q157">
     <div class="question">
       <span class="q-num">Q157</span>
@@ -5857,61 +6540,54 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="157" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">5 层企业 AI 工作流：选型 / 规范 / 流程 / 安全 / 提升</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">工具选型层（统一 IDE）</span><span class="anchor-arrow">→</span><span class="anchor-kw">规范沉淀层（.cursorrules / Skills）</span><span class="anchor-arrow">→</span><span class="anchor-kw">流程集成层（CI/CD/AI Review）</span><span class="anchor-arrow">→</span><span class="anchor-kw">安全合规层（数据边界）</span><span class="anchor-arrow">→</span><span class="anchor-kw">能力提升层（分享/Prompt 库）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">企业 AI 工作流 5 层：规范(Skills) / 工具(MCP) / 流程(AI入PR) / 知识库(RAG) / 度量</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">规范层：Skills 统一标准</span><span class="anchor-arrow">→</span><span class="anchor-kw">工具层：MCP 接内部系统</span><span class="anchor-arrow">→</span><span class="anchor-kw">流程层：AI 进 Code Review/CI</span><span class="anchor-arrow">→</span><span class="anchor-kw">知识层：内部文档 RAG</span><span class="anchor-arrow">→</span><span class="anchor-kw">度量层：评估 AI 产出质量</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">分 5 个层次讲（这套框架能让面试官眼前一亮）：</p>
-<p class="ans-content p-bold">① 工具选型层：</p>
-<ul class="ans-content"><li class="level-0">团队统一 1-2 个主力 AI IDE（Cursor / Claude Code），避免工具混乱。</li><li class="level-0">数据敏感团队选可私有化部署的模型（通义灵码 / DeepSeek）。</li></ul>
-<p class="ans-content p-bold">② 规范沉淀层：</p>
-<ul class="ans-content"><li class="level-0">把团队代码规范、组件库用法、常用工具函数写成 .cursorrules / CLAUDE.md 等项目级 Prompt，让 AI 自动遵循。</li><li class="level-0">建立 Skills 库：把常用场景（新增接口、写单测、写提交信息）固化成技能。</li></ul>
-<p class="ans-content p-bold">③ 流程集成层：</p>
-<ul class="ans-content"><li class="level-0">代码提交前：AI 做自动 code review，提出改进建议。</li><li class="level-0">CI/CD：AI 辅助生成测试用例、自动补全文档。</li><li class="level-0">故障排查：AI 分析日志、快速定位问题。</li></ul>
-<p class="ans-content p-bold">④ 安全合规层：</p>
-<ul class="ans-content"><li class="level-0">明确数据边界：哪些代码/数据不允许发给外部 AI（如含密钥、用户隐私）。</li><li class="level-0">Git hooks 拦截敏感信息提交。</li><li class="level-0">访问审计：记录 AI 工具使用日志。</li><li class="level-0">自动化安全扫描：SAST、SCA 集成到 CI。</li></ul>
-<p class="ans-content p-bold">⑤ 能力提升层：</p>
-<ul class="ans-content"><li class="level-0">定期内部分享最佳实践、踩坑经验。</li><li class="level-0">团队共享 Prompt 库和 Skills 库。</li><li class="level-0">关注行业新工具，小范围试用后再推广。</li></ul>
-<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>这道题核心：别只讲 “用 AI 提效”，要讲 “如何系统化、规范化、安全地把 AI 融入工程体系”。</div>
+<p class="ans-content ">企业级不是「个人用 AI 写代码」，而是把 AI 融入团队研发体系。分 5 层：</p>
+<ul class="ans-content"><li class="level-0">规范层：用 Skills 沉淀团队规范，保证 AI 产出风格统一（见上题）。</li><li class="level-0">工具层：用 MCP 把内部系统（部署、监控、数据库、文档）接给 AI 调用。</li><li class="level-0">流程层：AI 进入研发流程——自动 Code Review、生成测试、CI 中做检查。</li><li class="level-0">知识层：内部文档/代码库做成 RAG 知识库，AI 回答基于企业私有知识。</li><li class="level-0">度量层：评估 AI 产出质量（采纳率、bug 率），持续优化。</li></ul>
+<h3 class="ans-content">落地要点</h3>
+<ul class="ans-content"><li class="level-0">数据合规：敏感代码/数据用私有部署模型，不能传公网。</li><li class="level-0">权限管控：AI 调用内部工具要有权限边界。</li><li class="level-0">人始终把关：AI 加速但不替代决策和终审。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>从「个人提效」上升到「团队体系」：规范(Skills) + 工具(MCP) + 流程(入 CI/PR) + 知识(RAG) + 度量。能讲到数据合规和权限管控是加分。</div>
 </div></article>
 <article class="qa-block" data-num="158" id="q158">
     <div class="question">
       <span class="q-num">Q158</span>
-      <span class="q-title">AI 时代，前端工程师的核心竞争力是什么？</span>
-      <span class="q-tag">★★★ 必问</span>
+      <span class="q-title">有哪些优秀的开源 AI 开发工具/插件？</span>
+      <span class="q-tag">★★ 生态题</span>
       <button class="qa-toggle" data-num="158" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="158" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">4 维核心竞争力：系统设计 / 业务理解 / 代码审美 / AI 协作</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">系统设计能力（架构判断）</span><span class="anchor-arrow">→</span><span class="anchor-kw">业务理解能力（需求拆解）</span><span class="anchor-arrow">→</span><span class="anchor-kw">代码审美能力（识别 AI 产出问题）</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 协作能力（Prompt+Skills+工作流）</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">开源 AI 插件 4 类：编辑器 / CLI Agent / 框架 / 周边工具</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">编辑器：Continue / Cline / Roo Code</span><span class="anchor-arrow">→</span><span class="anchor-kw">CLI：Aider / OpenCode</span><span class="anchor-arrow">→</span><span class="anchor-kw">框架：LangChain / LangGraph / Vercel AI SDK</span><span class="anchor-arrow">→</span><span class="anchor-kw">MCP Servers 生态</span><span class="anchor-arrow">→</span><span class="anchor-kw">周边：RAG / 向量库</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">竞争力焦点正从 “写代码能力” 转向 4 个维度：</p>
-<ul class="ans-content"><li class="level-0">系统设计能力：AI 能写代码，但设计整体架构、模块拆分、数据流 —— 这需要人的经验和判断。</li><li class="level-0">业务理解能力：把模糊的需求翻译成可执行的技术方案，拆解成 AI 能做的原子任务。</li><li class="level-0">代码审美能力：能快速识别 AI 产出的问题（过度设计、命名不当、边界缺失），并指导 AI 改进。</li><li class="level-0">AI 协作能力：会写 Prompt、会用 Skills、会搭工作流、知道 AI 的能力边界。</li></ul>
-<p class="ans-content ">话术：</p>
-<p class="ans-content p-italic" style="color:1F4E79">“我不担心被 AI 淘汰，因为 AI 让我从机械的代码编写中解放出来，能更专注于业务建模、架构设计和价值交付。这几年我正是用 AI 大幅提升了开发效率，才能在项目中同时兼顾前端、后端（FastAPI）和 DevOps（Jenkins / Nginx）工作。”</p>
+<p class="ans-content ">罗列一批值得关注的开源 AI 开发工具/插件，按类别：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:16%"><col style="width:36%"><col style="width:48%"></colgroup><thead><tr><th>类别</th><th>代表项目</th><th>用途</th></tr></thead><tbody><tr><td>开源编辑器插件</td><td>Continue、Cline、Roo Code</td><td>VSCode 里的开源 AI 助手，可接任意模型</td></tr><tr><td>CLI Agent</td><td>Aider、OpenCode、Goose</td><td>终端里的 AI 编程 Agent，自主改代码</td></tr><tr><td>AI 应用框架</td><td>LangChain、LangGraph、LlamaIndex</td><td>构建 AI 应用/Agent 的框架</td></tr><tr><td>前端 AI SDK</td><td>Vercel AI SDK、assistant-ui</td><td>前端快速接入 LLM、流式 UI</td></tr><tr><td>MCP 生态</td><td>官方 MCP Servers 合集</td><td>连 GitHub/DB/浏览器等的标准工具</td></tr></tbody></table></div>
+<h3 class="ans-content">前端特别值得关注</h3>
+<ul class="ans-content"><li class="level-0">Vercel AI SDK：前端接 LLM 的事实标准，统一各家模型 API + 流式渲染 + 工具调用。</li><li class="level-0">assistant-ui / CopilotKit：快速给应用加 AI 助手 UI 的组件库。</li><li class="level-0">Continue / Cline：开源、可自托管的编辑器 AI 助手，数据可控，适合企业。</li><li class="level-0">shadcn/ui + v0：AI 生成 + 开源组件，原型开发利器。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>挑你真正用过或了解的讲。前端方向重点提 Vercel AI SDK（接模型）和 Continue/Cline（开源助手），显得跟得上生态。</div>
 </div></article>
 <article class="qa-block" data-num="159" id="q159">
     <div class="question">
       <span class="q-num">Q159</span>
-      <span class="q-title">初级程序员会被 AI 淘汰吗？</span>
-      <span class="q-tag">★★ 行为题</span>
+      <span class="q-title">AI 时代，前端工程师的核心竞争力是什么？</span>
+      <span class="q-tag">★★★ 必问</span>
       <button class="qa-toggle" data-num="159" title="显示/隐藏答案">👁 显示答案</button>
     </div>
     <div class="qa-answer">
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="159" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">话术：能力结构变 → 价值从'写'转'调度'</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">机械编码减少</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 协调能力变价值点</span><span class="anchor-arrow">→</span><span class="anchor-kw">门槛表面降低，理解力要求更高</span><span class="anchor-arrow">→</span><span class="anchor-kw">积极拥抱</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 时代核心竞争力：判断力 / 系统设计 / 业务理解 / AI 调度能力</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">写代码价值下降，判断力上升</span><span class="anchor-arrow">→</span><span class="anchor-kw">系统设计/架构能力</span><span class="anchor-arrow">→</span><span class="anchor-kw">业务理解 + 需求拆解</span><span class="anchor-arrow">→</span><span class="anchor-kw">把 AI 用好的能力（调度/审查）</span><span class="anchor-arrow">→</span><span class="anchor-kw">持续学习</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">标准回答：</p>
-<p class="ans-content ">“短期不会，但会彻底改变初级工程师的能力结构。过去初级程序员花大量时间写 CRUD、调样式、查文档；现在这些 AI 都能高效完成。但这不意味着初级岗位消失 —— 而是价值点从 ‘代码编写者’ 转变成 ‘AI 协调者’。未来的初级工程师更像是一个能准确表达需求、验证 AI 产出、熟练调度 AI 工具的 ‘智能工程师’。”</p>
-<p class="ans-content p-bold">从企业招聘角度：</p>
-<ul class="ans-content"><li class="level-0">纯编码能力需求减少，但对 “能利用 AI 快速交付业务价值” 的工程师需求增加。</li><li class="level-0">门槛表面变低（AI 能写代码），实际对理解力、判断力的要求反而更高。</li></ul>
+<p class="ans-content ">AI 能写代码后，前端工程师的价值重心转移了。</p>
+<ul class="ans-content"><li class="level-0">判断力：能识别 AI 产出的好坏、风险、坑。这需要扎实的基本功。</li><li class="level-0">系统设计能力：架构、技术选型、模块拆分——AI 还做不好的全局决策。</li><li class="level-0">业务理解：把模糊需求拆成清晰的技术方案，这是 AI 的弱项。</li><li class="level-0">AI 调度能力：会写 Prompt、会用工具链、会审查、会沉淀 Skills——把 AI 用出 10 倍效率。</li><li class="level-0">持续学习：技术和 AI 工具都在快速变化，学习能力本身是竞争力。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>核心观点：「机械编码的价值在降，判断力、系统设计、业务理解、驾驭 AI 的能力在升」。强调你有 6 年基本功，能驾驭 AI 而非被替代。</div>
 </div></article>
 <article class="qa-block" data-num="160" id="q160">
     <div class="question">
       <span class="q-num">Q160</span>
-      <span class="q-title">AI 工作流的风险和规避？</span>
+      <span class="q-title">AI 辅助开发有哪些风险？怎么规避？</span>
       <span class="q-tag">★★★</span>
       <button class="qa-toggle" data-num="160" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5919,15 +6595,16 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="160" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">5 风险：质量 / 资源 / 数据 / 供应链 / 能力退化</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">代码质量失控 → 强制 review</span><span class="anchor-arrow">→</span><span class="anchor-kw">资源治理缺失 → Prompt 约束</span><span class="anchor-arrow">→</span><span class="anchor-kw">数据泄露 → 分级 + 拦截</span><span class="anchor-arrow">→</span><span class="anchor-kw">供应链 → 依赖扫描</span><span class="anchor-arrow">→</span><span class="anchor-kw">能力退化 → 关键代码亲自写</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 开发 4 风险：质量失控 / 安全泄露 / 过度依赖 / 合规</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">质量：幻觉、看不懂的代码</span><span class="anchor-arrow">→</span><span class="anchor-kw">安全：敏感代码上传公网、引入漏洞</span><span class="anchor-arrow">→</span><span class="anchor-kw">依赖：丧失独立解决能力</span><span class="anchor-arrow">→</span><span class="anchor-kw">合规：数据/版权</span><span class="anchor-arrow">→</span><span class="anchor-kw">规避：审查+私有部署+保持手感</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">五大风险，对应规避方法：</p>
-<ul class="ans-content"><li class="level-0">代码质量失控 → 强制 code review + 单元测试 + 工程化门禁。</li><li class="level-0">资源治理缺失（AI 不会自动考虑连接池、线程池） → 明确在 Prompt 中约束资源限制。</li><li class="level-0">数据泄露 → 数据分级、敏感数据不上传外部 AI、Git hooks 拦截。</li><li class="level-0">供应链风险（AI 推荐恶意依赖）→ 依赖扫描（SCA）、白名单机制。</li><li class="level-0">个人能力退化 → 关键逻辑亲自写、定期 review AI 代码原理。</li></ul>
+<p class="ans-content ">用 AI 开发的风险和应对：</p>
+<ul class="ans-content"><li class="level-0">代码质量失控：AI 有幻觉，可能写出看似对实则错的代码。规避：严格 Review + 测试 + 不合并看不懂的代码。</li><li class="level-0">安全与数据泄露：把公司敏感代码/数据传给公网 AI。规避：私有部署模型、脱敏、明确数据边界。</li><li class="level-0">过度依赖：长期依赖 AI 导致自己解决问题的能力退化。规避：核心逻辑自己写，保持「手感」。</li><li class="level-0">合规风险：AI 生成代码的版权、引入的依赖许可证。规避：审查依赖许可、关注合规政策。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>展现成熟态度：「拥抱但不盲从」。知道风险在哪、有应对办法，比单纯吹 AI 多好更让面试官放心。</div>
 </div></article>
 <article class="qa-block" data-num="161" id="q161">
     <div class="question">
       <span class="q-num">Q161</span>
-      <span class="q-title">前端开发用 AI 的一个失败案例？</span>
+      <span class="q-title">用 AI 开发的一个失败案例？</span>
       <span class="q-tag">★★ 真实感题</span>
       <button class="qa-toggle" data-num="161" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5935,17 +6612,19 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="161" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">失败案例 = 经验 + 反思（性能 / 安全 / 边界往往被 AI 忽略）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">AI 写大数据组件忘性能</span><span class="anchor-arrow">→</span><span class="anchor-kw">经验：在 Prompt 显式约束</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 是经验丰富的实习生</span><span class="anchor-arrow">→</span><span class="anchor-kw">把'隐性需求'显式化</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">失败案例 = AI 忽略隐性需求（性能/边界/安全）+ 你的反思</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">AI 忽略性能/边界/安全</span><span class="anchor-arrow">→</span><span class="anchor-kw">看似能跑实则有坑</span><span class="anchor-arrow">→</span><span class="anchor-kw">经验：在 Prompt 显式约束</span><span class="anchor-arrow">→</span><span class="anchor-kw">把隐性需求显性化</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 是实习生不是专家</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">这题问 “坑”，坦诚分享 1-2 个真实案例最加分：</p>
-<p class="ans-content p-bold">案例模板（你可以套进自己的经历）：</p>
-<p class="ans-content ">“有一次我让 AI 帮我写一个 ECharts 的大数据渲染组件，AI 生成的代码看起来很漂亮，但在 10 万数据点下卡死了。追查后发现：AI 没加 large 大数据模式和 sampling 降采样，也没用 shallowRef 包裹实例。我意识到 AI 写代码是 “从文档中学习通用写法”，但性能敏感场景它经常不会主动考虑。后来我在 Prompt 里明确加上 ‘考虑 10 万+ 数据的性能优化’，结果明显变好。</p>
-<p class="ans-content p-italic">从这个事情我学到：AI 是经验丰富的实习生，方向对，但需要你把性能、安全、边界这些‘隐性需求’显式化告诉它。”</p>
+<p class="ans-content ">准备一个真实的失败案例，体现你的反思能力（面试很爱问）。</p>
+<h3 class="ans-content">案例模板</h3>
+<p class="ans-content " style="color:595959">「让 AI 写一个大数据量的列表渲染组件，它直接全量渲染，没考虑虚拟列表，数据上千条就卡死。问题在于我没在 Prompt 里说明数据规模和性能要求。」</p>
+<h3 class="ans-content">从案例提炼的经验</h3>
+<ul class="ans-content"><li class="level-0">AI 默认走 happy path，容易忽略性能、边界、安全、并发这些「隐性需求」。</li><li class="level-0">经验：把隐性需求显式写进 Prompt（数据规模、性能要求、异常处理、安全约束）。</li><li class="level-0">认知：AI 像「经验丰富但不了解你项目的实习生」，你要把项目的特殊约束告诉它。</li><li class="level-0">习惯：AI 产出后，主动检查它「没说但应该考虑」的部分。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>讲失败案例的关键是「反思」：不是吐槽 AI 不行，而是说明你学会了如何更好地驾驭它（把隐性需求显性化）。</div>
 </div></article>
 <article class="qa-block" data-num="162" id="q162">
     <div class="question">
       <span class="q-num">Q162</span>
-      <span class="q-title">未来 3 年，你怎么规划自己的技术成长？</span>
+      <span class="q-title">未来 3 年你怎么规划技术成长？</span>
       <span class="q-tag">★★ 终面爱问</span>
       <button class="qa-toggle" data-num="162" title="显示/隐藏答案">👁 显示答案</button>
     </div>
@@ -5953,10 +6632,11 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="162" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 阶段成长：6 月双栈 → 2 年深耕 → 3 年架构师</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">短期：补 Vue3 + React 双栈</span><span class="anchor-arrow">→</span><span class="anchor-kw">中期：3D/WebGPU/Three.js 深耕</span><span class="anchor-arrow">→</span><span class="anchor-kw">长期：微前端 / 工程化 / AI 工作流</span><span class="anchor-arrow">→</span><span class="anchor-kw">持续关注前沿</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">3 阶段成长：补双栈(6月) → 深耕方向(2年) → 架构/AI工作流(3年)</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">短期：补 React 双栈 + AI 工具熟练</span><span class="anchor-arrow">→</span><span class="anchor-kw">中期：深耕 3D/可视化/工程化</span><span class="anchor-arrow">→</span><span class="anchor-kw">长期：架构能力 + AI 工作流体系</span><span class="anchor-arrow">→</span><span class="anchor-kw">持续关注前沿</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">结合你背景的回答方向：</p>
-<ul class="ans-content"><li class="level-0">短期（6 个月）：深入 Vue3 源码 + 补齐 React 全家桶，做到两栈通吃。</li><li class="level-0">中期（1-2 年）：往全栈 + 可视化 / GIS 领域深耕，3D 图形学、WebGPU、Three.js。</li><li class="level-0">长期（2-3 年）：前端架构师方向 —— 微前端体系搭建、工程化平台建设、团队 AI 工作流落地。</li><li class="level-0">持续：保持 AI 工具使用前沿、关注 Next.js / Nuxt 等全栈框架生态变化。</li></ul>
+<p class="ans-content ">终面爱问，结合你的背景给一个有层次的规划：</p>
+<ul class="ans-content"><li class="level-0">短期（6 个月）：补齐 React 双栈能力，熟练把 AI 融入日常工作流（Skills、Agent）。</li><li class="level-0">中期（1-2 年）：深耕你的优势方向——大屏可视化、GIS、3D（Three.js/WebGPU），成为团队这块的专家。</li><li class="level-0">长期（3 年）：往架构和技术管理走，能做技术选型、搭建团队的 AI 工程化体系。</li><li class="level-0">持续：保持对前沿的关注（框架更新、AI 工具演进），定期输出总结。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>结合自身：你有可视化/GIS 的差异化优势，规划里强调「深耕优势 + 补齐短板 + 拥抱 AI」，比泛泛而谈更可信。</div>
 </div></article>
 <article class="qa-block" data-num="163" id="q163">
     <div class="question">
@@ -5969,10 +6649,11 @@ CMD [&quot;gunicorn&quot;, &quot;-w&quot;, &quot;4&quot;, &quot;-k&quot;, &quot;
       <div class="qa-input-area">
         <textarea class="qa-input" data-num="163" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
       </div>
-<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">口头禅：取代不是工程师，是不用 AI 的工程师</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">AI 擅长技术实现</span><span class="anchor-arrow">→</span><span class="anchor-kw">业务理解 + UX + 协作仍要人</span><span class="anchor-arrow">→</span><span class="anchor-kw">AI 是放大器</span><span class="anchor-arrow">→</span><span class="anchor-kw">拥抱者效率翻倍</span></span></div></div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">AI 取代的是「不用 AI 的人」，不是工程师本身</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">AI 擅长实现，不擅长判断/业务/协作</span><span class="anchor-arrow">→</span><span class="anchor-kw">取代重复劳动，不取代决策</span><span class="anchor-arrow">→</span><span class="anchor-kw">会用 AI 的人取代不会用的</span><span class="anchor-arrow">→</span><span class="anchor-kw">前端从&#x27;写&#x27;转向&#x27;设计+调度&#x27;</span><span class="anchor-arrow">→</span><span class="anchor-kw">积极拥抱</span></span></div></div>
 <div class="ans-content ans-label">【参考答案】</div>
-<p class="ans-content ">口头禅：“AI 取代的不是工程师，是不用 AI 的工程师。”</p>
-<p class="ans-content ">展开：前端工作 = 业务理解 + 技术实现 + 用户体验 + 团队协作。AI 擅长第二项，但前后三项仍然需要人。未来 1-2 年内 AI 会成为前端的标配，不会用的人会逐步被淘汰，会用的人效率翻倍。对我而言，拥抱 AI、把它作为能力的放大器，就是最好的应对方式。</p>
+<p class="ans-content ">哲学题，给一个有思考、不极端的回答：</p>
+<ul class="ans-content"><li class="level-0">AI 擅长的是代码实现，不擅长业务理解、系统设计、跨团队协作、复杂决策。</li><li class="level-0">被取代的是「机械的、重复的编码工作」，不是工程师这个角色。</li><li class="level-0">真正的说法是：「会用 AI 的工程师，会取代不会用 AI 的工程师」。</li><li class="level-0">前端的价值从「写代码」转向「设计方案 + 调度 AI + 把控质量」。</li><li class="level-0">态度：积极拥抱，把 AI 当放大器，让自己的判断力和经验产生更大价值。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>经典回答：「AI 取代的不是工程师，而是不用 AI 的工程师」。既不否认冲击，也展现积极适应的成熟心态。</div>
 </div></article>
 <h1 id="sec-12" class="chapter">第十一章  AI Agent 工程师面试题 —— 2026 最热方向</h1>
 <p class="ans-content p-italic" style="color:595959">2026 年 AI Agent 是应用层最火的方向，需求量增长 25%+。结合你已有的 FastAPI + AI 工具使用经验，稍加深入就是一个强转型方向。本章 25 题覆盖：LLM 基础、Agent 架构、RAG 系统、向量数据库、MCP/A2A 协议、框架选型、生产踩坑。</p>
@@ -6525,6 +7206,283 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <ul class="ans-content"><li class="level-0">技术变化快：半年前的最佳实践可能已经过时。</li><li class="level-0">泡沫：部分 Agent 岗位是 PPT 需求，实际在做 demo。</li><li class="level-0">基础要求高：要懂 LLM + 后端工程 + 前端交互 + 评估体系，是综合能力。</li><li class="level-0">巨头挤压：OpenAI / Anthropic 发的官方 Agent 工具可能让中间层框架贬值。</li></ul>
 <p class="ans-content ">建议策略：先不裸辞，用 side project 做一个完整 Agent 项目，能写进简历 + 能面试讲清楚，再看市场反馈决定是否全面转型。</p>
 </div></article>
+<h1 id="sec-14" class="chapter">第十二章  移动端开发实战 —— 跨端 · 小程序 · H5</h1>
+<p class="ans-content p-italic" style="color:#595959">移动端是前端绕不开的战场：H5、微信/支付宝小程序、uni-app 跨端、混合 App。本章偏实战，覆盖你日常会遇到的真实问题——适配、通信、性能、踩坑。</p>
+<h2 class="ans-content">12.1 H5 移动端实战</h2>
+<article class="qa-block" data-num="213" id="q213">
+    <div class="question">
+      <span class="q-num">Q213</span>
+      <span class="q-title">移动端 H5 怎么做屏幕适配？</span>
+      <span class="q-tag">★★★ 移动端必问</span>
+      <button class="qa-toggle" data-num="213" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="213" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">移动端适配 3 套方案：rem / vw / flex+百分比</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">viewport meta 必加</span><span class="anchor-arrow">→</span><span class="anchor-kw">rem + 动态 root font-size（flexible/postcss-pxtorem）</span><span class="anchor-arrow">→</span><span class="anchor-kw">vw/vh（推荐，无需 JS）</span><span class="anchor-arrow">→</span><span class="anchor-kw">flex + 百分比（弹性布局）</span><span class="anchor-arrow">→</span><span class="anchor-kw">1px 用 transform scale</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">适配像衣服改尺寸：rem 是按身高比例放缩，vw 是按门框比例，flex 是弹力布料自动贴合</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">移动端屏幕尺寸碎片化，核心是「一套设计稿适配所有屏幕」。</p>
+<h3 class="ans-content">① 必须先设置 viewport</h3>
+<pre class="ans-content code-block"><div class="code-lang">HTML</div><code>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0,
+  maximum-scale=1.0, user-scalable=no, viewport-fit=cover&quot;&gt;
+&lt;!-- viewport-fit=cover 配合 safe-area 适配刘海屏 --&gt;</code></pre>
+<h3 class="ans-content">② 三套主流适配方案</h3>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:44%"><col style="width:42%"></colgroup><thead><tr><th>方案</th><th>原理</th><th>优缺点</th></tr></thead><tbody><tr><td>rem</td><td>根据屏宽动态设 html 的 font-size</td><td>兼容好；需 JS 或 postcss 配合</td></tr><tr><td>vw/vh</td><td>1vw = 视口宽 1%</td><td>纯 CSS、推荐；老机型兼容稍弱</td></tr><tr><td>flex + %</td><td>弹性盒 + 百分比</td><td>简单；复杂布局力不从心</td></tr></tbody></table></div>
+<h3 class="ans-content">③ vw 方案（2026 推荐）</h3>
+<pre class="ans-content code-block"><div class="code-lang">CSS</div><code>/* 设计稿 750px，1vw = 7.5px。用 postcss-px-to-viewport 自动转 */
+/* 设计稿写 75px → 编译成 10vw */
+.box { width: 10vw; height: 5vw; font-size: 3.2vw; }
+
+/* postcss.config.js */
+module.exports = {
+  plugins: {
+    &#x27;postcss-px-to-viewport&#x27;: {
+      viewportWidth: 750,   // 设计稿宽度
+      unitPrecision: 5,
+    }
+  }
+};</code></pre>
+<h3 class="ans-content">④ 刘海屏安全区</h3>
+<pre class="ans-content code-block"><div class="code-lang">CSS</div><code>/* iPhone 刘海/底部 Home Indicator 适配 */
+.footer {
+  padding-bottom: constant(safe-area-inset-bottom); /* iOS&lt;11.2 */
+  padding-bottom: env(safe-area-inset-bottom);        /* iOS≥11.2 */
+}</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>回答顺序：viewport → 三方案对比 → 推荐 vw → 1px 和安全区两个细节。能说出 viewport-fit=cover + env(safe-area) 是加分。</div>
+</div></article>
+<article class="qa-block" data-num="214" id="q214">
+    <div class="question">
+      <span class="q-num">Q214</span>
+      <span class="q-title">移动端开发遇到过哪些坑？怎么解决？</span>
+      <span class="q-tag">★★★ 实战经验题</span>
+      <button class="qa-toggle" data-num="214" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="214" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">移动端 8 大坑：1px / 点击穿透 / 300ms 延迟 / 软键盘顶 / 滚动穿透 / 图片模糊 / fixed 失效 / 复制</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">1px 边框（DPR）</span><span class="anchor-arrow">→</span><span class="anchor-kw">点击穿透（mask + click）</span><span class="anchor-arrow">→</span><span class="anchor-kw">300ms 延迟（FastClick / touch-action）</span><span class="anchor-arrow">→</span><span class="anchor-kw">软键盘遮挡输入框</span><span class="anchor-arrow">→</span><span class="anchor-kw">弹窗滚动穿透</span><span class="anchor-arrow">→</span><span class="anchor-kw">图片 2x/3x</span><span class="anchor-arrow">→</span><span class="anchor-kw">iOS fixed 失效</span><span class="anchor-arrow">→</span><span class="anchor-kw">长按复制控制</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">移动端有一堆「祖传坑」，面试和实战都高频：</p>
+<ul class="ans-content"><li class="level-0">1px 边框：高 DPR 屏 1px CSS = 多个物理像素显得粗。用 transform: scaleY(0.5) + 伪元素，或 0.5px（现代浏览器）。</li><li class="level-0">点击穿透：上层 mask 用 touchend 关闭，下层元素触发 click（300ms 后）。解决：统一用 click，或 mask 关闭后延迟恢复下层。</li><li class="level-0">300ms 点击延迟：老浏览器为识别双击缩放。现代用 &lt;meta viewport&gt; 禁用缩放即可消除，或 touch-action: manipulation。</li><li class="level-0">软键盘遮挡输入框：iOS 键盘弹起不挤压布局。监听 focus 后 scrollIntoView，或调整容器高度。</li><li class="level-0">弹窗滚动穿透：弹窗滚动时底层也跟着滚。打开弹窗时给 body 加 overflow:hidden + position:fixed 记录 scrollTop。</li><li class="level-0">图片模糊：高清屏要 2x/3x 图，用 srcset 或背景图 image-set()。</li><li class="level-0">iOS position:fixed 失效：软键盘弹起或页面缩放时 fixed 错位。尽量用 sticky 或绝对定位容器。</li><li class="level-0">长按出现复制菜单：用 user-select: none + -webkit-touch-callout: none 禁用。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>这题考的是实战经验。挑 3-4 个你真正遇到过的细说（如 1px、点击穿透、滚动穿透），比罗列 8 个更有说服力。</div>
+</div></article>
+<article class="qa-block" data-num="215" id="q215">
+    <div class="question">
+      <span class="q-num">Q215</span>
+      <span class="q-title">H5 如何调起 App / 和原生通信？</span>
+      <span class="q-tag">★★ 混合开发</span>
+      <button class="qa-toggle" data-num="215" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="215" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">H5 调起 App：URL Scheme / Universal Link / 微信 JS-SDK</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">URL Scheme（weixin://，可能被拦）</span><span class="anchor-arrow">→</span><span class="anchor-kw">Universal Link（iOS）/ App Link（安卓）</span><span class="anchor-arrow">→</span><span class="anchor-kw">微信内用 JS-SDK / 开放标签</span><span class="anchor-arrow">→</span><span class="anchor-kw">调起失败兜底跳应用商店</span><span class="anchor-arrow">→</span><span class="anchor-kw">判断环境 navigator.userAgent</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">H5 经常需要和原生 App 交互：调起 App、唤起支付、获取定位等。</p>
+<h3 class="ans-content">① H5 调起原生 App</h3>
+<ul class="ans-content"><li class="level-0">URL Scheme：如 myapp://path，简单但 iOS/微信里常被拦截，且无法判断是否调起成功。</li><li class="level-0">Universal Link（iOS）/ App Link（安卓）：用 https 链接，已装 App 直接打开、没装就走网页，体验最好。</li><li class="level-0">兜底：尝试调起后用 setTimeout 检测页面是否隐藏，没调起就跳应用商店。</li></ul>
+<h3 class="ans-content">② 微信环境特殊处理</h3>
+<ul class="ans-content"><li class="level-0">微信内禁止直接调起外部 App（除非微信开放标签 wx-open-launch-app）。</li><li class="level-0">微信支付、分享、定位都要用微信 JS-SDK（wx.config 注入权限）。</li><li class="level-0">判断微信环境：navigator.userAgent.includes(&#x27;MicroMessenger&#x27;)。</li></ul>
+<h3 class="ans-content">③ H5 和 App WebView 通信（混合开发）</h3>
+<pre class="ans-content code-block"><div class="code-lang">JS</div><code>// 方式 1：App 注入全局对象（最常用）
+// 安卓：window.AndroidBridge.callNative(JSON.stringify(data))
+// iOS：window.webkit.messageHandlers.bridge.postMessage(data)
+
+// 封装统一调用
+function callNative(method, params) {
+  const data = { method, params };
+  if (window.AndroidBridge) {
+    window.AndroidBridge.postMessage(JSON.stringify(data));
+  } else if (window.webkit?.messageHandlers?.bridge) {
+    window.webkit.messageHandlers.bridge.postMessage(data);
+  }
+}
+
+// App 回调 H5：App 主动调用 window 上的全局函数
+window.onNativeCallback = (result) =&gt; { console.log(result); };
+
+// 方式 2：用成熟方案 DSBridge / JSBridge 库</code></pre>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>混合开发的核心是 JSBridge：H5 调 Native 靠注入对象，Native 调 H5 靠执行全局函数。能说清这个双向机制就够了。</div>
+</div></article>
+<h2 class="ans-content">12.2 微信小程序实战</h2>
+<article class="qa-block" data-num="216" id="q216">
+    <div class="question">
+      <span class="q-num">Q216</span>
+      <span class="q-title">微信小程序的架构原理？为什么是双线程？</span>
+      <span class="q-tag">★★★ 小程序必问</span>
+      <button class="qa-toggle" data-num="216" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="216" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">小程序双线程：逻辑层(JSCore) + 渲染层(WebView)，setData 是桥梁</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">双线程架构</span><span class="anchor-arrow">→</span><span class="anchor-kw">逻辑层 JSCore（无 DOM）</span><span class="anchor-arrow">→</span><span class="anchor-kw">渲染层 WebView</span><span class="anchor-arrow">→</span><span class="anchor-kw">setData 跨线程通信</span><span class="anchor-arrow">→</span><span class="anchor-kw">Native 层调度</span><span class="anchor-arrow">→</span><span class="anchor-kw">setData 是性能关键</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">逻辑层是大脑（想），渲染层是手（画），setData 是神经（传消息）——神经传太多太频繁就卡</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">小程序为什么不是普通 H5？因为它是「双线程架构」，这是性能优化和踩坑的根源。</p>
+<h3 class="ans-content">双线程架构</h3>
+<ul class="ans-content"><li class="level-0">逻辑层（App Service）：跑 JS，运行在 JSCore（iOS）/ V8（安卓），没有 DOM 和 BOM。</li><li class="level-0">渲染层（View）：跑 WXML/WXSS，运行在 WebView，负责界面。</li><li class="level-0">两层不能直接通信，所有数据通过 Native 层中转（setData）。</li><li class="level-0">好处：逻辑和渲染并行、安全管控（防止直接操作 DOM）。</li><li class="level-0">代价：setData 是跨线程通信，频繁/大数据 setData 会成为性能瓶颈。</li></ul>
+<h3 class="ans-content">setData 性能优化（高频考点）</h3>
+<ul class="ans-content"><li class="level-0">只 setData 变化的字段，不要整个对象 setData。</li><li class="level-0">用路径更新：this.setData({ &#x27;list[0].name&#x27;: &#x27;x&#x27; }) 而非整个 list。</li><li class="level-0">避免高频 setData（如 onPageScroll 里），做节流。</li><li class="level-0">不要 setData 大数据（图片 base64、长列表），渲染层用不到的数据放 this.data 之外。</li><li class="level-0">长列表用虚拟列表 / recycle-view。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>「双线程 + setData 是桥梁」是小程序所有性能问题的根。先讲架构，再讲 setData 优化，逻辑就通了。</div>
+</div></article>
+<article class="qa-block" data-num="217" id="q217">
+    <div class="question">
+      <span class="q-num">Q217</span>
+      <span class="q-title">微信小程序的通信方式有哪些？</span>
+      <span class="q-tag">★★ 实战</span>
+      <button class="qa-toggle" data-num="217" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="217" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">小程序通信：页面间 navigate+EventChannel / 组件 properties+triggerEvent / 全局 globalData+Storage</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">页面跳转传参 url query</span><span class="anchor-arrow">→</span><span class="anchor-kw">EventChannel（页面间事件）</span><span class="anchor-arrow">→</span><span class="anchor-kw">组件 properties（父→子）</span><span class="anchor-arrow">→</span><span class="anchor-kw">triggerEvent（子→父）</span><span class="anchor-arrow">→</span><span class="anchor-kw">globalData / Storage / 状态库（mobx-miniprogram）</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">小程序的通信方式和 Vue/React 类似但 API 不同：</p>
+<h3 class="ans-content">① 页面间通信</h3>
+<pre class="ans-content code-block"><div class="code-lang">JS</div><code>// 跳转传参（简单数据）
+wx.navigateTo({ url: &#x27;/pages/detail?id=123&amp;name=test&#x27; });
+// 接收：onLoad(options) { options.id }
+
+// EventChannel（复杂数据 + 双向）
+wx.navigateTo({
+  url: &#x27;/pages/detail&#x27;,
+  success(res) {
+    res.eventChannel.emit(&#x27;sendData&#x27;, { list: bigData });
+  }
+});
+// detail 页接收
+onLoad() {
+  const ch = this.getOpenerEventChannel();
+  ch.on(&#x27;sendData&#x27;, (data) =&gt; { this.setData({ list: data.list }); });
+}</code></pre>
+<h3 class="ans-content">② 组件通信</h3>
+<pre class="ans-content code-block"><div class="code-lang">JS</div><code>// 父 → 子：properties
+Component({ properties: { title: String } });
+// 使用：&lt;my-comp title=&quot;{{pageTitle}}&quot; /&gt;
+
+// 子 → 父：triggerEvent
+this.triggerEvent(&#x27;change&#x27;, { value: 1 });  // 子组件
+// 父监听：&lt;my-comp bind:change=&quot;onChange&quot; /&gt;</code></pre>
+<h3 class="ans-content">③ 全局状态</h3>
+<ul class="ans-content"><li class="level-0">globalData：app.js 里定义，getApp().globalData 访问（简单但无响应式）。</li><li class="level-0">wx.setStorageSync：本地持久化。</li><li class="level-0">状态管理库：mobx-miniprogram、westore（响应式全局状态）。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>对比记忆：properties≈props，triggerEvent≈emit，globalData≈全局变量，EventChannel≈页面间的事件总线。</div>
+</div></article>
+<article class="qa-block" data-num="218" id="q218">
+    <div class="question">
+      <span class="q-num">Q218</span>
+      <span class="q-title">微信小程序性能优化有哪些手段？</span>
+      <span class="q-tag">★★★ 实战</span>
+      <button class="qa-toggle" data-num="218" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="218" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">小程序优化 5 招：分包 / setData 瘦身 / 图片 / 预加载 / 骨架屏</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">分包加载（主包&lt;2M）</span><span class="anchor-arrow">→</span><span class="anchor-kw">setData 精简 + 节流</span><span class="anchor-arrow">→</span><span class="anchor-kw">图片压缩 + CDN + 懒加载</span><span class="anchor-arrow">→</span><span class="anchor-kw">分包预下载 preloadRule</span><span class="anchor-arrow">→</span><span class="anchor-kw">首屏骨架屏</span><span class="anchor-arrow">→</span><span class="anchor-kw">独立分包 / 按需注入</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">小程序性能优化的核心是「包体积」和「setData」两大块。</p>
+<h3 class="ans-content">① 包体积优化</h3>
+<ul class="ans-content"><li class="level-0">分包加载：主包限制 2MB，总包 20MB。把非首屏页面拆到分包。</li><li class="level-0">独立分包：某些分包可独立运行（不依赖主包），打开更快。</li><li class="level-0">分包预下载：preloadRule 配置进入某页时预下载关联分包。</li><li class="level-0">按需注入 + 用时注入：减少启动时的代码注入量。</li><li class="level-0">图片走 CDN，不要打进包里。</li></ul>
+<h3 class="ans-content">② 渲染性能</h3>
+<ul class="ans-content"><li class="level-0">setData 优化（见前题）：精简数据、路径更新、节流。</li><li class="level-0">长列表用 recycle-view（虚拟列表）。</li><li class="level-0">首屏骨架屏：用开发者工具生成骨架屏，提升感知速度。</li><li class="level-0">图片懒加载：lazy-load 属性。</li><li class="level-0">避免频繁 createSelectorQuery、避免在 onPageScroll 里 setData。</li></ul>
+<h3 class="ans-content">③ 启动优化</h3>
+<ul class="ans-content"><li class="level-0">首屏数据用本地缓存先渲染，再请求更新（Storage 兜底）。</li><li class="level-0">请求并发、关键请求前置。</li><li class="level-0">减少 app.js onLaunch 里的同步阻塞逻辑。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>分包 + setData 是两大命门。能结合具体数字（主包 2M、总包 20M）和具体 API（preloadRule、recycle-view）讲就很专业。</div>
+</div></article>
+<h2 class="ans-content">12.3 跨端框架（uni-app / Taro）</h2>
+<article class="qa-block" data-num="219" id="q219">
+    <div class="question">
+      <span class="q-num">Q219</span>
+      <span class="q-title">uni-app 一套代码多端运行的原理？</span>
+      <span class="q-tag">★★★ 跨端必问</span>
+      <button class="qa-toggle" data-num="219" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="219" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">uni-app 原理：编译期转译 + 运行时适配，一套 Vue 代码多端跑</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">Vue 语法编写</span><span class="anchor-arrow">→</span><span class="anchor-kw">编译期：转成各端代码（小程序/H5/App）</span><span class="anchor-arrow">→</span><span class="anchor-kw">条件编译 #ifdef</span><span class="anchor-arrow">→</span><span class="anchor-kw">运行时：统一 API（uni.xxx）适配各端</span><span class="anchor-arrow">→</span><span class="anchor-kw">App 端基于 weex/原生渲染</span></span></div><div class="anchor-row"><span class="anchor-label">🎯 类比</span><span class="anchor-content">uni-app 像翻译官：你写一份中文稿（Vue），它翻译成英语（小程序）、日语（H5）、法语（App）各端能懂的语言</span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">uni-app 让你用一套 Vue 代码编译到微信/支付宝小程序、H5、iOS/安卓 App。</p>
+<h3 class="ans-content">实现原理两部分</h3>
+<ul class="ans-content"><li class="level-0">编译期：把 Vue 单文件组件转译成各平台代码。比如转成微信小程序的 wxml+wxss+js，或 H5 的 Vue 应用，或 App 的渲染指令。</li><li class="level-0">运行时：提供统一 API 层（uni.request、uni.navigateTo），内部根据平台调用对应的原生 API（wx.request / fetch / plus.xxx）。</li></ul>
+<h3 class="ans-content">条件编译（处理平台差异）</h3>
+<pre class="ans-content code-block"><div class="code-lang">uni-app</div><code>// #ifdef / #ifndef 处理平台特有代码
+// #ifdef MP-WEIXIN
+console.log(&#x27;只在微信小程序编译&#x27;);
+// #endif
+
+// #ifdef H5
+console.log(&#x27;只在 H5 编译&#x27;);
+// #endif
+
+// #ifndef MP-ALIPAY
+console.log(&#x27;除了支付宝小程序，其他端都编译&#x27;);
+// #endif
+
+/* CSS 也支持 */
+/* #ifdef MP-WEIXIN */
+.box { color: green; }
+/* #endif */</code></pre>
+<h3 class="ans-content">App 端渲染</h3>
+<ul class="ans-content"><li class="level-0">uni-app 的 App 端默认用 WebView 渲染（类似 H5）。</li><li class="level-0">nvue 页面用原生渲染（weex 引擎），性能更好但兼容性受限。</li><li class="level-0">uni-app x（新版）用自研 uts + 原生渲染，性能接近原生。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>回答框架：编译期转译 + 运行时统一 API + 条件编译处理差异。这三点说清就是合格答案。</div>
+</div></article>
+<article class="qa-block" data-num="220" id="q220">
+    <div class="question">
+      <span class="q-num">Q220</span>
+      <span class="q-title">跨端方案怎么选？uni-app / Taro / 原生 / Flutter 对比</span>
+      <span class="q-tag">★★ 选型题</span>
+      <button class="qa-toggle" data-num="220" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="220" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">跨端选型：uni-app（Vue 生态全）/ Taro（React，京东系）/ 原生（极致性能）/ Flutter（高性能跨端）</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">uni-app：Vue、生态最全、插件市场大</span><span class="anchor-arrow">→</span><span class="anchor-kw">Taro：React/Vue 都支持、京东开源</span><span class="anchor-arrow">→</span><span class="anchor-kw">原生小程序：性能最好、无转译损耗</span><span class="anchor-arrow">→</span><span class="anchor-kw">Flutter/RN：偏 App、自绘引擎</span><span class="anchor-arrow">→</span><span class="anchor-kw">看团队技术栈 + 性能要求</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">跨端方案很多，核心看「技术栈」和「性能要求」。</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:16%"><col style="width:28%"><col style="width:56%"></colgroup><thead><tr><th>方案</th><th>技术栈</th><th>适合</th></tr></thead><tbody><tr><td>uni-app</td><td>Vue</td><td>Vue 团队、要覆盖小程序+H5+App、生态优先</td></tr><tr><td>Taro</td><td>React（也支持 Vue）</td><td>React 团队、京东系、多端小程序</td></tr><tr><td>原生小程序</td><td>小程序原生</td><td>只做单个小程序、性能极致</td></tr><tr><td>React Native</td><td>React</td><td>偏 App（iOS/安卓）、不含小程序</td></tr><tr><td>Flutter</td><td>Dart</td><td>高性能 App、自绘 UI、跨端一致</td></tr></tbody></table></div>
+<h3 class="ans-content">uni-app vs Taro</h3>
+<ul class="ans-content"><li class="level-0">uni-app：Vue 语法，DCloud 出品，插件市场和生态最丰富，文档中文友好，App 端能力强。</li><li class="level-0">Taro：React 语法（也支持 Vue/小程序原生），京东开源，更适合 React 团队，多端小程序支持好。</li><li class="level-0">选择：Vue 团队选 uni-app，React 团队选 Taro。</li></ul>
+<h3 class="ans-content">跨端的代价</h3>
+<ul class="ans-content"><li class="level-0">性能损耗：转译/运行时层有开销，复杂动画、高频交互不如原生。</li><li class="level-0">平台差异：各端 API 和能力不一致，要写条件编译，「一次编写处处调试」。</li><li class="level-0">新特性滞后：平台出新能力，跨端框架要等适配。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>跨端不是银弹，核心权衡是「开发效率 vs 性能/体验」。能讲出 uni-app/Taro 按技术栈选 + 跨端的代价，就显得有思考。</div>
+</div></article>
+<article class="qa-block" data-num="221" id="q221">
+    <div class="question">
+      <span class="q-num">Q221</span>
+      <span class="q-title">微信小程序和支付宝小程序有哪些差异？怎么兼容？</span>
+      <span class="q-tag">★★ 多端实战</span>
+      <button class="qa-toggle" data-num="221" title="显示/隐藏答案">👁 显示答案</button>
+    </div>
+    <div class="qa-answer">
+      <div class="qa-input-area">
+        <textarea class="qa-input" data-num="221" placeholder="✍️ 在这里写下你的答案，然后点击『显示答案』对比参考答案..."></textarea>
+      </div>
+<div class="anchor-box"><div class="anchor-row"><span class="anchor-label">📌 口诀</span><span class="anchor-content">小程序平台差异：API 命名 / 能力支持 / 审核规则 / 登录体系各不同</span></div><div class="anchor-row"><span class="anchor-label">🔑 路径</span><span class="anchor-content"><span class="anchor-kw">API 差异（wx vs my vs uni）</span><span class="anchor-arrow">→</span><span class="anchor-kw">能力差异（支付/登录/定位）</span><span class="anchor-arrow">→</span><span class="anchor-kw">登录：微信 code2session / 支付宝 getAuthCode</span><span class="anchor-arrow">→</span><span class="anchor-kw">审核规则各平台严格度不同</span><span class="anchor-arrow">→</span><span class="anchor-kw">条件编译兜底</span></span></div></div>
+<div class="ans-content ans-label">【参考答案】</div>
+<p class="ans-content ">微信小程序和支付宝小程序虽然像，但有不少实际差异（多端开发必踩）：</p>
+<div class="ans-content table-wrap"><table><colgroup><col style="width:14%"><col style="width:43%"><col style="width:43%"></colgroup><thead><tr><th>维度</th><th>微信小程序</th><th>支付宝小程序</th></tr></thead><tbody><tr><td>全局对象</td><td>wx.xxx</td><td>my.xxx</td></tr><tr><td>登录</td><td>wx.login → code → code2session</td><td>my.getAuthCode → 换 userId</td></tr><tr><td>支付</td><td>wx.requestPayment</td><td>my.tradePay</td></tr><tr><td>生命周期</td><td>onLoad/onShow/onReady</td><td>类似但部分钩子名不同</td></tr><tr><td>组件</td><td>view/text/button</td><td>基本一致，部分属性不同</td></tr><tr><td>审核</td><td>类目严格、个人号受限</td><td>企业资质、金融类严</td></tr></tbody></table></div>
+<h3 class="ans-content">实战应对</h3>
+<ul class="ans-content"><li class="level-0">用 uni-app / Taro 跨端框架，统一 API（uni.login 内部适配各端），减少差异处理。</li><li class="level-0">差异处确实存在时用条件编译（#ifdef MP-WEIXIN / MP-ALIPAY）。</li><li class="level-0">登录体系差异最大：微信是 code 换 openid/session_key，支付宝是 authCode 换 userId，后端要分别对接。</li><li class="level-0">支付差异：微信走微信支付，支付宝走支付宝支付，金额/回调格式不同。</li><li class="level-0">提前看各平台审核规范，避免上线被拒（如医疗、金融类目要资质）。</li></ul>
+<div class="ans-content tip"><span class="tip-label">💡 记忆技巧：</span>能说出「全局对象 wx vs my」「登录体系完全不同」「用 uni-app 统一 + 条件编译兜底」就证明你真做过多端。</div>
+</div></article>
+
+    </div>
+  </main>
+
+  <div class="plan-modal-overlay" id="planModalOverlay">
+    <div class="plan-modal" role="dialog" aria-modal="true" aria-label="30 天复习计划">
+      <div class="plan-modal-header">
+        <span class="plan-modal-title">📅 30 天复习计划 &amp; 艾宾浩斯曲线</span>
+        <button class="plan-modal-close" id="planModalClose" title="关闭">✕</button>
+      </div>
+      <div class="plan-modal-body">
 <h1 id="sec-13" class="chapter">第十章  30 天复习计划 &amp; 艾宾浩斯曲线</h1>
 <p class="ans-content p-italic" style="color:595959">考虑到当前市场环境和你需要长期备战，这章给你一套可执行的复习体系。不求一次记住所有，而是通过科学间隔多次回顾，把知识变成长期记忆。</p>
 <h2 class="ans-content">10.1 艾宾浩斯遗忘曲线原理</h2>
@@ -6570,13 +7528,15 @@ Action: finish(&quot;根据搜索结果，2026 年 AI 三大趋势是...&quot;)<
 <p class="ans-content" style="text-align:center"><span style="font-weight:600;color:1F4E79;font-size:13px">祝你早日拿到心仪的 offer </span><span style="font-size:13px">🎉</span></p>
 <p class="ans-content" style="text-align:center"><span style="font-style:italic;color:7F7F7F;font-size:11px">—— 完 ——</span></p>
 
+      </div>
     </div>
-  </main>
+  </div>
+
 
   <button class="back-top" id="backTop" title="回到顶部">↑</button>
 
   <script>
-const QUESTIONS = [{"num":1,"title":"说说 JS 的基本数据类型，如何判断数据类型？","tag":"字节、腾讯高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 js 的基本数据类型，如何判断数据类型？ 字节、腾讯高频"},{"num":2,"title":"var、let、const 的区别？","tag":"几乎必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"var、let、const 的区别？ 几乎必问"},{"num":3,"title":"== 和 === 的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"== 和 === 的区别？ ★"},{"num":4,"title":"谈谈你对闭包的理解？应用场景？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"谈谈你对闭包的理解？应用场景？ ★★"},{"num":5,"title":"说说 JavaScript 的原型和原型链","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 javascript 的原型和原型链 ★★"},{"num":6,"title":"this 指向的判断规则？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"this 指向的判断规则？ ★★"},{"num":7,"title":"浅拷贝和深拷贝的区别？如何实现深拷贝？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"浅拷贝和深拷贝的区别？如何实现深拷贝？ ★★"},{"num":8,"title":"说说 Event Loop（事件循环）","tag":"★★★ 超高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 event loop（事件循环） ★★★ 超高频"},{"num":9,"title":"手写一个简易 Promise","tag":"★★★ 字节、阿里必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写一个简易 promise ★★★ 字节、阿里必问"},{"num":10,"title":"Promise.all / allSettled / race / any 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"promise.all / allsettled / race / any 的区别？ ★★"},{"num":11,"title":"async/await 和 Promise 的关系？有什么优势？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"async/await 和 promise 的关系？有什么优势？ ★★"},{"num":12,"title":"手写防抖和节流","tag":"★★ 几乎必考","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写防抖和节流 ★★ 几乎必考"},{"num":13,"title":"手写 call / apply / bind","tag":"★★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写 call / apply / bind ★★★"},{"num":14,"title":"手写数组扁平化（flat）","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组扁平化（flat） ★★"},{"num":15,"title":"手写数组去重（多种方法）","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组去重（多种方法） ★"},{"num":16,"title":"箭头函数和普通函数的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"箭头函数和普通函数的区别？ ★"},{"num":17,"title":"解构赋值有哪些用法？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"解构赋值有哪些用法？ ★"},{"num":18,"title":"Map / Set / WeakMap / WeakSet 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"map / set / weakmap / weakset 的区别？ ★★"},{"num":19,"title":"Proxy 和 Object.defineProperty 的区别？","tag":"★★★ Vue 面试必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"proxy 和 object.defineproperty 的区别？ ★★★ vue 面试必问"},{"num":20,"title":"一次讲清 JS 继承的各种方式","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"一次讲清 js 继承的各种方式 ★★"},{"num":21,"title":"Vue3 相比 Vue2 做了哪些优化？","tag":"★★ 必问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 相比 vue2 做了哪些优化？ ★★ 必问"},{"num":22,"title":"Vue3 响应式原理 —— Proxy + Reflect","tag":"★★★ 超高频","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 响应式原理 —— proxy + reflect ★★★ 超高频"},{"num":23,"title":"ref 和 reactive 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"ref 和 reactive 的区别？ ★★"},{"num":24,"title":"computed 和 watch 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"computed 和 watch 的区别？ ★★"},{"num":25,"title":"Vue3 生命周期钩子有哪些？和 Vue2 的对应关系？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 生命周期钩子有哪些？和 vue2 的对应关系？ ★★"},{"num":26,"title":"Vue3 组件通信方式有哪些？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 组件通信方式有哪些？ ★★"},{"num":27,"title":"Vue2 为什么不能检测数组索引变化和对象新增属性？","tag":"★★ 经典题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue2 为什么不能检测数组索引变化和对象新增属性？ ★★ 经典题"},{"num":28,"title":"Vue 中 key 的作用是什么？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 中 key 的作用是什么？ ★★"},{"num":29,"title":"Vue Router 中 hash 和 history 模式的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue router 中 hash 和 history 模式的区别？ ★★"},{"num":30,"title":"Pinia 和 Vuex 的区别？为什么 Vue3 推荐 Pinia？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"pinia 和 vuex 的区别？为什么 vue3 推荐 pinia？ ★"},{"num":31,"title":"Vue 有了响应式系统，为什么还需要虚拟 DOM 和 diff？","tag":"★★★ 字节爱问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 有了响应式系统，为什么还需要虚拟 dom 和 diff？ ★★★ 字节爱问"},{"num":32,"title":"Vue3 编译时做了哪些优化？","tag":"★★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 编译时做了哪些优化？ ★★★"},{"num":33,"title":"说说 Vue 的 nextTick 原理","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 nexttick 原理 ★★"},{"num":34,"title":"说说 Vue 的 keep-alive","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 keep-alive ★★"},{"num":35,"title":"Vue 项目做过哪些性能优化？","tag":"★★★ 项目题必答","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 项目做过哪些性能优化？ ★★★ 项目题必答"},{"num":36,"title":"你在 Vue3 项目中踩过什么坑？","tag":"★★ 行为题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在 vue3 项目中踩过什么坑？ ★★ 行为题"},{"num":37,"title":"UniApp 一套代码多端运行的原理？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"uniapp 一套代码多端运行的原理？ ★★"},{"num":38,"title":"小程序和 H5 的区别？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"小程序和 h5 的区别？ ★"},{"num":39,"title":"你在项目中如何封装通用组件？以地图组件为例","tag":"★★ 项目亮点","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在项目中如何封装通用组件？以地图组件为例 ★★ 项目亮点"},{"num":40,"title":"如何实现一个全局弹窗组件（不依赖 UI 库）？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"如何实现一个全局弹窗组件（不依赖 ui 库）？ ★★"},{"num":41,"title":"TS 基础类型有哪些？any / unknown / never 的区别？","tag":"★★ 必问","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 基础类型有哪些？any / unknown / never 的区别？ ★★ 必问"},{"num":42,"title":"interface 和 type 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"interface 和 type 的区别？ ★★"},{"num":43,"title":"什么是泛型？举个实际例子","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"什么是泛型？举个实际例子 ★★"},{"num":44,"title":"TS 常用内置工具类型有哪些？","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 常用内置工具类型有哪些？ ★★★"},{"num":45,"title":"说说条件类型和 infer","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"说说条件类型和 infer ★★★"},{"num":46,"title":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？ ★★"},{"num":47,"title":"Vue3 + TS 中，defineProps 的类型写法？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"vue3 + ts 中，defineprops 的类型写法？ ★"},{"num":48,"title":"盒模型 —— 标准盒模型和 IE 盒模型的区别？","tag":"★ 必会","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"盒模型 —— 标准盒模型和 ie 盒模型的区别？ ★ 必会"},{"num":49,"title":"水平垂直居中的 N 种方法","tag":"★★ 必背","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"水平垂直居中的 n 种方法 ★★ 必背"},{"num":50,"title":"BFC 是什么？解决什么问题？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"bfc 是什么？解决什么问题？ ★★"},{"num":51,"title":"Flex 和 Grid 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"flex 和 grid 的区别？ ★★"},{"num":52,"title":"移动端 1px 问题如何解决？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"移动端 1px 问题如何解决？ ★★"},{"num":53,"title":"响应式布局的常见方案？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"响应式布局的常见方案？ ★★"},{"num":54,"title":"CSS 动画性能优化的关键点？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 动画性能优化的关键点？ ★★"},{"num":55,"title":"CSS 重排（Reflow）和重绘（Repaint）的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 重排（reflow）和重绘（repaint）的区别？ ★★"},{"num":56,"title":"CSS 选择器的优先级和计算规则？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 选择器的优先级和计算规则？ ★"},{"num":57,"title":"Sass/Less 和 Tailwind CSS 的区别？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"sass/less 和 tailwind css 的区别？ ★"},{"num":58,"title":"如何实现 CSS 深度作用域（scoped）和样式穿透？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"如何实现 css 深度作用域（scoped）和样式穿透？ ★★"},{"num":59,"title":"Webpack 的构建流程？","tag":"★★ 必会","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的构建流程？ ★★ 必会"},{"num":60,"title":"Loader 和 Plugin 的区别？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"loader 和 plugin 的区别？ ★★"},{"num":61,"title":"常用 Webpack 性能优化手段","tag":"★★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"常用 webpack 性能优化手段 ★★★"},{"num":62,"title":"Webpack 的 Tree Shaking 原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的 tree shaking 原理？ ★★"},{"num":63,"title":"HMR（热模块替换）原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"hmr（热模块替换）原理？ ★★"},{"num":64,"title":"Vite 为什么比 Webpack 快？","tag":"★★★ 字节高频","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 为什么比 webpack 快？ ★★★ 字节高频"},{"num":65,"title":"Vite 的预构建是什么？为什么需要？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的预构建是什么？为什么需要？ ★★"},{"num":66,"title":"Vite 的 HMR 和 Webpack 的 HMR 有什么不同？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的 hmr 和 webpack 的 hmr 有什么不同？ ★★"},{"num":67,"title":"Vite 和 Webpack 如何选择？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 和 webpack 如何选择？ ★★"},{"num":68,"title":"Webpack 和 Vite 有哪些代码分割策略？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 和 vite 有哪些代码分割策略？ ★★"},{"num":69,"title":"CI/CD 流程你是怎么搭的？","tag":"★★ 结合你的 Jenkins 经验","chapter":"第四章  Webpack / Vite 工程化","keywords":"ci/cd 流程你是怎么搭的？ ★★ 结合你的 jenkins 经验"},{"num":70,"title":"Monorepo 的优势？pnpm workspace 了解吗？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"monorepo 的优势？pnpm workspace 了解吗？ ★★"},{"num":71,"title":"从输入 URL 到页面呈现的全过程？","tag":"★★★ 大厂必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"从输入 url 到页面呈现的全过程？ ★★★ 大厂必问"},{"num":72,"title":"浏览器的缓存机制？强缓存和协商缓存的区别？","tag":"★★ 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器的缓存机制？强缓存和协商缓存的区别？ ★★ 必问"},{"num":73,"title":"浏览器渲染流程？什么是回流和重绘？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器渲染流程？什么是回流和重绘？ ★★"},{"num":74,"title":"Cookie / LocalStorage / SessionStorage / IndexedDB 的区别？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"cookie / localstorage / sessionstorage / indexeddb 的区别？ ★"},{"num":75,"title":"HTTP/1.1、HTTP/2、HTTP/3 的区别？","tag":"★★★ 2026 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http/1.1、http/2、http/3 的区别？ ★★★ 2026 必问"},{"num":76,"title":"HTTP 和 HTTPS 的区别？HTTPS 加密流程？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http 和 https 的区别？https 加密流程？ ★★"},{"num":77,"title":"TCP 三次握手和四次挥手？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"tcp 三次握手和四次挥手？ ★★"},{"num":78,"title":"WebSocket 和 HTTP / SSE 的区别？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"websocket 和 http / sse 的区别？ ★★"},{"num":79,"title":"前端跨域的常见解决方案？","tag":"★★ 必会","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端跨域的常见解决方案？ ★★ 必会"},{"num":80,"title":"JWT 认证机制的原理和优缺点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"jwt 认证机制的原理和优缺点？ ★★"},{"num":81,"title":"XSS 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"xss 攻击和防御 ★★"},{"num":82,"title":"CSRF 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"csrf 攻击和防御 ★★"},{"num":83,"title":"点击劫持（ClickJacking）和防御","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"点击劫持（clickjacking）和防御 ★"},{"num":84,"title":"核心 Web 性能指标（Core Web Vitals）是什么？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"核心 web 性能指标（core web vitals）是什么？ ★★"},{"num":85,"title":"前端性能优化的完整清单？","tag":"★★★ 大厂爱问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端性能优化的完整清单？ ★★★ 大厂爱问"},{"num":86,"title":"SPA 首屏白屏优化方案？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"spa 首屏白屏优化方案？ ★★★"},{"num":87,"title":"虚拟列表（Virtual List）的实现原理？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"虚拟列表（virtual list）的实现原理？ ★★★"},{"num":88,"title":"内存泄漏的常见场景和检测？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"内存泄漏的常见场景和检测？ ★★"},{"num":89,"title":"谈谈 SSR / SSG / CSR 的区别和选型","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"谈谈 ssr / ssg / csr 的区别和选型 ★★"},{"num":90,"title":"微前端是什么？有哪些方案？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"微前端是什么？有哪些方案？ ★★"},{"num":91,"title":"PWA 是什么？核心技术？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"pwa 是什么？核心技术？ ★"},{"num":92,"title":"前端监控体系如何搭建？","tag":"★★ 项目亮点","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端监控体系如何搭建？ ★★ 项目亮点"},{"num":93,"title":"Nginx 配置 history 模式和 gzip 怎么写？","tag":"★ 运维基础","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nginx 配置 history 模式和 gzip 怎么写？ ★ 运维基础"},{"num":94,"title":"大文件分片上传 + 断点续传如何实现？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"大文件分片上传 + 断点续传如何实现？ ★★★"},{"num":95,"title":"React 和 Vue 的核心区别？","tag":"★★ 跨框架题","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"react 和 vue 的核心区别？ ★★ 跨框架题"},{"num":96,"title":"ECharts 的底层渲染原理？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 的底层渲染原理？ ★★"},{"num":97,"title":"ECharts 性能优化（十万级数据不卡顿）","tag":"★★★ 你项目亮点","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 性能优化（十万级数据不卡顿） ★★★ 你项目亮点"},{"num":98,"title":"ECharts 在 Vue 项目中如何封装？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 在 vue 项目中如何封装？ ★★"},{"num":99,"title":"大屏项目自适应方案？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏项目自适应方案？ ★★"},{"num":100,"title":"大屏开发有哪些容易踩的坑？","tag":"★★ 结合你的项目","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏开发有哪些容易踩的坑？ ★★ 结合你的项目"},{"num":101,"title":"OpenLayers 和 Cesium 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"openlayers 和 cesium 的区别？什么场景选哪个？ ★★"},{"num":102,"title":"用 OpenLayers 封装船舶渲染引擎的思路？","tag":"★★★ 项目深挖题","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 openlayers 封装船舶渲染引擎的思路？ ★★★ 项目深挖题"},{"num":103,"title":"Cesium 大场景性能优化","tag":"★★★ 新都区项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 大场景性能优化 ★★★ 新都区项目可讲"},{"num":104,"title":"预警围栏判定算法的实现思路？","tag":"★★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"预警围栏判定算法的实现思路？ ★★★"},{"num":105,"title":"说说海康 SDK 和 WebRTC 接入的流程","tag":"★★ 项目深挖","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"说说海康 sdk 和 webrtc 接入的流程 ★★ 项目深挖"},{"num":106,"title":"WebRTC 和 HLS / flv.js 的区别？什么场景选什么？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webrtc 和 hls / flv.js 的区别？什么场景选什么？ ★★"},{"num":107,"title":"多路视频同时播放的性能优化？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"多路视频同时播放的性能优化？ ★★"},{"num":108,"title":"WebGIS 中矢量数据和栅格数据的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webgis 中矢量数据和栅格数据的区别？ ★"},{"num":109,"title":"WMTS / WMS / TMS 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"wmts / wms / tms 的区别？ ★"},{"num":110,"title":"高德 / 百度地图和 OpenLayers 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"高德 / 百度地图和 openlayers 的区别？ ★"},{"num":111,"title":"React 的核心思想？和 Vue 的根本区别？","tag":"★★ 跨框架题必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的核心思想？和 vue 的根本区别？ ★★ 跨框架题必问"},{"num":112,"title":"JSX 是什么？如何工作？","tag":"★ 必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"jsx 是什么？如何工作？ ★ 必答"},{"num":113,"title":"函数组件 vs 类组件？为什么 Hooks 出现？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"函数组件 vs 类组件？为什么 hooks 出现？ ★★"},{"num":114,"title":"React 的 Props 如何工作？子怎么传值给父？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的 props 如何工作？子怎么传值给父？ ★★"},{"num":115,"title":"useState 的用法和 4 个要点？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usestate 的用法和 4 个要点？ ★★ 必问"},{"num":116,"title":"useEffect 的用法和陷阱？","tag":"★★★ 超高频","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useeffect 的用法和陷阱？ ★★★ 超高频"},{"num":117,"title":"useMemo 和 useCallback 的区别和使用场景？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usememo 和 usecallback 的区别和使用场景？ ★★ 必问"},{"num":118,"title":"useRef 的几种用法？和 Vue3 的 ref 一样吗？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useref 的几种用法？和 vue3 的 ref 一样吗？ ★★ 必问"},{"num":119,"title":"自定义 Hook 怎么写？举 3 个实战例子","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"自定义 hook 怎么写？举 3 个实战例子 ★★"},{"num":120,"title":"Context 怎么用？什么时候用 vs 状态管理库？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"context 怎么用？什么时候用 vs 状态管理库？ ★★"},{"num":121,"title":"React 状态管理方案对比？2026 怎么选？","tag":"★★ 选型必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 状态管理方案对比？2026 怎么选？ ★★ 选型必问"},{"num":122,"title":"React 性能优化的 8 个手段？给出关键代码","tag":"★★★ 大厂必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 性能优化的 8 个手段？给出关键代码 ★★★ 大厂必问"},{"num":123,"title":"React Fiber 是什么？解决了什么问题？","tag":"★★★ 难度题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react fiber 是什么？解决了什么问题？ ★★★ 难度题"},{"num":124,"title":"React 虚拟 DOM 和 diff 算法？和 Vue3 谁更快？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 虚拟 dom 和 diff 算法？和 vue3 谁更快？ ★★★ 原理题"},{"num":125,"title":"Hooks 为什么不能在条件 / 循环里调用？原理是什么？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"hooks 为什么不能在条件 / 循环里调用？原理是什么？ ★★★ 原理题"},{"num":126,"title":"终极对比：React 和 Vue3 各自的设计哲学？","tag":"★★ 跨框架题必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"终极对比：react 和 vue3 各自的设计哲学？ ★★ 跨框架题必答"},{"num":127,"title":"Next.js 是什么？App Router 的核心？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"next.js 是什么？app router 的核心？ ★★ 必问"},{"num":128,"title":"React 19 和 Next.js 16 有哪些重要新特性？","tag":"★★ 2026 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 19 和 next.js 16 有哪些重要新特性？ ★★ 2026 必问"},{"num":129,"title":"Python 的可变类型和不可变类型？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的可变类型和不可变类型？ ★"},{"num":130,"title":"列表、元组、字典、集合的区别？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"列表、元组、字典、集合的区别？ ★"},{"num":131,"title":"Python 的装饰器是什么？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的装饰器是什么？ ★★"},{"num":132,"title":"Python 的 GIL 是什么？对性能有什么影响？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的 gil 是什么？对性能有什么影响？ ★★"},{"num":133,"title":"list 的常用切片和推导式？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"list 的常用切片和推导式？ ★"},{"num":134,"title":"with 语句和上下文管理器？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"with 语句和上下文管理器？ ★"},{"num":135,"title":"为什么选 FastAPI？相比 Flask / Django 有什么优势？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"为什么选 fastapi？相比 flask / django 有什么优势？ ★★"},{"num":136,"title":"FastAPI 的基本用法？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的基本用法？ ★"},{"num":137,"title":"Pydantic 是什么？怎么做数据验证？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"pydantic 是什么？怎么做数据验证？ ★★"},{"num":138,"title":"FastAPI 的依赖注入系统怎么用？","tag":"★★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的依赖注入系统怎么用？ ★★★"},{"num":139,"title":"同步和异步路由什么时候选哪个？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"同步和异步路由什么时候选哪个？ ★★"},{"num":140,"title":"FastAPI 如何做 JWT 认证？","tag":"★★ 你项目用过","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做 jwt 认证？ ★★ 你项目用过"},{"num":141,"title":"FastAPI 如何配置 CORS 跨域？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何配置 cors 跨域？ ★"},{"num":142,"title":"FastAPI 怎么接 SQLAlchemy？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 怎么接 sqlalchemy？ ★★"},{"num":143,"title":"FastAPI 如何做文件上传？大文件如何处理？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做文件上传？大文件如何处理？ ★★"},{"num":144,"title":"FastAPI 的后台任务和 Celery 区别？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的后台任务和 celery 区别？ ★★"},{"num":145,"title":"你在安装维护记录系统里，前后端是怎么设计接口规范的？","tag":"★★★ 项目亮点","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"你在安装维护记录系统里，前后端是怎么设计接口规范的？ ★★★ 项目亮点"},{"num":146,"title":"FastAPI 项目如何部署？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 项目如何部署？ ★★"},{"num":147,"title":"数据库表结构设计，你是怎么考虑的？","tag":"★★ 项目深挖","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"数据库表结构设计，你是怎么考虑的？ ★★ 项目深挖"},{"num":148,"title":"FastAPI 的性能瓶颈怎么定位？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的性能瓶颈怎么定位？ ★★"},{"num":149,"title":"你日常用哪些 AI 编程工具？怎么选？","tag":"★ 开场题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你日常用哪些 ai 编程工具？怎么选？ ★ 开场题"},{"num":150,"title":"Cursor 和 Claude Code 有什么区别？","tag":"★★ 2026 高频","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"cursor 和 claude code 有什么区别？ ★★ 2026 高频"},{"num":151,"title":"Vibe Coding 和 Spec Coding 的区别？","tag":"★★ 概念题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"vibe coding 和 spec coding 的区别？ ★★ 概念题"},{"num":152,"title":"日常开发怎么把 AI 融入工作流？给个具体例子","tag":"★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"日常开发怎么把 ai 融入工作流？给个具体例子 ★★ 必问"},{"num":153,"title":"AI 生成的代码你怎么保证质量？","tag":"★★★ 深度题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 生成的代码你怎么保证质量？ ★★★ 深度题"},{"num":154,"title":"如何写出让 AI 更懂你的 Prompt？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"如何写出让 ai 更懂你的 prompt？ ★★"},{"num":155,"title":"MCP（Model Context Protocol）是什么？","tag":"★★ 前沿热点","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"mcp（model context protocol）是什么？ ★★ 前沿热点"},{"num":156,"title":"Claude Skills 是什么？怎么用？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"claude skills 是什么？怎么用？ ★★"},{"num":157,"title":"你理解的企业级成熟 AI 工作流是什么样？","tag":"★★★ 核心问题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你理解的企业级成熟 ai 工作流是什么样？ ★★★ 核心问题"},{"num":158,"title":"AI 时代，前端工程师的核心竞争力是什么？","tag":"★★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 时代，前端工程师的核心竞争力是什么？ ★★★ 必问"},{"num":159,"title":"初级程序员会被 AI 淘汰吗？","tag":"★★ 行为题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"初级程序员会被 ai 淘汰吗？ ★★ 行为题"},{"num":160,"title":"AI 工作流的风险和规避？","tag":"★★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 工作流的风险和规避？ ★★★"},{"num":161,"title":"前端开发用 AI 的一个失败案例？","tag":"★★ 真实感题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"前端开发用 ai 的一个失败案例？ ★★ 真实感题"},{"num":162,"title":"未来 3 年，你怎么规划自己的技术成长？","tag":"★★ 终面爱问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"未来 3 年，你怎么规划自己的技术成长？ ★★ 终面爱问"},{"num":163,"title":"你认为 AI 能取代前端工程师吗？","tag":"★★ 哲学题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你认为 ai 能取代前端工程师吗？ ★★ 哲学题"},{"num":164,"title":"什么是 LLM？它和传统 NLP 模型的本质区别？","tag":"★ 开场题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 llm？它和传统 nlp 模型的本质区别？ ★ 开场题"},{"num":165,"title":"Transformer 的自注意力机制？为什么比 RNN 更适合处理长序列？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"transformer 的自注意力机制？为什么比 rnn 更适合处理长序列？ ★★"},{"num":166,"title":"Temperature、Top-p、Top-k 采样参数的区别？","tag":"★★ 调参必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"temperature、top-p、top-k 采样参数的区别？ ★★ 调参必问"},{"num":167,"title":"幻觉（Hallucination）是什么？怎么缓解？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"幻觉（hallucination）是什么？怎么缓解？ ★★★"},{"num":168,"title":"Prompt Engineering 的核心技巧？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"prompt engineering 的核心技巧？ ★★"},{"num":169,"title":"什么是 AI Agent？它和普通 LLM 调用的本质区别？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 ai agent？它和普通 llm 调用的本质区别？ ★★★ 必问"},{"num":170,"title":"ReAct、CoT、ToT 三种规划方法的区别？","tag":"★★★ 2026 高频","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"react、cot、tot 三种规划方法的区别？ ★★★ 2026 高频"},{"num":171,"title":"Agent 常见失败模式？如何解决？","tag":"★★★ 实战题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 常见失败模式？如何解决？ ★★★ 实战题"},{"num":172,"title":"如何设计一个生产级的 Agent 框架？","tag":"★★★ 架构题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何设计一个生产级的 agent 框架？ ★★★ 架构题"},{"num":173,"title":"多 Agent 协作的优势和挑战？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"多 agent 协作的优势和挑战？ ★★"},{"num":174,"title":"RAG 的完整流程？相比微调的优势？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 的完整流程？相比微调的优势？ ★★★ 必问"},{"num":175,"title":"RAG 检索质量差？怎么优化？","tag":"★★★ 生产题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 检索质量差？怎么优化？ ★★★ 生产题"},{"num":176,"title":"\"Lost in the Middle\" 问题是什么？怎么解决？","tag":"★★★ 2026 前沿","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"\"lost in the middle\" 问题是什么？怎么解决？ ★★★ 2026 前沿"},{"num":177,"title":"如何评估 RAG 系统的效果？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何评估 rag 系统的效果？ ★★"},{"num":178,"title":"主流向量数据库对比？怎么选？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"主流向量数据库对比？怎么选？ ★★"},{"num":179,"title":"向量检索的原理？HNSW 算法怎么工作？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"向量检索的原理？hnsw 算法怎么工作？ ★★★"},{"num":180,"title":"相似度计算用余弦相似度还是点积？欧氏距离呢？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"相似度计算用余弦相似度还是点积？欧氏距离呢？ ★★"},{"num":181,"title":"LangChain、LangGraph、LlamaIndex 的区别？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain、langgraph、llamaindex 的区别？ ★★★"},{"num":182,"title":"LangChain 有什么劣势？如果让你设计 Agent 框架你会怎么优化？","tag":"★★★ 深度追问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain 有什么劣势？如果让你设计 agent 框架你会怎么优化？ ★★★ 深度追问"},{"num":183,"title":"MCP（Model Context Protocol）是什么？","tag":"★★★ 2026 热点","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"mcp（model context protocol）是什么？ ★★★ 2026 热点"},{"num":184,"title":"A2A（Agent-to-Agent）协议了解吗？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"a2a（agent-to-agent）协议了解吗？ ★★"},{"num":185,"title":"AG-UI 协议是什么？","tag":"★★ 前端相关","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ag-ui 协议是什么？ ★★ 前端相关"},{"num":186,"title":"Agent 应用的成本怎么控制？","tag":"★★ 落地题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的成本怎么控制？ ★★ 落地题"},{"num":187,"title":"怎么给 Agent 加护栏（Guardrails）保证安全？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"怎么给 agent 加护栏（guardrails）保证安全？ ★★"},{"num":188,"title":"Agent 应用的可观测性怎么做？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的可观测性怎么做？ ★★"},{"num":189,"title":"给你个项目 —— 为企业做一个客服 Agent，你怎么设计？","tag":"★★★ 系统设计题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"给你个项目 —— 为企业做一个客服 agent，你怎么设计？ ★★★ 系统设计题"},{"num":190,"title":"你从前端/全栈转 AI Agent，优势是什么？","tag":"★★ 转型话术","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"你从前端/全栈转 ai agent，优势是什么？ ★★ 转型话术"},{"num":191,"title":"AI Agent 方向值得转吗？风险是什么？","tag":"★ 思考题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ai agent 方向值得转吗？风险是什么？ ★ 思考题"},{"num":192,"title":"D3.js 和 ECharts 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 和 echarts 的区别？什么场景选哪个？ ★★"},{"num":193,"title":"D3.js 的核心概念有哪些？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 的核心概念有哪些？ ★★"},{"num":194,"title":"用 D3 画一个力导向图（Force Layout）的核心思路？","tag":"★★ 项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 d3 画一个力导向图（force layout）的核心思路？ ★★ 项目可讲"},{"num":195,"title":"Three.js 的三大核心组件？最小可运行场景的代码？","tag":"★★ 必背","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 的三大核心组件？最小可运行场景的代码？ ★★ 必背"},{"num":196,"title":"Three.js 项目性能优化的常用手段？","tag":"★★★ 项目实战","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 项目性能优化的常用手段？ ★★★ 项目实战"},{"num":197,"title":"Three.js 如何加载 GLTF 模型？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 如何加载 gltf 模型？ ★★"},{"num":198,"title":"Cesium 和 Three.js 的区别？项目里如何选？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 和 three.js 的区别？项目里如何选？ ★★"},{"num":199,"title":"SSR 服务端渲染的实现原理是什么？","tag":"★★★ 必懂","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 服务端渲染的实现原理是什么？ ★★★ 必懂"},{"num":200,"title":"什么是 Hydration（注水）？为什么会有 Hydration 失败问题？","tag":"★★★ 大厂高频","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 hydration（注水）？为什么会有 hydration 失败问题？ ★★★ 大厂高频"},{"num":201,"title":"Nuxt 3 的关键特性？相比 Nuxt 2 有哪些升级？","tag":"★★ Vue 必备","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nuxt 3 的关键特性？相比 nuxt 2 有哪些升级？ ★★ vue 必备"},{"num":202,"title":"Next.js 14/15 的 App Router 和 Pages Router 的区别？","tag":"★★★ React 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"next.js 14/15 的 app router 和 pages router 的区别？ ★★★ react 必问"},{"num":203,"title":"什么是 React Server Components（RSC）？和传统 SSR 的区别？","tag":"★★★ 2026 前沿","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 react server components（rsc）？和传统 ssr 的区别？ ★★★ 2026 前沿"},{"num":204,"title":"SSR 项目里数据预取的几种方式？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目里数据预取的几种方式？ ★★"},{"num":205,"title":"SSR 项目的部署架构和常见痛点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目的部署架构和常见痛点？ ★★"}];
+const QUESTIONS = [{"num":1,"title":"说说 JS 的基本数据类型，如何判断数据类型？","tag":"字节、腾讯高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 js 的基本数据类型，如何判断数据类型？ 字节、腾讯高频"},{"num":2,"title":"var、let、const 的区别？","tag":"几乎必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"var、let、const 的区别？ 几乎必问"},{"num":3,"title":"== 和 === 的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"== 和 === 的区别？ ★"},{"num":4,"title":"谈谈你对闭包的理解？应用场景？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"谈谈你对闭包的理解？应用场景？ ★★"},{"num":5,"title":"说说 JavaScript 的原型和原型链","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 javascript 的原型和原型链 ★★"},{"num":6,"title":"this 指向的判断规则？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"this 指向的判断规则？ ★★"},{"num":7,"title":"浅拷贝和深拷贝的区别？如何实现深拷贝？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"浅拷贝和深拷贝的区别？如何实现深拷贝？ ★★"},{"num":8,"title":"说说 Event Loop（事件循环）","tag":"★★★ 超高频","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"说说 event loop（事件循环） ★★★ 超高频"},{"num":9,"title":"手写一个简易 Promise","tag":"★★★ 字节、阿里必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写一个简易 promise ★★★ 字节、阿里必问"},{"num":10,"title":"Promise.all / allSettled / race / any 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"promise.all / allsettled / race / any 的区别？ ★★"},{"num":11,"title":"async/await 和 Promise 的关系？有什么优势？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"async/await 和 promise 的关系？有什么优势？ ★★"},{"num":12,"title":"手写防抖和节流","tag":"★★ 几乎必考","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写防抖和节流 ★★ 几乎必考"},{"num":13,"title":"手写 call / apply / bind","tag":"★★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写 call / apply / bind ★★★"},{"num":14,"title":"手写数组扁平化（flat）","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组扁平化（flat） ★★"},{"num":15,"title":"手写数组去重（多种方法）","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"手写数组去重（多种方法） ★"},{"num":16,"title":"箭头函数和普通函数的区别？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"箭头函数和普通函数的区别？ ★"},{"num":17,"title":"解构赋值有哪些用法？","tag":"★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"解构赋值有哪些用法？ ★"},{"num":18,"title":"Map / Set / WeakMap / WeakSet 的区别？","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"map / set / weakmap / weakset 的区别？ ★★"},{"num":19,"title":"Proxy 和 Object.defineProperty 的区别？","tag":"★★★ Vue 面试必问","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"proxy 和 object.defineproperty 的区别？ ★★★ vue 面试必问"},{"num":20,"title":"一次讲清 JS 继承的各种方式","tag":"★★","chapter":"第一章  JavaScript / ES6 核心 —— 必背基石","keywords":"一次讲清 js 继承的各种方式 ★★"},{"num":21,"title":"Vue3 相比 Vue2 做了哪些优化？","tag":"★★ 必问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 相比 vue2 做了哪些优化？ ★★ 必问"},{"num":22,"title":"Vue3 响应式原理 —— Proxy + Reflect","tag":"★★★ 超高频","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 响应式原理 —— proxy + reflect ★★★ 超高频"},{"num":23,"title":"ref 和 reactive 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"ref 和 reactive 的区别？ ★★"},{"num":24,"title":"computed 和 watch 的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"computed 和 watch 的区别？ ★★"},{"num":25,"title":"Vue3 生命周期钩子有哪些？和 Vue2 的对应关系？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 生命周期钩子有哪些？和 vue2 的对应关系？ ★★"},{"num":26,"title":"Vue3 组件通信方式有哪些？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 组件通信方式有哪些？ ★★"},{"num":27,"title":"Vue2 为什么不能检测数组索引变化和对象新增属性？","tag":"★★ 经典题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue2 为什么不能检测数组索引变化和对象新增属性？ ★★ 经典题"},{"num":28,"title":"Vue 中 key 的作用是什么？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 中 key 的作用是什么？ ★★"},{"num":29,"title":"Vue Router 中 hash 和 history 模式的区别？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue router 中 hash 和 history 模式的区别？ ★★"},{"num":30,"title":"Pinia 和 Vuex 的区别？为什么 Vue3 推荐 Pinia？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"pinia 和 vuex 的区别？为什么 vue3 推荐 pinia？ ★"},{"num":31,"title":"Vue 有了响应式系统，为什么还需要虚拟 DOM 和 diff？","tag":"★★★ 字节爱问","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 有了响应式系统，为什么还需要虚拟 dom 和 diff？ ★★★ 字节爱问"},{"num":32,"title":"Vue3 编译时做了哪些优化？","tag":"★★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue3 编译时做了哪些优化？ ★★★"},{"num":33,"title":"说说 Vue 的 nextTick 原理","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 nexttick 原理 ★★"},{"num":34,"title":"说说 Vue 的 keep-alive","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"说说 vue 的 keep-alive ★★"},{"num":35,"title":"Vue 项目做过哪些性能优化？","tag":"★★★ 项目题必答","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"vue 项目做过哪些性能优化？ ★★★ 项目题必答"},{"num":36,"title":"你在 Vue3 项目中踩过什么坑？","tag":"★★ 行为题","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在 vue3 项目中踩过什么坑？ ★★ 行为题"},{"num":37,"title":"UniApp 一套代码多端运行的原理？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"uniapp 一套代码多端运行的原理？ ★★"},{"num":38,"title":"小程序和 H5 的区别？","tag":"★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"小程序和 h5 的区别？ ★"},{"num":39,"title":"你在项目中如何封装通用组件？以地图组件为例","tag":"★★ 项目亮点","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"你在项目中如何封装通用组件？以地图组件为例 ★★ 项目亮点"},{"num":40,"title":"如何实现一个全局弹窗组件（不依赖 UI 库）？","tag":"★★","chapter":"第二章  Vue2 & Vue3 深度 —— 你的主战场","keywords":"如何实现一个全局弹窗组件（不依赖 ui 库）？ ★★"},{"num":41,"title":"TS 基础类型有哪些？any / unknown / never 的区别？","tag":"★★ 必问","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 基础类型有哪些？any / unknown / never 的区别？ ★★ 必问"},{"num":42,"title":"interface 和 type 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"interface 和 type 的区别？ ★★"},{"num":43,"title":"什么是泛型？举个实际例子","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"什么是泛型？举个实际例子 ★★"},{"num":44,"title":"TS 常用内置工具类型有哪些？","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"ts 常用内置工具类型有哪些？ ★★★"},{"num":45,"title":"说说条件类型和 infer","tag":"★★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"说说条件类型和 infer ★★★"},{"num":46,"title":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"枚举 enum 和字面量联合类型 union，2026 年该选哪个？ ★★"},{"num":47,"title":"Vue3 + TS 中，defineProps 的类型写法？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"vue3 + ts 中，defineprops 的类型写法？ ★"},{"num":48,"title":"盒模型 —— 标准盒模型和 IE 盒模型的区别？","tag":"★ 必会","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"盒模型 —— 标准盒模型和 ie 盒模型的区别？ ★ 必会"},{"num":49,"title":"水平垂直居中的 N 种方法","tag":"★★ 必背","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"水平垂直居中的 n 种方法 ★★ 必背"},{"num":50,"title":"BFC 是什么？解决什么问题？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"bfc 是什么？解决什么问题？ ★★"},{"num":51,"title":"Flex 和 Grid 的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"flex 和 grid 的区别？ ★★"},{"num":52,"title":"移动端 1px 问题如何解决？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"移动端 1px 问题如何解决？ ★★"},{"num":53,"title":"响应式布局的常见方案？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"响应式布局的常见方案？ ★★"},{"num":54,"title":"CSS 动画性能优化的关键点？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 动画性能优化的关键点？ ★★"},{"num":55,"title":"CSS 重排（Reflow）和重绘（Repaint）的区别？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 重排（reflow）和重绘（repaint）的区别？ ★★"},{"num":56,"title":"CSS 选择器的优先级和计算规则？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"css 选择器的优先级和计算规则？ ★"},{"num":57,"title":"Sass/Less 和 Tailwind CSS 的区别？","tag":"★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"sass/less 和 tailwind css 的区别？ ★"},{"num":58,"title":"如何实现 CSS 深度作用域（scoped）和样式穿透？","tag":"★★","chapter":"第三章  TypeScript & CSS —— 进阶必备","keywords":"如何实现 css 深度作用域（scoped）和样式穿透？ ★★"},{"num":59,"title":"Webpack 的构建流程？","tag":"★★ 必会","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的构建流程？ ★★ 必会"},{"num":60,"title":"Loader 和 Plugin 的区别？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"loader 和 plugin 的区别？ ★★"},{"num":61,"title":"常用 Webpack 性能优化手段","tag":"★★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"常用 webpack 性能优化手段 ★★★"},{"num":62,"title":"Webpack 的 Tree Shaking 原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 的 tree shaking 原理？ ★★"},{"num":63,"title":"HMR（热模块替换）原理？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"hmr（热模块替换）原理？ ★★"},{"num":64,"title":"Vite 为什么比 Webpack 快？","tag":"★★★ 字节高频","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 为什么比 webpack 快？ ★★★ 字节高频"},{"num":65,"title":"Vite 的预构建是什么？为什么需要？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的预构建是什么？为什么需要？ ★★"},{"num":66,"title":"Vite 的 HMR 和 Webpack 的 HMR 有什么不同？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 的 hmr 和 webpack 的 hmr 有什么不同？ ★★"},{"num":67,"title":"Vite 和 Webpack 如何选择？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"vite 和 webpack 如何选择？ ★★"},{"num":68,"title":"Webpack 和 Vite 有哪些代码分割策略？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"webpack 和 vite 有哪些代码分割策略？ ★★"},{"num":69,"title":"CI/CD 流程你是怎么搭的？","tag":"★★ 结合你的 Jenkins 经验","chapter":"第四章  Webpack / Vite 工程化","keywords":"ci/cd 流程你是怎么搭的？ ★★ 结合你的 jenkins 经验"},{"num":70,"title":"Monorepo 的优势？pnpm workspace 了解吗？","tag":"★★","chapter":"第四章  Webpack / Vite 工程化","keywords":"monorepo 的优势？pnpm workspace 了解吗？ ★★"},{"num":71,"title":"从输入 URL 到页面呈现的全过程？","tag":"★★★ 大厂必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"从输入 url 到页面呈现的全过程？ ★★★ 大厂必问"},{"num":72,"title":"浏览器的缓存机制？强缓存和协商缓存的区别？","tag":"★★ 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器的缓存机制？强缓存和协商缓存的区别？ ★★ 必问"},{"num":73,"title":"浏览器渲染流程？什么是回流和重绘？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"浏览器渲染流程？什么是回流和重绘？ ★★"},{"num":74,"title":"Cookie / LocalStorage / SessionStorage / IndexedDB 的区别？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"cookie / localstorage / sessionstorage / indexeddb 的区别？ ★"},{"num":75,"title":"HTTP/1.1、HTTP/2、HTTP/3 的区别？","tag":"★★★ 2026 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http/1.1、http/2、http/3 的区别？ ★★★ 2026 必问"},{"num":76,"title":"HTTP 和 HTTPS 的区别？HTTPS 加密流程？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"http 和 https 的区别？https 加密流程？ ★★"},{"num":77,"title":"TCP 三次握手和四次挥手？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"tcp 三次握手和四次挥手？ ★★"},{"num":78,"title":"WebSocket 和 HTTP / SSE 的区别？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"websocket 和 http / sse 的区别？ ★★"},{"num":79,"title":"前端跨域的常见解决方案？","tag":"★★ 必会","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端跨域的常见解决方案？ ★★ 必会"},{"num":80,"title":"JWT 认证机制的原理和优缺点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"jwt 认证机制的原理和优缺点？ ★★"},{"num":81,"title":"XSS 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"xss 攻击和防御 ★★"},{"num":82,"title":"CSRF 攻击和防御","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"csrf 攻击和防御 ★★"},{"num":83,"title":"点击劫持（ClickJacking）和防御","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"点击劫持（clickjacking）和防御 ★"},{"num":84,"title":"核心 Web 性能指标（Core Web Vitals）是什么？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"核心 web 性能指标（core web vitals）是什么？ ★★"},{"num":85,"title":"前端性能优化的完整清单？","tag":"★★★ 大厂爱问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端性能优化的完整清单？ ★★★ 大厂爱问"},{"num":86,"title":"SPA 首屏白屏优化方案？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"spa 首屏白屏优化方案？ ★★★"},{"num":87,"title":"虚拟列表（Virtual List）的实现原理？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"虚拟列表（virtual list）的实现原理？ ★★★"},{"num":88,"title":"内存泄漏的常见场景和检测？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"内存泄漏的常见场景和检测？ ★★"},{"num":89,"title":"谈谈 SSR / SSG / CSR 的区别和选型","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"谈谈 ssr / ssg / csr 的区别和选型 ★★"},{"num":90,"title":"微前端是什么？有哪些方案？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"微前端是什么？有哪些方案？ ★★"},{"num":91,"title":"PWA 是什么？核心技术？","tag":"★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"pwa 是什么？核心技术？ ★"},{"num":92,"title":"前端监控体系如何搭建？","tag":"★★ 项目亮点","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端监控体系如何搭建？ ★★ 项目亮点"},{"num":93,"title":"Nginx 配置 history 模式和 gzip 怎么写？","tag":"★ 运维基础","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nginx 配置 history 模式和 gzip 怎么写？ ★ 运维基础"},{"num":94,"title":"大文件分片上传 + 断点续传如何实现？","tag":"★★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"大文件分片上传 + 断点续传如何实现？ ★★★"},{"num":95,"title":"React 和 Vue 的核心区别？","tag":"★★ 跨框架题","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"react 和 vue 的核心区别？ ★★ 跨框架题"},{"num":96,"title":"ECharts 的底层渲染原理？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 的底层渲染原理？ ★★"},{"num":97,"title":"ECharts 性能优化（十万级数据不卡顿）","tag":"★★★ 你项目亮点","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 性能优化（十万级数据不卡顿） ★★★ 你项目亮点"},{"num":98,"title":"ECharts 在 Vue 项目中如何封装？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"echarts 在 vue 项目中如何封装？ ★★"},{"num":99,"title":"大屏项目自适应方案？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏项目自适应方案？ ★★"},{"num":100,"title":"大屏开发有哪些容易踩的坑？","tag":"★★ 结合你的项目","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"大屏开发有哪些容易踩的坑？ ★★ 结合你的项目"},{"num":101,"title":"OpenLayers 和 Cesium 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"openlayers 和 cesium 的区别？什么场景选哪个？ ★★"},{"num":102,"title":"用 OpenLayers 封装船舶渲染引擎的思路？","tag":"★★★ 项目深挖题","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 openlayers 封装船舶渲染引擎的思路？ ★★★ 项目深挖题"},{"num":103,"title":"Cesium 大场景性能优化","tag":"★★★ 新都区项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 大场景性能优化 ★★★ 新都区项目可讲"},{"num":104,"title":"预警围栏判定算法的实现思路？","tag":"★★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"预警围栏判定算法的实现思路？ ★★★"},{"num":105,"title":"说说海康 SDK 和 WebRTC 接入的流程","tag":"★★ 项目深挖","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"说说海康 sdk 和 webrtc 接入的流程 ★★ 项目深挖"},{"num":106,"title":"WebRTC 和 HLS / flv.js 的区别？什么场景选什么？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webrtc 和 hls / flv.js 的区别？什么场景选什么？ ★★"},{"num":107,"title":"多路视频同时播放的性能优化？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"多路视频同时播放的性能优化？ ★★"},{"num":108,"title":"WebGIS 中矢量数据和栅格数据的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"webgis 中矢量数据和栅格数据的区别？ ★"},{"num":109,"title":"WMTS / WMS / TMS 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"wmts / wms / tms 的区别？ ★"},{"num":110,"title":"高德 / 百度地图和 OpenLayers 的区别？","tag":"★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"高德 / 百度地图和 openlayers 的区别？ ★"},{"num":111,"title":"React 的核心思想？和 Vue 的根本区别？","tag":"★★ 跨框架题必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的核心思想？和 vue 的根本区别？ ★★ 跨框架题必问"},{"num":112,"title":"JSX 是什么？如何工作？","tag":"★ 必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"jsx 是什么？如何工作？ ★ 必答"},{"num":113,"title":"函数组件 vs 类组件？为什么 Hooks 出现？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"函数组件 vs 类组件？为什么 hooks 出现？ ★★"},{"num":114,"title":"React 的 Props 如何工作？子怎么传值给父？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 的 props 如何工作？子怎么传值给父？ ★★"},{"num":115,"title":"useState 的用法和 4 个要点？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usestate 的用法和 4 个要点？ ★★ 必问"},{"num":116,"title":"useEffect 的用法和陷阱？","tag":"★★★ 超高频","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useeffect 的用法和陷阱？ ★★★ 超高频"},{"num":117,"title":"useMemo 和 useCallback 的区别和使用场景？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"usememo 和 usecallback 的区别和使用场景？ ★★ 必问"},{"num":118,"title":"useRef 的几种用法？和 Vue3 的 ref 一样吗？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"useref 的几种用法？和 vue3 的 ref 一样吗？ ★★ 必问"},{"num":119,"title":"自定义 Hook 怎么写？举 3 个实战例子","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"自定义 hook 怎么写？举 3 个实战例子 ★★"},{"num":120,"title":"Context 怎么用？什么时候用 vs 状态管理库？","tag":"★★","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"context 怎么用？什么时候用 vs 状态管理库？ ★★"},{"num":121,"title":"React 状态管理方案对比？2026 怎么选？","tag":"★★ 选型必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 状态管理方案对比？2026 怎么选？ ★★ 选型必问"},{"num":122,"title":"React 性能优化的 8 个手段？给出关键代码","tag":"★★★ 大厂必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 性能优化的 8 个手段？给出关键代码 ★★★ 大厂必问"},{"num":123,"title":"React Fiber 是什么？解决了什么问题？","tag":"★★★ 难度题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react fiber 是什么？解决了什么问题？ ★★★ 难度题"},{"num":124,"title":"React 虚拟 DOM 和 diff 算法？和 Vue3 谁更快？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 虚拟 dom 和 diff 算法？和 vue3 谁更快？ ★★★ 原理题"},{"num":125,"title":"Hooks 为什么不能在条件 / 循环里调用？原理是什么？","tag":"★★★ 原理题","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"hooks 为什么不能在条件 / 循环里调用？原理是什么？ ★★★ 原理题"},{"num":126,"title":"终极对比：React 和 Vue3 各自的设计哲学？","tag":"★★ 跨框架题必答","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"终极对比：react 和 vue3 各自的设计哲学？ ★★ 跨框架题必答"},{"num":127,"title":"Next.js 是什么？App Router 的核心？","tag":"★★ 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"next.js 是什么？app router 的核心？ ★★ 必问"},{"num":128,"title":"React 19 和 Next.js 16 有哪些重要新特性？","tag":"★★ 2026 必问","chapter":"第七章  React 基础速成 —— 补齐短板","keywords":"react 19 和 next.js 16 有哪些重要新特性？ ★★ 2026 必问"},{"num":129,"title":"Python 的可变类型和不可变类型？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的可变类型和不可变类型？ ★"},{"num":130,"title":"列表、元组、字典、集合的区别？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"列表、元组、字典、集合的区别？ ★"},{"num":131,"title":"Python 的装饰器是什么？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的装饰器是什么？ ★★"},{"num":132,"title":"Python 的 GIL 是什么？对性能有什么影响？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"python 的 gil 是什么？对性能有什么影响？ ★★"},{"num":133,"title":"list 的常用切片和推导式？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"list 的常用切片和推导式？ ★"},{"num":134,"title":"with 语句和上下文管理器？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"with 语句和上下文管理器？ ★"},{"num":135,"title":"为什么选 FastAPI？相比 Flask / Django 有什么优势？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"为什么选 fastapi？相比 flask / django 有什么优势？ ★★"},{"num":136,"title":"FastAPI 的基本用法？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的基本用法？ ★"},{"num":137,"title":"Pydantic 是什么？怎么做数据验证？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"pydantic 是什么？怎么做数据验证？ ★★"},{"num":138,"title":"FastAPI 的依赖注入系统怎么用？","tag":"★★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的依赖注入系统怎么用？ ★★★"},{"num":139,"title":"同步和异步路由什么时候选哪个？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"同步和异步路由什么时候选哪个？ ★★"},{"num":140,"title":"FastAPI 如何做 JWT 认证？","tag":"★★ 你项目用过","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做 jwt 认证？ ★★ 你项目用过"},{"num":141,"title":"FastAPI 如何配置 CORS 跨域？","tag":"★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何配置 cors 跨域？ ★"},{"num":142,"title":"FastAPI 怎么接 SQLAlchemy？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 怎么接 sqlalchemy？ ★★"},{"num":143,"title":"FastAPI 如何做文件上传？大文件如何处理？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何做文件上传？大文件如何处理？ ★★"},{"num":144,"title":"FastAPI 的后台任务和 Celery 区别？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的后台任务和 celery 区别？ ★★"},{"num":145,"title":"你在安装维护记录系统里，前后端是怎么设计接口规范的？","tag":"★★★ 项目亮点","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"你在安装维护记录系统里，前后端是怎么设计接口规范的？ ★★★ 项目亮点"},{"num":146,"title":"FastAPI 项目如何部署？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 项目如何部署？ ★★"},{"num":147,"title":"数据库表结构设计，你是怎么考虑的？","tag":"★★ 项目深挖","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"数据库表结构设计，你是怎么考虑的？ ★★ 项目深挖"},{"num":148,"title":"FastAPI 的性能瓶颈怎么定位？","tag":"★★","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 的性能瓶颈怎么定位？ ★★"},{"num":149,"title":"你日常用哪些 AI 编程工具？怎么选？","tag":"★ 开场题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你日常用哪些 ai 编程工具？怎么选？ ★ 开场题"},{"num":150,"title":"Cursor 和 Claude Code 有什么区别？","tag":"★★ 2026 高频","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"cursor 和 claude code 有什么区别？ ★★ 2026 高频"},{"num":151,"title":"Vibe Coding 和 Spec Coding 的区别？","tag":"★★ 概念题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"vibe coding 和 spec coding 的区别？ ★★ 概念题"},{"num":152,"title":"日常开发怎么把 AI 融入工作流？给个具体例子","tag":"★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"日常开发怎么把 ai 融入工作流？给个具体例子 ★★ 必问"},{"num":153,"title":"AI 生成的代码你怎么保证质量？","tag":"★★★ 深度题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 生成的代码你怎么保证质量？ ★★★ 深度题"},{"num":154,"title":"如何写出让 AI 更懂你的 Prompt？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"如何写出让 ai 更懂你的 prompt？ ★★"},{"num":155,"title":"MCP（Model Context Protocol）是什么？","tag":"★★ 前沿热点","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"mcp（model context protocol）是什么？ ★★ 前沿热点"},{"num":156,"title":"Claude Skills 是什么？怎么用？","tag":"★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"claude skills 是什么？怎么用？ ★★"},{"num":157,"title":"你理解的企业级成熟 AI 工作流是什么样？","tag":"★★★ 核心问题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你理解的企业级成熟 ai 工作流是什么样？ ★★★ 核心问题"},{"num":158,"title":"AI 时代，前端工程师的核心竞争力是什么？","tag":"★★★ 必问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 时代，前端工程师的核心竞争力是什么？ ★★★ 必问"},{"num":159,"title":"初级程序员会被 AI 淘汰吗？","tag":"★★ 行为题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"初级程序员会被 ai 淘汰吗？ ★★ 行为题"},{"num":160,"title":"AI 工作流的风险和规避？","tag":"★★★","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"ai 工作流的风险和规避？ ★★★"},{"num":161,"title":"前端开发用 AI 的一个失败案例？","tag":"★★ 真实感题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"前端开发用 ai 的一个失败案例？ ★★ 真实感题"},{"num":162,"title":"未来 3 年，你怎么规划自己的技术成长？","tag":"★★ 终面爱问","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"未来 3 年，你怎么规划自己的技术成长？ ★★ 终面爱问"},{"num":163,"title":"你认为 AI 能取代前端工程师吗？","tag":"★★ 哲学题","chapter":"第九章  AI 辅助开发与工作流 —— 新兴热点","keywords":"你认为 ai 能取代前端工程师吗？ ★★ 哲学题"},{"num":164,"title":"什么是 LLM？它和传统 NLP 模型的本质区别？","tag":"★ 开场题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 llm？它和传统 nlp 模型的本质区别？ ★ 开场题"},{"num":165,"title":"Transformer 的自注意力机制？为什么比 RNN 更适合处理长序列？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"transformer 的自注意力机制？为什么比 rnn 更适合处理长序列？ ★★"},{"num":166,"title":"Temperature、Top-p、Top-k 采样参数的区别？","tag":"★★ 调参必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"temperature、top-p、top-k 采样参数的区别？ ★★ 调参必问"},{"num":167,"title":"幻觉（Hallucination）是什么？怎么缓解？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"幻觉（hallucination）是什么？怎么缓解？ ★★★"},{"num":168,"title":"Prompt Engineering 的核心技巧？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"prompt engineering 的核心技巧？ ★★"},{"num":169,"title":"什么是 AI Agent？它和普通 LLM 调用的本质区别？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"什么是 ai agent？它和普通 llm 调用的本质区别？ ★★★ 必问"},{"num":170,"title":"ReAct、CoT、ToT 三种规划方法的区别？","tag":"★★★ 2026 高频","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"react、cot、tot 三种规划方法的区别？ ★★★ 2026 高频"},{"num":171,"title":"Agent 常见失败模式？如何解决？","tag":"★★★ 实战题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 常见失败模式？如何解决？ ★★★ 实战题"},{"num":172,"title":"如何设计一个生产级的 Agent 框架？","tag":"★★★ 架构题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何设计一个生产级的 agent 框架？ ★★★ 架构题"},{"num":173,"title":"多 Agent 协作的优势和挑战？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"多 agent 协作的优势和挑战？ ★★"},{"num":174,"title":"RAG 的完整流程？相比微调的优势？","tag":"★★★ 必问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 的完整流程？相比微调的优势？ ★★★ 必问"},{"num":175,"title":"RAG 检索质量差？怎么优化？","tag":"★★★ 生产题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"rag 检索质量差？怎么优化？ ★★★ 生产题"},{"num":176,"title":"\"Lost in the Middle\" 问题是什么？怎么解决？","tag":"★★★ 2026 前沿","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"\"lost in the middle\" 问题是什么？怎么解决？ ★★★ 2026 前沿"},{"num":177,"title":"如何评估 RAG 系统的效果？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"如何评估 rag 系统的效果？ ★★"},{"num":178,"title":"主流向量数据库对比？怎么选？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"主流向量数据库对比？怎么选？ ★★"},{"num":179,"title":"向量检索的原理？HNSW 算法怎么工作？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"向量检索的原理？hnsw 算法怎么工作？ ★★★"},{"num":180,"title":"相似度计算用余弦相似度还是点积？欧氏距离呢？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"相似度计算用余弦相似度还是点积？欧氏距离呢？ ★★"},{"num":181,"title":"LangChain、LangGraph、LlamaIndex 的区别？","tag":"★★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain、langgraph、llamaindex 的区别？ ★★★"},{"num":182,"title":"LangChain 有什么劣势？如果让你设计 Agent 框架你会怎么优化？","tag":"★★★ 深度追问","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"langchain 有什么劣势？如果让你设计 agent 框架你会怎么优化？ ★★★ 深度追问"},{"num":183,"title":"MCP（Model Context Protocol）是什么？","tag":"★★★ 2026 热点","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"mcp（model context protocol）是什么？ ★★★ 2026 热点"},{"num":184,"title":"A2A（Agent-to-Agent）协议了解吗？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"a2a（agent-to-agent）协议了解吗？ ★★"},{"num":185,"title":"AG-UI 协议是什么？","tag":"★★ 前端相关","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ag-ui 协议是什么？ ★★ 前端相关"},{"num":186,"title":"Agent 应用的成本怎么控制？","tag":"★★ 落地题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的成本怎么控制？ ★★ 落地题"},{"num":187,"title":"怎么给 Agent 加护栏（Guardrails）保证安全？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"怎么给 agent 加护栏（guardrails）保证安全？ ★★"},{"num":188,"title":"Agent 应用的可观测性怎么做？","tag":"★★","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"agent 应用的可观测性怎么做？ ★★"},{"num":189,"title":"给你个项目 —— 为企业做一个客服 Agent，你怎么设计？","tag":"★★★ 系统设计题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"给你个项目 —— 为企业做一个客服 agent，你怎么设计？ ★★★ 系统设计题"},{"num":190,"title":"你从前端/全栈转 AI Agent，优势是什么？","tag":"★★ 转型话术","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"你从前端/全栈转 ai agent，优势是什么？ ★★ 转型话术"},{"num":191,"title":"AI Agent 方向值得转吗？风险是什么？","tag":"★ 思考题","chapter":"第十一章  AI Agent 工程师面试题 —— 2026 最热方向","keywords":"ai agent 方向值得转吗？风险是什么？ ★ 思考题"},{"num":192,"title":"D3.js 和 ECharts 的区别？什么场景选哪个？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 和 echarts 的区别？什么场景选哪个？ ★★"},{"num":193,"title":"D3.js 的核心概念有哪些？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"d3.js 的核心概念有哪些？ ★★"},{"num":194,"title":"用 D3 画一个力导向图（Force Layout）的核心思路？","tag":"★★ 项目可讲","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"用 d3 画一个力导向图（force layout）的核心思路？ ★★ 项目可讲"},{"num":195,"title":"Three.js 的三大核心组件？最小可运行场景的代码？","tag":"★★ 必背","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 的三大核心组件？最小可运行场景的代码？ ★★ 必背"},{"num":196,"title":"Three.js 项目性能优化的常用手段？","tag":"★★★ 项目实战","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 项目性能优化的常用手段？ ★★★ 项目实战"},{"num":197,"title":"Three.js 如何加载 GLTF 模型？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"three.js 如何加载 gltf 模型？ ★★"},{"num":198,"title":"Cesium 和 Three.js 的区别？项目里如何选？","tag":"★★","chapter":"第六章  大屏可视化 & GIS —— 你的项目优势","keywords":"cesium 和 three.js 的区别？项目里如何选？ ★★"},{"num":199,"title":"SSR 服务端渲染的实现原理是什么？","tag":"★★★ 必懂","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 服务端渲染的实现原理是什么？ ★★★ 必懂"},{"num":200,"title":"什么是 Hydration（注水）？为什么会有 Hydration 失败问题？","tag":"★★★ 大厂高频","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 hydration（注水）？为什么会有 hydration 失败问题？ ★★★ 大厂高频"},{"num":201,"title":"Nuxt 3 的关键特性？相比 Nuxt 2 有哪些升级？","tag":"★★ Vue 必备","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"nuxt 3 的关键特性？相比 nuxt 2 有哪些升级？ ★★ vue 必备"},{"num":202,"title":"Next.js 14/15 的 App Router 和 Pages Router 的区别？","tag":"★★★ React 必问","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"next.js 14/15 的 app router 和 pages router 的区别？ ★★★ react 必问"},{"num":203,"title":"什么是 React Server Components（RSC）？和传统 SSR 的区别？","tag":"★★★ 2026 前沿","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么是 react server components（rsc）？和传统 ssr 的区别？ ★★★ 2026 前沿"},{"num":204,"title":"SSR 项目里数据预取的几种方式？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目里数据预取的几种方式？ ★★"},{"num":205,"title":"SSR 项目的部署架构和常见痛点？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"ssr 项目的部署架构和常见痛点？ ★★"},{"num":206,"title":"虚拟 DOM 的 diff 算法完整原理？","tag":"★★★ 框架原理必考","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"虚拟 dom 的 diff 算法完整原理？ ★★★ 框架原理必考"},{"num":207,"title":"WebAssembly 是什么？解决什么问题？","tag":"★★ 性能进阶","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"webassembly 是什么？解决什么问题？ ★★ 性能进阶"},{"num":208,"title":"前端怎么调用 WebAssembly？数据怎么传？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"前端怎么调用 webassembly？数据怎么传？ ★★"},{"num":209,"title":"什么场景该用 WebAssembly？什么场景不该用？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"什么场景该用 webassembly？什么场景不该用？ ★★"},{"num":210,"title":"Web Worker 是什么？解决什么问题？","tag":"★★ 性能进阶","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"web worker 是什么？解决什么问题？ ★★ 性能进阶"},{"num":211,"title":"Web Worker 有哪几种？Service Worker 有什么不同？","tag":"★★","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"web worker 有哪几种？service worker 有什么不同？ ★★"},{"num":212,"title":"Web Worker 怎么高效传递大数据？","tag":"★★ 实战题","chapter":"第五章  浏览器原理 · 网络 · 性能 · 安全","keywords":"web worker 怎么高效传递大数据？ ★★ 实战题"},{"num":213,"title":"移动端 H5 怎么做屏幕适配？","tag":"★★★ 移动端必问","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"移动端 h5 怎么做屏幕适配？ ★★★ 移动端必问"},{"num":214,"title":"移动端开发遇到过哪些坑？怎么解决？","tag":"★★★ 实战经验题","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"移动端开发遇到过哪些坑？怎么解决？ ★★★ 实战经验题"},{"num":215,"title":"H5 如何调起 App / 和原生通信？","tag":"★★ 混合开发","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"h5 如何调起 app / 和原生通信？ ★★ 混合开发"},{"num":216,"title":"微信小程序的架构原理？为什么是双线程？","tag":"★★★ 小程序必问","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"微信小程序的架构原理？为什么是双线程？ ★★★ 小程序必问"},{"num":217,"title":"微信小程序的通信方式有哪些？","tag":"★★ 实战","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"微信小程序的通信方式有哪些？ ★★ 实战"},{"num":218,"title":"微信小程序性能优化有哪些手段？","tag":"★★★ 实战","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"微信小程序性能优化有哪些手段？ ★★★ 实战"},{"num":219,"title":"uni-app 一套代码多端运行的原理？","tag":"★★★ 跨端必问","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"uni-app 一套代码多端运行的原理？ ★★★ 跨端必问"},{"num":220,"title":"跨端方案怎么选？uni-app / Taro / 原生 / Flutter 对比","tag":"★★ 选型题","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"跨端方案怎么选？uni-app / taro / 原生 / flutter 对比 ★★ 选型题"},{"num":221,"title":"微信小程序和支付宝小程序有哪些差异？怎么兼容？","tag":"★★ 多端实战","chapter":"第十二章  移动端开发实战 —— 跨端 · 小程序 · H5","keywords":"微信小程序和支付宝小程序有哪些差异？怎么兼容？ ★★ 多端实战"},{"num":222,"title":"FastAPI 异步路由最大的坑是什么？","tag":"★★★ 实战必踩","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 异步路由最大的坑是什么？ ★★★ 实战必踩"},{"num":223,"title":"FastAPI 中间件怎么用？和全局异常处理？","tag":"★★ 实战","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 中间件怎么用？和全局异常处理？ ★★ 实战"},{"num":224,"title":"FastAPI 怎么做接口限流和缓存？","tag":"★★★ 生产必备","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 怎么做接口限流和缓存？ ★★★ 生产必备"},{"num":225,"title":"FastAPI 如何实现 WebSocket 实时通信？","tag":"★★ 实战（你大屏可讲）","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 如何实现 websocket 实时通信？ ★★ 实战（你大屏可讲）"},{"num":226,"title":"FastAPI 接口怎么设计统一响应和分页？","tag":"★★ 工程规范","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 接口怎么设计统一响应和分页？ ★★ 工程规范"},{"num":227,"title":"FastAPI 项目怎么做日志和测试？","tag":"★★ 工程化","chapter":"第八章  Python / FastAPI 面试题 —— 加分项","keywords":"fastapi 项目怎么做日志和测试？ ★★ 工程化"}];
 
 // 主题切换
 const themeToggle = document.getElementById('themeToggle');
@@ -6847,6 +7807,22 @@ document.addEventListener('keydown', (e) => {
     closeSidebar();
   }
 });
+
+// ===== 复习计划弹窗 =====
+(function() {
+  const fab = document.getElementById('planFab');
+  const overlay = document.getElementById('planModalOverlay');
+  const closeBtn = document.getElementById('planModalClose');
+  if (fab && overlay) {
+    const open = () => { overlay.classList.add('show'); document.body.style.overflow = 'hidden'; };
+    const close = () => { overlay.classList.remove('show'); document.body.style.overflow = ''; };
+    fab.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('show')) close(); });
+  }
+})();
+
 </script>
 </body>
 </html>
