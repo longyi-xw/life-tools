@@ -274,18 +274,29 @@
             const paymentDetails = document.getElementById('paymentDetails');
             const totalAmountInput = document.getElementById('totalAmount');
             
-            let playerCount = 0;
-            
+            // 获取下一个球友编号：取当前未被占用的最小正整数，删除后可按顺序补位
+            function getNextPlayerNumber() {
+                const usedNumbers = new Set();
+                playersList.querySelectorAll('.remove-btn').forEach(btn => {
+                    usedNumbers.add(parseInt(btn.getAttribute('data-id').replace('player', ''), 10));
+                });
+                let number = 1;
+                while (usedNumbers.has(number)) {
+                    number++;
+                }
+                return number;
+            }
+
             // 添加球友
             addPlayerBtn.addEventListener('click', function() {
-                playerCount++;
-                const playerId = `player${playerCount}`;
+                const playerNumber = getNextPlayerNumber();
+                const playerId = `player${playerNumber}`;
                 
                 const playerItem = document.createElement('div');
                 playerItem.className = 'player-item';
                 playerItem.innerHTML = `
                     <div class="player-inputs">
-                        <input type="text" class="player-name" placeholder="球友姓名" value="球友${playerCount}">
+                        <input type="text" class="player-name" placeholder="球友姓名" value="球友${playerNumber}">
                         <input type="number" class="player-expense" placeholder="已支出金额">
                     </div>
                     <button type="button" class="remove-btn" data-id="${playerId}">删除</button>
@@ -296,7 +307,7 @@
                 // 更新收款人选择列表
                 const option = document.createElement('option');
                 option.value = playerId;
-                option.textContent = `球友${playerCount}`;
+                option.textContent = `球友${playerNumber}`;
                 payerSelect.appendChild(option);
                 
                 // 添加删除功能
