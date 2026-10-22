@@ -1,0 +1,2304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="影像工坊">
+<meta name="description" content="iPhone 17 Pro Max 摄影与录像实战工坊：焦段透视、180° 快门、曝光补偿、ProRAW 与 Apple Log 2 原理拆解，十大场景参数卡，构图与姿态引导，系统设置打底清单。">
+<title>iPhone 17 Pro Max 摄影与录像实战工坊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 非阻塞加载：断网或被拦截时直接使用系统字体，不会卡住首屏 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<style>
+  :root {
+    --bg: #0b0f19;
+    --glass: rgba(18, 24, 38, 0.75);
+    --glass-deep: rgba(11, 15, 25, 0.6);
+    --line: rgba(200, 168, 75, 0.14);
+    --line-soft: rgba(255, 255, 255, 0.06);
+    --gold: #c8a84b;
+    --gold-hi: #e8c56a;
+    --accent-glow: rgba(200, 168, 75, 0.15);
+    --af: #f2d14b;                       /* iPhone 对焦框黄 */
+    --photo: #5ccfe6;                    /* 拍照：青蓝 */
+    --photo-dim: rgba(92, 207, 230, 0.12);
+    --video: #7df0a0;                    /* 录像：荧光绿 */
+    --video-dim: rgba(125, 240, 160, 0.12);
+    --pose: #e89aa8;
+    --set: #9aa8c8;
+    --clip: #e5684f;
+    --ink: #e8e3d7;
+    --ink-2: #b4b9c6;
+    --muted: #737c90;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --mono: "JetBrains Mono", "Share Tech Mono", "SF Mono", Menlo, Consolas, monospace;
+    --r: 14px;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: 128px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.75 var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  /* 微网格纹理 + 两处极淡的环境光 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgba(200, 168, 75, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200, 168, 75, 0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+    background:
+      radial-gradient(60vmax 40vmax at 8% -12%, rgba(200, 168, 75, 0.10), transparent 60%),
+      radial-gradient(50vmax 40vmax at 110% 75%, rgba(92, 207, 230, 0.05), transparent 60%);
+  }
+
+  :focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; border-radius: 6px; }
+  button { font: inherit; color: inherit; cursor: pointer; -webkit-appearance: none; appearance: none; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+  /* ========== HERO ========== */
+  .hero { padding-top: calc(14px + env(safe-area-inset-top)); }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 40px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--gold-hi); }
+
+  .title { margin-top: 10px; font-family: var(--serif); }
+  .t-model {
+    display: block;
+    font-size: 17px;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+  .t-main {
+    display: block;
+    margin-top: 4px;
+    font-size: clamp(30px, 8.6vw, 46px);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .subtitle {
+    margin-top: 12px;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--ink-2);
+  }
+
+  /* 取景器：本页唯一的“大动作” */
+  .lab { margin-top: 26px; }
+
+  .vf {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #04060b;
+    border: 1px solid rgba(200, 168, 75, 0.22);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  @supports not (aspect-ratio: 1) { .vf { height: 0; padding-top: 75%; } }
+  .vf > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .hud { position: absolute; inset: 0; pointer-events: none; }
+  .corner { position: absolute; width: 18px; height: 18px; border: 0 solid rgba(232, 227, 215, 0.55); }
+  .corner.tl { top: 12px; left: 12px; border-top-width: 1.5px; border-left-width: 1.5px; }
+  .corner.tr { top: 12px; right: 12px; border-top-width: 1.5px; border-right-width: 1.5px; }
+  .corner.bl { bottom: 12px; left: 12px; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+  .corner.br { bottom: 12px; right: 12px; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+  .hud-read {
+    position: absolute;
+    top: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--ink);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  .hud-read.l { left: 38px; }
+  .hud-read.r { right: 38px; text-align: right; }
+  .hud-read b { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
+  .hud-read small { color: var(--ink-2); font-size: 11px; }
+
+  .af {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;
+    border: 1px solid var(--af);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .af.show { opacity: 0.9; animation: afIn 0.45s var(--ease); }
+  @keyframes afIn { from { transform: scale(1.4); } to { transform: scale(1); } }
+
+  .fov-label {
+    position: absolute;
+    padding: 3px 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1;
+    color: rgba(242, 209, 75, 0.9);
+    white-space: nowrap;
+  }
+  .fov-label.tr { transform: translateX(-100%); }
+
+  .pills {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+  }
+  .pill {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(42, 42, 48, 0.75);
+    color: var(--ink);
+    font: 600 11.5px var(--sans);
+    transition: transform 0.2s var(--ease), color 0.2s;
+  }
+  .pill[aria-pressed="true"] { color: var(--af); background: rgba(24, 24, 28, 0.92); transform: scale(1.12); }
+
+  .readout {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: var(--r);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+  }
+  .ro-head { display: flex; align-items: center; gap: 10px; }
+  .ro-name { font-family: var(--serif); font-size: 18px; font-weight: 700; }
+  .ro-specs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 10px 0 8px; }
+  .ro-specs dt { font-size: 11.5px; color: var(--muted); }
+  .ro-specs dd { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+  .ro-line { display: flex; gap: 10px; font-size: 14px; color: var(--ink-2); }
+  .ro-line b { flex-shrink: 0; font-weight: 500; color: var(--gold); }
+  .lab-hint { margin-top: 10px; font-size: 13.5px; color: var(--muted); }
+
+  /* ========== 吸顶搜索与模式切换 ========== */
+  .dock {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin-top: 28px;
+    padding: 10px 0 8px;
+    background: rgba(11, 15, 25, 0.8);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    border-bottom: 1px solid var(--line);
+  }
+  .search { position: relative; display: flex; align-items: center; }
+  .search svg { position: absolute; left: 12px; width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+  .search input {
+    width: 100%;
+    height: 44px;
+    padding: 0 44px 0 40px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(18, 24, 38, 0.92);
+    color: var(--ink);
+    font: 16px var(--sans);              /* 16px 防止 iOS 聚焦时自动放大 */
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+  .search input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--accent-glow); }
+  .search .clear {
+    position: absolute;
+    right: 4px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .tab[aria-pressed="true"] { background: var(--accent-glow); border-color: var(--gold); color: var(--gold-hi); }
+  .tab[data-filter="photo"][aria-pressed="true"] { background: var(--photo-dim); border-color: var(--photo); color: var(--photo); }
+  .tab[data-filter="video"][aria-pressed="true"] { background: var(--video-dim); border-color: var(--video); color: var(--video); }
+
+  .status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .link-btn {
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: var(--gold);
+    font-size: 13px;
+  }
+  .hot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .chip {
+    min-height: 32px;
+    padding: 0 11px;
+    border-radius: 999px;
+    border: 1px solid var(--line-soft);
+    background: rgba(18, 24, 38, 0.7);
+    color: var(--ink-2);
+    font-size: 13px;
+  }
+  .chip:hover { border-color: var(--gold); color: var(--gold-hi); }
+
+  /* ========== 模块 ========== */
+  .mod { padding-top: 34px; }
+  .mod-head { margin-bottom: 18px; }
+  .mod-head h2 { font-family: var(--serif); font-size: 25px; font-weight: 700; line-height: 1.3; }
+  .mod-en { margin-top: 2px; font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--gold); }
+  .mod-intro { margin-top: 10px; max-width: 36em; font-size: 14.5px; color: var(--ink-2); }
+
+  .progress { display: flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
+  .progress-bar { flex: 1; max-width: 240px; height: 4px; border-radius: 2px; background: var(--line-soft); overflow: hidden; }
+  .progress-bar i { display: block; height: 100%; width: 0; background: var(--gold); transition: width 0.3s var(--ease); }
+
+  /* ========== 卡片 ========== */
+  .card {
+    position: relative;
+    margin-bottom: 14px;
+    padding: 18px 16px 10px 18px;
+    border-radius: var(--r);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--line);
+    --acc: var(--gold);
+  }
+  .card[data-acc="photo"] { --acc: var(--photo); }
+  .card[data-acc="video"] { --acc: var(--video); }
+  .card[data-acc="pose"] { --acc: var(--pose); }
+  .card[data-acc="set"] { --acc: var(--set); }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20px;
+    width: 2px;
+    height: 36px;
+    border-radius: 0 2px 2px 0;
+    background: var(--acc);
+  }
+
+  .card-head { display: flex; align-items: center; gap: 8px; }
+  .badges { display: flex; gap: 5px; }
+  .badge { padding: 1px 8px; border-radius: 999px; font-size: 11.5px; line-height: 1.6; border: 1px solid; }
+  .b-photo { color: var(--photo); border-color: rgba(92, 207, 230, 0.35); background: var(--photo-dim); }
+  .b-video { color: var(--video); border-color: rgba(125, 240, 160, 0.35); background: var(--video-dim); }
+  .b-comp { color: var(--gold-hi); border-color: rgba(200, 168, 75, 0.35); background: var(--accent-glow); }
+  .b-pose { color: var(--pose); border-color: rgba(232, 154, 168, 0.35); background: rgba(232, 154, 168, 0.1); }
+  .b-set { color: var(--set); border-color: rgba(154, 168, 200, 0.35); background: rgba(154, 168, 200, 0.1); }
+  .card-en { margin-left: auto; font-family: var(--serif); font-style: italic; font-size: 12.5px; color: var(--muted); text-align: right; }
+
+  .card-title { margin: 8px 0 4px; font-family: var(--serif); font-size: 20px; font-weight: 700; line-height: 1.4; }
+  .lead { font-size: 14.5px; color: var(--ink-2); }
+
+  .params { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 14px 0; }
+  @media (min-width: 560px) { .params { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .params > div { padding: 8px 10px; border-radius: 9px; background: var(--glass-deep); border: 1px solid var(--line-soft); }
+  .params dt { font-size: 11.5px; color: var(--muted); }
+  .params dd { margin-top: 2px; font-family: var(--mono); font-size: 13px; line-height: 1.5; color: var(--ink); word-break: break-word; }
+
+  .lz {
+    display: inline-block;
+    min-width: 26px;
+    margin: 0 2px 2px 0;
+    padding: 0 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(242, 209, 75, 0.5);
+    color: var(--af);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .mantra {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 14px 0;
+    padding: 12px 10px 12px 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(200, 168, 75, 0.11), rgba(200, 168, 75, 0.03));
+    border: 1px solid rgba(200, 168, 75, 0.22);
+  }
+  .mantra p { flex: 1; font-family: var(--serif); font-size: 15.5px; line-height: 1.75; color: var(--gold-hi); }
+  .copy-btn {
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(200, 168, 75, 0.4);
+    background: transparent;
+    color: var(--gold);
+    font-size: 12.5px;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover, .copy-btn.done { background: var(--accent-glow); }
+
+  .steps { list-style: none; counter-reset: s; margin: 12px 0; }
+  .steps li { position: relative; counter-increment: s; padding-left: 30px; margin-bottom: 8px; font-size: 14.5px; }
+  .steps li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--acc);
+    color: var(--acc);
+    font: 11px/18px var(--mono);
+    text-align: center;
+  }
+  .points { list-style: none; margin: 12px 0; }
+  .points li { position: relative; padding-left: 16px; margin-bottom: 7px; font-size: 14.5px; }
+  .points li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 6px; height: 1.5px; background: var(--acc); }
+
+  .diagram { margin: 14px 0 6px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-soft); background: #070a12; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+
+  .mini { width: 100%; margin: 12px 0; border-collapse: collapse; font-size: 13.5px; }
+  .mini th { padding: 6px 8px; text-align: left; font-weight: 500; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .mini td { padding: 7px 8px; border-bottom: 1px solid var(--line-soft); }
+  .mini td:nth-child(-n+2) { font-family: var(--mono); color: var(--ink); white-space: nowrap; }
+  .mini td:last-child { color: var(--ink-2); }
+
+  .tone { margin: 12px 0; display: grid; gap: 8px; }
+  .tone-row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink-2); }
+  .tone-row b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+  .tone-row svg { width: 100%; height: 36px; display: block; border-radius: 6px; background: var(--glass-deep); border: 1px solid var(--line-soft); }
+  .tone-cap { display: flex; justify-content: space-between; padding-left: 102px; font-size: 11.5px; color: var(--muted); }
+
+  .checks { list-style: none; display: grid; gap: 6px; margin: 14px 0; }
+  .checks label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--glass-deep);
+    border: 1px solid var(--line-soft);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .checks input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .ck {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(200, 168, 75, 0.5);
+    position: relative;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .checks input:checked + .ck { background: var(--gold); border-color: var(--gold); }
+  .checks input:checked + .ck::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #0b0f19;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .checks input:focus-visible + .ck { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+  .checks label:has(input:checked) { border-color: rgba(200, 168, 75, 0.3); }
+  .ck-body { display: block; min-width: 0; }
+  .ck-name { display: block; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .ck-val {
+    margin-left: 8px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(200, 168, 75, 0.35);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gold-hi);
+    white-space: nowrap;
+  }
+  .ck-path { display: block; margin-top: 1px; font-size: 12px; color: var(--muted); }
+  .ck-note { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-2); }
+
+  /* 原理抽屉：grid-template-rows 0fr → 1fr */
+  .why-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    margin-top: 4px;
+    padding: 0 2px;
+    border: 0;
+    border-top: 1px dashed rgba(200, 168, 75, 0.2);
+    background: none;
+    color: var(--gold-hi);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .chev { width: 9px; height: 9px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) translateY(-3px); transition: transform 0.3s var(--ease); }
+  .why-toggle[aria-expanded="true"] .chev { transform: rotate(-135deg) translateY(-2px); }
+  .why { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s var(--ease); }
+  .why.open { grid-template-rows: 1fr; }
+  .why-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s 0.38s; }
+  .why.open .why-inner { visibility: visible; transition-delay: 0s; }
+  .why-body { padding: 2px 0 10px; }
+  .why-body h4 { margin: 12px 0 3px; font-family: var(--serif); font-size: 15px; color: var(--ink); }
+  .why-body p { font-size: 14.5px; color: var(--ink-2); }
+
+  mark.hl { background: rgba(242, 209, 75, 0.26); color: var(--ink); border-radius: 3px; box-shadow: 0 0 0 1px rgba(242, 209, 75, 0.35); }
+
+  .empty { margin-top: 30px; padding: 28px 18px; text-align: center; border-radius: var(--r); border: 1px dashed var(--line); }
+  .empty p { color: var(--ink-2); font-size: 14.5px; }
+  .empty .hot { justify-content: center; margin-top: 12px; }
+
+  footer { margin-top: 44px; padding: 22px 0 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+  footer p + p { margin-top: 6px; }
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* ========== 底部浮动工具条 ========== */
+  .fab {
+    position: fixed;
+    left: 50%;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 40;
+    display: flex;
+    gap: 2px;
+    padding: 5px;
+    border-radius: 999px;
+    background: rgba(14, 19, 31, 0.85);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(200, 168, 75, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+  .fab button {
+    width: 66px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 11px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .fab button svg { width: 20px; height: 20px; }
+  .fab button[aria-pressed="true"] { color: var(--af); background: rgba(242, 209, 75, 0.1); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    z-index: 60;
+    max-width: calc(100vw - 32px);
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgba(22, 28, 44, 0.95);
+    border: 1px solid var(--gold);
+    color: var(--ink);
+    font-size: 13.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transform: translate(-50%, 12px);
+    transition: opacity 0.25s, transform 0.25s var(--ease);
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 模式面板（底部抽屉） */
+  .backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .backdrop.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 51;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 8px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 20px 20px 0 0;
+    background: rgba(16, 21, 34, 0.97);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--line);
+    border-bottom: 0;
+    transform: translateY(105%);
+    visibility: hidden;
+    transition: transform 0.32s var(--ease), visibility 0s 0.32s;
+  }
+  .sheet.open { transform: none; visibility: visible; transition-delay: 0s; }
+  .sheet-grip { width: 36px; height: 4px; margin: 0 auto 10px; border-radius: 2px; background: var(--line); }
+  .sheet h3 { margin: 10px 0 8px; font-size: 13px; font-weight: 500; color: var(--muted); }
+  .sheet-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .sheet-grid button, .sheet-grid a {
+    min-height: 46px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--glass-deep);
+    color: var(--ink);
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+  .sheet-grid button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold-hi); background: var(--accent-glow); }
+  .sheet-done { width: 100%; min-height: 46px; margin-top: 14px; border-radius: 12px; border: 0; background: var(--gold); color: #0b0f19; font-size: 15px; font-weight: 600; }
+
+  /* 网格 + 水平仪演示层 */
+  .gridov { position: fixed; inset: 0; z-index: 45; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0s 0.25s; }
+  .gridov.on { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .gl { position: absolute; background: rgba(255, 255, 255, 0.3); }
+  .gl.v { top: 0; bottom: 0; width: 1px; }
+  .gl.h { left: 0; right: 0; height: 1px; }
+  .level { position: absolute; left: 50%; top: 50%; width: min(72vw, 360px); height: 0; transform: translate(-50%, -50%); }
+  .level i { position: absolute; top: -1px; height: 2px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 0 6px rgba(0, 0, 0, 0.6); transition: background 0.15s; }
+  .level .s-l { left: 0; width: 16%; }
+  .level .s-r { right: 0; width: 16%; }
+  .level .s-c { left: 24%; width: 52%; transform-origin: 50% 50%; }
+  .level.ok i { background: var(--af); }
+  .level.ok .s-c { left: 0; width: 100%; }
+  .level.flat i { opacity: 0.25; }
+  .level-deg { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); font-family: var(--mono); font-size: 12px; color: var(--ink); text-shadow: 0 1px 3px #000; }
+  .ov-chip {
+    position: absolute;
+    top: calc(12px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 999px;
+    background: rgba(14, 19, 31, 0.92);
+    border: 1px solid rgba(242, 209, 75, 0.45);
+    font-size: 12.5px;
+    color: var(--ink);
+    pointer-events: auto;
+  }
+  .ov-chip button { flex-shrink: 0; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 0; background: var(--af); color: #0b0f19; font-size: 12.5px; font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <a class="back" href="index.html">‹ 工具箱</a>
+  <h1 class="title">
+    <span class="t-model">iPhone 17 Pro Max</span>
+    <span class="t-main">摄影与录像实战工坊</span>
+  </h1>
+  <p class="subtitle">底层光学原理 × 场景参数速查 × 构图姿态启发</p>
+
+  <section class="lab" aria-label="焦段实验室">
+    <div class="vf" id="vf">
+      <svg id="scene" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <linearGradient id="gSky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="147.5">
+            <stop offset="0" stop-color="#070b16"/>
+            <stop offset=".55" stop-color="#141c33"/>
+            <stop offset=".82" stop-color="#3a2c3a"/>
+            <stop offset=".95" stop-color="#8a5a36"/>
+            <stop offset="1" stop-color="#c98a45"/>
+          </linearGradient>
+          <linearGradient id="gGround" gradientUnits="userSpaceOnUse" x1="0" y1="147.5" x2="0" y2="300">
+            <stop offset="0" stop-color="#1c1920"/>
+            <stop offset=".25" stop-color="#0d1018"/>
+            <stop offset="1" stop-color="#06080d"/>
+          </linearGradient>
+          <linearGradient id="gRoad" gradientUnits="userSpaceOnUse" x1="0" y1="147.5" x2="0" y2="300">
+            <stop offset="0" stop-color="#7a5236"/>
+            <stop offset=".1" stop-color="#2c2329"/>
+            <stop offset="1" stop-color="#11141c"/>
+          </linearGradient>
+          <radialGradient id="gGlow" gradientUnits="userSpaceOnUse" cx="207" cy="144" r="90">
+            <stop offset="0" stop-color="#ffd59a" stop-opacity=".55"/>
+            <stop offset=".12" stop-color="#f0a860" stop-opacity=".28"/>
+            <stop offset=".5" stop-color="#b8743f" stop-opacity=".08"/>
+            <stop offset="1" stop-color="#b8743f" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="gCore" gradientUnits="userSpaceOnUse" cx="207" cy="144" r="5">
+            <stop offset="0" stop-color="#fff6dc" stop-opacity=".95"/>
+            <stop offset=".35" stop-color="#ffd38a" stop-opacity=".45"/>
+            <stop offset="1" stop-color="#ffb060" stop-opacity="0"/>
+          </radialGradient>
+          <clipPath id="skyClip"><rect x="0" y="0" width="400" height="147.5"/></clipPath>
+        </defs>
+        <rect width="400" height="148" fill="url(#gSky)"/>
+        <g id="stars"></g>
+        <g clip-path="url(#skyClip)">
+          <rect width="400" height="147.5" fill="url(#gGlow)"/>
+          <circle cx="207" cy="144" r="5" fill="url(#gCore)"/>
+          <!-- 太阳视直径 0.53°，按 13mm 画幅等比例绘制 -->
+          <circle cx="207" cy="144" r=".7" fill="#fff3d1"/>
+        </g>
+        <g fill="none" stroke="#e8d9b8" stroke-width="1">
+          <path d="M187.8,137.6 q.6,-.7 1.2,0 q.6,-.7 1.2,0"/>
+          <path d="M191.6,136.2 q.5,-.55 1,0 q.5,-.55 1,0"/>
+        </g>
+        <!-- 远山（最远一层，随焦距被“拉近”） -->
+        <path fill="#10141f" stroke="rgba(200,168,75,.55)" stroke-width="1"
+          d="M140,147.5 L160,146.4 L175,145.1 L184,143.4 L189,144.1 L195.5,141.2 L200.5,143.3 L203,142.6 L207,144.2 L211,142.9 L215.5,140.8 L220,143.4 L228,144.9 L245,146.3 L265,147.5 Z"/>
+        <g fill="#d8d2c4" opacity=".55">
+          <path d="M194.2,142 L195.5,141.2 L197,142.1 L196.2,142.4 L195.5,142.9 L194.9,142.3 Z"/>
+          <path d="M214,141.8 L215.5,140.8 L217.2,141.9 L216.3,142.2 L215.6,142.8 L214.9,142.2 Z"/>
+        </g>
+        <!-- 中景山脉 -->
+        <path fill="#0b0f19" stroke="rgba(200,168,75,.28)" stroke-width="1"
+          d="M0,147.5 L0,141 L30,139 L70,143.5 L105,141.5 L140,145.5 L170,147.6 L230,147.6 L262,145 L300,141 L340,143.2 L372,139.5 L400,141 L400,147.5 Z"/>
+        <!-- 近处山丘：只有超广角看得见 -->
+        <path fill="#090c14" stroke="rgba(200,168,75,.3)" stroke-width="1" d="M0,147.5 L0,122 L18,126 L40,134 L66,143 L84,147.5 Z"/>
+        <path fill="#090c14" stroke="rgba(200,168,75,.3)" stroke-width="1" d="M400,147.5 L400,118 L380,121 L352,131 L322,141 L306,147.5 Z"/>
+        <rect y="147.5" width="400" height="152.5" fill="url(#gGround)"/>
+        <polygon points="60,300 199.6,147.5 200.4,147.5 340,300" fill="url(#gRoad)"/>
+        <g stroke="rgba(200,168,75,.5)" stroke-width="1">
+          <line x1="60" y1="300" x2="199.6" y2="147.5"/>
+          <line x1="340" y1="300" x2="200.4" y2="147.5"/>
+        </g>
+        <g id="roadDetail"></g>
+        <!-- 路上的行人：8× 下才看得清 -->
+        <g transform="translate(200.67 154.28) scale(.0222)" fill="#07090e">
+          <circle cx="0" cy="-77" r="7.5"/>
+          <path d="M-9,-68 Q0,-72 9,-68 L11,-36 L6.5,-36 L5.5,0 L1,0 L0,-30 L-1,0 L-5.5,0 L-6.5,-36 L-11,-36 Z"/>
+        </g>
+        <g id="fovRects" fill="none" stroke="rgba(242,209,75,.5)" stroke-width="1"></g>
+      </svg>
+
+      <div class="hud">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div class="hud-read l"><b id="hudMm">13</b><small> mm</small><br><span id="hudAp">ƒ/2.2</span></div>
+        <div class="hud-read r"><small>视角</small><br><b id="hudFov">120</b><small>°</small></div>
+        <div class="af" id="af"></div>
+        <div id="fovLabels"></div>
+        <div class="pills" id="pills" role="group" aria-label="选择镜头"></div>
+      </div>
+    </div>
+
+    <div class="readout" aria-live="polite">
+      <div class="ro-head"><span class="lz" id="roZoom">1×</span><span class="ro-name" id="roName">主摄 Fusion</span></div>
+      <dl class="ro-specs">
+        <div><dt>等效焦距</dt><dd id="roF">24mm</dd></div>
+        <div><dt>光圈</dt><dd id="roAp">ƒ/1.78</dd></div>
+        <div><dt>像素</dt><dd id="roMp">4800 万</dd></div>
+        <div><dt>对角视角</dt><dd id="roFov">84°</dd></div>
+      </dl>
+      <p class="ro-line"><b>适合</b><span id="roGood"></span></p>
+      <p class="ro-line"><b>留意</b><span id="roWarn"></span></p>
+    </div>
+    <p class="lab-hint">点按镜头切换焦段，连点 1× 会在 24、28、35mm 之间循环，和实机一样。注意看落日与远山如何随焦距变大，这就是长焦的“压缩感”。</p>
+  </section>
+</header>
+
+<div class="dock">
+  <div class="wrap">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="搜索：夜景、逆光、手放哪、4K120…" autocomplete="off" enterkeyhint="search" aria-label="搜索卡片">
+      <button type="button" class="clear" id="qClear" aria-label="清空搜索" hidden>×</button>
+    </div>
+    <div class="tabs" id="tabs" aria-label="按模式筛选"></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="status">
+    <span id="statusText" aria-live="polite"></span>
+    <button type="button" class="link-btn" id="toggleAll">展开全部原理</button>
+  </div>
+  <div class="hot" id="hot">试试搜索</div>
+
+  <div id="content"></div>
+
+  <div class="empty" id="empty" hidden>
+    <p id="emptyText"></p>
+    <div class="hot" id="emptyHot"></div>
+  </div>
+
+  <footer>
+    <p>镜头与视频规格依据 Apple 官方 iPhone 17 Pro Max 技术规格整理；iOS 菜单名称会随系统版本微调，以手机上的实际显示为准。</p>
+    <p>设置清单的勾选进度只保存在这台设备的浏览器里。<a href="index.html">返回工具箱</a></p>
+  </footer>
+</main>
+
+<nav class="fab" aria-label="快捷工具">
+  <button type="button" id="fabTop" aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>顶部
+  </button>
+  <button type="button" id="fabMode" aria-haspopup="dialog" aria-controls="sheet" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span id="fabModeText">模式</span>
+  </button>
+  <button type="button" id="fabGrid" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/></svg>网格
+  </button>
+</nav>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="切换模式与跳转模块">
+  <div class="sheet-grip"></div>
+  <h3>切换模式</h3>
+  <div class="sheet-grid" id="sheetFilters"></div>
+  <h3>跳到模块</h3>
+  <div class="sheet-grid" id="sheetMods"></div>
+  <button type="button" class="sheet-done" id="sheetDone">完成</button>
+</div>
+
+<div class="gridov" id="gridov">
+  <i class="gl v" style="left:33.333%"></i><i class="gl v" style="left:66.666%"></i>
+  <i class="gl h" style="top:33.333%"></i><i class="gl h" style="top:66.666%"></i>
+  <div class="level" id="level"><i class="s-l"></i><i class="s-c" id="levelC"></i><i class="s-r"></i><span class="level-deg" id="levelDeg"></span></div>
+  <div class="ov-chip"><span id="ovText">倾斜手机，中线对齐变黄即水平</span><button type="button" id="ovClose">关闭</button></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<noscript><p style="padding:16px;text-align:center;color:#b4b9c6">请开启 JavaScript 以浏览卡片内容。</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* =====================================================================
+     内容数据
+     ===================================================================== */
+
+  var MODULES = [
+    { id: 'optics', title: '影像中枢与光学原理', en: 'The optics & cinema engine',
+      intro: '先弄懂镜头在“看”什么，再谈参数。四颗镜头、一个按键、四条曝光与格式规律，决定了你在任何场景下的选择。' },
+    { id: 'scene', title: '十大场景参数卡', en: 'Scene preset cheat sheet',
+      intro: '每张卡片都是一套可以直接照抄的参数。先抄参数，再读“为什么”，下次遇到相似的光，你就能自己推出答案。' },
+    { id: 'comp', title: '构图美学实验室', en: 'Composition lab',
+      intro: '构图不是规则，而是控制观众视线的方法。每一条都附示意图，打开网格就能用。' },
+    { id: 'pose', title: '姿态与情绪引导', en: 'Pose & emotion guide',
+      intro: '人之所以僵硬，往往是因为不知道该做什么。给他一个动作、一个道具、一个看向的地方，自然感就来了。' },
+    { id: 'set', title: '系统设置打底', en: 'Settings baseline',
+      intro: '这些开关只需设一次，却影响之后的每一张照片。对照手机逐项设置，勾选完成项。' }
+  ];
+
+  var TAG_LABEL = { photo: '拍照', video: '录像', comp: '构图', pose: '姿态', set: '设置' };
+  var FILTERS = [
+    { id: 'all', label: '全部', short: '全部' },
+    { id: 'photo', label: '📷 拍照实战', short: '拍照' },
+    { id: 'video', label: '🎥 录像电影感', short: '录像' },
+    { id: 'comp', label: '📐 构图美学', short: '构图' },
+    { id: 'pose', label: '💃 姿态引导', short: '姿态' },
+    { id: 'set', label: '⚙️ 系统设置', short: '设置' }
+  ];
+  var WHY_LABEL = { optics: '原理拆解', scene: '为什么这样拍', comp: '为什么有效', pose: '背后的心理', set: '为什么这样设' };
+  var HOT_WORDS = ['夜景', '逆光', '手放哪', '4K120', 'Log', '人像', '35mm'];
+
+  var DIAGRAMS = {
+    thirds:
+      '<svg viewBox="0 0 160 90" role="img" aria-label="三分法示意：人物站在右侧三分线上，地平线位于下三分线，视线方向留出空间">' +
+      '<defs><linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#111a2e"/><stop offset="1" stop-color="#3a2c35"/></linearGradient></defs>' +
+      '<rect width="160" height="60" fill="url(#dg1)"/><rect y="60" width="160" height="30" fill="#0c1018"/>' +
+      '<g stroke="rgba(255,255,255,.28)" stroke-width=".5"><line x1="53.3" y1="0" x2="53.3" y2="90"/><line x1="106.7" y1="0" x2="106.7" y2="90"/><line x1="0" y1="30" x2="160" y2="30"/></g>' +
+      '<line x1="0" y1="60" x2="160" y2="60" stroke="#c8a84b" stroke-width=".8"/>' +
+      '<g fill="#e8e3d7"><circle cx="106.7" cy="33.5" r="3"/><path d="M103,37.5 h7.4 l1.4,11 h-2 l-.6,11.5 h-1.8 l-.7,-10 l-.7,10 h-1.8 l-.6,-11.5 h-2 z"/></g>' +
+      '<circle cx="106.7" cy="30" r="6.5" fill="none" stroke="#f2d14b" stroke-width=".8"/>' +
+      '<path d="M98,44 H64 M68,41 L64,44 L68,47" fill="none" stroke="#c8a84b" stroke-width=".7" stroke-dasharray="2 1.5"/>' +
+      '<text x="66" y="52" font-size="5.5" fill="#9aa1b0" font-family="sans-serif">视线空间</text></svg>',
+    leading:
+      '<svg viewBox="0 0 160 90" role="img" aria-label="引导线示意：道路与栏杆从画面下方角落汇聚到消逝点上的人物">' +
+      '<defs><linearGradient id="dg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101829"/><stop offset="1" stop-color="#4a3528"/></linearGradient></defs>' +
+      '<rect width="160" height="38" fill="url(#dg2)"/><rect y="38" width="160" height="52" fill="#0c1018"/>' +
+      '<polygon points="20,90 99,38 101,38 140,90" fill="#161c29"/>' +
+      '<g stroke="#c8a84b" stroke-width=".8"><line x1="20" y1="90" x2="99" y2="38"/><line x1="140" y1="90" x2="101" y2="38"/></g>' +
+      '<g stroke="rgba(200,168,75,.45)" stroke-width=".5"><line x1="0" y1="64" x2="99" y2="38"/><line x1="0" y1="76" x2="99" y2="38"/><line x1="160" y1="14" x2="101" y2="36"/><line x1="160" y1="30" x2="101" y2="37"/></g>' +
+      '<rect x="99.3" y="33.5" width="1.4" height="4.5" fill="#e8e3d7"/>' +
+      '<circle cx="100" cy="37" r="5.5" fill="none" stroke="#f2d14b" stroke-width=".8"/></svg>',
+    framing:
+      '<svg viewBox="0 0 160 90" role="img" aria-label="框架构图示意：透过拱形门洞看到亮处的人物剪影">' +
+      '<defs><linearGradient id="dg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#53648a"/><stop offset="1" stop-color="#d0a465"/></linearGradient></defs>' +
+      '<rect width="160" height="90" fill="url(#dg3)"/><rect x="40" y="66" width="80" height="24" fill="#2a2830"/>' +
+      '<g fill="#0b0f19"><circle cx="86" cy="54" r="2.2"/><path d="M83.4,57 h5.2 l1,7 h-1.4 l-.4,6 h-1.3 l-.5,-5 l-.5,5 h-1.3 l-.4,-6 h-1.4 z"/></g>' +
+      '<path fill-rule="evenodd" fill="#05070c" d="M0,0 H160 V90 H0 Z M48,84 V40 A32,30 0 0 1 112,40 V84 Z"/>' +
+      '<path d="M48,84 V40 A32,30 0 0 1 112,40 V84" fill="none" stroke="#c8a84b" stroke-width=".8"/></svg>',
+    negative:
+      '<svg viewBox="0 0 160 90" role="img" aria-label="负空间示意：大面积天空，地平线很低，小小的人物位于左侧三分点">' +
+      '<defs><linearGradient id="dg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16213a"/><stop offset=".7" stop-color="#4c5a78"/><stop offset="1" stop-color="#b79870"/></linearGradient></defs>' +
+      '<rect width="160" height="78" fill="url(#dg4)"/><rect y="78" width="160" height="12" fill="#0b0f19"/>' +
+      '<line x1="0" y1="78" x2="160" y2="78" stroke="rgba(200,168,75,.6)" stroke-width=".5"/>' +
+      '<g fill="#0b0f19"><circle cx="53.3" cy="71.6" r="1.1"/><rect x="52.4" y="72.8" width="1.8" height="5.2"/></g>' +
+      '<path d="M96,34 q1,-1.1 2,0 q1,-1.1 2,0" fill="none" stroke="#0b0f19" stroke-width=".6"/></svg>',
+    angle:
+      '<svg viewBox="0 0 160 90" role="img" aria-label="机位示意：平视 1.6 米、低机位仰拍与高机位俯拍的视线对比">' +
+      '<rect width="160" height="90" fill="#0c1018"/>' +
+      '<line x1="0" y1="80" x2="160" y2="80" stroke="#c8a84b" stroke-width=".6"/>' +
+      '<g fill="#e8e3d7"><circle cx="118" cy="34" r="4"/><path d="M113,39.5 h10 l2,18 h-3 l-1,22.5 h-2.5 l-1.2,-19 l-1.2,19 h-2.5 l-1,-22.5 h-3 z"/></g>' +
+      '<line x1="6" y1="38" x2="108" y2="38" stroke="rgba(255,255,255,.35)" stroke-width=".5" stroke-dasharray="2 2"/>' +
+      '<text x="6" y="34.5" font-size="5.5" fill="#9aa1b0" font-family="sans-serif">1.6m 平视</text>' +
+      '<g transform="translate(30 75) rotate(-22)"><rect x="-4" y="-2.5" width="8" height="5" rx="1" fill="#5ccfe6"/></g>' +
+      '<g stroke="rgba(92,207,230,.55)" stroke-width=".5"><line x1="34" y1="73.5" x2="118" y2="28"/><line x1="34" y1="73.5" x2="126" y2="80"/></g>' +
+      '<text x="6" y="88" font-size="5.5" fill="#5ccfe6" font-family="sans-serif">低机位仰拍</text>' +
+      '<g transform="translate(46 12) rotate(28)"><rect x="-4" y="-2.5" width="8" height="5" rx="1" fill="#e8c56a"/></g>' +
+      '<g stroke="rgba(232,197,106,.55)" stroke-width=".5"><line x1="50" y1="14" x2="100" y2="80"/><line x1="50" y1="14" x2="146" y2="80"/></g>' +
+      '<text x="56" y="9" font-size="5.5" fill="#e8c56a" font-family="sans-serif">鸟瞰俯拍</text></svg>'
+  };
+
+  var SHUTTER_TABLE =
+    '<table class="mini"><thead><tr><th>帧率</th><th>180° 快门</th><th>适用</th></tr></thead><tbody>' +
+    '<tr><td>24fps</td><td>1/48（或 1/50）</td><td>电影感叙事</td></tr>' +
+    '<tr><td>25fps</td><td>1/50</td><td>国内室内灯光下</td></tr>' +
+    '<tr><td>30fps</td><td>1/60</td><td>日常 vlog</td></tr>' +
+    '<tr><td>60fps</td><td>1/120</td><td>运动，2.5 倍慢放</td></tr>' +
+    '<tr><td>100fps</td><td>1/200（灯下 1/100）</td><td>室内慢动作</td></tr>' +
+    '<tr><td>120fps</td><td>1/240</td><td>5 倍慢动作</td></tr>' +
+    '</tbody></table>';
+
+  var TONE_STRIP =
+    '<div class="tone" role="img" aria-label="直方图对比：EV 0 时高光撞到右侧形成死白，EV -0.7 时整体左移留出余量">' +
+    '<div class="tone-row"><span><b>EV 0</b><br>高光撞墙</span><svg viewBox="0 0 100 36" preserveAspectRatio="none"><path d="M0,36 C12,34 25,14 50,12 C70,10 86,4 100,0 L100,36 Z" fill="rgba(232,227,215,.35)"/><rect x="96" y="0" width="4" height="36" fill="#e5684f" opacity=".85"/></svg></div>' +
+    '<div class="tone-row"><span><b>EV −0.7</b><br>留出余量</span><svg viewBox="0 0 100 36" preserveAspectRatio="none"><path d="M0,36 C8,32 18,9 40,10 C60,11 72,8 86,26 C91,33 95,35 100,36 Z" fill="rgba(232,197,106,.45)"/></svg></div>' +
+    '<div class="tone-cap"><span>暗部：可提亮</span><span>中间调</span><span>高光：过曝不可逆</span></div></div>';
+
+  var CARDS = [
+    /* ---------------- 模块 1：光学与影像中枢 ---------------- */
+    {
+      id: 'ultrawide', module: 'optics', tags: ['photo', 'video'], en: 'Fusion Ultra Wide',
+      title: '超广角 0.5×：透视的放大器',
+      lead: '13mm、视角 120°。它不只是“装得更多”的镜头，更是把“近大远小”放大到极致的工具。',
+      params: [['焦距', '13mm（0.5×）'], ['光圈', 'ƒ/2.2'], ['像素', '4800 万'], ['视角', '120°'], ['微距', '最近约 2cm']],
+      mantra: '广角要靠近，主体放中间；腿长低机位，脸别贴边缘。',
+      points: [
+        '贴近前景：离镜头 30cm 的花与 3m 外的人，大小比约为 10:1。广角能让你凑到这么近。',
+        '拍长腿：手机放到膝盖以下，脚放在画面底边，镜头微微上仰，下半身被拉长，上身相对收小。',
+        '人脸别放四角：角落里的头会被拉宽近一倍，拍合影时把人往画面中间收。',
+        '微距：离被摄物几厘米时会自动切换到超广角微距，水珠、叶脉、织物纹理都能用 4800 万像素记录。'
+      ],
+      why: [
+        ['边缘拉伸不是镜头坏了', '手机广角使用“直线投影”：为了让建筑的直线保持笔直，画面边缘的物体必须被拉伸。拉伸量约为 1/cosθ（θ 是偏离光轴的角度）。13mm 画面的角落偏离约 59°，1/cos59° ≈ 1.9，所以角落里的圆脸会被拉成接近两倍宽的椭圆。「设置 › 相机 › 镜头校正」修正的是把直线拍弯的桶形畸变，修不了这种投影拉伸，只能靠构图避开。'],
+        ['近大远小由距离决定', '透视只取决于你站在哪里，与焦距无关。广角之所以显得夸张，是因为视野宽，逼你凑得很近主体才够大。镜头离脚 0.5m、离头 1.8m 时，脚的放大倍率是头的 3.6 倍，这就是低机位拍长腿的数学原理。'],
+        ['什么时候别用它', '人像特写、需要真实比例的产品和美食别用 0.5×，变形一眼就会被看穿。']
+      ],
+      kw: '0.5x 超广角 广角 畸变 变形 长腿 显高 微距 13mm 透视 合影'
+    },
+    {
+      id: 'main', module: 'optics', tags: ['photo', 'video'], en: 'Fusion Main',
+      title: '主摄 1×：一颗镜头，四个焦段',
+      lead: '4800 万像素主摄是全机画质的天花板：传感器最大、光圈最亮，夜景和录像都靠它担纲。',
+      params: [['焦距', '24 / 28 / 35mm'], ['2×', '48mm 中心裁切'], ['光圈', 'ƒ/1.78'], ['像素', '4800 万'], ['防抖', '第二代传感器位移']],
+      mantra: '1× 连点换 28、35；扫街 35 不压迫，半身人像用 2×。',
+      points: [
+        '连点 1× 会在 1×、1.2×（28mm）、1.5×（35mm）之间循环；常用哪个，就在「设置 › 相机 › 主摄像头」里设为默认镜头。',
+        '24mm：交代环境、拍室内空间与多人合影的安全选择。',
+        '35mm：扫街与环境人像首选。人物与场景同框，透视自然，没有广角的压迫感。',
+        '2×（48mm）：直接读取传感器中心 1200 万像素，不靠数码放大，是半身人像的甜点焦段。'
+      ],
+      why: [
+        ['像素四合一', '4800 万像素传感器可以把相邻 4 个小像素合并成 1 个“大像素”读取：弱光下单位像素的进光量翻四倍，噪点更低；光线充足时再按 4800 万个像素分别记录细节。默认输出的 2400 万像素照片，就是光像引擎把这两种数据融合后的结果。'],
+        ['28/35/48mm 为什么不算数码变焦', '它们都是对 4800 万像素传感器的中心裁切。48mm 正好裁出中心 1/4 的面积，仍有 1200 万原生像素可用，所以 Apple 称之为“光学品质”。裁得越多像素越少，但远比把 1200 万像素硬放大干净。'],
+        ['为什么是 35mm', '35mm 的对角视角约 63°，接近人眼“留意一个场景”时的范围。它比 24mm 收紧，砍掉杂乱的边角；又比 50mm 宽，人物身后的街道和光线还能讲故事。这也是纪实摄影几十年来的经典焦段。']
+      ],
+      kw: '1x 主摄 24mm 28mm 35mm 48mm 2x 扫街 四合一 像素 裁切 默认镜头 融合'
+    },
+    {
+      id: 'tele', module: 'optics', tags: ['photo', 'video'], en: 'Tetraprism Telephoto',
+      title: '长焦 4× / 8×：压缩空间，还原真实比例',
+      lead: '100mm 四棱镜长焦升级为 4800 万像素，还能裁出 200mm 的 8× 光学品质画面。特写、剪影和远景压缩都靠它。',
+      params: [['焦距', '100mm（4×）'], ['8×', '200mm 中心裁切 1200 万'], ['光圈', 'ƒ/2.8'], ['像素', '4800 万'], ['防抖', '3D 传感器位移']],
+      mantra: '特写退三步上 4×，太阳要大就 8×；远景层层叠，弱光别硬撑。',
+      points: [
+        '人像特写：站到 2–3m 外用 4×，五官比例最接近肉眼所见，不会有“大鼻子”。',
+        '剪影与落日：太阳在画面里的大小与焦距成正比，8× 下的太阳是 1× 的 8 倍大。',
+        '背景虚化：长焦把背景“放大”，焦外更大更柔，是最自然的物理虚化。',
+        '弱光提醒：光线不足或离得太近时，系统可能悄悄改用主摄裁切。画面变软时先退后，或者找亮处。'
+      ],
+      why: [
+        ['压缩感的真相', '很多人以为长焦“压缩”了空间，其实压缩来自距离：你站在 200m 外，前景人物和身后 2km 的山相对你的距离比只有约 1:11，大小差距自然变小。长焦的作用是让你站得这么远时主体仍能填满画面，于是背景显得被“拉近、放大”了。'],
+        ['为什么不会大鼻子', '用 24mm 拍特写要凑到 40cm 以内，鼻尖比耳朵近了约 10cm，放大倍率相差 25% 以上；用 4× 站到 2.5m 外，差距只剩约 4%，脸的立体比例就和面对面看人时一样。'],
+        ['光学品质的 8×', '4800 万像素长焦的中心 1/4 正好对应 200mm 视角，可以直接读出 1200 万原生像素。它和主摄的 2× 是同一个思路，所以 8× 可以放心用；10× 以上就进入数码放大了。'],
+        ['和 16 Pro 的 5× 有何不同', '16 Pro 的长焦是 1200 万像素、5×（120mm）。17 Pro 改为 4800 万像素的 4×（100mm），再通过裁切得到 8×（200mm）：中间焦段更好用，最远端也更远。'],
+        ['四棱镜', '机身只有几毫米厚，光线在四棱镜里折返 4 次，把长焦需要的光路“折叠”进了机身。']
+      ],
+      kw: '4x 8x 长焦 100mm 200mm 潜望 四棱镜 压缩感 大鼻子 虚化 特写 5x 120mm 远景'
+    },
+    {
+      id: 'control', module: 'optics', tags: ['photo', 'video', 'set'], en: 'Camera Control',
+      title: '相机控制：不看屏幕的快门',
+      lead: '机身右侧的相机控制既是快门，也是一条触控滑轨。用熟之后，取景、变焦、调曝光都不用离开画面。',
+      params: [['轻按', '呼出控制条'], ['轻按两下', '切换控制项'], ['滑动', '调节数值'], ['按下', '拍照'], ['按住', '录像']],
+      mantra: '轻按两下选曝光，滑到负零点几；拇指托住机身，再按快门。',
+      points: [
+        '轻按两下调出菜单：曝光、景深、变焦、镜头、风格、色调。横持手机时，拇指一滑就能选。',
+        '曝光最常用：拍高反差场景前，先轻按两下选“曝光”，再滑到 −0.3 ~ −0.7。',
+        '“镜头”选项只在 0.5×、1×、2×、4×、8× 之间跳档，比“变焦”滑动更快更准，扫街首选。',
+        '按下快门的瞬间手机容易被按偏，用另一侧的手指顶住机身再按。',
+        '在「设置 › 相机 › 相机控制」开启 AE/AF 锁定后，轻按并按住即可锁定对焦与曝光。',
+        '同一页里的“简洁预览”会在轻按时隐藏屏幕上的其他按钮，构图更干净。'
+      ],
+      why: [
+        ['为什么实体按键能拍得更好', '触屏快门要求手指离开握持点，按下的瞬间机身会晃、构图会偏。实体按键位置固定、反馈明确，横持时就像相机的快门键。先轻按锁定、再按下拍摄，减少了盲按。'],
+        ['把曝光放在第一位', '曝光决定照片的情绪，也决定高光能否保住；变焦则可以用脚完成。把相机控制常用项设成曝光，等于给每张照片多加了一道保险。']
+      ],
+      kw: '相机控制 按键 快门键 实体按键 camera control 轻按 曝光 变焦 锁定 简洁预览'
+    },
+    {
+      id: 'shutter', module: 'optics', tags: ['video'], en: 'Shutter angle',
+      title: '快门与 180° 快门角：电影感的来源',
+      lead: '视频的电影感大半来自运动模糊。规则只有一句：快门速度 ≈ 1 ÷（帧率 × 2）。',
+      extra: SHUTTER_TABLE,
+      mantra: '快门是帧率的两倍；太阳底下先上 ND，灯光底下选 25 帧。',
+      points: [
+        '原生相机不能手动设快门：强光下它会自动用到 1/2000s 甚至更快，每帧都很锐利，连起来却一卡一卡。',
+        '想锁定 1/48s：用 Blackmagic Camera 或 Final Cut Camera 等专业 App 设置 180° 快门角，再给镜头加 ND 减光镜。',
+        '晴天正午用 ƒ/1.78 拍 1/48s，按低 ISO 估算要从约 1/5000s 降下来，相差 6–7 档光，需要 ND64–ND128 或可变 ND。',
+        '国内市电 50Hz：室内灯光下优先用 25/50/100fps，快门取 1/50 或 1/100，可以避免画面出现滚动条纹。',
+        '走动中光线变化大时，长按画面锁定 AE/AF，防止曝光忽明忽暗。'
+      ],
+      why: [
+        ['什么是 180° 快门角', '电影摄影机的快门是一块旋转的扇形挡片，开口 180° 时，每帧有一半时间在曝光：24 帧对应 1/48s。一百年来观众看惯了这种每帧带一点拖影的画面，大脑会把它理解为连续流畅的运动。'],
+        ['为什么快门太快会显得干涩', '1/2000s 把每一帧都冻结成一张清晰照片，帧与帧之间的动作是跳着过去的：挥动的手臂像一串定格画面，这就是“频闪感”。手机自动曝光为了不过曝只能提高快门，所以强光下的自动视频最容易显得廉价。'],
+        ['ND 和曝光锁何时介入', 'ND 是给镜头戴墨镜：不改变快门就减少进光，让慢快门不过曝。曝光锁保证一个镜头内亮度不跳。前者解决动感，后者解决稳定。'],
+        ['50Hz 频闪', '交流电灯每秒闪烁 100 次。快门是 1/100s 的整数倍（1/50、1/100）时，每帧都包含完整的明暗周期，条纹就消失了。要先在设置里打开「显示 PAL 格式」，才能选 25fps。']
+      ],
+      kw: '快门 180度 快门角 1/48 ND 减光镜 电影感 频闪 条纹 50Hz 帧率 运动模糊 Blackmagic 曝光锁'
+    },
+    {
+      id: 'ev', module: 'optics', tags: ['photo', 'video'], en: 'Exposure compensation',
+      title: '曝光补偿：给高光系上安全带',
+      lead: '数码传感器有一条铁律：高光一旦过曝就是死白，没有任何数据可救；暗部再暗也还留着信息。',
+      params: [['日常', 'EV −0.3'], ['高反差', 'EV −0.7'], ['剪影', 'EV −1.0 ~ −2.0'], ['调节', '点按后拖动小太阳'], ['范围', '±2 EV']],
+      extra: TONE_STRIP,
+      mantra: '宁暗勿曝；天光高反差，先拉 −0.7 再说。',
+      points: [
+        '点按画面对焦后，上下拖动旁边的小太阳即可调整；也可以在控制面板或相机控制里选“曝光”。',
+        '−0.3 ≈ 少进 19% 的光，−0.7 ≈ 少进 38%，−1.0 = 减半。',
+        '在「保留设置」里打开“曝光调整”，下次打开相机仍会保持，不必每次重调。',
+        '配合摄影风格里的“色调”往下拉，可以进一步减轻 HDR 的灰平感。'
+      ],
+      why: [
+        ['为什么高光救不回来', '传感器的每个像素像一个水桶，光子就是水。桶满之后再多的光也只记录为“满”，所有过曝的像素都是同一个数值，后期提不出任何纹理。暗部只是水少，提亮时会有噪点，但纹理还在。'],
+        ['为什么负曝光更有质感', '智能 HDR 5 会主动提亮阴影、压低高光，结果是照片什么都看得清，却平淡发灰。主动压暗 0.3–0.7 档，阴影回到应有的深度，色彩饱和度与反差也随之回来，接近胶片那种有呼吸感的影调。'],
+        ['什么时候反着来', '雪地、白墙、想要通透明亮的逆光人像，可以 +0.3；录 Log 视频时也应适度偏亮（见 Apple Log 2 卡片）。']
+      ],
+      kw: 'EV 曝光补偿 曝光 负曝光 -0.7 -0.3 高光 过曝 死白 动态范围 HDR 小太阳 宽容度'
+    },
+    {
+      id: 'proraw', module: 'optics', tags: ['photo'], en: 'HEIF vs ProRAW',
+      title: 'HEIF 与 ProRAW Max：交给算法，还是留给自己',
+      lead: 'HEIF 是一张“已经修好”的照片；ProRAW 是一份把决定权留给你的数字底片。',
+      params: [['HEIF', '约 2–5MB / 张'], ['ProRAW Max', '约 75MB / 张'], ['位深', 'HEIF 8/10 位，ProRAW 12 位'], ['开启', '设置 › 相机 › 格式'], ['适合', '高反差、要调色、印大图']],
+      mantra: '要调色上 RAW，要分享用 HEIF；RAW 直出发平别慌，那是留给你的余地。',
+      points: [
+        '打开「ProRAW 与分辨率控制」后，相机顶部会出现 RAW 开关；把「专业默认」设为 ProRAW Max，即可拍 4800 万像素 RAW。',
+        '逆光、夜景霓虹这类高反差场景，以及要大幅调色、印大图时，用 ProRAW。',
+        '日常记录、连拍、要立刻分享时用 HEIF：直出更好看，也省空间。',
+        'ProRAW 直出往往比 HEIF 更“平”，这是正常的，它在等你调。'
+      ],
+      why: [
+        ['HEIF 做了什么', '按下快门的一瞬间，光像引擎已经完成多帧合成、降噪、锐化、局部提亮和色调映射，再压缩成 8 或 10 位文件。这些决定会被“烤”进像素里，天空的过渡、皮肤的锐化程度都改不回去了。'],
+        ['ProRAW 并不是“生肉”', '它同样经过多帧合成与降噪，但保留了 12 位的线性数据，把色调映射、锐化和白平衡留作可调参数。所以高光过渡更柔和，提亮暗部时也不容易断层。'],
+        ['代价', '文件大、连拍慢，需要在照片 App、Lightroom 等软件里调整才能发挥价值。']
+      ],
+      kw: 'ProRAW RAW HEIF JPEG DNG 格式 48MP 4800万 后期 调色 宽容度 Lightroom'
+    },
+    {
+      id: 'log', module: 'optics', tags: ['video'], en: 'Log & LUT',
+      title: 'Apple Log 2：为什么拍出来是灰的',
+      lead: 'Log 素材看起来灰蒙蒙，是因为它把更多亮度层次塞进了文件。它不是成片，而是调色的原料。',
+      params: [['编码', 'Apple Log 2，10 位'], ['色域', '比上一代更宽'], ['宽容度', '约 12 档以上（第三方实测量级）'], ['还原', 'Log → Rec.709 LUT'], ['ProRes 4K120', '需外接存储']],
+      mantra: 'Log 发灰是正常的，宁亮勿欠；锁住白平衡，先套还原 LUT 再调色。',
+      points: [
+        '在「设置 › 相机 › 格式」开启 ProRes / Log 相关选项后，录像界面即可切换到 Log。',
+        '曝光宁可略亮：Log 欠曝后拉起暗部会出现明显噪点。以高光不过曝为界，+0.3 ~ +0.7 往往更干净。',
+        '一定要锁定白平衡与曝光，后期统一调色时才不会忽冷忽暖。',
+        '后期第一步先套官方还原 LUT（DaVinci Resolve、Final Cut Pro、LumaFusion 都支持），再做风格化调色。',
+        '拍摄时可以用 Blackmagic Camera 等 App 加载 LUT 预览，避免对着灰画面判断曝光。'
+      ],
+      why: [
+        ['线性与对数', '传感器的原始记录是线性的：最亮的一档光就占掉一半编码值，最暗的几档只分到一点点。Log 曲线让每一档亮度分到大致相同数量的编码值，阴影和高光都留下了足够的层次，代价是反差被“压扁”，画面看起来发灰。'],
+        ['LUT 在做什么', 'LUT（查找表）是一张颜色换算表，把 Log 的扁平曲线和色域还原成标准的 Rec.709 显示效果。还原之后再调色，才能做出好莱坞式的冷暖分离，并精细控制肤色与高光。'],
+        ['什么时候别用 Log', '不打算调色、要快速出片、光线本身平淡时，直接录 HDR 或 SDR 更省事。Log 是为后期准备的。']
+      ],
+      kw: 'Log Apple Log 2 灰片 LUT 调色 Rec709 ProRes RAW 达芬奇 宽容度 电影感 10bit 好莱坞'
+    },
+
+    /* ---------------- 模块 2：十大场景 ---------------- */
+    {
+      id: 'bluehour', module: 'scene', tags: ['photo'], en: 'Blue hour',
+      title: '情绪蓝调时刻',
+      lead: '日落后 20–40 分钟，天空褪成深蓝，路灯与窗灯刚刚亮起。这是城市一天中冷暖反差最美的时段。',
+      params: [['镜头', '1× / 4×'], ['测光', '点按天空亮部'], ['EV', '−0.7'], ['格式', 'ProRAW Max / HEIF'], ['锁定', '长按建筑 AE/AF'], ['夜间模式', '自动，手持 ≤ 3s']],
+      mantra: '日落别收工，半小时后蓝调登场；天空压到 −0.7，暖灯自己会发光。',
+      steps: [
+        '日落时就位，先用 1× 构好图：天空占一半以上，留住亮灯的窗户与车流。',
+        '点按靠近地平线的天空亮部，曝光补偿拉到 −0.7，让天空保持深蓝而不是灰白。',
+        '长按建筑主体锁定 AE/AF，等路灯全部亮起后再连拍几张。',
+        '想要更强烈的冷暖对比，换 4× 截取一栋亮灯的楼或一段车流。'
+      ],
+      why: [
+        ['为什么只有这半小时', '太阳落到地平线以下约 4°–8° 时，天空亮度降到与城市灯光相近的水平，一张照片的动态范围恰好能同时容纳天空和灯光。再早，天空太亮，灯不显；再晚，天空变黑，只剩灯点。'],
+        ['冷暖互补', '蓝调天空的色温可达 10000K 左右，钨丝灯与钠灯只有 2700–3000K。蓝与橙在色环上互为补色，放在一起会彼此显得更饱和，电影里常用的“青橙色调”就是同一原理。冷色给人宁静与疏离，暖色给人温度与归属，两者同框，情绪就有了张力。'],
+        ['为什么 −0.7', '自动曝光会把深蓝天空当成“太暗”去提亮，结果天空发灰、灯光过曝成光团。压暗之后，天空回到真实的深蓝，灯光也保留了形状。'],
+        ['白平衡', '自动白平衡会把蓝调“修正”得偏中性。拍 HEIF 时可以选偏冷的摄影风格；拍 ProRAW 则在后期把色温拉到 4000–4500K 左右，保住蓝色。']
+      ],
+      kw: '蓝调 蓝调时刻 日落后 夜景 城市 冷暖 路灯 blue hour 傍晚 色温'
+    },
+    {
+      id: 'backlight', module: 'scene', tags: ['photo'], en: 'Backlight & silhouette',
+      title: '日光逆光：剪影与发丝光',
+      lead: '同一束逆光，两种拍法：测天空，得到干净的剪影；测人脸，得到发丝边缘的金色光晕。',
+      params: [['镜头', '1× / 4×'], ['测光', '剪影点天空，光晕长按人脸'], ['EV', '剪影 −1.0 ~ −2.0，光晕 0 ~ +0.3'], ['格式', 'HEIF / ProRAW'], ['锁定', 'AE/AF 锁定'], ['时机', '太阳高度低于 15°']],
+      mantra: '要剪影，测天空压到 −1；要发丝光，锁人脸、背景挑暗处。',
+      steps: [
+        '让太阳位于人物身后偏上方，镜头与人的连线稍微避开太阳，不要正对直射。',
+        '剪影：点按最亮的天空，曝光补偿拉到 −1.0 甚至 −2.0，让人物变成纯黑轮廓。',
+        '发丝光：长按人物面部锁定 AE/AF，曝光补偿保持 0 ~ +0.3，背景过曝成柔和的光。',
+        '眩光太强时，用手掌在镜头上方挡一下；想要一点光斑，就让太阳从画面边缘露出一角。'
+      ],
+      why: [
+        ['你只能二选一', '逆光下，天空比背光的人脸亮 5–8 档，任何传感器都装不下这么大的反差。选择测哪里，就是选择牺牲哪里：保天空，人就成剪影；保人脸，天空就过曝。'],
+        ['剪影靠形状说话', '剪影抹去了所有细节，观众只能读轮廓。所以要侧身、抬手，让手臂离开身体，让轮廓之间透出天空。正面直立的剪影只是一个黑色方块。'],
+        ['发丝光从哪来', '低角度的阳光从背后穿过发丝和衣服边缘，在轮廓上形成一圈亮边。这圈亮边只有在背景比它暗时才看得见，所以背景要选树荫、建筑阴影，而不是空旷的亮天空。'],
+        ['为什么剪影还要往下拉', '智能 HDR 会自作主张提亮阴影，把剪影“救”成灰色。负曝光拉得够狠，或者在摄影风格里降低色调，才能得到纯黑。']
+      ],
+      kw: '逆光 剪影 发丝光 轮廓光 光晕 眩光 太阳 背光 测光 侧逆光 日光'
+    },
+    {
+      id: 'night', module: 'scene', tags: ['photo'], en: 'Street & cinematic night',
+      title: '都市夜景扫街与光影纪实',
+      lead: '夜晚的城市不缺光，缺的是有方向的光。找到橱窗、招牌、车灯这样的局部光源，再等人走进光里。',
+      params: [['镜头', '1.5×（35mm）/ 4×'], ['测光', '点按亮处'], ['EV', '−0.3 ~ −1.0'], ['格式', 'HEIF / ProRAW'], ['夜间模式', '拍行人时关闭'], ['锁定', '预锁行人将经过的位置']],
+      mantra: '夜里别拍满，先找光再等人；关掉夜间模式，别让路人变鬼影。',
+      steps: [
+        '先找光：橱窗、便利店门口、路灯下、车灯扫过的路口，选一处光比强烈的地方。',
+        '用 35mm 构好图，长按光区锁定 AE/AF，曝光补偿 −0.3 ~ −1.0，让暗部沉下去。',
+        '点掉夜间模式的月亮图标，避免 1–3 秒的长曝光把行人拖成鬼影。',
+        '守株待兔：等行人走进光区再按快门，或按住快门向左滑动连拍。',
+        '下过雨的地面会反射灯光，蹲低让倒影进入画面，光就翻倍了。'
+      ],
+      why: [
+        ['平光是夜景的敌人', '均匀的路灯照明让一切同样亮，画面没有重点。局部光源制造明暗对照：亮处是舞台，暗处是幕布，观众的眼睛会自动落在光里的人身上。'],
+        ['夜间模式为什么会拖影', '夜间模式在 1–3 秒内连续拍摄多帧再合成来降噪。静止的建筑会更干净，但移动的行人在每一帧里位置不同，合成后就成了半透明的残影。扫街拍人要的是瞬间，宁可接受一点噪点。'],
+        ['为什么首选 35mm 而不是 4×', '主摄传感器最大、光圈 ƒ/1.78，进光量约是 ƒ/2.8 长焦的 2.5 倍。弱光下 4× 很可能被系统换成主摄裁切，画质反而不如直接用 35mm。只有靠近明亮光源时，4× 才能稳定发挥。'],
+        ['负曝光的意义', '夜景的情绪在暗部。自动曝光会把夜晚拍成“阴天的白天”，压暗后霓虹的颜色更浓、暗部更黑，城市才像夜晚。']
+      ],
+      kw: '夜景 夜拍 扫街 街拍 晚上 霓虹 夜间模式 拖影 鬼影 路灯 城市 35mm 纪实 光影'
+    },
+    {
+      id: 'indoor', module: 'scene', tags: ['photo', 'pose'], en: 'Indoor ambient portrait',
+      title: '高级感咖啡馆与室内人像',
+      lead: '一扇窗就是最好的柔光箱。人靠窗侧坐，暗侧脸颊出现一个小三角光，高级感就有了。',
+      params: [['镜头', '4× 优先，空间小用 2×'], ['测光', '点按脸部亮侧'], ['EV', '−0.3 ~ −0.7'], ['格式', 'HEIF 2400 万'], ['锁定', '长按眼睛 AE/AF'], ['距离', '人离背景 2m 以上']],
+      mantra: '人靠窗斜 45°，脸上一块三角光；退后用 4×，背景离远自己虚。',
+      steps: [
+        '让人坐在窗边，身体与窗呈约 45°，脸稍微转向窗户。',
+        '观察暗侧脸颊：出现一块倒三角形的光斑（伦勃朗光），就停在这个角度。',
+        '退到 2.5–3m 外用 4×（空间不够就用 2×），长按眼睛锁定对焦与曝光。',
+        '曝光补偿 −0.3 ~ −0.7，让背光的一侧自然暗下去，立体感随之出现。',
+        '背景里有吊灯或窗外灯火时，拉开人与背景的距离，光点会化成柔和的光斑。'
+      ],
+      why: [
+        ['伦勃朗光', '光从侧前上方约 45° 照来，鼻梁的阴影与暗侧颧骨的阴影相连，在暗侧脸颊围出一个倒三角亮区。这种布光以画家伦勃朗命名：一半明一半暗，立体、沉静，有故事感。'],
+        ['为什么窗光显得高级', '窗户面积大、离人近，光线柔和，阴影过渡细腻；单侧来光又保证了明暗方向。顶灯则从头顶直打，会在眼窝下留出黑眼圈。'],
+        ['物理虚化胜过人像算法', '人像模式靠深度图“抠图”来模糊背景，碰到发丝、眼镜、玻璃杯边缘容易露馅。用 4× 长焦站远拍，背景被放大，焦外自然柔和，过渡完全符合光学规律。另外，iPhone 在拍照模式下识别到人物时会自动记录深度信息，事后在相册里仍可开启人像效果。'],
+        ['为什么压暗', '室内自动曝光会把暗侧提亮，三角光被“洗”平。负曝光让明暗比例回来，画面才有窗边那种安静的气氛。']
+      ],
+      kw: '咖啡馆 室内 人像 窗光 伦勃朗 三角光 虚化 人像模式 背景虚化 室内人像 约会 高级感'
+    },
+    {
+      id: 'food', module: 'scene', tags: ['photo'], en: 'Food & macro story',
+      title: '微距水滴、静物与美食特写',
+      lead: '让食物显得好吃的不是滤镜，而是油脂和酱汁上的高光。光从后面来，高光才会出现。',
+      params: [['镜头', '美食 2× / 4×，微距 0.5× 自动'], ['光线', '45° 侧逆光'], ['EV', '−0.3'], ['格式', 'HEIF / ProRAW'], ['锁定', '长按主菜高光处'], ['距离', '长焦 0.6m 外，微距 2–10cm']],
+      mantra: '光从后面来，油光才出来；凑近交给 0.5× 微距，退远用 2× 不变形。',
+      steps: [
+        '把餐盘转到光从斜后方照来的位置：以镜头为 6 点钟方向，光在 10–11 点钟方向。',
+        '叠高的食物（汉堡、饮品、蛋糕）用 45° 视角 2× / 4× 拍；平铺的（披萨、一桌菜）用 1× 垂直俯拍，水平仪的两个十字重合即正对。',
+        '在镜头一侧立一张白纸巾或菜单，把暗面补亮一点。',
+        '拍水珠和纹理时靠近到几厘米，画面出现小花图标就进入了微距；对焦不稳时先锁定，再前后微移手机。'
+      ],
+      why: [
+        ['高光的几何学', '镜面反射遵循“入射角等于反射角”。光从食物后方斜射过来，反射光正好朝向镜头，油脂、酱汁、水珠上就会出现闪亮的高光，这是大脑判断“新鲜、多汁”的信号。顺光（光从你背后来）时，反射光射向远处，食物看起来干而平。'],
+        ['为什么别用 1× 凑近拍', '24mm 凑到 20cm 以内时，盘子近的一边被放大、远的一边被压缩，圆盘变成蛋形。退到 0.6m 外用 2× / 4×，盘子保持圆形，背景也更虚。'],
+        ['微距的景深只有几毫米', '距离越近，清晰范围越薄：水珠表面清楚了，后面的叶脉就糊了。连拍几张、每张轻微前后移动，再挑最清楚的一张，比反复点按对焦更有效。'],
+        ['长焦的最近对焦距离', '长焦离得太近无法对焦时，系统会悄悄改用主摄裁切。画面突然变软，就往后退一点。']
+      ],
+      kw: '美食 食物 吃饭 探店 微距 水滴 水珠 静物 特写 俯拍 侧逆光 油光 产品 甜品'
+    },
+    {
+      id: 'landscape', module: 'scene', tags: ['photo'], en: 'Landscape & compression',
+      title: '旅行风光与雪山宏大感',
+      lead: '想让雪山显得巍峨，靠的不是广角，而是一个渺小的参照物，加上一支能把远山拉近的长焦。',
+      params: [['镜头', '4× / 8×'], ['测光', '点按天空中间调'], ['EV', '−0.3 ~ −0.7'], ['格式', 'ProRAW Max'], ['锁定', '长按山体 AE/AF'], ['参照物', '行人、汽车、公路、帐篷']],
+      mantra: '雪山要宏大，先找一个小人；退远上 4×、8×，层层山脊叠起来。',
+      steps: [
+        '先找尺度参照：山脚下的公路、一辆车、一个走路的人。',
+        '退远，用 4× 或 8× 让参照物与山同框，参照物只占画面很小一部分。',
+        '点按天空的中间调测光，曝光补偿 −0.3 ~ −0.7，让雪面保留纹理不过曝。',
+        '打开网格与水平仪，地平线放在三分线上并保持水平。',
+        '想要前景冲击力时反过来：0.5× 贴近地面的岩石或花草，让远山退到背景。'
+      ],
+      why: [
+        ['大脑靠参照物判断大小', '一张只有山的照片，山可能是 300m，也可能是 3000m。画面里一旦出现一个米粒大的人，大脑立刻用“人约 1.7m”去换算，山的体量就被确定为巨大。'],
+        ['空气透视', '远处的山隔着更多空气与水汽，反差更低，颜色更淡、更蓝。长焦把几道远近不同的山脊裁进同一个画面，形成由深到浅的层次，就像水墨画里的“远山叠嶂”。'],
+        ['为什么雪地要负曝光', '大片雪面在阳光下极易过曝，一旦死白就只剩一片白板。点按天空的中间调测光再负补偿，雪面能保住颗粒和起伏的纹理。'],
+        ['8× 的稳定性', '200mm 视角下，手部的轻微抖动也会被放大 8 倍。按快门时屏住呼吸、手肘贴紧身体，或者用 3 秒自拍定时。']
+      ],
+      kw: '风光 风景 雪山 旅行 山 长焦 压缩感 空气透视 参照物 尺度 远景 层次 宏大'
+    },
+    {
+      id: 'action', module: 'scene', tags: ['video'], en: 'Action & sports',
+      title: '4K 120fps 超高速动作慢镜头',
+      lead: '4K 120 帧只在主摄上可用。它需要大量的光，回报是把 1 秒拆成 5 秒的张力。',
+      params: [['镜头', '1× 主摄'], ['规格', '4K 120fps，室内 4K 100fps'], ['快门', '理想 1/240s'], ['光线', '晴天户外最佳'], ['防抖', '稳定持握 / 稳定器'], ['动作模式', '最高 2.8K 60fps']],
+      mantra: '慢镜头只认主摄，光越猛越好；灯下改 100 帧，跑起来才开动作模式。',
+      steps: [
+        '在录像模式右上角切到 4K 120（或用慢动作模式）；室内灯光下改用 4K 100，需要先打开「显示 PAL 格式」。',
+        '选择有峰值瞬间的动作：起跳最高点、甩头发、泼水、裙摆旋转、球拍击球。',
+        '保持主摄 1×，提前长按动作发生的位置，锁定对焦与曝光。',
+        '前后各预留 2 秒，让动作完整进入和离开画面，方便后期变速。',
+        '需要边跑边拍时才开动作模式：它更稳，但分辨率降到 2.8K，也需要充足的光线（弱光可在录制视频设置里开启低光选项）。'
+      ],
+      why: [
+        ['为什么需要强光', '120 帧意味着每帧最多只能曝光 1/120s，理想的 1/240s 比 30 帧视频少了约 2–3 档光。光线不足时，系统只能拉高感光度，画面立刻变脏。'],
+        ['为什么室内会闪', '50Hz 交流电灯每秒闪 100 次。120 帧与它不同步，慢放后会出现明暗起伏的“呼吸”和条纹；改用 100 帧与灯光频率对齐，频闪会大幅减轻。'],
+        ['动作分解的张力', '120 帧放在 24 帧的时间线上播放，速度放慢 5 倍。平时看不到的细节，飞散的水珠、肌肉的颤动、发丝的轨迹，都被展开了，紧张感来自“时间被拉长”。'],
+        ['动作模式的代价', '动作模式的超强防抖靠大幅裁切画面换取稳定余量，所以分辨率和画质都会下降，暗处尤其明显。它适合追拍奔跑和骑行，不适合拍慢镜头。']
+      ],
+      kw: '慢动作 慢镜头 4K120 120帧 120fps 高帧率 运动 体育 动作模式 防抖 跑步 4K100 运动抓拍'
+    },
+    {
+      id: 'broll', module: 'scene', tags: ['video'], en: 'Cinematic B-roll',
+      title: '电影感漫步跟拍',
+      lead: '空镜和跟拍决定了一支 vlog 的质感。24 帧、正确的快门、稳定的步伐加上低机位，就已经超过大多数人。',
+      params: [['规格', '4K 24fps'], ['编码', 'Apple Log 2 / HDR'], ['镜头', '0.5× / 1×'], ['快门', '1/48s（专业 App + ND）'], ['机位', '膝盖高度'], ['锁定', '白平衡、摄像头、AE/AF']],
+      mantra: '24 帧配 1/48，Log 留宽容；膝盖弯、脚跟先落地，广角低机位贴地走。',
+      steps: [
+        '在「设置 › 相机 › 录制视频」打开锁定白平衡和锁定摄像头，防止拍到一半变色或跳镜头。',
+        '选 4K 24fps，要调色就开 Apple Log 2；长按画面锁定曝光。',
+        '忍者步：膝盖微屈，脚跟先着地再滚到脚尖，上身平移，双手握持贴近身体。',
+        '机位压到膝盖高度，用 0.5× 或 1× 跟在人物身后或侧面，让栏杆、树叶、路人这些前景从镜头前划过。',
+        '每个镜头 5–8 秒，同一场景拍全景、中景、特写三种景别，剪辑时才有得选。'
+      ],
+      why: [
+        ['24 帧的魔力', '电影一百年来都以 24 帧放映，观众已经把这种略带顿挫的运动节奏和“电影”绑在了一起。30 帧更像新闻和直播，60 帧像游戏和体育转播。'],
+        ['为什么用广角跟拍', '抖动在画面上的位移与焦距成正比：同样的手抖，100mm 下比 13mm 明显约 8 倍。广角天然更稳，也更有身临其境的空间感。'],
+        ['前景视差', '镜头移动时，近处物体在画面中移动得比远处快，这种速度差就是视差，是二维画面里最强的纵深线索。让前景划过镜头，画面立刻立体起来。'],
+        ['低机位的陌生感', '我们每天从 1.6m 的高度看世界，膝盖高度的视角对大脑来说是新鲜的，脚步和地面质感都成了画面主角。'],
+        ['备选：电影效果模式', '需要焦点在人物之间切换时，可以用电影效果模式（最高 4K 30fps），拍完还能在相册里重新选择焦点。']
+      ],
+      kw: '电影感 跟拍 空镜 vlog B-roll 24帧 运镜 忍者步 低机位 Log 稳定 视差 电影效果模式 漫步'
+    },
+    {
+      id: 'sunset', module: 'scene', tags: ['photo', 'video'], en: 'Sunset magic hour',
+      title: '落日黄昏海边特写',
+      lead: '低角度的太阳把海面铺成一条金色的路。用长焦把太阳拉大，再让人或船走进这条路。',
+      params: [['镜头', '4× / 8×'], ['测光', '点按太阳旁的亮云'], ['EV', '−0.3 ~ −1.0'], ['格式', 'ProRAW Max'], ['锁定', '长按地平线 AE/AF'], ['时机', '日落前 30 分钟起']],
+      mantra: '太阳要大就退远上 8×；测光点云不点日，−0.3 起步，金色水路对准自己。',
+      steps: [
+        '日落前半小时到达，站在能看到太阳正下方水面反光的位置。',
+        '用 8× 构图，太阳放在三分线上，地平线保持水平。',
+        '点按太阳旁边的亮云（不要点太阳本身），曝光补偿从 −0.3 开始试，云层层次出来即可。',
+        '等人、船或飞鸟走进金色水路，让它们成为剪影，连拍捕捉。',
+        '太阳落下后别急着走：回头拍被染红的云，再等蓝调时刻。'
+      ],
+      why: [
+        ['太阳的大小只由焦距决定', '太阳的视直径约 0.53°。1× 下它只占画面宽度的约 1/140，像一个光点；8× 下约占 1/18，成了一个圆盘。走近走远都改变不了它的大小，只有焦距可以。页面顶部的取景器就是按这个比例画的。'],
+        ['为什么是金色', '太阳越低，光线穿过的大气越厚，蓝光被散射殆尽，剩下橙红色。此时光的色温约 2000–3000K，照到哪里都是暖的。'],
+        ['金色水路', '每一道浪都是一面小镜子，只有朝向你的那些浪面会把阳光反射进镜头，它们排成一条从太阳指向你脚下的光带。你移动，这条路也跟着移动。'],
+        ['别点太阳测光', '点太阳本体会让相机把整个画面压得几乎全黑；点亮云取的是天空的中间调，层次与颜色最丰富。另外请保护眼睛，不要长时间透过屏幕直视烈日。']
+      ],
+      kw: '日落 夕阳 黄昏 海边 落日 太阳 金色 水面 反光 黄金时刻 magic hour 8x 海'
+    },
+    {
+      id: 'arch', module: 'scene', tags: ['photo', 'comp'], en: 'Architecture & minimalism',
+      title: '极简负空间建筑构图',
+      lead: '建筑摄影有两条路：0.5× 仰到底，让线条冲向天空；或者 4× / 8× 站远，只截取立面的几何与重复。',
+      params: [['镜头', '0.5× 仰拍，4× / 8× 截取'], ['测光', '点按天空'], ['EV', '−0.3 ~ −0.7'], ['格式', 'HEIF 4800 万 / ProRAW'], ['辅助', '网格 + 水平仪'], ['后期', '裁剪里的透视校正']],
+      mantra: '要么仰到底让线条冲天，要么退远用长焦拍纹理；要歪就歪到底，别歪一点点。',
+      steps: [
+        '仰拍：站到建筑底部，0.5× 正对天空或沿墙角向上，让所有线条汇聚到一点。',
+        '截取：退到街对面，用 4× / 8× 只取窗户、阳台、栏杆的重复图案。',
+        '寻找纯净背景：让蓝天或白墙占画面 2/3，建筑只占一角，形成负空间。',
+        '曝光补偿 −0.3 ~ −0.7，让蓝天更深，白墙更有质感。',
+        '需要严谨的竖直线条时，保持手机竖直，或在照片编辑的裁剪里用透视校正拉正。'
+      ],
+      why: [
+        ['汇聚线条的张力', '仰拍时建筑顶部离镜头更远，平行的竖线在画面里向上汇聚。汇聚得足够猛烈，就成了动感与力量；只歪一点点，观众只会觉得“拍歪了”。'],
+        ['重复与节奏', '长焦压平了立面的纵深，窗户和阳台变成整齐的二维图案。重复建立节奏，一处打破重复的元素（一扇开着的窗、一个人）就成了视觉焦点。'],
+        ['负空间', '大面积留白让建筑的轮廓更纯粹，画面安静、克制。这正是极简主义的核心：去掉一切不必要的东西。'],
+        ['透视校正的代价', '后期拉正竖线会裁掉画面边缘，所以拍的时候四周多留一圈余量。']
+      ],
+      kw: '建筑 极简 负空间 仰拍 几何 线条 对称 重复 透视 城市 留白 极简主义'
+    },
+
+    /* ---------------- 模块 3：构图 ---------------- */
+    {
+      id: 'thirds', module: 'comp', tags: ['comp'], en: 'Rule of thirds', diagram: 'thirds',
+      title: '经典三分法与九宫格交叉点',
+      lead: '把画面横竖各分成三份，四个交叉点是视线最自然的落脚处。',
+      mantra: '主体放交点，地平线别居中；看向哪边，哪边留白。',
+      points: [
+        '打开「设置 › 相机 › 构图 › 网格」，取景时直接对齐。',
+        '人像：眼睛放在上方三分线上，而不是画面正中。',
+        '风光：地平线放在上或下三分线上。天空精彩就留 2/3 给天空，地面精彩就留 2/3 给地面。',
+        '主体朝向哪边，就在哪边多留空间。',
+        '何时打破：对称的建筑、倒影、正面肖像，大胆放中间。'
+      ],
+      why: [
+        ['为什么不放中心', '主体居中时画面左右平衡，稳定但静止；放到三分点，画面出现不平衡，大脑会自然地在主体和空白之间来回扫视，画面就“动”了起来。'],
+        ['视线空间', '在人物或车辆朝向的一侧留出空间，观众会下意识预判它将去往哪里，画面便有了时间感和故事。']
+      ],
+      kw: '三分法 九宫格 网格 交叉点 构图 地平线 视线空间 居中 对称'
+    },
+    {
+      id: 'leading', module: 'comp', tags: ['comp'], en: 'Leading lines & vanishing point', diagram: 'leading',
+      title: '引导线与消逝点',
+      lead: '道路、栏杆、河岸、树影，都是画给观众眼睛的路，路的终点就是你的主体。',
+      mantra: '蹲低让线从角落出发，主体站在线的尽头。',
+      points: [
+        '蹲低，让线条从画面下方的角落出发，延伸感最强。',
+        '0.5× 会夸大线条的汇聚，纵深更猛烈；1× 更自然。',
+        '把主体放在线条交汇的消逝点附近，或者线条的尽头。',
+        'S 形的小路和河流比直线更柔和，适合风光与人文。'
+      ],
+      why: [
+        ['眼睛追随边缘', '人眼会本能地沿着明暗交界和连续的线条移动。线条就像轨道，把视线送到你安排好的终点。'],
+        ['消逝点制造纵深', '平行线在远方汇聚于一点，这是二维照片表现三维空间最直接的线索。线条越汇聚，空间越深。']
+      ],
+      kw: '引导线 消逝点 透视 道路 栏杆 线条 纵深 S形 汇聚'
+    },
+    {
+      id: 'framing', module: 'comp', tags: ['comp'], en: 'Framing', diagram: 'framing',
+      title: '框架构图：画中画',
+      lead: '透过车窗、门廊、树叶缝隙去拍，画面多了一层前景，也多了一份窥视感。',
+      mantra: '找一个洞，把主体框进去；框暗人亮，对焦在人。',
+      points: [
+        '框架尽量比主体暗，主体在亮处，视线才会被“框”进去。',
+        '一定要点按主体对焦，避免手机对焦到近处的框架上。',
+        '4× 能把远处的框架和主体压缩在一起；0.5× 则让近处的框架更夸张。',
+        '框架不必完整，半扇门、一根树枝也能形成边界。'
+      ],
+      why: [
+        ['层次', '前景框架、中景主体、远景背景三层叠在一起，平面的照片就有了深度。'],
+        ['窥视感', '框架模拟了“透过某处看出去”的体验，把观众放在旁观者的位置，画面自带故事与私密感。'],
+        ['做减法', '框架同时遮掉了四周杂乱的元素，是清理画面最快的办法。']
+      ],
+      kw: '框架 框架构图 画中画 车窗 门洞 门廊 树叶 前景 窥视 层次'
+    },
+    {
+      id: 'negative', module: 'comp', tags: ['comp'], en: 'Negative space', diagram: 'negative',
+      title: '留白与极简负空间',
+      lead: '让主体只占画面的一小块，把剩下的天空、墙面、海面留给孤独、辽阔和呼吸感。',
+      mantra: '主体越小越要干净；空白不是浪费，是情绪。',
+      points: [
+        '背景要纯：干净的天空、单色墙、雾、水面。',
+        '主体越小越要清晰：轮廓分明，与背景的颜色反差大。',
+        '主体放在三分点附近，面向留白的一侧。',
+        '曝光按留白区域来定：天空 −0.3 ~ −0.7 更深邃，白墙 +0.3 更干净。'
+      ],
+      why: [
+        ['空白就是情绪', '大面积的空无让观众感受到主体与环境的比例：人很小，世界很大。孤独、自由、平静，都从这种比例里产生。'],
+        ['电影的呼吸感', '电影常在人物周围留出大片空间，尤其在情绪转折处，用空镜和留白让观众“喘口气”。']
+      ],
+      kw: '留白 负空间 极简 孤独 辽阔 天空 呼吸感 小主体 电影感'
+    },
+    {
+      id: 'angle', module: 'comp', tags: ['comp'], en: 'Low & high angle', diagram: 'angle',
+      title: '低视角仰拍 vs 鸟瞰俯拍',
+      lead: '普通人永远在 1.6m 的高度平视世界。只要蹲下或举高，照片就已经和别人不一样了。',
+      mantra: '别站着拍：蹲下去或举起来，世界就换了样子。',
+      points: [
+        '低机位：把手机倒过来拿，镜头更贴近地面，地面纹理和积水倒影都能入画。',
+        '仰拍人物：人物显得高大有力量，配合 0.5× 腿更长。',
+        '俯拍：举高手机或站上台阶，拍人群、街道、餐桌，画面像一张地图。',
+        '垂直俯拍时，水平仪会变成两个十字，重合即完全正对。'
+      ],
+      why: [
+        ['视角即权力', '仰视让主体显得高大、威严，有英雄感；俯视让主体显得渺小、脆弱，或像一枚棋子。电影里的权力关系，常常就靠机位高低来暗示。'],
+        ['陌生化', '我们对平视视角已经麻木，非常规视角会迫使大脑重新观察熟悉的事物。'],
+        ['手机倒拿的原理', 'iPhone 的镜头在机身上端，倒过来拿时镜头离地只有一两厘米，前景被放大得更夸张。']
+      ],
+      kw: '低机位 仰拍 俯拍 鸟瞰 机位 视角 倒拿 平视 高度'
+    },
+
+    /* ---------------- 模块 4：姿态 ---------------- */
+    {
+      id: 'triangle', module: 'pose', tags: ['pose'], en: 'Triangles',
+      title: '肢体三角支撑法则',
+      lead: '手肘、膝盖、手臂与身体之间，只要出现三角形，身体就从“直筒”变得有型。',
+      mantra: '有弯就有型，有缝才显瘦；手臂别贴身，双腿别平行。',
+      points: [
+        '重心放在后脚，前腿微屈，膝盖朝向镜头一侧，身体自然出现 S 形。',
+        '一只手叉腰或插兜，手肘向外撑开，手臂与腰之间留出空隙，腰线立刻出现。',
+        '坐姿：一条腿弯起、另一条伸直，避免两腿并排平行。',
+        '身体侧转 30°–45°，肩膀不要正对镜头，比正面更显瘦。',
+        '自检：双臂、双腿是否完全平行？平行就换一个姿势。'
+      ],
+      why: [
+        ['三角形意味着动态平衡', '三角形是最稳定、又最有方向性的形状。肢体形成夹角，画面就有了线条的变化和节奏；完全平行的肢体像一根柱子，只剩僵硬。'],
+        ['缝隙的视觉魔法', '手臂贴住身体时，手臂的宽度会被算进身体轮廓；留出缝隙，背景从中透出，轮廓就被“切”细了。'],
+        ['对立式平衡', '重心落在一条腿上，肩与胯反向倾斜，是古希腊雕塑就开始使用的姿态，叫“对立式平衡”，看起来放松而有生命力。']
+      ],
+      kw: '姿势 摆拍 pose 显瘦 叉腰 三角 站姿 坐姿 不会摆 身材 僵硬'
+    },
+    {
+      id: 'motion', module: 'pose', tags: ['pose'], en: 'Movement',
+      title: '微动态走动抓拍法',
+      lead: '与其让人摆一个姿势，不如让他做一个动作。动作中的那一瞬间，才有最自然的表情。',
+      mantra: '别说“摆个姿势”，说“走过来、回个头”；连拍一串，挑一张。',
+      points: [
+        '“朝我慢慢走过来，别看镜头，走到我这里再抬头。”',
+        '“低头理一下头发，然后回头看我。”',
+        '“侧身跨一步，像在等红绿灯。”',
+        '用连拍：按住快门向左滑动；或者打开实况照片，事后在相册里挑最佳一帧设为封面。',
+        '录 4K 视频时点按白色快门，可以同时拍下 800 万像素照片，适合动作较大的场景。'
+      ],
+      why: [
+        ['为什么动起来就自然', '静止摆拍时，人会把注意力放在“我看起来怎么样”上，脸和肩膀的肌肉都会绷紧。给他一个具体的动作任务，注意力转移到动作本身，紧张感就消失了。'],
+        ['动作的峰值', '走路的步伐、回头的转身、甩发的瞬间，都存在一个最舒展的“峰值帧”。连拍和实况照片提供了挑选的余地，单按一次快门很难恰好按中。'],
+        ['不对称的生动', '动态中的身体天然不对称：一脚前一脚后，头发飘起，衣角摆动。这些生命感是静态摆拍很难模拟的。']
+      ],
+      kw: '抓拍 走动 连拍 实况照片 Live Photo 回眸 回头 动态 自然 抓拍技巧 Burst'
+    },
+    {
+      id: 'props', module: 'pose', tags: ['pose'], en: 'Props & environment',
+      title: '“手足无措”终结者：道具与环境互动',
+      lead: '“手放哪？”给手找件事做。一杯咖啡、一本书、一面墙，都是最好的姿势老师。',
+      mantra: '手要有事做：拿杯子、翻书、推墨镜、半插兜、靠着墙。',
+      points: [
+        '咖啡杯：双手捧杯在胸前，或单手举到嘴边，将喝未喝。',
+        '书本：翻开书页低头看，或者把书合上轻抵下巴。',
+        '墨镜：推到头顶、拿在手里、从镜片上方看出来，三种都是动作。',
+        '插兜：只插半只手，拇指留在外面，手臂自然形成三角。',
+        '靠墙：肩膀或后背借力倚靠，一只脚向后蹬墙，重心立刻放松。',
+        '整理：摸衣领、整理袖口、捏帽檐，手停在动作中途时最好看。'
+      ],
+      why: [
+        ['手是身体最诚实的部分', '紧张时人会下意识握拳、抓衣角，或者让手垂成一条直线。道具给了手一个合理的位置，画面里就不再有“多余的手”。'],
+        ['道具会讲故事', '咖啡杯是悠闲，书本是安静，墨镜是旅行。道具把单纯的人像变成生活场景，观众会自动脑补前因后果。'],
+        ['借力即放松', '倚靠墙壁或栏杆时，身体把重量交出去，肩膀和表情都会自然松弛。']
+      ],
+      kw: '手放哪 手不知道放哪 手足无措 道具 咖啡 书 墨镜 插兜 靠墙 姿势 摆拍 手怎么放'
+    },
+    {
+      id: 'gaze', module: 'pose', tags: ['pose'], en: 'Gaze',
+      title: '视线与情绪心理学',
+      lead: '看向镜头，是在与观众对话；看向画外，是邀请观众去想象。',
+      mantra: '看镜头是对话，看画外是故事；眼睛朝光，才有神。',
+      points: [
+        '直视镜头：建立连接，适合肖像和表达力量感；下巴微微前伸再略压低，可避免双下巴。',
+        '看向画外：在视线方向留出空间，画面有故事和延伸感。',
+        '低头看：安静、内省，适合书店和咖啡馆。',
+        '让眼睛朝光源方向转一点，瞳孔里会出现眼神光，人立刻有神。',
+        '想要真实的笑，别说“笑一个”，讲点好笑的事，或者让对方回忆一件开心事。'
+      ],
+      why: [
+        ['视线是最强的引导线', '观众会本能地顺着画中人的视线看过去。人物看向画外，观众的注意力也被带出画框，产生“他在看什么”的好奇。'],
+        ['直视的压迫与力量', '直视镜头的目光等于直视观众，带来亲密感或压迫感。纪实与时尚肖像常用它表达力量与态度。'],
+        ['眼神光', '眼球表面反射出光源，瞳孔里的小亮点让眼睛显得湿润、有生命。背光的眼睛则显得空洞。']
+      ],
+      kw: '视线 眼神 看镜头 不看镜头 表情 笑 情绪 眼神光 双下巴 心理学'
+    },
+    {
+      id: 'direct', module: 'pose', tags: ['pose'], en: 'Directing',
+      title: '让对方放松的导演话术',
+      lead: '拍得好不好，一半在按快门之前。用动作代替指令，用夸奖代替纠正。',
+      mantra: '先示范，再给动作；一次只改一处，拍到好的立刻夸。',
+      points: [
+        '先示范：自己做一遍动作，比描述十句都有效。',
+        '用动作描述：“把重心放到左脚”比“自然一点”具体得多。',
+        '小步调整：一次只改一个地方，先改手，再改头。',
+        '及时反馈：拍到好的一张，马上给对方看，说“就是这个感觉”。',
+        '留出空档：连续拍 20 秒就停一下，聊两句再继续。'
+      ],
+      why: [
+        ['模糊指令制造焦虑', '“自然点”“放松点”没有可执行的内容，只会让人更在意自己的僵硬。具体的动作给人明确的任务，焦虑就转化成了执行。'],
+        ['正反馈循环', '看到自己好看的照片，人会更放松、更有表现欲，下一张通常更好。纠正太多则会越拍越拘谨。']
+      ],
+      kw: '指导 导演 怎么指导 不会摆 拍男朋友 拍女朋友 拍对象 话术 沟通 放松'
+    },
+
+    /* ---------------- 模块 5：系统设置 ---------------- */
+    {
+      id: 'formats', module: 'set', tags: ['set'], en: 'Formats',
+      title: '格式选「高效」还是「兼容性最佳」',
+      lead: '选高效。HEIF / HEVC 的体积约为兼容格式的一半，而且是 4K 60/120fps、杜比视界 HDR 视频等高规格的前提。',
+      checks: [
+        { k: 'fmt-heif', name: '相机拍摄格式', val: '高效', path: '设置 › 相机 › 格式' },
+        { k: 'fmt-proraw', name: 'ProRAW 与分辨率控制', val: '开', path: '设置 › 相机 › 格式', note: '开启后相机顶部才会出现 RAW 与 4800 万像素开关。' },
+        { k: 'fmt-default', name: '专业默认', val: 'HEIF 最大', path: '设置 › 相机 › 格式', note: '常拍 RAW 就选 ProRAW 最大。' },
+        { k: 'fmt-transfer', name: '传输到 Mac 或 PC', val: '自动', path: '设置 › 照片', note: '传到电脑时自动转为兼容格式，不用担心对方打不开。' }
+      ],
+      mantra: '格式选高效，分享交给“自动”转换。',
+      why: [
+        ['为什么不选兼容性最佳', '兼容格式（JPEG / H.264）压缩效率低，同等画质下体积约大一倍。更关键的是，4K 60/120fps、HDR 视频等功能都要求高效格式，选了兼容格式，这些选项会直接消失或受限。'],
+        ['分享会不会打不开', 'iPhone 在隔空投送、分享到大多数 App、传输到电脑时，会自动转换成通用格式。只要「设置 › 照片」底部保持“自动”，高效格式几乎没有副作用。']
+      ],
+      kw: '格式 高效 兼容性最佳 HEIF HEVC JPEG H264 设置 ProRAW 专业默认'
+    },
+    {
+      id: 'gridlevel', module: 'set', tags: ['set', 'comp'], en: 'Grid & level',
+      title: '为什么必须打开网格与水平仪',
+      lead: '地平线歪斜是最显眼的业余标志，网格和水平仪是零成本的纠错工具。',
+      checks: [
+        { k: 'grid', name: '网格', val: '开', path: '设置 › 相机 › 构图' },
+        { k: 'level', name: '水平仪', val: '开', path: '设置 › 相机 › 构图', note: '接近水平时出现一条线，完全水平时变成黄色。' },
+        { k: 'outside', name: '查看框外内容', val: '开', path: '设置 › 相机 › 构图', note: '取景框外显示更广的画面，方便判断边缘是否干净。' }
+      ],
+      mantra: '网格对三分，水平仪变黄再按快门。',
+      why: [
+        ['歪斜是最显眼的业余标志', '地平线倾斜 1–2°，观众未必说得出问题，但会觉得画面不稳。水平仪让你在按快门之前就修正，省去后期裁切损失的像素。'],
+        ['网格是构图的拐杖', '熟练之前，网格让三分法、对称、引导线都变得可见；熟练之后，它仍是检查画面边缘是否干净的工具。点底部工具条的“网格”可以体验一下。']
+      ],
+      kw: '网格 水平仪 构图 歪斜 地平线 九宫格 框外 设置'
+    },
+    {
+      id: 'macro', module: 'set', tags: ['set'], en: 'Macro control',
+      title: '为什么要开启「微距控制」',
+      lead: '开启后，靠近被摄物时取景框会出现小花图标，点一下就能关掉自动切换。镜头不再擅自跳切。',
+      checks: [
+        { k: 'macro', name: '微距控制', val: '开', path: '设置 › 相机' },
+        { k: 'macro-keep', name: '保留设置 › 微距控制', val: '开', path: '设置 › 相机 › 保留设置', note: '记住你上次关掉或打开微距的选择。' }
+      ],
+      mantra: '小花图标归你管，别让镜头自己跳。',
+      why: [
+        ['自动切换的副作用', '距离小于主摄的最近对焦距离时，iPhone 会自动换成超广角并裁切来实现微距。切换的瞬间视角、透视、曝光和色彩都会跳变：拍照时让人困惑，录像时则是一个明显的“剪辑点”。'],
+        ['控制权在你手里', '打开微距控制并不会禁用微距，而是让你决定何时进入。需要时它在，不需要时一键关掉。']
+      ],
+      kw: '微距 微距控制 小花 跳切 自动切换 超广角 设置'
+    },
+    {
+      id: 'preserve', module: 'set', tags: ['set'], en: 'Preserve settings',
+      title: '「保留设置」里哪些必须勾选',
+      lead: '不勾选时，每次打开相机都会回到默认状态：曝光归零、滤镜清除、实况照片重新打开。',
+      checks: [
+        { k: 'keep-mode', name: '相机模式', val: '开', path: '设置 › 相机 › 保留设置', note: '下次打开仍停在你上次用的拍照、录像或人像模式。' },
+        { k: 'keep-creative', name: '创意控制', val: '开', path: '设置 › 相机 › 保留设置', note: '保留摄影风格、画幅比例、景深等选择。' },
+        { k: 'keep-ev', name: '曝光调整', val: '开', path: '设置 › 相机 › 保留设置', note: '让 −0.3 / −0.7 一直生效，这是最重要的一项。' },
+        { k: 'keep-live', name: '实况照片', val: '开', path: '设置 › 相机 › 保留设置', note: '记住你开或关实况的选择。' }
+      ],
+      mantra: '曝光、创意、模式、实况：四项全勾，相机就记住了你的习惯。',
+      why: [
+        ['默认会重置', '你精心设好的 −0.7，在下一次打开相机时就没了。保留设置让相机记住你的习惯，而不是每次都从零开始。'],
+        ['实况照片为什么要保留', '夜景扫街、连拍这类不需要实况的场景你会关掉它；不保留的话下次又会自动打开，白白多占空间。反过来，如果你习惯开着，它也会一直开着。']
+      ],
+      kw: '保留设置 曝光调整 创意控制 相机模式 实况照片 重置 设置'
+    },
+    {
+      id: 'recvideo', module: 'set', tags: ['set', 'video'], en: 'Record video',
+      title: '录制视频：电影感的五个开关',
+      lead: '录像有一组单独的设置，决定画面会不会中途“变脸”。',
+      checks: [
+        { k: 'pal', name: '显示 PAL 格式', val: '开', path: '设置 › 相机 › 录制视频', note: '解锁 25 / 50 / 100fps，国内 50Hz 灯光下防频闪。' },
+        { k: 'lock-wb', name: '锁定白平衡', val: '开', path: '设置 › 相机 › 录制视频' },
+        { k: 'lock-cam', name: '锁定摄像头', val: '开', path: '设置 › 相机 › 录制视频', note: '录制中不自动切换镜头。' },
+        { k: 'auto-fps', name: '自动帧率', val: '关', path: '设置 › 相机 › 录制视频', note: '避免弱光下自动降到 24 帧，导致前后帧率不一致。' },
+        { k: 'hdr', name: 'HDR 视频', val: '按平台', path: '设置 › 相机 › 录制视频', note: '自己看就开；发到显示 HDR 会发白的平台前可临时关闭。' }
+      ],
+      mantra: 'PAL 防频闪，白平衡与镜头都锁住，画面才不会中途变脸。',
+      why: [
+        ['锁定摄像头', '录制中变焦或光线变化时，iPhone 可能在镜头之间自动切换，画面会突然跳一下。锁定后它只用你选定的镜头。'],
+        ['锁定白平衡', '走过不同光源时，自动白平衡会持续修正，同一个镜头里颜色忽冷忽暖。锁定后色调稳定，后期也更好统一。'],
+        ['HDR 的兼容性', '杜比视界 HDR 在 iPhone 上非常惊艳，但部分平台和设备不支持，播放时会发灰或过亮。发到这类平台的视频，可以临时关闭 HDR 视频。']
+      ],
+      kw: '录制视频 PAL 25帧 白平衡 锁定摄像头 锁定镜头 自动帧率 HDR 杜比视界 频闪 设置'
+    },
+    {
+      id: 'lensset', module: 'set', tags: ['set'], en: 'Lens & speed',
+      title: '镜头校正、默认焦段与快速拍摄',
+      lead: '三个容易被忽略的开关，分别管画面变形、开机焦段和连按快门时的速度。',
+      checks: [
+        { k: 'lens-corr', name: '镜头校正', val: '开', path: '设置 › 相机', note: '修正超广角与前置镜头的桶形畸变。' },
+        { k: 'default-lens', name: '主摄像头默认镜头', val: '按习惯', path: '设置 › 相机 › 主摄像头', note: '常扫街就设为 35mm，打开相机即是 1.5×。' },
+        { k: 'fast', name: '优先快速拍摄', val: '开', path: '设置 › 相机', note: '快速连按快门时适度降低处理强度，保证不漏拍。' }
+      ],
+      mantra: '校正开着，默认焦段按习惯定；抓拍别等处理，快速拍摄打开。',
+      why: [
+        ['镜头校正修的是什么', '它修正的是镜头光学造成的桶形畸变（直线被拍弯），不是广角边缘的投影拉伸。后者只能靠构图避开，详见“超广角 0.5×”卡片。'],
+        ['默认焦段影响第一张照片', '决定性瞬间往往出现在打开相机的第一秒。默认焦段设成你最常用的，就少了一次切换。']
+      ],
+      kw: '镜头校正 默认镜头 35mm 主摄像头 优先快速拍摄 快速 畸变 设置'
+    }
+  ];
+
+  /* =====================================================================
+     渲染
+     ===================================================================== */
+
+  function stripTags(s) { return String(s).replace(/<[^>]+>/g, ''); }
+  function fmtVal(v) { return v.replace(/(\d+(?:\.\d+)?×)/g, '<span class="lz">$1</span>'); }
+
+  function cardHTML(c) {
+    var h = '<article class="card" id="card-' + c.id + '" data-acc="' + c.tags[0] + '">';
+    h += '<div class="card-head"><div class="badges">' +
+      c.tags.map(function (t) { return '<span class="badge b-' + t + '">' + TAG_LABEL[t] + '</span>'; }).join('') +
+      '</div><span class="card-en">' + c.en + '</span></div>';
+    h += '<h3 class="card-title">' + c.title + '</h3>';
+    if (c.lead) h += '<p class="lead">' + c.lead + '</p>';
+    if (c.diagram) h += '<figure class="diagram">' + DIAGRAMS[c.diagram] + '</figure>';
+    if (c.params) {
+      h += '<dl class="params">' + c.params.map(function (p) {
+        return '<div><dt>' + p[0] + '</dt><dd>' + fmtVal(p[1]) + '</dd></div>';
+      }).join('') + '</dl>';
+    }
+    if (c.extra) h += c.extra;
+    if (c.mantra) {
+      h += '<div class="mantra"><p>' + c.mantra + '</p><button type="button" class="copy-btn" data-copy="' + c.id + '">复制口诀</button></div>';
+    }
+    if (c.steps) h += '<ol class="steps">' + c.steps.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ol>';
+    if (c.points) h += '<ul class="points">' + c.points.map(function (s) { return '<li>' + s + '</li>'; }).join('') + '</ul>';
+    if (c.checks) {
+      h += '<ul class="checks">' + c.checks.map(function (ck) {
+        return '<li><label><input type="checkbox" data-ck="' + ck.k + '"><span class="ck" aria-hidden="true"></span>' +
+          '<span class="ck-body"><span class="ck-name">' + ck.name + '<span class="ck-val">' + ck.val + '</span></span>' +
+          '<span class="ck-path">' + ck.path + '</span>' +
+          (ck.note ? '<span class="ck-note">' + ck.note + '</span>' : '') + '</span></label></li>';
+      }).join('') + '</ul>';
+    }
+    if (c.why) {
+      h += '<button type="button" class="why-toggle" aria-expanded="false" aria-controls="why-' + c.id + '">' +
+        '<span>💡 ' + WHY_LABEL[c.module] + '</span><span class="chev" aria-hidden="true"></span></button>' +
+        '<div class="why" id="why-' + c.id + '"><div class="why-inner"><div class="why-body">' +
+        c.why.map(function (w) { return '<h4>' + w[0] + '</h4><p>' + w[1] + '</p>'; }).join('') +
+        '</div></div></div>';
+    }
+    return h + '</article>';
+  }
+
+  function copyTextFor(c) {
+    var lines = ['【' + c.title + '】'];
+    if (c.params) c.params.forEach(function (p) { lines.push(p[0] + '：' + p[1]); });
+    if (c.checks) c.checks.forEach(function (ck) { lines.push(ck.name + '：' + ck.val + '（' + ck.path + '）'); });
+    lines.push('口诀：' + c.mantra);
+    lines.push('—— iPhone 17 Pro Max 摄影与录像实战工坊');
+    return lines.join('\n');
+  }
+
+  var content = $('#content');
+  content.innerHTML = MODULES.map(function (m) {
+    var extra = m.id === 'set'
+      ? '<div class="progress"><div class="progress-bar"><i id="ckBar"></i></div><span id="ckText"></span></div>'
+      : '';
+    return '<section class="mod" id="m-' + m.id + '" aria-labelledby="h-' + m.id + '">' +
+      '<header class="mod-head"><h2 id="h-' + m.id + '">' + m.title + '</h2><p class="mod-en">' + m.en + '</p>' +
+      '<p class="mod-intro">' + m.intro + '</p>' + extra + '</header>' +
+      CARDS.filter(function (c) { return c.module === m.id; }).map(cardHTML).join('') +
+      '</section>';
+  }).join('');
+
+  /* =====================================================================
+     搜索与筛选
+     ===================================================================== */
+
+  var PUNCT = /[\s·•\-–—−_\/\\|、，,。.:：;；()（）\[\]【】"'“”‘’!！?？~›>]+/g;
+  function norm(s) { return String(s).toLowerCase().replace(/×/g, 'x').replace(PUNCT, ''); }
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+  var cardIndex = CARDS.map(function (c) {
+    var parts = [c.title, c.en, c.lead || '', c.mantra || '', c.kw || '', c.tags.map(function (t) { return TAG_LABEL[t]; }).join(' ')];
+    (c.params || []).forEach(function (p) { parts.push(p[0], p[1]); });
+    (c.steps || []).forEach(function (s) { parts.push(s); });
+    (c.points || []).forEach(function (s) { parts.push(s); });
+    (c.why || []).forEach(function (w) { parts.push(w[0], w[1]); });
+    (c.checks || []).forEach(function (ck) { parts.push(ck.name, ck.val, ck.path, ck.note || ''); });
+    if (c.extra) parts.push(c.extra);
+    return { data: c, el: document.getElementById('card-' + c.id), text: norm(stripTags(parts.join(' '))) };
+  });
+  var sections = $$('.mod');
+
+  var state = { filter: 'all', query: '' };
+  var qInput = $('#q');
+  var qClear = $('#qClear');
+
+  function tokensOf(q) {
+    return q.split(/\s+/).map(norm).filter(Boolean);
+  }
+
+  // 高亮用的正则：允许原文字符之间夹空格或标点，例如 “4K120” 能高亮 “4K 120fps”
+  function highlightRe(tokens) {
+    if (!tokens.length) return null;
+    var parts = tokens.map(function (t) {
+      return Array.from(t).map(function (ch) { return ch === 'x' ? '[x×]' : escRe(ch); }).join('[\\s·/.\\-−–]*');
+    });
+    return new RegExp(parts.join('|'), 'gi');
+  }
+
+  function clearMarks(root) {
+    $$('mark.hl', root).forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
+    root.normalize();
+  }
+
+  function applyMarks(root, re) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        var p = n.parentElement;
+        if (!p || p.closest('button, svg, mark')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (n) {
+      var s = n.nodeValue;
+      re.lastIndex = 0;
+      if (!re.test(s)) return;
+      re.lastIndex = 0;
+      var frag = document.createDocumentFragment();
+      var last = 0;
+      var m;
+      while ((m = re.exec(s)) !== null) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+        var mk = document.createElement('mark');
+        mk.className = 'hl';
+        mk.textContent = m[0];
+        frag.appendChild(mk);
+        last = m.index + m[0].length;
+      }
+      if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  function setWhy(panel, open, auto) {
+    var btn = panel.previousElementSibling;
+    panel.classList.toggle('open', open);
+    if (btn) btn.setAttribute('aria-expanded', String(open));
+    if (open && auto) panel.dataset.auto = '1';
+    else delete panel.dataset.auto;
+  }
+
+  function filterLabel(id) {
+    for (var i = 0; i < FILTERS.length; i++) if (FILTERS[i].id === id) return FILTERS[i];
+    return FILTERS[0];
+  }
+
+  function apply() {
+    var q = state.query.trim();
+    var tokens = tokensOf(q);
+    var re = highlightRe(tokens);
+    var visible = 0;
+
+    $$('.why[data-auto]').forEach(function (p) { setWhy(p, false); });
+
+    cardIndex.forEach(function (ci) {
+      var okTab = state.filter === 'all' || ci.data.tags.indexOf(state.filter) !== -1;
+      var okQ = tokens.every(function (t) { return ci.text.indexOf(t) !== -1; });
+      var show = okTab && okQ;
+      ci.el.hidden = !show;
+      clearMarks(ci.el);
+      if (show) {
+        visible++;
+        if (re) {
+          applyMarks(ci.el, re);
+          $$('.why', ci.el).forEach(function (p) {
+            if (!p.classList.contains('open') && p.querySelector('mark.hl')) setWhy(p, true, true);
+          });
+        }
+      }
+    });
+
+    sections.forEach(function (sec) { sec.hidden = !sec.querySelector('.card:not([hidden])'); });
+
+    var f = filterLabel(state.filter);
+    var scope = state.filter === 'all' ? '' : f.short + '：';
+    var text;
+    if (q) text = scope + '「' + q + '」找到 ' + visible + ' 张卡片';
+    else text = state.filter === 'all' ? '共 ' + visible + ' 张卡片' : scope + visible + ' 张卡片';
+    $('#statusText').textContent = text;
+
+    var empty = $('#empty');
+    empty.hidden = visible > 0;
+    if (!visible) {
+      $('#emptyText').textContent = q
+        ? '没有卡片包含「' + q + '」' + (state.filter === 'all' ? '' : '（当前只看' + f.short + '）') + '。换个词试试：'
+        : '这个模式下没有卡片。';
+    }
+
+    qClear.hidden = !q;
+    $('#fabModeText').textContent = state.filter === 'all' ? '模式' : f.short;
+    syncToggleAll();
+  }
+
+  var debounceTimer = 0;
+  qInput.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(function () { state.query = qInput.value; apply(); }, 90);
+  });
+  qInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') qInput.blur();
+    if (e.key === 'Escape') { qInput.value = ''; state.query = ''; apply(); }
+  });
+  qClear.addEventListener('click', function () {
+    qInput.value = '';
+    state.query = '';
+    apply();
+    qInput.focus();
+  });
+
+  function setQuery(word) {
+    qInput.value = word;
+    state.query = word;
+    apply();
+    scrollToContent();
+  }
+
+  function renderHot(container) {
+    HOT_WORDS.forEach(function (w) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = w;
+      b.addEventListener('click', function () { setQuery(w); });
+      container.appendChild(b);
+    });
+  }
+  renderHot($('#hot'));
+  renderHot($('#emptyHot'));
+
+  // 模式切换（顶部标签与底部面板共用）
+  var tabs = $('#tabs');
+  var sheetFilters = $('#sheetFilters');
+  FILTERS.forEach(function (f) {
+    [tabs, sheetFilters].forEach(function (box) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = box === tabs ? 'tab' : '';
+      b.dataset.filter = f.id;
+      b.textContent = f.label;
+      b.setAttribute('aria-pressed', String(f.id === 'all'));
+      b.addEventListener('click', function () {
+        setFilter(f.id);
+        if (box === sheetFilters) closeSheet();
+      });
+      box.appendChild(b);
+    });
+  });
+
+  function setFilter(id) {
+    state.filter = id;
+    $$('[data-filter]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === id)); });
+    var activeTab = $('.tab[data-filter="' + id + '"]');
+    if (activeTab && activeTab.scrollIntoView) activeTab.scrollIntoView({ block: 'nearest', inline: 'center' });
+    apply();
+    scrollToContent();
+  }
+
+  // 吸顶后 dock 自身的 top 恒为 0，所以用紧随其后的 main 计算内容起点
+  var dock = $('.dock');
+  var mainEl = $('main');
+  function scrollToContent() {
+    var target = mainEl.getBoundingClientRect().top + window.pageYOffset - dock.offsetHeight;
+    if (window.pageYOffset > target) window.scrollTo({ top: target, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  // 展开 / 收起全部
+  var toggleAllBtn = $('#toggleAll');
+  function visiblePanels() { return $$('.card:not([hidden]) .why'); }
+  function syncToggleAll() {
+    var panels = visiblePanels();
+    var allOpen = panels.length > 0 && panels.every(function (p) { return p.classList.contains('open'); });
+    toggleAllBtn.textContent = allOpen ? '收起全部原理' : '展开全部原理';
+    toggleAllBtn.hidden = panels.length === 0;
+  }
+  toggleAllBtn.addEventListener('click', function () {
+    var panels = visiblePanels();
+    var allOpen = panels.every(function (p) { return p.classList.contains('open'); });
+    panels.forEach(function (p) { setWhy(p, !allOpen); });
+    syncToggleAll();
+  });
+
+  /* =====================================================================
+     卡片交互：抽屉、复制、清单
+     ===================================================================== */
+
+  var toastEl = $('#toast');
+  var toastTimer = 0;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2000);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+  // 微信内置浏览器与 file:// 下 Clipboard API 可能不可用，退回 execCommand
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px;';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  var cardById = {};
+  CARDS.forEach(function (c) { cardById[c.id] = c; });
+
+  content.addEventListener('click', function (e) {
+    var t = e.target.closest('.why-toggle, .copy-btn');
+    if (!t) return;
+    if (t.classList.contains('why-toggle')) {
+      var panel = document.getElementById(t.getAttribute('aria-controls'));
+      setWhy(panel, !panel.classList.contains('open'));
+      syncToggleAll();
+      return;
+    }
+    var c = cardById[t.dataset.copy];
+    copyText(copyTextFor(c)).then(function (ok) {
+      if (ok) {
+        toast('已复制「' + c.title + '」口诀');
+        t.classList.add('done');
+        setTimeout(function () { t.classList.remove('done'); }, 1200);
+      } else {
+        toast('复制失败，请长按口诀文字手动复制');
+      }
+    });
+  });
+
+  var CK_KEY = 'ip17pm-camera-checks-v1';
+  var ckState = {};
+  try { ckState = JSON.parse(localStorage.getItem(CK_KEY) || '{}') || {}; } catch (e) { ckState = {}; }
+  var ckInputs = $$('input[data-ck]');
+  ckInputs.forEach(function (i) { i.checked = !!ckState[i.dataset.ck]; });
+  function updateProgress() {
+    var done = ckInputs.filter(function (i) { return i.checked; }).length;
+    $('#ckText').textContent = '已完成 ' + done + ' / ' + ckInputs.length + ' 项';
+    $('#ckBar').style.width = (done / ckInputs.length * 100) + '%';
+  }
+  content.addEventListener('change', function (e) {
+    var i = e.target;
+    if (!i.matches('input[data-ck]')) return;
+    if (i.checked) ckState[i.dataset.ck] = true;
+    else delete ckState[i.dataset.ck];
+    try { localStorage.setItem(CK_KEY, JSON.stringify(ckState)); } catch (err) { /* 隐私模式下忽略 */ }
+    updateProgress();
+  });
+  updateProgress();
+
+  /* =====================================================================
+     焦段实验室：viewBox 缩放 = 真实的视角裁切
+     ===================================================================== */
+
+  var LENSES = {
+    uw:  { zoom: '0.5×', f: 13,  name: '超广角 Fusion', ap: 'ƒ/2.2',  mp: '4800 万', fov: 120,
+           good: '低机位拍长腿、宏大空间、2cm 微距', warn: '人脸别放四角，边缘会被拉伸近 2 倍' },
+    w24: { zoom: '1×',   f: 24,  name: '主摄 Fusion', ap: 'ƒ/1.78', mp: '4800 万',
+           good: '夜景、室内、录像的主力，全机画质天花板', warn: '凑近拍脸会有轻微的“大鼻子”' },
+    w28: { zoom: '1.2×', f: 28,  name: '主摄 Fusion', ap: 'ƒ/1.78', mp: '4800 万',
+           good: '日常记录，比 24mm 更收敛、更像肉眼', warn: '与 24mm 差别不大，按喜好设为默认' },
+    w35: { zoom: '1.5×', f: 35,  name: '主摄 Fusion', ap: 'ƒ/1.78', mp: '4800 万',
+           good: '扫街、环境人像、vlog 叙事', warn: '小空间里可能装不下全身' },
+    t2:  { zoom: '2×',   f: 48,  name: '主摄中心裁切', ap: 'ƒ/1.78', mp: '1200 万',
+           good: '半身人像、街头细节', warn: '像素降为 1200 万，但弱光依然出色' },
+    t4:  { zoom: '4×',   f: 100, name: '四棱镜长焦', ap: 'ƒ/2.8',  mp: '4800 万',
+           good: '特写人像、远景压缩、自然的物理虚化', warn: '弱光或离得太近时，可能被换成主摄裁切' },
+    t8:  { zoom: '8×',   f: 200, name: '长焦中心裁切', ap: 'ƒ/2.8',  mp: '1200 万',
+           good: '放大落日、远山与建筑细节', warn: '手抖也被放大 8 倍，屏住呼吸或用定时' }
+  };
+  var PILLS = [
+    { label: '.5', keys: ['uw'],               aria: '超广角 0.5 倍' },
+    { label: '1',  keys: ['w24', 'w28', 'w35'], aria: '主摄 1 倍，连点切换 28 与 35 毫米' },
+    { label: '2',  keys: ['t2'],               aria: '2 倍' },
+    { label: '4',  keys: ['t4'],               aria: '长焦 4 倍' },
+    { label: '8',  keys: ['t8'],               aria: '长焦 8 倍' }
+  ];
+  var FRAME_STOPS = [
+    { f: 24, label: '1×', corner: 'tl' },
+    { f: 48, label: '2×', corner: 'tr' },
+    { f: 100, label: '4×', corner: 'tl' },
+    { f: 200, label: '8×', corner: 'tr' }
+  ];
+
+  var svg = $('#scene');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function sv(tag, attrs, parent) {
+    var el = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+
+  // 星空（固定种子，保证每次一样）
+  (function () {
+    var g = $('#stars');
+    var seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    for (var i = 0; i < 70; i++) {
+      sv('circle', { cx: (rnd() * 400).toFixed(1), cy: (rnd() * 100).toFixed(1), r: (0.35 + rnd() * 0.55).toFixed(2), fill: '#e8e3d7', opacity: (0.15 + rnd() * 0.5).toFixed(2) }, g);
+    }
+  })();
+
+  // 道路透视：屏幕 y = 地平线 + K / 距离
+  (function () {
+    var g = $('#roadDetail');
+    var HZ = 147.5, K = 305;
+    var z, y1, y2, w1, w2;
+    for (z = 2; z < 80; z += 1.5) {
+      y1 = HZ + K / z; y2 = HZ + K / (z + 0.6);
+      w1 = 3 / z; w2 = 3 / (z + 0.6);
+      sv('polygon', { points: [200 - w1, y1, 200 + w1, y1, 200 + w2, y2, 200 - w2, y2].map(function (n) { return n.toFixed(3); }).join(','), fill: 'rgba(232,197,106,.5)' }, g);
+    }
+    var tops = [], left = [], right = [];
+    for (z = 2.6; z < 70; z += 3.2) {
+      var x = 200 + 340 / z, yb = HZ + K / z, top = yb - 420 / z;
+      sv('line', { x1: x, y1: yb, x2: x, y2: top, stroke: 'rgba(200,168,75,.5)', 'stroke-width': 1 }, g);
+      sv('line', { x1: x - 16 / z, y1: top + 14 / z, x2: x + 16 / z, y2: top + 14 / z, stroke: 'rgba(200,168,75,.5)', 'stroke-width': 1 }, g);
+      left.push((x - 13 / z).toFixed(2) + ',' + (top + 14 / z).toFixed(2));
+      right.push((x + 13 / z).toFixed(2) + ',' + (top + 14 / z).toFixed(2));
+    }
+    sv('polyline', { points: left.join(' '), fill: 'none', stroke: 'rgba(200,168,75,.28)', 'stroke-width': 1 }, g);
+    sv('polyline', { points: right.join(' '), fill: 'none', stroke: 'rgba(200,168,75,.28)', 'stroke-width': 1 }, g);
+    for (z = 2.4; z < 60; z += 1.6) {
+      var fx = 200 - 330 / z, fyb = HZ + K / z, ftop = fyb - 70 / z;
+      sv('line', { x1: fx, y1: fyb, x2: fx, y2: ftop, stroke: 'rgba(200,168,75,.38)', 'stroke-width': 1 }, g);
+      tops.push(fx.toFixed(2) + ',' + ftop.toFixed(2));
+    }
+    sv('polyline', { points: tops.join(' '), fill: 'none', stroke: 'rgba(200,168,75,.3)', 'stroke-width': 1 }, g);
+
+    var rects = $('#fovRects');
+    FRAME_STOPS.forEach(function (s) {
+      var w = 5200 / s.f, h = 3900 / s.f;
+      sv('rect', { x: 200 - w / 2, y: 150 - h / 2, width: w, height: h }, rects);
+    });
+    // 缩放 15 倍时线条仍保持 1px（vector-effect 不继承，必须逐个图形设置）
+    $$('path, line, rect, polyline, polygon, circle', svg).forEach(function (el) { el.setAttribute('vector-effect', 'non-scaling-stroke'); });
+  })();
+
+  var labelBox = $('#fovLabels');
+  var frameLabels = FRAME_STOPS.map(function (s) {
+    var el = document.createElement('span');
+    el.className = 'fov-label ' + s.corner;
+    el.textContent = s.label;
+    labelBox.appendChild(el);
+    return { f: s.f, corner: s.corner, el: el };
+  });
+
+  function diagFov(f) { return f === 13 ? 120 : Math.round(2 * Math.atan(43.27 / (2 * f)) * 180 / Math.PI); }
+
+  var hudMm = $('#hudMm'), hudFov = $('#hudFov'), hudAp = $('#hudAp');
+  function setView(f) {
+    var w = 5200 / f, h = 3900 / f, x0 = 200 - w / 2, y0 = 150 - h / 2;
+    svg.setAttribute('viewBox', x0.toFixed(3) + ' ' + y0.toFixed(3) + ' ' + w.toFixed(3) + ' ' + h.toFixed(3));
+    hudMm.textContent = Math.round(f);
+    hudFov.textContent = diagFov(Math.round(f));
+    frameLabels.forEach(function (l) {
+      var lw = 5200 / l.f, lh = 3900 / l.f;
+      var rel = lw / w;
+      if (l.f <= f * 1.04 || rel < 0.09) { l.el.hidden = true; return; }
+      l.el.hidden = false;
+      var lx = l.corner === 'tl' ? 200 - lw / 2 : 200 + lw / 2;
+      l.el.style.left = ((lx - x0) / w * 100) + '%';
+      l.el.style.top = ((150 - lh / 2 - y0) / h * 100) + '%';
+    });
+  }
+
+  var curF = 13, raf = 0;
+  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function zoomTo(target) {
+    cancelAnimationFrame(raf);
+    var from = curF, t0 = performance.now(), D = reduceMotion ? 0 : 650;
+    var a = Math.log(from), b = Math.log(target);
+    function step(now) {
+      var t = D ? Math.min(1, (now - t0) / D) : 1;
+      curF = Math.exp(a + (b - a) * easeInOut(t));
+      setView(curF);
+      if (t < 1) raf = requestAnimationFrame(step);
+      else { curF = target; setView(target); }
+    }
+    raf = requestAnimationFrame(step);
+  }
+
+  var pillBox = $('#pills');
+  var currentKey = 'w24';
+  var af = $('#af'), afTimer = 0;
+  var pillEls = PILLS.map(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'pill';
+    b.setAttribute('aria-label', p.aria);
+    b.addEventListener('click', function () {
+      var i = p.keys.indexOf(currentKey);
+      selectLens(i === -1 ? p.keys[0] : p.keys[(i + 1) % p.keys.length]);
+    });
+    pillBox.appendChild(b);
+    return { p: p, el: b };
+  });
+
+  function selectLens(key, silent, delay) {
+    currentKey = key;
+    var L = LENSES[key];
+    pillEls.forEach(function (pe) {
+      var active = pe.p.keys.indexOf(key) !== -1;
+      pe.el.setAttribute('aria-pressed', String(active));
+      pe.el.textContent = active ? L.zoom : pe.p.label;
+    });
+    hudAp.textContent = L.ap;
+    $('#roZoom').textContent = L.zoom;
+    $('#roName').textContent = L.name;
+    $('#roF').textContent = L.f + 'mm';
+    $('#roAp').textContent = L.ap;
+    $('#roMp').textContent = L.mp;
+    $('#roFov').textContent = diagFov(L.f) + '°';
+    $('#roGood').textContent = L.good;
+    $('#roWarn').textContent = L.warn;
+    if (delay) setTimeout(function () { zoomTo(L.f); }, delay);
+    else zoomTo(L.f);
+    if (!silent) {
+      af.classList.remove('show');
+      void af.offsetWidth;
+      af.classList.add('show');
+      clearTimeout(afTimer);
+      afTimer = setTimeout(function () { af.classList.remove('show'); }, 1200);
+    }
+  }
+
+  // 开场：像打开相机一样，从 13mm 收到 24mm
+  setView(13);
+  selectLens('w24', true, reduceMotion ? 0 : 450);
+
+  /* =====================================================================
+     浮动工具条：顶部 / 模式面板 / 网格水平仪
+     ===================================================================== */
+
+  $('#fabTop').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  var sheet = $('#sheet'), backdrop = $('#backdrop'), fabMode = $('#fabMode');
+  var sheetMods = $('#sheetMods');
+  MODULES.forEach(function (m) {
+    var a = document.createElement('a');
+    a.href = '#m-' + m.id;
+    a.textContent = m.title;
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (state.filter !== 'all' || state.query) {
+        qInput.value = '';
+        state.query = '';
+        state.filter = 'all';
+        $$('[data-filter]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
+        apply();
+      }
+      closeSheet();
+      document.getElementById('m-' + m.id).scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+    sheetMods.appendChild(a);
+  });
+  function openSheet() {
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+    fabMode.setAttribute('aria-expanded', 'true');
+    var active = $('[aria-pressed="true"]', sheetFilters);
+    if (active) active.focus({ preventScroll: true });
+  }
+  function closeSheet() {
+    if (!sheet.classList.contains('open')) return;
+    sheet.classList.remove('open');
+    backdrop.classList.remove('open');
+    fabMode.setAttribute('aria-expanded', 'false');
+    fabMode.focus({ preventScroll: true });
+  }
+  fabMode.addEventListener('click', openSheet);
+  backdrop.addEventListener('click', closeSheet);
+  $('#sheetDone').addEventListener('click', closeSheet);
+
+  var gridov = $('#gridov'), fabGrid = $('#fabGrid'), level = $('#level'), levelC = $('#levelC'), levelDeg = $('#levelDeg'), ovText = $('#ovText');
+  var gridOn = false, gotMotion = false, smooth = null, motionTimer = 0;
+
+  function onMotion(e) {
+    var g = e.accelerationIncludingGravity;
+    if (!g || g.x == null || g.y == null) return;
+    gotMotion = true;
+    if (Math.sqrt(g.x * g.x + g.y * g.y) < 2.5) {
+      level.classList.add('flat');
+      level.classList.remove('ok');
+      levelDeg.textContent = '';
+      ovText.textContent = '接近平放：俯拍请看相机里的十字';
+      return;
+    }
+    level.classList.remove('flat');
+    // 只取相对最近一个 90° 的偏差，兼容横竖屏与 iOS / Android 的坐标符号差异
+    var a = Math.atan2(-g.x, g.y) * 180 / Math.PI;
+    var dev = ((a % 90) + 90 + 45) % 90 - 45;
+    smooth = smooth === null ? dev : smooth * 0.8 + dev * 0.2;
+    levelC.style.transform = 'rotate(' + (-smooth).toFixed(2) + 'deg)';
+    var ok = Math.abs(smooth) < 1;
+    level.classList.toggle('ok', ok);
+    levelDeg.textContent = ok ? '水平' : Math.abs(smooth).toFixed(1) + '°';
+    ovText.textContent = '倾斜手机，中线对齐变黄即水平';
+  }
+
+  function startLevel() {
+    var listen = function () {
+      window.addEventListener('devicemotion', onMotion);
+      clearTimeout(motionTimer);
+      motionTimer = setTimeout(function () {
+        if (!gotMotion) ovText.textContent = '未检测到陀螺仪，仅展示网格';
+      }, 1200);
+    };
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      // iOS 13+ 必须在点击事件里请求权限
+      DeviceMotionEvent.requestPermission().then(function (r) {
+        if (r === 'granted') listen();
+        else ovText.textContent = '未获得动作权限，仅展示网格';
+      }).catch(function () { ovText.textContent = '未获得动作权限，仅展示网格'; });
+    } else {
+      listen();
+    }
+  }
+
+  function setGrid(on) {
+    gridOn = on;
+    gridov.classList.toggle('on', on);
+    fabGrid.setAttribute('aria-pressed', String(on));
+    if (on) {
+      smooth = null;
+      levelC.style.transform = '';
+      level.classList.remove('ok', 'flat');
+      levelDeg.textContent = '';
+      startLevel();
+    } else {
+      window.removeEventListener('devicemotion', onMotion);
+      clearTimeout(motionTimer);
+    }
+  }
+  fabGrid.addEventListener('click', function () { setGrid(!gridOn); });
+  $('#ovClose').addEventListener('click', function () { setGrid(false); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeSheet();
+      if (gridOn) setGrid(false);
+    }
+    if (e.key === '/' && document.activeElement !== qInput && !e.target.closest('input, textarea')) {
+      e.preventDefault();
+      qInput.focus();
+    }
+  });
+
+  apply();
+})();
+</script>
+</body>
+</html>
