@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>认知成长书单与进阶追踪长图 | Reading & Cognitive Growth Tracker</title>
+  <style>
+    /* ==========================================================================
+       1. 字体与全局 CSS 变量定义 (Apple / Notion 极简现代设计规范)
+       ========================================================================== */
+    :root {
+      --bg-page: #F1F5F9;
+      --bg-canvas: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F1F5F9;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --border-light: #E2E8F0;
+      --border-focus: #CBD5E1;
+      --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+      --shadow-elevated: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+
+      /* 四大维度专属主题色 */
+      /* 1. 框架类：深蓝/靛青 (Indigo) */
+      --cat-framework-main: #4338CA;
+      --cat-framework-bg: #EEF2FF;
+      --cat-framework-border: #C7D2FE;
+      --cat-framework-bar: linear-gradient(90deg, #4F46E5 0%, #6366F1 100%);
+
+      /* 2. 机制类：暖橙/琥珀 (Amber) */
+      --cat-mechanism-main: #B45309;
+      --cat-mechanism-bg: #FFFBEB;
+      --cat-mechanism-border: #FDE68A;
+      --cat-mechanism-bar: linear-gradient(90deg, #D97706 0%, #F59E0B 100%);
+
+      /* 3. 视野类：墨绿/翡翠 (Emerald) */
+      --cat-horizon-main: #047857;
+      --cat-horizon-bg: #ECFDF5;
+      --cat-horizon-border: #A7F3D0;
+      --cat-horizon-bar: linear-gradient(90deg, #059669 0%, #10B981 100%);
+
+      /* 4. 不确定性：紫罗兰/品红 (Violet) */
+      --cat-uncertainty-main: #6D28D9;
+      --cat-uncertainty-bg: #F5F3FF;
+      --cat-uncertainty-border: #DDD6FE;
+      --cat-uncertainty-bar: linear-gradient(90deg, #7C3AED 0%, #A855F7 100%);
+
+      /* 状态徽章色彩 */
+      --status-reading-text: #065F46;
+      --status-reading-bg: #D1FAE5;
+      --status-reading-border: #10B981;
+      --status-reading-glow: rgba(16, 185, 129, 0.22);
+
+      --status-next-text: #92400E;
+      --status-next-bg: #FEF3C7;
+      --status-next-border: #F59E0B;
+
+      --status-toread-text: #475569;
+      --status-toread-bg: #F1F5F9;
+      --status-toread-border: #CBD5E1;
+
+      --status-done-text: #1E40AF;
+      --status-done-bg: #DBEAFE;
+      --status-done-border: #60A5FA;
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* 深色护眼太空灰主题（可选切换） */
+    [data-theme="dark"] {
+      --bg-page: #090D16;
+      --bg-canvas: #0F172A;
+      --bg-card: #1E293B;
+      --bg-subtle: #334155;
+      --text-primary: #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted: #64748B;
+      --border-light: #334155;
+      --border-focus: #475569;
+      --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+
+      --cat-framework-main: #818CF8;
+      --cat-framework-bg: rgba(79, 70, 229, 0.16);
+      --cat-framework-border: rgba(129, 140, 248, 0.35);
+
+      --cat-mechanism-main: #FBBF24;
+      --cat-mechanism-bg: rgba(217, 119, 6, 0.16);
+      --cat-mechanism-border: rgba(251, 191, 36, 0.35);
+
+      --cat-horizon-main: #34D399;
+      --cat-horizon-bg: rgba(5, 150, 105, 0.16);
+      --cat-horizon-border: rgba(52, 211, 153, 0.35);
+
+      --cat-uncertainty-main: #C084FC;
+      --cat-uncertainty-bg: rgba(124, 58, 237, 0.16);
+      --cat-uncertainty-border: rgba(192, 132, 252, 0.35);
+
+      --status-reading-text: #6EE7B7;
+      --status-reading-bg: rgba(16, 185, 129, 0.2);
+      --status-reading-border: #10B981;
+
+      --status-next-text: #FCD34D;
+      --status-next-bg: rgba(245, 158, 11, 0.2);
+      --status-next-border: #F59E0B;
+
+      --status-toread-text: #94A3B8;
+      --status-toread-bg: rgba(148, 163, 184, 0.12);
+      --status-toread-border: #475569;
+
+      --status-done-text: #93C5FD;
+      --status-done-bg: rgba(59, 130, 246, 0.2);
+      --status-done-border: #3B82F6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      padding: 24px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 顶部交互控制栏（截图导出或打印时自动隐藏） */
+    .toolbar {
+      width: 100%;
+      max-width: 860px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      box-shadow: var(--shadow-card);
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-tool {
+      cursor: pointer;
+      border: 1px solid var(--border-light);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .btn-tool:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       2. 核心画布容器 (860px 标准高清信息长图画布)
+       ========================================================================== */
+    #infographic-canvas {
+      width: 860px;
+      max-width: 100%;
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      padding: 40px 36px;
+      box-shadow: var(--shadow-elevated);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 顶部装饰渐变条 */
+    #infographic-canvas::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #4F46E5 0%, #D97706 35%, #059669 70%, #7C3AED 100%);
+    }
+
+    /* ==========================================================================
+       3. 头部区域：标题、认知宣言与总体进度看板
+       ========================================================================== */
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .header-title-group {
+      flex: 1;
+    }
+
+    .eyebrow-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4F46E5;
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .main-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* 右侧总体进度统计小看板 */
+    .overall-stats-card {
+      min-width: 245px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .stats-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .stats-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .stats-percentage {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 800;
+      color: #10B981;
+    }
+
+    .overall-progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .overall-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .stats-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border-light);
+      text-align: center;
+    }
+
+    .stat-mini-item .num {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: block;
+    }
+
+    .stat-mini-item .txt {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       4. 官方阅读动线 Roadmap (Phase 1 -> Phase 2 -> Phase 3)
+       ========================================================================== */
+    .roadmap-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      padding: 20px 22px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-heading-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .section-heading-note {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .roadmap-steps {
+      display: grid;
+      grid-template-columns: 1fr 24px 1fr 24px 1.15fr;
+      align-items: stretch;
+      gap: 4px;
+    }
+
+    .roadmap-step-card {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 14px 15px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .roadmap-step-card.active-phase {
+      border: 1.5px solid #10B981;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, var(--bg-canvas) 100%);
+    }
+
+    .phase-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .phase-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .phase-1 .phase-pill {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .phase-2 .phase-pill {
+      background: #EEF2FF;
+      color: #3730A3;
+    }
+
+    .phase-3 .phase-pill {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .phase-anchor-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .phase-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .phase-books {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .phase-books strong {
+      color: var(--text-primary);
+    }
+
+    .phase-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .roadmap-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* ==========================================================================
+       5. 四大思维维度与书单卡片网格
+       ========================================================================== */
+    .categories-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .category-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      padding: 22px 24px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .category-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .cat-framework .category-badge {
+      color: var(--cat-framework-main);
+      background: var(--cat-framework-bg);
+      border-color: var(--cat-framework-border);
+    }
+
+    .cat-mechanism .category-badge {
+      color: var(--cat-mechanism-main);
+      background: var(--cat-mechanism-bg);
+      border-color: var(--cat-mechanism-border);
+    }
+
+    .cat-horizon .category-badge {
+      color: var(--cat-horizon-main);
+      background: var(--cat-horizon-bg);
+      border-color: var(--cat-horizon-border);
+    }
+
+    .cat-uncertainty .category-badge {
+      color: var(--cat-uncertainty-main);
+      background: var(--cat-uncertainty-bg);
+      border-color: var(--cat-uncertainty-border);
+    }
+
+    .category-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .category-meta {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* 书籍卡片列表（每行 1~2 张自适应，保持高信息密度与呼吸感） */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    /* 若某分类有3本书，第一本或被标记为起读起点的书可占满或保持规整网格 */
+    .book-card {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    /* 特殊高亮：当前在读（起读起点 START HERE）呼吸发光边框 */
+    .book-card.status-reading {
+      background: var(--bg-card);
+      border: 2px solid var(--status-reading-border);
+      box-shadow: 0 0 0 4px var(--status-reading-glow), var(--shadow-card);
+      animation: pulse-border 2.8s infinite ease-in-out;
+    }
+
+    /* 紧接下一本 NEXT 高亮微边框 */
+    .book-card.status-next {
+      background: var(--bg-card);
+      border: 1.5px solid var(--status-next-border);
+      box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.12);
+    }
+
+    /* 已读完成状态卡片 */
+    .book-card.status-completed {
+      border-color: var(--status-done-border);
+    }
+
+    @keyframes pulse-border {
+      0%, 100% {
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18), 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      }
+      50% {
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.30), 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+      }
+    }
+
+    /* 让3本书分类中的《学会提问》或首本跨两列突出展示，排版完全对称不留空缺 */
+    .book-card.span-full {
+      grid-column: span 2;
+    }
+
+    .book-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .book-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .book-title-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .book-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .book-author {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .roadmap-order-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] .roadmap-order-tag {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* 状态胶囊徽章 Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      flex-shrink: 0;
+    }
+
+    .badge-reading {
+      color: var(--status-reading-text);
+      background: var(--status-reading-bg);
+      border-color: var(--status-reading-border);
+    }
+
+    .badge-next {
+      color: var(--status-next-text);
+      background: var(--status-next-bg);
+      border-color: var(--status-next-border);
+    }
+
+    .badge-toread {
+      color: var(--status-toread-text);
+      background: var(--status-toread-bg);
+      border-color: var(--status-toread-border);
+    }
+
+    .badge-completed {
+      color: var(--status-done-text);
+      background: var(--status-done-bg);
+      border-color: var(--status-done-border);
+    }
+
+    /* 一句话核心价值副标题 */
+    .book-summary {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    /* 进度条与百分比指示器 */
+    .book-progress-area {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-light);
+    }
+
+    .progress-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      margin-bottom: 6px;
+    }
+
+    .progress-hint {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .progress-percent {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--bg-subtle);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    .cat-framework .progress-fill { background: var(--cat-framework-bar); }
+    .cat-mechanism .progress-fill { background: var(--cat-mechanism-bar); }
+    .cat-horizon .progress-fill { background: var(--cat-horizon-bar); }
+    .cat-uncertainty .progress-fill { background: var(--cat-uncertainty-bar); }
+
+    /* 起读起点专属高亮进度条 */
+    .book-card.status-reading .progress-fill {
+      background: linear-gradient(90deg, #059669 0%, #10B981 50%, #34D399 100%);
+    }
+
+    /* ==========================================================================
+       6. 底部认知附卡：比读书更关键的三个习惯
+       ========================================================================== */
+    .habits-banner {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #F8FAFC;
+      border-radius: 20px;
+      padding: 24px 26px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-elevated);
+    }
+
+    [data-theme="dark"] .habits-banner {
+      border: 1px solid #334155;
+    }
+
+    .habits-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .habits-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .habits-badge {
+      background: rgba(251, 191, 36, 0.18);
+      color: #FCD34D;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+
+    .habits-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .habits-subtitle {
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .habits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .habit-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 15px 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .habit-num-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .habit-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: #3B82F6;
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .habit-card:nth-child(2) .habit-index {
+      background: #10B981;
+    }
+
+    .habit-card:nth-child(3) .habit-index {
+      background: #F59E0B;
+    }
+
+    .habit-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #F8FAFC;
+    }
+
+    .habit-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93C5FD;
+      background: rgba(59, 130, 246, 0.15);
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .habit-card:nth-child(2) .habit-tag {
+      color: #6EE7B7;
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .habit-card:nth-child(3) .habit-tag {
+      color: #FDE68A;
+      background: rgba(245, 158, 11, 0.15);
+    }
+
+    .habit-desc {
+      font-size: 12px;
+      color: #CBD5E1;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       7. 页脚与版本签名
+       ========================================================================== */
+    .footer-meta {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* 打印与自动截图模式样式优化 */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+      .toolbar {
+        display: none !important;
+      }
+      #infographic-canvas {
+        box-shadow: none;
+        border: none;
+        width: 100%;
+      }
+    }
+
+    /* 窄屏手机自适应浏览 */
+    @media (max-width: 760px) {
+      #infographic-canvas {
+        padding: 24px 18px;
+      }
+      .header-section {
+        flex-direction: column;
+      }
+      .overall-stats-card {
+        width: 100%;
+      }
+      .roadmap-steps {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .roadmap-arrow {
+        transform: rotate(90deg);
+      }
+      .books-grid {
+        grid-template-columns: 1fr;
+      }
+      .book-card.span-full {
+        grid-column: span 1;
+      }
+      .habits-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部轻量交互工具栏（导出图片或打印时自动隐藏） -->
+  <div class="toolbar" id="control-toolbar">
+    <div class="toolbar-left">
+      <span>💡 <strong>进度更新方式：</strong>可直接修改源码顶部 <code>READING_DATA</code> 配置，或点击任意书籍卡片快速预览进度变化</span>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn-tool" onclick="toggleTheme()">🌗 切换米白 / 太空灰主题</button>
+      <button class="btn-tool" onclick="window.print()">🖨️ 打印 / 导出 PDF</button>
+    </div>
+  </div>
+
+  <!-- 核心信息长图画布 -->
+  <main id="infographic-canvas">
+    <!-- 1. 顶部 Header 与总体进度面板 -->
+    <header class="header-section">
+      <div class="header-title-group">
+        <div class="eyebrow-tag">
+          <span>📚 COGNITIVE GROWTH SYSTEM</span>
+          <span>·</span>
+          <span>思维升级路线图</span>
+        </div>
+        <h1 class="main-title">认知成长核心书单与进阶追踪</h1>
+        <p class="subtitle">
+          从批判性提问与经济学直觉起步，搭建跨学科多元思维格栅，洞悉历史演进与复杂系统的确定性法则。
+        </p>
+      </div>
+
+      <div class="overall-stats-card">
+        <div class="stats-top-row">
+          <span class="stats-label">总体阅读完成度</span>
+          <span class="stats-percentage" id="overall-percent">0%</span>
+        </div>
+        <div class="overall-progress-track">
+          <div class="overall-progress-fill" id="overall-progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="stats-mini-grid">
+          <div class="stat-mini-item">
+            <span class="num" id="stat-reading">1</span>
+            <span class="txt">🟢 当前在读</span>
+          </div>
+          <div class="stat-mini-item">
+            <span class="num" id="stat-next">1</span>
+            <span class="txt">🟡 紧接下本</span>
+          </div>
+          <div class="stat-mini-item">
+            <span class="num" id="stat-completed">0/12</span>
+            <span class="txt">✅ 已读打卡</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. 官方阅读路径建议 Roadmap -->
+    <section class="roadmap-section" aria-label="官方阅读路径建议">
+      <div class="section-heading">
+        <div class="section-heading-left">
+          <span>🧭 官方阶梯式阅读动线（Recommended Roadmap）</span>
+        </div>
+        <span class="section-heading-note">先练思维基本功 → 再搭多元格栅 → 最后拓宽宏微观纵深</span>
+      </div>
+
+      <div class="roadmap-steps">
+        <!-- Phase 1 -->
+        <div class="roadmap-step-card phase-1 active-phase">
+          <div>
+            <div class="phase-badge-row">
+              <span class="phase-pill">PHASE 01 · 基本功打底</span>
+              <span class="phase-anchor-tag">★ 起读起点</span>
+            </div>
+            <div class="phase-title">锤炼提问与直觉</div>
+            <div class="phase-books">
+              首读 <strong>《学会提问》</strong> + <strong>《经济学的思维方式》</strong>
+            </div>
+          </div>
+          <div class="phase-desc">建立证据审视与成本取舍意识，破除盲从与单向度直觉。</div>
+        </div>
+
+        <div class="roadmap-arrow">→</div>
+
+        <!-- Phase 2 -->
+        <div class="roadmap-step-card phase-2">
+          <div>
+            <div class="phase-badge-row">
+              <span class="phase-pill">PHASE 02 · 搭建框架</span>
+              <span style="font-size:11px;color:var(--text-muted)">核心进阶</span>
+            </div>
+            <div class="phase-title">构建跨学科系统观</div>
+            <div class="phase-books">
+              进阶 <strong>《穷查理宝典》</strong> + <strong>《系统之美》</strong>
+            </div>
+          </div>
+          <div class="phase-desc">掌握多元思维模型格栅，洞察复杂系统的反馈回路与延迟效应。</div>
+        </div>
+
+        <div class="roadmap-arrow">→</div>
+
+        <!-- Phase 3 -->
+        <div class="roadmap-step-card phase-3">
+          <div>
+            <div class="phase-badge-row">
+              <span class="phase-pill">PHASE 03 · 拓宽视野</span>
+              <span style="font-size:11px;color:var(--text-muted)">融会贯通</span>
+            </div>
+            <div class="phase-title">宏微观纵深与概率思维</div>
+            <div class="phase-books">
+              <strong>《枪炮、病菌与钢铁》</strong> + <strong>《乡土中国》</strong> + 其余书目穿插
+            </div>
+          </div>
+          <div class="phase-desc">贯通人类文明演进、中国社会差序格局，用数据与随机性视角直面不确定世界。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 四大思维维度与书单卡片容器（由顶部配置动态渲染） -->
+    <section class="categories-container" id="categories-mount"></section>
+
+    <!-- 4. 底部附卡：比读书更关键的三个习惯 -->
+    <section class="habits-banner" aria-label="比读书更关键的三个习惯">
+      <div class="habits-header">
+        <div class="habits-title-group">
+          <span class="habits-badge">CORE METHODOLOGY</span>
+          <h2 class="habits-title">比读书更关键的三个思维习惯</h2>
+        </div>
+        <span class="habits-subtitle">将书本知识内化为认知本能的日常训练</span>
+      </div>
+
+      <div class="habits-grid" id="habits-mount"></div>
+    </section>
+
+    <!-- 5. 页脚信息 -->
+    <footer class="footer-meta">
+      <span>📌 状态图例：🟢 当前在读 (START HERE) · 🟡 紧接下一本 (NEXT) · ⚪ 规划待读 (TO READ) · ✅ 已读完成 (COMPLETED)</span>
+      <span>Cognitive Reading List Tracker · High-DPI Infographic</span>
+    </footer>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       【核心配置区】直接修改下方状态 (status) 与进度百分比 (progress) 即可实时更新整张长图
+       --------------------------------------------------------------------------
+       可选状态值 (status)：
+         - "READING"   : 🟢 当前在读 (START HERE) —— 带绿色呼吸发光边框
+         - "NEXT"      : 🟡 紧接下一本 (NEXT)     —— 琥珀色高亮边框
+         - "TO_READ"   : ⚪ 规划待读 (TO READ)    —— 默认待读状态
+         - "COMPLETED" : ✅ 已读完成 (COMPLETED)  —— 已完成打卡（建议配合 progress: 100）
+       ========================================================================== */
+    const READING_DATA = {
+      categories: [
+        {
+          id: "framework",
+          themeClass: "cat-framework",
+          badgeText: "维度一 · 框架思维",
+          title: "一、建立“多角度看问题”的框架",
+          subtitle: "打破单一学科局限，用批判性审视、动态系统与跨学科格栅重塑认知底座",
+          books: [
+            {
+              id: "asking-right-questions",
+              title: "《学会提问》",
+              author: "M. Neil Browne & Stuart M. Keeley",
+              coreValue: "批判性思维基本功，查证据、问假设、找他解。",
+              roadmapTag: "Phase 1 · 首读起点 #1",
+              status: "READING",    // 🟢 默认起读起点：当前在读 (START HERE)
+              progress: 30,         // 当前进度百分比 (0 - 100)
+              note: "正在精读第 4 章：识别价值观假设与描述性假设",
+              spanFull: true        // 跨双列突出展示起读起点
+            },
+            {
+              id: "poor-charlies-almanack",
+              title: "《穷查理宝典》",
+              author: "Charles T. Munger（查理·芒格）",
+              coreValue: "查理·芒格“多元思维模型”，跨学科格栅看世界。",
+              roadmapTag: "Phase 2 · 搭建框架",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "阶段 2 核心进阶书目",
+              spanFull: false
+            },
+            {
+              id: "thinking-in-systems",
+              title: "《系统之美》",
+              author: "Donella Meadows（德内拉·梅多斯）",
+              coreValue: "入门系统思考，反馈回路、存量/流量、延迟效应。",
+              roadmapTag: "Phase 2 · 搭建框架",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "阶段 2 核心进阶书目",
+              spanFull: false
+            }
+          ]
+        },
+        {
+          id: "mechanism",
+          themeClass: "cat-mechanism",
+          badgeText: "维度二 · 动机与机制",
+          title: "二、看清背后的“动机与机制”",
+          subtitle: "穿透表象看激励、成本与人性偏误，追问“谁受益？代价是什么？”",
+          books: [
+            {
+              id: "economic-way-of-thinking",
+              title: "《经济学的思维方式》",
+              author: "Paul Heyne（保罗·海恩）等",
+              coreValue: "用激励、成本、取舍解释日常，“谁受益？代价是什么？”。",
+              roadmapTag: "Phase 1 · 首读打底 #2",
+              status: "NEXT",       // 🟡 默认紧接下一本 (NEXT)
+              progress: 0,          // 当前进度 0%
+              note: "读完《学会提问》后紧接开启",
+              spanFull: true
+            },
+            {
+              id: "freakonomics",
+              title: "《魔鬼经济学》",
+              author: "Steven D. Levitt & Stephen J. Dubner",
+              coreValue: "反直觉案例，从表面现象深挖真实动因。",
+              roadmapTag: "Phase 3 · 穿插拓展",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            },
+            {
+              id: "thinking-fast-and-slow",
+              title: "《思考，快与慢》",
+              author: "Daniel Kahneman（丹尼尔·卡尼曼）",
+              coreValue: "揭示人性和认知偏差，识别思维盲区。",
+              roadmapTag: "Phase 3 · 穿插拓展",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            }
+          ]
+        },
+        {
+          id: "horizon",
+          themeClass: "cat-horizon",
+          badgeText: "维度三 · 广度与纵深",
+          title: "三、拓宽知识的广度和纵深",
+          subtitle: "横跨人类演化、自然科学、中国乡土肌理与大历史制度深层结构",
+          books: [
+            {
+              id: "guns-germs-and-steel",
+              title: "《枪炮、病菌与钢铁》",
+              author: "Jared Diamond（贾雷德·戴蒙德）",
+              coreValue: "地理/生物/技术多维解释文明分异，跨学科典范。",
+              roadmapTag: "Phase 3 · 视野核心",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "阶段 3 主打视野书目",
+              spanFull: false
+            },
+            {
+              id: "from-the-soil",
+              title: "《乡土中国》",
+              author: "费孝通",
+              coreValue: "剖析中国传统社会结构、差序格局与人情逻辑。",
+              roadmapTag: "Phase 3 · 视野核心",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "阶段 3 主打本土洞察书目",
+              spanFull: false
+            },
+            {
+              id: "short-history-of-nearly-everything",
+              title: "《万物简史》",
+              author: "Bill Bryson（比尔·布莱森）",
+              coreValue: "科学常识大框架，通俗有趣。",
+              roadmapTag: "Phase 3 · 穿插阅读",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            },
+            {
+              id: "1587-a-year-of-no-significance",
+              title: "《万历十五年》",
+              author: "黄仁宇",
+              coreValue: "微观切入，揭示历史制度与大历史观的深层症结。",
+              roadmapTag: "Phase 3 · 穿插阅读",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            }
+          ]
+        },
+        {
+          id: "uncertainty",
+          themeClass: "cat-uncertainty",
+          badgeText: "维度四 · 面对不确定性",
+          title: "四、面对不确定性",
+          subtitle: "超越直觉偏见与线性外推，在随机与动荡的世界中保持理性与反脆弱",
+          books: [
+            {
+              id: "factfulness",
+              title: "《事实》（Factfulness）",
+              author: "Hans Rosling（汉斯·罗斯林）",
+              coreValue: "纠正直觉偏误，用数据与趋势理性思考。",
+              roadmapTag: "Phase 3 · 穿插阅读",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            },
+            {
+              id: "the-black-swan",
+              title: "《黑天鹅》",
+              author: "Nassim Nicholas Taleb（塔勒布）",
+              coreValue: "理解随机性与极端事件，避免把偶然视作必然。",
+              roadmapTag: "Phase 3 · 穿插阅读",
+              status: "TO_READ",    // ⚪ 规划待读
+              progress: 0,
+              note: "规划待读",
+              spanFull: false
+            }
+          ]
+        }
+      ],
+
+      habits: [
+        {
+          index: "①",
+          name: "追问三层",
+          tag: "根因 · 推演 · 利益",
+          desc: "不满足于表面结论，连续追问：根本原因是什么？往后推演三步会发生什么？背后谁受益、代价谁承担？"
+        },
+        {
+          index: "②",
+          name: "跨界联想",
+          tag: "1 个概念 → 3 个生活实景",
+          desc: "每读到一个核心概念（如反馈回路、沉没成本、差序格局），强制联想并匹配三个现实工作或生活中的鲜活场景。"
+        },
+        {
+          index: "③",
+          name: "每周写作",
+          tag: "几百字深度结构化分析",
+          desc: "每周挑选一个日常现象或社会议题，调用书中的分析框架写 300~500 字深层剖析，用输出倒逼输入闭环。"
+        }
+      ]
+    };
+
+    /* 状态元数据映射表 */
+    const STATUS_META = {
+      READING: {
+        label: "🟢 当前在读 (START HERE)",
+        badgeClass: "badge-reading",
+        cardClass: "status-reading"
+      },
+      NEXT: {
+        label: "🟡 紧接下一本 (NEXT)",
+        badgeClass: "badge-next",
+        cardClass: "status-next"
+      },
+      TO_READ: {
+        label: "⚪ 规划待读 (TO READ)",
+        badgeClass: "badge-toread",
+        cardClass: "status-toread"
+      },
+      COMPLETED: {
+        label: "✅ 已读完成 (COMPLETED)",
+        badgeClass: "badge-completed",
+        cardClass: "status-completed"
+      }
+    };
+
+    /* 渲染整个书单与统计面板 */
+    function renderTracker() {
+      const mount = document.getElementById("categories-mount");
+      const habitsMount = document.getElementById("habits-mount");
+
+      let totalBooks = 0;
+      let totalProgressSum = 0;
+      let readingCount = 0;
+      let nextCount = 0;
+      let completedCount = 0;
+
+      mount.innerHTML = READING_DATA.categories.map(cat => {
+        const booksHtml = cat.books.map(book => {
+          totalBooks += 1;
+          const clampedProgress = Math.max(0, Math.min(100, Number(book.progress) || 0));
+          totalProgressSum += clampedProgress;
+
+          if (book.status === "READING") readingCount++;
+          if (book.status === "NEXT") nextCount++;
+          if (book.status === "COMPLETED") completedCount++;
+
+          const meta = STATUS_META[book.status] || STATUS_META.TO_READ;
+          const spanClass = book.spanFull ? "span-full" : "";
+
+          return `
+            <article class="book-card ${meta.cardClass} ${spanClass}" onclick="cycleBookProgress('${book.id}')" title="点击可循环切换阅读状态与进度预览">
+              <div>
+                <div class="book-top-bar">
+                  <div class="book-title-group">
+                    <div class="book-title-line">
+                      <h3 class="book-title">${book.title}</h3>
+                      <span class="roadmap-order-tag">${book.roadmapTag}</span>
+                    </div>
+                    <span class="book-author">${book.author}</span>
+                  </div>
+                  <span class="status-badge ${meta.badgeClass}">${meta.label}</span>
+                </div>
+                <p class="book-summary">${book.coreValue}</p>
+              </div>
+
+              <div class="book-progress-area">
+                <div class="progress-meta-row">
+                  <span class="progress-hint">${book.note || "阅读进度"}</span>
+                  <span class="progress-percent">${clampedProgress}%</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width: ${clampedProgress}%"></div>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        return `
+          <div class="category-block ${cat.themeClass}">
+            <div class="category-header">
+              <div class="category-title-wrap">
+                <span class="category-badge">${cat.badgeText}</span>
+                <h2 class="category-name">${cat.title}</h2>
+              </div>
+              <span class="category-meta">共 ${cat.books.length} 本核心著作</span>
+            </div>
+            <div class="books-grid">
+              ${booksHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      /* 渲染底部三大习惯 */
+      habitsMount.innerHTML = READING_DATA.habits.map(h => `
+        <div class="habit-card">
+          <div class="habit-num-row">
+            <span class="habit-index">${h.index}</span>
+            <h3 class="habit-name">${h.name}</h3>
+          </div>
+          <span class="habit-tag">${h.tag}</span>
+          <p class="habit-desc">${h.desc}</p>
+        </div>
+      `).join("");
+
+      /* 更新顶部总体进度统计 */
+      const overallAvg = totalBooks > 0 ? Math.round((totalProgressSum / (totalBooks * 100)) * 100 * 10) / 10 : 0;
+      document.getElementById("overall-percent").textContent = `${overallAvg}%`;
+      document.getElementById("overall-progress-bar").style.width = `${Math.max(overallAvg, 2)}%`;
+      document.getElementById("stat-reading").textContent = readingCount;
+      document.getElementById("stat-next").textContent = nextCount;
+      document.getElementById("stat-completed").textContent = `${completedCount}/${totalBooks}`;
+    }
+
+    /* 交互增强：点击书籍卡片可快速循环切换状态与进度，方便用户在浏览器中直接调整后截图 */
+    function cycleBookProgress(bookId) {
+      for (const cat of READING_DATA.categories) {
+        const book = cat.books.find(b => b.id === bookId);
+        if (book) {
+          if (book.status === "TO_READ") {
+            book.status = "NEXT";
+            book.progress = 0;
+            book.note = "紧接下一本阅读计划";
+          } else if (book.status === "NEXT") {
+            book.status = "READING";
+            book.progress = 30;
+            book.note = "当前在读 · 进度 30%";
+          } else if (book.status === "READING" && book.progress < 70) {
+            book.progress = 70;
+            book.note = "当前在读 · 深入研读 70%";
+          } else if (book.status === "READING") {
+            book.status = "COMPLETED";
+            book.progress = 100;
+            book.note = "已完成精读与思维笔记打卡";
+          } else {
+            book.status = "TO_READ";
+            book.progress = 0;
+            book.note = "规划待读";
+          }
+          renderTracker();
+          break;
+        }
+      }
+    }
+
+    /* 切换米白护眼 / 深色太空灰主题 */
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute("data-theme");
+      root.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+    }
+
+    renderTracker();
+  </script>
+</body>
+</html>
