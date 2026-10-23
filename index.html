@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>投资工具箱 · FinToolkit</title>
+<title>生活工具箱 · LifeTools</title>
+<meta name="description" content="工具箱：投资、分析、量化、生活等实用工具合集">
+<!-- 首页专用 Favicon：金色多功能工具箱矢量图标 -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f5d77f'/%3E%3Cstop offset='100%25' stop-color='%23b88e28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b0f19'/%3E%3Cpath d='M23 20V16a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='10' y='20' width='44' height='32' rx='6' fill='url(%23g)'/%3E%3Crect x='10' y='31' width='44' height='3.5' fill='%230b0f19'/%3E%3Crect x='26' y='27.5' width='12' height='10.5' rx='2.5' fill='%230b0f19'/%3E%3Ccircle cx='32' cy='32.5' r='2' fill='url(%23g)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -71,11 +75,13 @@
   }
 
   .site-title {
-    font-family: var(--display);
-    font-size: clamp(42px, 10vw, 72px);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(44px, 12vw, 68px);
     color: var(--gold2);
-    letter-spacing: 6px;
-    line-height: 1;
+    letter-spacing: 0.14em;
+    padding-left: 0.14em; /* 抵消末字后的字距，保证视觉居中 */
+    line-height: 1.15;
     text-shadow: 0 0 60px rgba(200,168,75,0.3);
     animation: titleGlow 4s ease-in-out infinite;
   }
@@ -441,9 +447,9 @@
 <body>
 
 <header>
-  <div class="site-eyebrow">⬡ PERSONAL FINANCE TOOLKIT</div>
-  <div class="site-title">FINTOOLKIT</div>
-  <div class="site-sub">量化投资 · 价值分析 · 决策辅助</div>
+  <div class="site-eyebrow">⬡ PERSONAL TOOLKIT</div>
+  <div class="site-title">工具箱</div>
+  <div class="site-sub">投资 · 分析 · 量化 · 生活</div>
   <div class="header-stats">
     <div class="hstat">
       <div class="hstat-num" id="stat-total">1</div>
@@ -813,7 +819,7 @@
 </div>
 
 <footer>
-  <div style="margin-bottom:6px;color:var(--gold);letter-spacing:3px;">FINTOOLKIT</div>
+  <div style="margin-bottom:6px;color:var(--gold);letter-spacing:3px;font-family:var(--serif);">工具箱</div>
   <div>走在寂静前，走在黄昏前</div>
   <div style="margin-top:4px;font-size:10px;">Deploy on GitHub Pages · 新增工具持续更新</div>
 </footer>
