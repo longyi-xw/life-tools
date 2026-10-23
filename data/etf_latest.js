@@ -1,8 +1,8 @@
-/* 由 scripts/update_etf_data.py 自动生成，请勿手动编辑 | generated_at: 2026-10-23T12:27:56+08:00 */
+/* 由 scripts/update_etf_data.py 自动生成，请勿手动编辑 | generated_at: 2026-10-23T13:57:00+08:00 */
 window.__ETF_LATEST_DATA__ = {
   "schema_version": 1,
   "update_date": "2026-10-22",
-  "generated_at": "2026-10-23T12:27:56+08:00",
+  "generated_at": "2026-10-23T13:57:00+08:00",
   "data_source": "akshare",
   "data_notes": "AKShare 抓取东方财富 / 乐咕乐股 / 中证指数等公开数据，部分失败字段沿用上一版",
   "risk_free_rate": 1.5,
@@ -48,19 +48,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.34,
       "pb_pct": 27.3,
       "div_yield": 2.62,
-      "tracking_error": 0.37,
+      "tracking_error": 3.53,
       "premium_rate": -0.06,
-      "ret_1m": -11.01,
-      "ret_1y": -10.3,
-      "cagr_3y": 7.52,
-      "max_dd_3y": -19.22,
-      "sharpe_3y": 0.33,
+      "ret_1m": -9.21,
+      "ret_1y": -8.53,
+      "cagr_3y": 6.37,
+      "max_dd_3y": -16.48,
+      "sharpe_3y": 0.31,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 58.3,
+      "fit_score": 56.6,
       "val_src": "lg"
     },
     {
@@ -82,19 +82,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.34,
       "pb_pct": 27.3,
       "div_yield": 2.62,
-      "tracking_error": 0.35,
+      "tracking_error": 2.37,
       "premium_rate": -0.08,
-      "ret_1m": -10.99,
-      "ret_1y": -9.78,
-      "cagr_3y": 7.95,
-      "max_dd_3y": -19.08,
-      "sharpe_3y": 0.36,
+      "ret_1m": -10.46,
+      "ret_1y": -9.23,
+      "cagr_3y": 7.48,
+      "max_dd_3y": -18.18,
+      "sharpe_3y": 0.33,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 57.7,
+      "fit_score": 56.0,
       "val_src": "lg"
     },
     {
@@ -116,19 +116,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.34,
       "pb_pct": 27.3,
       "div_yield": 2.62,
-      "tracking_error": 0.33,
+      "tracking_error": 3.62,
       "premium_rate": 0.07,
-      "ret_1m": -11.02,
-      "ret_1y": -10.06,
-      "cagr_3y": 7.64,
-      "max_dd_3y": -19.16,
-      "sharpe_3y": 0.34,
+      "ret_1m": -9.34,
+      "ret_1y": -8.48,
+      "cagr_3y": 6.41,
+      "max_dd_3y": -16.51,
+      "sharpe_3y": 0.32,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 57.0,
+      "fit_score": 55.2,
       "val_src": "lg"
     },
     {
@@ -150,19 +150,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.34,
       "pb_pct": 27.3,
       "div_yield": 2.62,
-      "tracking_error": 0.35,
+      "tracking_error": 2.52,
       "premium_rate": 0.0,
-      "ret_1m": -11.04,
-      "ret_1y": -10.18,
-      "cagr_3y": 7.57,
-      "max_dd_3y": -19.16,
-      "sharpe_3y": 0.34,
+      "ret_1m": -10.18,
+      "ret_1y": -9.33,
+      "cagr_3y": 7.11,
+      "max_dd_3y": -17.95,
+      "sharpe_3y": 0.33,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 57.2,
+      "fit_score": 55.5,
       "val_src": "lg"
     },
     {
@@ -184,10 +184,10 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.62,
       "pb_pct": 50.2,
       "div_yield": 2.26,
-      "tracking_error": 0.3,
+      "tracking_error": 2.33,
       "premium_rate": -0.02,
-      "ret_1m": -12.64,
-      "ret_1y": -9.18,
+      "ret_1m": -12.61,
+      "ret_1y": -9.22,
       "cagr_3y": 5.8,
       "max_dd_3y": -19.6,
       "sharpe_3y": 0.34,
@@ -196,7 +196,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 53.4,
+      "fit_score": 51.6,
       "val_src": "cs"
     },
     {
@@ -218,10 +218,10 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.62,
       "pb_pct": 50.2,
       "div_yield": 2.26,
-      "tracking_error": 0.54,
+      "tracking_error": 3.11,
       "premium_rate": 0.05,
-      "ret_1m": -12.65,
-      "ret_1y": -7.95,
+      "ret_1m": -12.16,
+      "ret_1y": -7.45,
       "cagr_3y": 5.8,
       "max_dd_3y": -19.6,
       "sharpe_3y": 0.34,
@@ -229,7 +229,7 @@ window.__ETF_LATEST_DATA__ = {
         "降费最低档",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 47.9,
+      "fit_score": 46.2,
       "val_src": "cs"
     },
     {
@@ -251,10 +251,10 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.62,
       "pb_pct": 50.2,
       "div_yield": 2.26,
-      "tracking_error": 0.32,
+      "tracking_error": 2.22,
       "premium_rate": 0.06,
-      "ret_1m": -12.61,
-      "ret_1y": -8.9,
+      "ret_1m": -12.57,
+      "ret_1y": -8.85,
       "cagr_3y": 5.8,
       "max_dd_3y": -19.6,
       "sharpe_3y": 0.34,
@@ -263,7 +263,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 52.4,
+      "fit_score": 50.7,
       "val_src": "cs"
     },
     {
@@ -285,10 +285,10 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.62,
       "pb_pct": 50.2,
       "div_yield": 2.26,
-      "tracking_error": 0.29,
+      "tracking_error": 2.38,
       "premium_rate": -0.11,
-      "ret_1m": -12.62,
-      "ret_1y": -9.21,
+      "ret_1m": -12.66,
+      "ret_1y": -9.16,
       "cagr_3y": 5.8,
       "max_dd_3y": -19.6,
       "sharpe_3y": 0.34,
@@ -297,7 +297,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 53.9,
+      "fit_score": 52.1,
       "val_src": "cs"
     },
     {
@@ -319,19 +319,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 1.22,
       "pb_pct": 46.3,
       "div_yield": 3.42,
-      "tracking_error": 0.72,
+      "tracking_error": 3.86,
       "premium_rate": -0.07,
-      "ret_1m": -5.93,
-      "ret_1y": -7.58,
-      "cagr_3y": 7.34,
-      "max_dd_3y": -12.32,
-      "sharpe_3y": 0.37,
+      "ret_1m": -4.7,
+      "ret_1y": -6.0,
+      "cagr_3y": 5.85,
+      "max_dd_3y": -9.9,
+      "sharpe_3y": 0.34,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 56.4,
+      "fit_score": 55.0,
       "val_src": "lg"
     },
     {
@@ -353,19 +353,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 2.08,
       "pb_pct": 66.1,
       "div_yield": 1.52,
-      "tracking_error": 0.46,
+      "tracking_error": 2.69,
       "premium_rate": -0.17,
-      "ret_1m": -14.84,
-      "ret_1y": -5.05,
-      "cagr_3y": 9.6,
-      "max_dd_3y": -25.74,
-      "sharpe_3y": 0.32,
+      "ret_1m": -14.14,
+      "ret_1y": -4.46,
+      "cagr_3y": 9.59,
+      "max_dd_3y": -25.02,
+      "sharpe_3y": 0.33,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 45.9,
+      "fit_score": 44.3,
       "val_src": "lg"
     },
     {
@@ -387,17 +387,17 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 2.08,
       "pb_pct": 66.1,
       "div_yield": 1.52,
-      "tracking_error": 0.52,
+      "tracking_error": 2.77,
       "premium_rate": 0.13,
-      "ret_1m": -14.87,
-      "ret_1y": -4.52,
-      "cagr_3y": 9.84,
-      "max_dd_3y": -25.8,
-      "sharpe_3y": 0.33,
+      "ret_1m": -14.77,
+      "ret_1y": -4.39,
+      "cagr_3y": 9.88,
+      "max_dd_3y": -25.83,
+      "sharpe_3y": 0.34,
       "tags": [
         "降费最低档"
       ],
-      "fit_score": 42.8,
+      "fit_score": 41.2,
       "val_src": "lg"
     },
     {
@@ -419,19 +419,19 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 2.07,
       "pb_pct": 21.5,
       "div_yield": 1.02,
-      "tracking_error": 0.45,
+      "tracking_error": 2.75,
       "premium_rate": -0.2,
-      "ret_1m": -15.07,
-      "ret_1y": -8.42,
-      "cagr_3y": 6.68,
-      "max_dd_3y": -31.31,
+      "ret_1m": -14.76,
+      "ret_1y": -8.22,
+      "cagr_3y": 6.63,
+      "max_dd_3y": -30.9,
       "sharpe_3y": 0.19,
       "tags": [
         "降费最低档",
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 48.3,
+      "fit_score": 46.6,
       "val_src": "lg"
     },
     {
@@ -586,7 +586,7 @@ window.__ETF_LATEST_DATA__ = {
       "pb": 0.78,
       "pb_pct": 46.0,
       "div_yield": 4.3,
-      "tracking_error": 0.75,
+      "tracking_error": 0.7,
       "premium_rate": 0.12,
       "ret_1m": -1.94,
       "ret_1y": -0.34,
@@ -597,7 +597,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "高股息"
       ],
-      "fit_score": 65.4,
+      "fit_score": 65.5,
       "val_src": "cs"
     },
     {
