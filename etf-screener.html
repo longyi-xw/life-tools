@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="中国市场周期性 ETF / 指数基金智能筛选器：股债性价比 ERP + 宽基估值分位 + 均线动量三维周期诊断，六大类 ETF 多维筛选与同指数横向 PK">
+<meta name="theme-color" content="#080b0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>周期 ETF 智能筛选器 · 股债性价比与市场环境配置</title>
+<!-- 专属 Favicon：周期循环箭头 + 攻守三柱 -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0f19'/%3E%3Cpath d='M13 38a19 19 0 0 1 32-14' fill='none' stroke='%23c8a84b' stroke-width='3.5' stroke-linecap='round'/%3E%3Cpath d='M46 15v10h-10' fill='none' stroke='%23c8a84b' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='15' y='42' width='8' height='10' rx='2' fill='%232bb3a3'/%3E%3Crect x='28' y='35' width='8' height='17' rx='2' fill='%23e5c96e'/%3E%3Crect x='41' y='29' width='8' height='23' rx='2' fill='%23f97316'/%3E%3C/svg%3E">
+<!-- 字体非阻塞加载：国内网络或离线不可达时自动回退系统字体，不影响首屏 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@600;700&display=swap" media="print" onload="this.media='all'">
+<style>
+:root {
+  --bg: #080b0e;
+  --s1: #0f1318;
+  --s2: #151b22;
+  --s3: #1c242e;
+  --bd: #1e2730;
+  --bd2: #2a3542;
+  --gold: #c8a84b;
+  --gold-l: #e5c96e;
+  --gold-d: rgba(200,168,75,0.14);
+  --gold-d2: rgba(200,168,75,0.07);
+  --txt: #ddd8ce;
+  --txt2: #8b97a8;
+  --txt3: #5d6b7e;
+  /* A 股惯例：涨红跌绿 */
+  --up: #f0575a;
+  --down: #2fb67c;
+  /* 语义状态 */
+  --good: #3dc98a;
+  --good-d: rgba(61,201,138,0.14);
+  --warn: #f59e0b;
+  --warn-d: rgba(245,158,11,0.14);
+  --bad: #ef5350;
+  --bad-d: rgba(239,83,80,0.14);
+  /* 六大类别 */
+  --c-broad: #5a9ed6;
+  --c-dividend: #e07a5f;
+  --c-sector: #9b7fd4;
+  --c-cross: #2bb3a3;
+  --c-commodity: #d9b44a;
+  --c-bond: #8fa3b8;
+  --r: 12px; --rs: 8px;
+  --mono: 'DM Mono', 'SF Mono', 'JetBrains Mono', Consolas, 'Roboto Mono', 'Liberation Mono', monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', 'Source Han Sans SC', 'WenQuanYi Micro Hei', 'Segoe UI', Roboto, sans-serif;
+  --serif: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  background: var(--bg); color: var(--txt); font-family: var(--sans); font-size: 14px; line-height: 1.5;
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; overflow-x: hidden; min-height: 100vh;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: linear-gradient(rgba(200,168,75,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(200,168,75,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body.lock { overflow: hidden; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+input, select { font: inherit; color: inherit; }
+a { color: inherit; }
+.hidden { display: none !important; }
+.mono, .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.app { position: relative; z-index: 1; max-width: 1560px; margin: 0 auto; padding: 0 16px calc(96px + var(--safe-b)); }
+
+/* ── TOPBAR ───────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin: 0 -16px; padding: 10px 16px; background: rgba(8,11,14,.88); border-bottom: 1px solid var(--bd);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.back { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--bd2); border-radius: 20px; font-size: 12px; color: var(--txt2); text-decoration: none; transition: all .2s; white-space: nowrap; }
+.back:hover { color: var(--gold-l); border-color: var(--gold); background: var(--gold-d2); }
+.tb-title { flex: 1; min-width: 200px; }
+.tb-eyebrow { font-family: var(--mono); font-size: 9.5px; letter-spacing: .24em; color: var(--gold); }
+.tb-title h1 { font-family: var(--serif); font-size: 19px; font-weight: 700; line-height: 1.25; }
+.tb-title h1 em { font-style: normal; color: var(--gold-l); }
+.tb-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; border: 1px solid var(--bd2); background: var(--s1); color: var(--txt2); white-space: nowrap; }
+.pill b { color: var(--txt); font-weight: 500; font-family: var(--mono); }
+.pill.src-http { color: var(--good); border-color: rgba(61,201,138,.35); background: var(--good-d); }
+.pill.src-js { color: var(--c-broad); border-color: rgba(90,158,214,.35); background: rgba(90,158,214,.1); }
+.pill.src-import { color: var(--c-sector); border-color: rgba(155,127,212,.35); background: rgba(155,127,212,.1); }
+.pill.src-fallback { color: var(--warn); border-color: rgba(245,158,11,.35); background: var(--warn-d); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: var(--rs); font-size: 13px; font-weight: 500; background: var(--gold); color: #17130a; border: 1px solid var(--gold); transition: all .18s; white-space: nowrap; }
+.btn:hover:not(:disabled) { background: var(--gold-l); }
+.btn.ghost { background: var(--s1); color: var(--txt); border-color: var(--bd2); }
+.btn.ghost:hover:not(:disabled) { border-color: var(--gold); color: var(--gold-l); background: var(--gold-d2); }
+.btn.sm { padding: 6px 11px; font-size: 12px; }
+.btn.xs { padding: 3px 9px; font-size: 11px; border-radius: 6px; }
+
+.notice { margin: 12px 0 0; padding: 9px 14px; border-radius: var(--rs); border: 1px dashed rgba(245,158,11,.4); background: rgba(245,158,11,.06); color: #e8c27a; font-size: 12px; line-height: 1.6; }
+.notice code { font-family: var(--mono); background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 4px; }
+
+/* ── CARD ─────────────────────────────────── */
+.card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r); padding: 16px; position: relative; min-width: 0; }
+.card-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12px; color: var(--txt2); letter-spacing: .06em; }
+.card-hd > span:first-child { font-weight: 600; color: var(--txt); letter-spacing: .04em; }
+.card-hd .grow { flex: 1; }
+.hd-note { font-size: 11px; color: var(--txt3); }
+
+/* ── DASHBOARD ────────────────────────────── */
+.dash { display: grid; grid-template-columns: minmax(0,1.12fr) minmax(0,1.35fr) minmax(0,1fr); gap: 14px; margin-top: 16px; }
+
+.regime-card { --rc: var(--gold); border-color: color-mix(in srgb, var(--rc) 35%, var(--bd)); background: linear-gradient(160deg, color-mix(in srgb, var(--rc) 9%, var(--s1)) 0%, var(--s1) 55%); overflow: hidden; }
+.regime-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--rc); }
+.rg-eyebrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--txt2); }
+.rg-mode { font-family: var(--sans); letter-spacing: 0; font-size: 11px; padding: 2px 9px; border-radius: 20px; border: 1px solid var(--bd2); color: var(--txt); background: rgba(0,0,0,.25); }
+.rg-mode.sandbox { color: var(--warn); border-color: rgba(245,158,11,.4); }
+.rg-name { margin-top: 10px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.rg-name strong { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--rc); line-height: 1.2; }
+.rg-name span { font-size: 13px; color: var(--txt); padding: 2px 10px; border-radius: 6px; background: color-mix(in srgb, var(--rc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); }
+.rg-desc { margin-top: 8px; font-size: 12.5px; color: var(--txt2); line-height: 1.7; }
+.rg-reasons { list-style: none; margin-top: 10px; display: grid; gap: 4px; font-size: 12px; }
+.rg-reasons li { display: flex; gap: 8px; align-items: flex-start; color: var(--txt2); }
+.rg-reasons li i { font-style: normal; flex-shrink: 0; width: 16px; text-align: center; }
+.rg-reasons li.hit { color: var(--txt); }
+.rg-reasons li.hit i { color: var(--rc); }
+.alloc { margin-top: 14px; }
+.alloc-hd { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--txt2); margin-bottom: 6px; }
+.alloc-hd b { color: var(--txt); font-family: var(--mono); font-weight: 500; }
+.alloc-bar { display: flex; gap: 2px; height: 14px; border-radius: 4px; overflow: hidden; }
+.alloc-bar i { display: block; height: 100%; min-width: 4px; transition: flex-basis .35s ease; }
+.alloc-legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px 12px; margin-top: 8px; font-size: 11.5px; color: var(--txt2); }
+.alloc-legend span { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.alloc-legend span::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--sw); flex-shrink: 0; }
+.alloc-legend b { color: var(--txt); font-family: var(--mono); font-weight: 500; margin-left: auto; }
+.rg-focus { margin-top: 12px; padding: 9px 11px; border-radius: var(--rs); background: rgba(0,0,0,.22); border: 1px solid var(--bd); font-size: 12px; color: var(--txt2); line-height: 1.65; }
+.rg-focus b { color: var(--gold-l); font-weight: 500; }
+.rg-top { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11.5px; color: var(--txt2); }
+.rg-top button { padding: 3px 9px; border-radius: 20px; border: 1px solid var(--bd2); background: var(--s2); font-size: 11.5px; color: var(--txt); }
+.rg-top button:hover { border-color: var(--gold); }
+.rg-top button em { font-style: normal; font-family: var(--mono); color: var(--gold-l); margin-left: 4px; }
+
+.macro-grid { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.gauge-box { text-align: center; padding: 6px 6px 10px; border-radius: var(--rs); background: var(--s2); border: 1px solid var(--bd); }
+.gauge-box svg { width: 100%; max-width: 230px; height: auto; display: block; margin: 0 auto; }
+.gauge-val { font-family: var(--mono); font-size: 26px; font-weight: 500; line-height: 1.1; margin-top: -6px; }
+.gauge-val small { font-size: 13px; color: var(--txt2); margin-left: 2px; }
+.gauge-lbl { font-size: 11.5px; margin-top: 3px; }
+.gauge-sub { font-size: 10.5px; color: var(--txt3); margin-top: 3px; line-height: 1.5; }
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.tile { padding: 10px 12px; border-radius: var(--rs); background: var(--s2); border: 1px solid var(--bd); min-width: 0; }
+.tile-k { font-size: 11px; color: var(--txt2); display: flex; justify-content: space-between; gap: 6px; }
+.tile-k em { font-style: normal; color: var(--warn); font-size: 10px; }
+.tile-v { font-family: var(--mono); font-size: 20px; font-weight: 500; margin-top: 2px; line-height: 1.25; }
+.tile-v small { font-size: 11px; color: var(--txt2); margin-left: 3px; }
+.tile-s { font-size: 11px; color: var(--txt2); margin-top: 2px; }
+.pbar { position: relative; height: 5px; border-radius: 3px; background: var(--bd2); margin-top: 7px; }
+.pbar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.pbar b { position: absolute; top: -3px; width: 2px; height: 11px; margin-left: -1px; background: var(--txt); border-radius: 1px; }
+.pbar u { position: absolute; top: -2px; width: 1px; height: 9px; background: var(--txt3); }
+.trend-box { margin-top: 12px; padding: 10px 12px; border-radius: var(--rs); background: var(--s2); border: 1px solid var(--bd); }
+.trend-hd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11.5px; color: var(--txt2); }
+.trend-hd b { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--txt); }
+.zone { font-size: 10.5px; padding: 1px 8px; border-radius: 20px; border: 1px solid currentColor; }
+.tbar { position: relative; height: 10px; margin-top: 10px; border-radius: 5px; overflow: visible; }
+.tbar .tz { position: absolute; top: 0; bottom: 0; }
+.tbar .z-down { background: rgba(47,182,124,.22); border-radius: 5px 0 0 5px; }
+.tbar .z-mid { background: rgba(139,151,168,.18); }
+.tbar .z-up { background: rgba(240,87,90,.22); border-radius: 0 5px 5px 0; }
+.tbar .t0 { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--txt3); }
+.tbar .tm { position: absolute; top: -4px; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px; background: var(--txt); box-shadow: 0 0 0 2px var(--s2); transition: left .3s ease; }
+.tscale { position: relative; height: 16px; margin-top: 4px; font-size: 10px; color: var(--txt3); font-family: var(--mono); }
+.tscale span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.tscale span:first-child { transform: none; }
+.tscale span:last-child { transform: translateX(-100%); }
+.tdetail { margin-top: 6px; font-size: 11px; color: var(--txt2); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.tdetail span b { font-family: var(--mono); font-weight: 500; color: var(--txt); }
+
+/* ── SANDBOX ──────────────────────────────── */
+.seg { display: inline-flex; padding: 3px; border-radius: 9px; background: var(--s2); border: 1px solid var(--bd); gap: 2px; }
+.seg button { padding: 6px 10px; border-radius: 7px; font-size: 12px; color: var(--txt2); white-space: nowrap; transition: all .15s; }
+.seg button:hover { color: var(--txt); }
+.seg button.on { background: var(--gold-d); color: var(--gold-l); box-shadow: inset 0 0 0 1px rgba(200,168,75,.45); }
+.seg.sm button { padding: 4px 9px; font-size: 11.5px; }
+.seg-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); width: 100%; }
+.seg-grid button { text-align: left; padding: 8px 10px; }
+.seg-grid button:first-child { grid-column: 1 / -1; }
+.sliders { margin-top: 14px; display: grid; gap: 12px; }
+.sl-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; color: var(--txt2); }
+.sl-row b { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--gold-l); }
+.sl-row b.dim { color: var(--txt2); }
+.sl-scale { display: flex; justify-content: space-between; font-size: 10px; color: var(--txt3); margin-top: 1px; font-family: var(--mono); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; display: block; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--gold) var(--p, 50%), var(--bd2) var(--p, 50%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: var(--gold); border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--gold), 0 0 10px rgba(200,168,75,.4); }
+input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--bd2); }
+input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--gold); }
+input[type=range]::-moz-range-thumb { width: 13px; height: 13px; border-radius: 50%; background: var(--gold); border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--gold); }
+.sb-note { margin-top: 12px; font-size: 11.5px; color: var(--txt2); line-height: 1.65; padding: 8px 10px; border-radius: var(--rs); background: var(--s2); border: 1px solid var(--bd); }
+.sb-note b { color: var(--txt); font-weight: 500; }
+
+/* ── PRESETS ──────────────────────────────── */
+.presets { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 10px 14px; border-radius: var(--r); background: var(--s1); border: 1px solid var(--bd); }
+.presets-label { font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--gold); white-space: nowrap; }
+.preset-row { display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px; flex: 1; }
+.preset-row::-webkit-scrollbar { display: none; }
+.preset-row button { flex-shrink: 0; padding: 7px 13px; border-radius: 20px; border: 1px solid var(--bd2); background: var(--s2); font-size: 12.5px; color: var(--txt); transition: all .18s; }
+.preset-row button:hover { border-color: var(--gold); }
+.preset-row button.on { background: var(--gold-d); border-color: var(--gold); color: var(--gold-l); }
+
+/* ── WORKBENCH ────────────────────────────── */
+.workbench { display: grid; grid-template-columns: 292px minmax(0,1fr); gap: 14px; margin-top: 14px; align-items: start; }
+.filters { position: sticky; top: 70px; max-height: calc(100vh - 84px); overflow: auto; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r); overscroll-behavior: contain; }
+.f-hd { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: var(--s1); border-bottom: 1px solid var(--bd); font-size: 13px; font-weight: 600; }
+.f-hd .grow { flex: 1; }
+.f-count { font-size: 11px; font-weight: 400; color: var(--gold-l); }
+.f-close { display: none; width: 30px; height: 30px; border-radius: 50%; font-size: 20px; color: var(--txt2); }
+.f-body { padding: 12px 14px 16px; display: grid; gap: 16px; }
+.f-group { display: grid; gap: 8px; min-width: 0; }
+.f-label { font-size: 12px; color: var(--txt2); display: flex; justify-content: space-between; }
+.f-label small { color: var(--txt3); }
+.search { position: relative; }
+.search input { width: 100%; padding: 9px 12px 9px 32px; border-radius: var(--rs); background: var(--s2); border: 1px solid var(--bd2); outline: none; font-size: 13px; transition: border-color .2s; -webkit-appearance: none; appearance: none; }
+.search input:focus { border-color: var(--gold); }
+.search::before { content: '⌕'; position: absolute; left: 11px; top: 50%; transform: translateY(-52%); color: var(--txt3); font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; border: 1px solid var(--bd2); background: var(--s2); font-size: 12px; color: var(--txt2); transition: all .15s; }
+.chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--cc, var(--txt3)); }
+.chip.all::before { display: none; }
+.chip small { font-family: var(--mono); color: var(--txt3); font-size: 10.5px; }
+.chip.on { color: var(--txt); border-color: var(--cc, var(--gold)); background: color-mix(in srgb, var(--cc, var(--gold)) 14%, var(--s2)); }
+.chip.on small { color: var(--txt2); }
+.switch { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--txt2); cursor: pointer; user-select: none; -webkit-user-select: none; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch i { position: relative; width: 32px; height: 18px; border-radius: 9px; background: var(--bd2); flex-shrink: 0; transition: background .2s; }
+.switch i::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--txt2); transition: all .2s; }
+.switch input:checked + i { background: var(--gold-d); box-shadow: inset 0 0 0 1px var(--gold); }
+.switch input:checked + i::after { left: 16px; background: var(--gold); }
+.switch input:focus-visible + i { outline: 2px solid var(--gold); outline-offset: 2px; }
+.switch b { color: var(--gold-l); font-family: var(--mono); font-weight: 500; }
+.f-hint { font-size: 11px; color: var(--txt3); line-height: 1.6; }
+
+.results { min-width: 0; }
+.r-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.r-stat { display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: var(--txt2); flex-wrap: wrap; }
+.r-stat b { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--gold-l); }
+.perf { font-family: var(--mono); font-size: 11px; color: var(--good); padding: 1px 8px; border-radius: 20px; background: var(--good-d); }
+.r-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.r-hint { font-size: 12px; color: var(--txt2); margin: -2px 0 10px; padding: 7px 12px; border-left: 2px solid var(--gold); background: var(--gold-d2); border-radius: 0 6px 6px 0; }
+.r-hint:empty { display: none; }
+.only-mobile { display: none; }
+.badge-dot { display: inline-flex; min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px; background: var(--gold); color: #17130a; font-size: 10.5px; font-style: normal; font-weight: 600; align-items: center; justify-content: center; font-family: var(--mono); }
+.badge-dot:empty { display: none; }
+
+/* ── TABLE ────────────────────────────────── */
+.table-wrap { position: relative; overflow: auto; max-height: calc(100vh - 150px); min-height: 220px; border: 1px solid var(--bd); border-radius: var(--r); background: var(--s1); -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+table.grid { border-collapse: separate; border-spacing: 0; width: max-content; min-width: 100%; font-size: 12.5px; }
+.grid th, .grid td { padding: 9px 10px; border-bottom: 1px solid var(--bd); white-space: nowrap; text-align: left; vertical-align: middle; }
+.grid thead th { position: sticky; top: 0; z-index: 2; background: var(--s2); font-weight: 500; color: var(--txt2); font-size: 11.5px; user-select: none; -webkit-user-select: none; }
+.grid thead th[data-sort] { cursor: pointer; }
+.grid thead th[data-sort]:hover { color: var(--txt); }
+.grid thead th .arr { display: inline-block; width: 10px; margin-left: 3px; color: var(--txt3); font-size: 10px; }
+.grid thead th.sorted { color: var(--gold-l); }
+.grid thead th.sorted .arr { color: var(--gold); }
+.grid .num { text-align: right; }
+.grid .sticky-col { position: sticky; left: 0; z-index: 1; background: var(--s1); box-shadow: 1px 0 0 var(--bd), 6px 0 10px -6px rgba(0,0,0,.6); }
+.grid thead .sticky-col { z-index: 3; background: var(--s2); }
+.grid tbody tr:hover td { background: #121820; }
+.grid tbody tr.sel td { background: rgba(200,168,75,.06); }
+.grid tbody tr:last-child td { border-bottom: none; }
+.name-cell { display: flex; align-items: center; gap: 8px; min-width: 210px; }
+.nm { min-width: 0; display: grid; }
+.nm b { font-weight: 600; font-size: 13px; color: var(--txt); overflow: hidden; text-overflow: ellipsis; }
+.nm span { font-family: var(--mono); font-size: 11px; color: var(--txt2); }
+.nm span i { font-style: normal; font-family: var(--sans); color: var(--txt3); }
+.chk { position: relative; display: inline-flex; flex-shrink: 0; }
+.chk input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.chk span { width: 17px; height: 17px; border-radius: 5px; border: 1.5px solid var(--bd2); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: transparent; transition: all .15s; }
+.chk input:checked + span { background: var(--gold); border-color: var(--gold); color: #17130a; }
+.chk input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+.star { font-size: 16px; line-height: 1; color: var(--txt3); padding: 2px; transition: transform .15s, color .15s; flex-shrink: 0; }
+.star:hover { transform: scale(1.15); }
+.star.on { color: var(--gold-l); }
+.fit { display: flex; align-items: center; gap: 8px; min-width: 96px; }
+.fit-bar { width: 52px; height: 6px; border-radius: 3px; background: var(--bd2); overflow: hidden; flex-shrink: 0; }
+.fit-bar i { display: block; height: 100%; border-radius: 3px; }
+.fit b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.cat { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--txt2); }
+.cat::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--cc); }
+.idx { display: inline-flex; align-items: center; gap: 6px; }
+.idx-pk { padding: 1px 6px; border-radius: 10px; font-size: 10.5px; color: var(--gold-l); border: 1px solid rgba(200,168,75,.35); background: var(--gold-d2); font-family: var(--mono); }
+.idx-pk:hover { background: var(--gold-d); }
+.tp { font-family: var(--mono); font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--bd2); color: var(--txt2); }
+.tp.t0 { color: var(--c-cross); border-color: rgba(43,179,163,.45); background: rgba(43,179,163,.08); }
+.bdg { display: inline-flex; align-items: center; margin-left: 5px; padding: 1px 6px; border-radius: 4px; font-size: 10.5px; font-family: var(--sans); font-weight: 500; letter-spacing: .02em; white-space: nowrap; }
+.bdg.good { color: var(--good); background: var(--good-d); border: 1px solid rgba(61,201,138,.3); }
+.bdg.warn { color: var(--warn); background: var(--warn-d); border: 1px solid rgba(245,158,11,.3); }
+.bdg.bad { color: var(--bad); background: var(--bad-d); border: 1px solid rgba(239,83,80,.3); }
+.up { color: var(--up); }
+.down { color: var(--down); }
+.muted { color: var(--txt3); }
+.otc { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11.5px; color: var(--txt2); }
+.copy { padding: 1px 6px; border-radius: 4px; border: 1px solid var(--bd2); font-size: 10.5px; color: var(--txt2); font-family: var(--sans); }
+.copy:hover { color: var(--gold-l); border-color: var(--gold); }
+.est { display: inline-block; margin-right: 3px; color: var(--txt3); cursor: help; font-family: var(--sans); }
+.tags { display: flex; gap: 4px; }
+.tag { padding: 1px 7px; border-radius: 10px; font-size: 10.5px; background: var(--s3); color: var(--txt2); border: 1px solid var(--bd2); }
+
+/* ── CARDS ────────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.ecard { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r); padding: 13px 14px; display: grid; gap: 10px; transition: border-color .2s; }
+.ecard.sel { border-color: rgba(200,168,75,.55); background: linear-gradient(160deg, rgba(200,168,75,.06), var(--s1) 60%); }
+.ec-hd { display: flex; align-items: center; gap: 8px; }
+.ec-hd .nm { flex: 1; }
+.ec-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11.5px; color: var(--txt2); }
+.ec-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px 10px; }
+.ec-grid div { min-width: 0; }
+.ec-grid span { display: block; font-size: 10.5px; color: var(--txt3); }
+.ec-grid b { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+.ec-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+.ec-badges .bdg { margin-left: 0; }
+.ec-ft { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px dashed var(--bd); }
+
+.empty { padding: 48px 20px; text-align: center; color: var(--txt2); border: 1px dashed var(--bd2); border-radius: var(--r); }
+.empty p + p { margin-top: 6px; font-size: 12px; color: var(--txt3); }
+.empty .btn { margin-top: 14px; }
+
+/* ── TRAY / DRAWER / TOAST ────────────────── */
+.tray { position: fixed; left: 50%; bottom: calc(16px + var(--safe-b)); transform: translateX(-50%); z-index: 50; display: flex; align-items: center; gap: 10px; padding: 9px 10px 9px 14px; border-radius: 14px; background: rgba(21,27,34,.96); border: 1px solid rgba(200,168,75,.4); box-shadow: 0 12px 40px rgba(0,0,0,.55); max-width: calc(100vw - 24px); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.tray-lbl { font-size: 12px; color: var(--txt2); white-space: nowrap; }
+.tray-lbl b { color: var(--gold-l); font-family: var(--mono); }
+.tray-items { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.tray-items::-webkit-scrollbar { display: none; }
+.tray-items button { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px; font-size: 11.5px; background: var(--s3); border: 1px solid var(--bd2); white-space: nowrap; }
+.tray-items button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--sw); }
+.tray-items button em { font-style: normal; color: var(--txt3); }
+
+.backdrop { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.55); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 70; width: min(820px, 100vw); background: var(--bg); border-left: 1px solid var(--bd2); display: flex; flex-direction: column; transform: translateX(102%); transition: transform .28s ease; box-shadow: -20px 0 60px rgba(0,0,0,.5); }
+.drawer.open { transform: none; }
+.dw-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--bd); background: var(--s1); }
+.dw-eyebrow { font-family: var(--mono); font-size: 9.5px; letter-spacing: .24em; color: var(--gold); }
+.dw-hd h2 { font-family: var(--serif); font-size: 18px; font-weight: 700; }
+.dw-close { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--bd2); font-size: 20px; color: var(--txt2); flex-shrink: 0; }
+.dw-close:hover { color: var(--gold-l); border-color: var(--gold); }
+.dw-body { flex: 1; overflow: auto; padding: 16px 18px calc(28px + var(--safe-b)); -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: grid; gap: 14px; align-content: start; }
+.pk-winner { padding: 12px 14px; border-radius: var(--r); border: 1px solid rgba(200,168,75,.45); background: linear-gradient(135deg, rgba(200,168,75,.12), rgba(200,168,75,.02)); font-size: 13px; line-height: 1.7; }
+.pk-winner strong { color: var(--gold-l); font-size: 15px; }
+.pk-winner small { display: block; color: var(--txt2); font-size: 12px; }
+.pk-note { font-size: 12px; color: var(--txt2); line-height: 1.65; }
+.pk-radar { height: 360px; border-radius: var(--r); background: var(--s1); border: 1px solid var(--bd); position: relative; }
+.pk-radar svg { width: 100%; height: 100%; display: block; }
+.pk-radar .rd-engine { position: absolute; right: 10px; top: 8px; font-size: 10px; color: var(--txt3); font-family: var(--mono); }
+.pk-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; font-size: 11.5px; color: var(--txt2); }
+.pk-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.pk-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--bd); border-radius: var(--r); background: var(--s1); }
+.pk-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12.5px; }
+.pk-table th, .pk-table td { padding: 8px 10px; border-bottom: 1px solid var(--bd); text-align: right; white-space: nowrap; }
+.pk-table th:first-child, .pk-table td:first-child { text-align: left; position: sticky; left: 0; background: var(--s1); color: var(--txt2); font-weight: 400; z-index: 1; }
+.pk-table thead th { background: var(--s2); font-weight: 500; vertical-align: bottom; }
+.pk-table thead th:first-child { background: var(--s2); }
+.pk-table tr:last-child td { border-bottom: none; }
+.pk-table td { font-family: var(--mono); }
+.pk-table td.best { color: var(--gold-l); background: rgba(200,168,75,.09); font-weight: 500; }
+.pk-table td.best::after { content: ' ✓'; font-size: 10px; }
+.pk-table .ph { display: inline-grid; text-align: left; gap: 1px; }
+.pk-table .ph b { font-size: 12.5px; color: var(--txt); display: flex; align-items: center; gap: 6px; }
+.pk-table .ph b::before { content: ''; width: 10px; height: 3px; border-radius: 2px; background: var(--sw); }
+.pk-table .ph.dash b::before { background: repeating-linear-gradient(90deg, var(--sw) 0 3px, transparent 3px 5px); }
+.pk-table .ph span { font-family: var(--mono); font-size: 10.5px; color: var(--txt2); font-weight: 400; }
+.pk-table .ph.win b::after { content: '🏆'; font-size: 11px; }
+.pk-sec td { background: var(--s2) !important; color: var(--gold) !important; font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-align: left !important; }
+
+.toast { position: fixed; left: 50%; bottom: calc(84px + var(--safe-b)); transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; z-index: 90; background: var(--s2); border: 1px solid var(--gold); color: var(--txt); padding: 9px 18px; border-radius: 8px; font-size: 13px; transition: all .25s; max-width: calc(100vw - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── FOOTER ───────────────────────────────── */
+.foot { margin-top: 22px; display: grid; gap: 10px; }
+.foot details { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r); padding: 12px 16px; }
+.foot summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--txt); list-style: none; }
+.foot summary::-webkit-details-marker { display: none; }
+.foot summary::before { content: '▸ '; color: var(--gold); }
+.foot details[open] summary::before { content: '▾ '; }
+.algo { margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; font-size: 12px; color: var(--txt2); line-height: 1.75; }
+.algo h4 { font-size: 12px; color: var(--gold-l); font-weight: 600; margin-bottom: 4px; }
+.algo code { font-family: var(--mono); font-size: 11.5px; color: var(--txt); background: var(--s2); padding: 1px 5px; border-radius: 4px; }
+.disclaimer { font-size: 11px; color: var(--txt3); text-align: center; line-height: 1.7; padding: 6px 0; }
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media (max-width: 1280px) {
+  .dash { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .sandbox-card { grid-column: 1 / -1; }
+  .sandbox-card .sb-wrap { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 16px; }
+  .sandbox-card .sliders { margin-top: 0; }
+}
+@media (max-width: 1099px) {
+  .workbench { grid-template-columns: minmax(0,1fr); }
+  .filters { position: static; max-height: none; }
+  .f-body { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+@media (max-width: 899px) {
+  .dash { grid-template-columns: minmax(0,1fr); }
+  .sandbox-card .sb-wrap { display: block; }
+  .sandbox-card .sliders { margin-top: 14px; }
+}
+@media (max-width: 767px) {
+  .app { padding: 0 12px calc(110px + var(--safe-b)); }
+  .topbar { margin: 0 -12px; padding: 8px 12px; gap: 8px 10px; }
+  .back span { display: none; }
+  .tb-title { min-width: 0; }
+  .tb-title h1 { font-size: 16px; }
+  .tb-meta { width: 100%; }
+  .card { padding: 13px; }
+  .rg-name strong { font-size: 22px; }
+  .macro-grid { grid-template-columns: minmax(0,1fr); }
+  .gauge-box svg { max-width: 210px; }
+  .presets { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+  .preset-row { flex-wrap: nowrap; }
+  .only-mobile { display: inline-flex; }
+  .filters { position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 65; max-height: 84vh; border-radius: 18px 18px 0 0; transform: translateY(105%); transition: transform .28s ease; box-shadow: 0 -20px 50px rgba(0,0,0,.55); padding-bottom: var(--safe-b); }
+  .filters.open { transform: none; }
+  .f-close { display: inline-flex; align-items: center; justify-content: center; }
+  .f-body { grid-template-columns: minmax(0,1fr); }
+  .search input { font-size: 16px; } /* 防止 iOS 聚焦时自动缩放 */
+  .table-wrap { max-height: 72vh; }
+  .grid th, .grid td { padding: 8px 8px; }
+  .name-cell { min-width: 0; max-width: 150px; gap: 6px; }
+  .nm b { font-size: 12.5px; }
+  .cards { grid-template-columns: minmax(0,1fr); }
+  .tray { left: 12px; right: 12px; transform: none; bottom: calc(12px + var(--safe-b)); }
+  .tray-lbl { display: none; }
+  .drawer { width: 100vw; border-left: none; }
+  .pk-radar { height: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<noscript><div style="padding:24px;color:#e5c96e;text-align:center">本工具需要启用 JavaScript 才能运行筛选与周期诊断。</div></noscript>
+
+<div class="app">
+  <header class="topbar">
+    <a class="back" href="index.html" aria-label="返回工具箱首页">← <span>工具箱</span></a>
+    <div class="tb-title">
+      <div class="tb-eyebrow">CYCLE · ETF SCREENER</div>
+      <h1>周期 ETF <em>智能筛选器</em></h1>
+    </div>
+    <div class="tb-meta">
+      <span class="pill" id="srcPill">数据加载中…</span>
+      <span class="pill" id="datePill">—</span>
+      <button class="btn ghost sm" id="btnImport" type="button" title="导入 data/etf_latest.json 或 etf_latest.js">📥 导入数据</button>
+      <button class="btn ghost sm hidden" id="btnClearImport" type="button">清除导入</button>
+      <input type="file" id="fileInput" accept=".json,.js,application/json,text/javascript" hidden>
+    </div>
+  </header>
+
+  <div class="notice hidden" id="baselineNotice"></div>
+
+  <!-- ═════════ 中国市场周期诊断看板 ═════════ -->
+  <section class="dash" aria-label="市场周期诊断看板">
+    <article class="card regime-card" id="regimeCard" aria-live="polite"></article>
+
+    <article class="card macro-card">
+      <div class="card-hd"><span>三维宏观特征</span><span class="grow"></span><span class="hd-note" id="macroNote"></span></div>
+      <div class="macro-grid">
+        <div class="gauge-box" id="erpGauge"></div>
+        <div class="tiles" id="macroTiles"></div>
+      </div>
+      <div class="trend-box" id="trendBox"></div>
+    </article>
+
+    <article class="card sandbox-card">
+      <div class="card-hd"><span>周期沙盘切换器</span><span class="grow"></span><button class="btn ghost xs" id="btnResetSandbox" type="button">↺ 回到实盘</button></div>
+      <div class="sb-wrap">
+        <div>
+          <div class="seg seg-grid" id="regimeSeg" role="radiogroup" aria-label="市场周期模拟器">
+            <button type="button" data-mode="AUTO" role="radio">📡 自动实盘判定</button>
+            <button type="button" data-mode="BOTTOM_ACCUMULATE" role="radio">🧭 底部布局期</button>
+            <button type="button" data-mode="BULL_TREND" role="radio">🚀 右侧主升期</button>
+            <button type="button" data-mode="RANGE_DEFENSIVE" role="radio">⚖️ 震荡防御期</button>
+            <button type="button" data-mode="OVERHEAT_HEDGE" role="radio">🛡️ 避险防守期</button>
+          </div>
+          <p class="sb-note" id="sandboxNote"></p>
+        </div>
+        <div class="sliders">
+          <div>
+            <div class="sl-row"><span>股债性价比 ERP</span><b id="vErp">—</b></div>
+            <input type="range" id="sErp" min="1.5" max="8" step="0.05" aria-label="股债性价比 ERP">
+            <div class="sl-scale"><span>1.5%</span><span>预警 3.2</span><span>合理 3.8</span><span>击球 5.2</span><span>8%</span></div>
+          </div>
+          <div>
+            <div class="sl-row"><span>沪深300 PE 近10年分位</span><b id="vPe">—</b></div>
+            <input type="range" id="sPe" min="0" max="100" step="0.5" aria-label="沪深300 PE 历史分位">
+            <div class="sl-scale"><span>0</span><span>低估 25</span><span>中枢</span><span>过热 75</span><span>100</span></div>
+          </div>
+          <div>
+            <div class="sl-row"><span>均线动量趋势得分</span><b id="vTrend">—</b></div>
+            <input type="range" id="sTrend" min="-100" max="100" step="1" aria-label="趋势得分">
+            <div class="sl-scale"><span>-100</span><span>破位 -20</span><span>0</span><span>多头 +15</span><span>+100</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="presets" aria-label="一键场景预设">
+    <span class="presets-label">QUICK PRESETS</span>
+    <div class="preset-row" id="presetRow">
+      <button type="button" data-preset="top15">🔥 当期环境高契合 Top 15</button>
+      <button type="button" data-preset="lowfee">🛡️ 0.20%最低费率国家队宽基</button>
+      <button type="button" data-preset="dividend">💰 高股息红利防御池 (股息&gt;4%)</button>
+      <button type="button" data-preset="t0">⚡ T+0 跨境与固收黄金池</button>
+      <button type="button" data-preset="value">💎 深度低估定投池 (PE分位&lt;30%)</button>
+    </div>
+  </section>
+
+  <!-- ═════════ 多维筛选矩阵 + 结果 ═════════ -->
+  <section class="workbench">
+    <aside class="filters" id="filters" aria-label="多维组合筛选">
+      <div class="f-hd">
+        <span>多维筛选矩阵</span><span class="f-count" id="fActive"></span><span class="grow"></span>
+        <button class="btn ghost xs" id="btnResetFilters" type="button">重置</button>
+        <button class="f-close" id="btnCloseFilters" type="button" aria-label="关闭筛选面板">×</button>
+      </div>
+      <div class="f-body">
+        <div class="f-group">
+          <div class="search"><input type="search" id="q" placeholder="代码 / 名称 / 指数 / 场外联接 / 基金公司" autocomplete="off" enterkeyhint="search"></div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">资产类别 <small>可多选</small></div>
+          <div class="chips" id="catChips"></div>
+        </div>
+        <div class="f-group">
+          <div class="f-label">交易机制</div>
+          <div class="seg" id="tplusSeg"><button type="button" data-v="all">全部</button><button type="button" data-v="T+0">T+0 回转</button><button type="button" data-v="T+1">T+1</button></div>
+        </div>
+        <div class="f-group">
+          <div class="sl-row"><span>最小基金规模</span><b id="vScale">—</b></div>
+          <input type="range" id="fScale" min="0" max="11" step="1" aria-label="最小基金规模">
+          <label class="switch"><input type="checkbox" id="fHideSmall"><i></i><span>隐藏 &lt;2亿 清盘 / 流动性风险小微基</span></label>
+        </div>
+        <div class="f-group">
+          <div class="sl-row"><span>最高综合费率</span><b id="vFee">—</b></div>
+          <input type="range" id="fFee" min="0.15" max="1" step="0.05" aria-label="最高综合费率">
+          <div class="sl-scale"><span>0.15%</span><span>0.20 最低档</span><span>0.60</span><span>不限</span></div>
+        </div>
+        <div class="f-group">
+          <div class="sl-row"><span>最高 PE 历史分位</span><b id="vPePct">—</b></div>
+          <input type="range" id="fPePct" min="0" max="100" step="5" aria-label="最高 PE 历史分位">
+        </div>
+        <div class="f-group">
+          <div class="sl-row"><span>最低股息率</span><b id="vDiv">—</b></div>
+          <input type="range" id="fDiv" min="0" max="7" step="0.5" aria-label="最低股息率">
+        </div>
+        <div class="f-group">
+          <div class="sl-row"><span>近3年最大回撤上限</span><b id="vDD">—</b></div>
+          <input type="range" id="fDD" min="5" max="60" step="1" aria-label="近3年最大回撤上限">
+        </div>
+        <div class="f-group">
+          <label class="switch"><input type="checkbox" id="fFav"><i></i><span>仅看我的自选池 ★ <b id="favCount">0</b></span></label>
+          <p class="f-hint">设置 PE 分位 / 股息率 / 回撤条件后，缺少对应指标的债券、商品类 ETF 会被自动排除。</p>
+        </div>
+      </div>
+    </aside>
+
+    <section class="results" aria-label="筛选结果">
+      <div class="r-toolbar">
+        <div class="r-stat"><b id="rCount">0</b><span id="rTotal">/ 0 只</span><span class="perf" id="perf"></span></div>
+        <div class="r-actions">
+          <button class="btn ghost sm only-mobile" id="btnOpenFilters" type="button">⚙ 筛选 <i class="badge-dot" id="fBadge"></i></button>
+          <div class="seg sm" id="viewSeg"><button type="button" data-view="table">▤ 表格</button><button type="button" data-view="card">▦ 卡片</button></div>
+          <button class="btn sm" id="btnPK" type="button" disabled>⚔ 横向 PK <span id="pkCount">0/4</span></button>
+          <button class="btn ghost sm" id="btnCSV" type="button">⇩ 导出 CSV</button>
+        </div>
+      </div>
+      <div class="r-hint" id="rHint"></div>
+      <div class="table-wrap" id="tableWrap"><table class="grid" id="grid"><thead></thead><tbody></tbody></table></div>
+      <div class="cards hidden" id="cardList"></div>
+      <div class="empty hidden" id="empty">
+        <p>🔍 当前条件下没有匹配的 ETF</p>
+        <p>尝试放宽费率 / 规模 / 估值条件，或清空搜索关键词</p>
+        <button class="btn ghost sm" id="btnEmptyReset" type="button">重置全部筛选</button>
+      </div>
+    </section>
+  </section>
+
+  <footer class="foot">
+    <details>
+      <summary>算法说明 · 三维周期状态机与 FitScore 评分口径</summary>
+      <div class="algo">
+        <div>
+          <h4>① 股债性价比 ERP</h4>
+          <code>ERP = 100 / 沪深300 PE(TTM) − 10Y 国债收益率</code><br>
+          ≥ 5.2% 极高赔率击球区；3.8% ~ 5.2% 合理区间；3.2% ~ 3.8% 中性偏贵；≤ 3.2% 高估预警区。
+        </div>
+        <div>
+          <h4>② 均线动量趋势得分（−100 ~ +100）</h4>
+          收盘价相对 MA20 / MA60 / MA250 的偏离度（权重 25% / 25% / 20%，分别以 ±5% / ±8% / ±15% 封顶）+ 近 20 / 60 日涨跌幅（各 15%，以 ±8% / ±15% 封顶）。
+        </div>
+        <div>
+          <h4>③ 四阶段判定优先级</h4>
+          PE 分位 ≥ 75 或 ERP ≤ 3.2 → <b>避险期</b>；否则趋势 &gt; 15 → <b>主升期</b>；趋势 &lt; −20 → <b>破位避险</b>；ERP ≥ 5.2 或 PE 分位 ≤ 25 → <b>底部布局期</b>；其余 → <b>震荡防御期</b>。
+        </div>
+        <div>
+          <h4>④ 当期环境契合度 FitScore</h4>
+          <code>0.35×周期类别契合 + 0.25×估值安全垫与股息 + 0.20×低费率与规模流动性 + 0.20×夏普与抗回撤</code><br>
+          周期类别契合按 ETF 风格（核心宽基 / 成长宽基 / 红利 / 景气行业 / 港股 / 美股 / 黄金 / 长债 …）与当前周期查表；估值分 = 0.45×(100−PE分位) + 0.25×(100−PB分位) + 0.30×股息率(6%封顶)。
+        </div>
+        <div>
+          <h4>⑤ 三级跨设备数据加载</h4>
+          HTTP(S)：<code>fetch ./data/etf_latest.json</code> 获取最新数据；本地 <code>file://</code>：同步加载 <code>./data/etf_latest.js</code>；单文件分享：回退页面内置快照，并支持手动导入 JSON。
+        </div>
+        <div>
+          <h4>⑥ 数据更新</h4>
+          GitHub Actions 于交易日北京时间 21:30 运行 <code>scripts/update_etf_data.py</code>（AKShare），接口失败时保留上一版字段。PE 分位：沪深300 / 上证50 / 中证500 / 中证1000 / 上证红利取乐咕乐股近 10 年月度分位，其余指数暂无公开历史分位源，标注 <b>≈</b> 为基准估算值。场外联接代码仅供检索参考，请以基金公司公告为准。
+        </div>
+      </div>
+    </details>
+    <p class="disclaimer">数据来源于公开市场信息，可能存在延迟或误差；周期判定与评分为量化模型输出，仅供研究学习，不构成任何投资建议。市场有风险，投资需谨慎。</p>
+  </footer>
+</div>
+
+<div class="tray hidden" id="tray" role="region" aria-label="PK 候选">
+  <span class="tray-lbl">⚔ PK 候选 <b id="trayN">0</b>/4</span>
+  <div class="tray-items" id="trayItems"></div>
+  <button class="btn sm" id="btnTrayPK" type="button">开始 PK</button>
+  <button class="btn ghost sm" id="btnTrayClear" type="button">清空</button>
+</div>
+<div class="backdrop hidden" id="backdrop"></div>
+<aside class="drawer" id="pkDrawer" role="dialog" aria-modal="true" aria-label="横向 PK 对比" aria-hidden="true">
+  <div class="dw-hd">
+    <div><div class="dw-eyebrow">HEAD-TO-HEAD · 五维能力雷达</div><h2 id="pkTitle">横向 PK 对比</h2></div>
+    <button class="dw-close" id="btnClosePK" type="button" aria-label="关闭对比">×</button>
+  </div>
+  <div class="dw-body">
+    <div class="pk-winner" id="pkWinner"></div>
+    <div class="pk-note" id="pkNote"></div>
+    <div class="pk-radar" id="pkRadar"></div>
+    <div class="pk-legend" id="pkLegend"></div>
+    <div class="pk-table-wrap"><table class="pk-table" id="pkTable"></table></div>
+  </div>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ② 本地 file:// 模式：同步挂载 window.__ETF_LATEST_DATA__（缺失时静默跳过） -->
+<script src="./data/etf_latest.js" onerror="window.__ETF_JS_MISSING__ = true"></script>
+
+<!-- ③ 单文件兜底快照：由 scripts/update_etf_data.py --sync-html-fallback 生成 -->
+<script id="fallback-data">
+var FALLBACK_ETF_DATA = /*__FALLBACK_ETF_DATA_START__*/{"schema_version":1,"update_date":"2026-10-22","generated_at":"2026-10-23T12:27:56+08:00","data_source":"akshare","data_notes":"AKShare 抓取东方财富 / 乐咕乐股 / 中证指数等公开数据，部分失败字段沿用上一版","risk_free_rate":1.5,"macro_context":{"hs300_pe":12.06,"hs300_pe_pct":46.3,"all_share_pb":2.48,"all_share_pb_pct":35.4,"all_share_pb_label":"全A市净率(中位数)","cn10y_yield":1.64,"erp":6.65,"trend_score":-97.2,"trend_detail":{"hs300_close":4036.3,"ma20":4313.6,"ma60":4507.78,"ma250":4655.64,"ret_20d":-9.91,"ret_60d":-14.44}},"regime":{"code":"OVERHEAT_HEDGE","name":"高估过热或破位避险期 · 防守反击"},"etf_list":[
+{"code":"510300","name":"沪深300ETF","company":"华泰柏瑞","category":"broad","style":"core","index_name":"沪深300","t_plus":"T+1","otc_code":"460300 / 006131","scale_yi":1344.97,"daily_vol_yi":49.47,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":12.06,"pe_pct":46.3,"pb":1.34,"pb_pct":27.3,"div_yield":2.62,"tracking_error":0.37,"premium_rate":-0.06,"ret_1m":-11.01,"ret_1y":-10.3,"cagr_3y":7.52,"max_dd_3y":-19.22,"sharpe_3y":0.33,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":58.3,"val_src":"lg"},
+{"code":"510310","name":"沪深300ETF","company":"易方达","category":"broad","style":"core","index_name":"沪深300","t_plus":"T+1","otc_code":"110020 / 007339","scale_yi":683.27,"daily_vol_yi":18.4,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":12.06,"pe_pct":46.3,"pb":1.34,"pb_pct":27.3,"div_yield":2.62,"tracking_error":0.35,"premium_rate":-0.08,"ret_1m":-10.99,"ret_1y":-9.78,"cagr_3y":7.95,"max_dd_3y":-19.08,"sharpe_3y":0.36,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":57.7,"val_src":"lg"},
+{"code":"510330","name":"沪深300ETF","company":"华夏","category":"broad","style":"core","index_name":"沪深300","t_plus":"T+1","otc_code":"000051 / 005658","scale_yi":451.32,"daily_vol_yi":8.92,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":12.06,"pe_pct":46.3,"pb":1.34,"pb_pct":27.3,"div_yield":2.62,"tracking_error":0.33,"premium_rate":0.07,"ret_1m":-11.02,"ret_1y":-10.06,"cagr_3y":7.64,"max_dd_3y":-19.16,"sharpe_3y":0.34,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":57.0,"val_src":"lg"},
+{"code":"159919","name":"沪深300ETF","company":"嘉实","category":"broad","style":"core","index_name":"沪深300","t_plus":"T+1","otc_code":"160706","scale_yi":363.14,"daily_vol_yi":13.83,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":12.06,"pe_pct":46.3,"pb":1.34,"pb_pct":27.3,"div_yield":2.62,"tracking_error":0.35,"premium_rate":0.0,"ret_1m":-11.04,"ret_1y":-10.18,"cagr_3y":7.57,"max_dd_3y":-19.16,"sharpe_3y":0.34,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":57.2,"val_src":"lg"},
+{"code":"159338","name":"中证A500ETF","company":"国泰","category":"broad","style":"core","index_name":"中证A500","t_plus":"T+1","otc_code":"—","scale_yi":239.52,"daily_vol_yi":28.13,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":18.29,"pe_pct":64.0,"pb":1.62,"pb_pct":50.2,"div_yield":2.26,"tracking_error":0.3,"premium_rate":-0.02,"ret_1m":-12.64,"ret_1y":-9.18,"cagr_3y":5.8,"max_dd_3y":-19.6,"sharpe_3y":0.34,"tags":["降费最低档","百亿龙头","成立<3年·3年指标估算"],"fit_score":53.4,"val_src":"cs"},
+{"code":"560510","name":"中证A500ETF","company":"泰康","category":"broad","style":"core","index_name":"中证A500","t_plus":"T+1","otc_code":"022426 / 022427","scale_yi":26.74,"daily_vol_yi":0.42,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":18.29,"pe_pct":64.0,"pb":1.62,"pb_pct":50.2,"div_yield":2.26,"tracking_error":0.54,"premium_rate":0.05,"ret_1m":-12.65,"ret_1y":-7.95,"cagr_3y":5.8,"max_dd_3y":-19.6,"sharpe_3y":0.34,"tags":["降费最低档","成立<3年·3年指标估算"],"fit_score":47.9,"val_src":"cs"},
+{"code":"512050","name":"中证A500ETF","company":"华夏","category":"broad","style":"core","index_name":"中证A500","t_plus":"T+1","otc_code":"—","scale_yi":170.12,"daily_vol_yi":11.93,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":18.29,"pe_pct":64.0,"pb":1.62,"pb_pct":50.2,"div_yield":2.26,"tracking_error":0.32,"premium_rate":0.06,"ret_1m":-12.61,"ret_1y":-8.9,"cagr_3y":5.8,"max_dd_3y":-19.6,"sharpe_3y":0.34,"tags":["降费最低档","百亿龙头","成立<3年·3年指标估算"],"fit_score":52.4,"val_src":"cs"},
+{"code":"563360","name":"中证A500ETF","company":"华泰柏瑞","category":"broad","style":"core","index_name":"中证A500","t_plus":"T+1","otc_code":"022438 / 022439","scale_yi":345.63,"daily_vol_yi":39.52,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":18.29,"pe_pct":64.0,"pb":1.62,"pb_pct":50.2,"div_yield":2.26,"tracking_error":0.29,"premium_rate":-0.11,"ret_1m":-12.62,"ret_1y":-9.21,"cagr_3y":5.8,"max_dd_3y":-19.6,"sharpe_3y":0.34,"tags":["降费最低档","百亿龙头","成立<3年·3年指标估算"],"fit_score":53.9,"val_src":"cs"},
+{"code":"510050","name":"上证50ETF","company":"华夏","category":"broad","style":"core","index_name":"上证50","t_plus":"T+1","otc_code":"001051 / 005733","scale_yi":368.45,"daily_vol_yi":24.55,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":10.68,"pe_pct":61.2,"pb":1.22,"pb_pct":46.3,"div_yield":3.42,"tracking_error":0.72,"premium_rate":-0.07,"ret_1m":-5.93,"ret_1y":-7.58,"cagr_3y":7.34,"max_dd_3y":-12.32,"sharpe_3y":0.37,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":56.4,"val_src":"lg"},
+{"code":"510500","name":"中证500ETF","company":"南方","category":"broad","style":"growth_broad","index_name":"中证500","t_plus":"T+1","otc_code":"160119 / 004348","scale_yi":431.72,"daily_vol_yi":31.84,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":23.41,"pe_pct":69.4,"pb":2.08,"pb_pct":66.1,"div_yield":1.52,"tracking_error":0.46,"premium_rate":-0.17,"ret_1m":-14.84,"ret_1y":-5.05,"cagr_3y":9.6,"max_dd_3y":-25.74,"sharpe_3y":0.32,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":45.9,"val_src":"lg"},
+{"code":"512500","name":"中证500ETF","company":"华夏","category":"broad","style":"growth_broad","index_name":"中证500","t_plus":"T+1","otc_code":"—","scale_yi":71.49,"daily_vol_yi":5.01,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":23.41,"pe_pct":69.4,"pb":2.08,"pb_pct":66.1,"div_yield":1.52,"tracking_error":0.52,"premium_rate":0.13,"ret_1m":-14.87,"ret_1y":-4.52,"cagr_3y":9.84,"max_dd_3y":-25.8,"sharpe_3y":0.33,"tags":["降费最低档"],"fit_score":42.8,"val_src":"lg"},
+{"code":"512100","name":"中证1000ETF","company":"南方","category":"broad","style":"growth_broad","index_name":"中证1000","t_plus":"T+1","otc_code":"011860 / 011861","scale_yi":259.2,"daily_vol_yi":32.02,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":25.7,"pe_pct":49.6,"pb":2.07,"pb_pct":21.5,"div_yield":1.02,"tracking_error":0.45,"premium_rate":-0.2,"ret_1m":-15.07,"ret_1y":-8.42,"cagr_3y":6.68,"max_dd_3y":-31.31,"sharpe_3y":0.19,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":48.3,"val_src":"lg"},
+{"code":"159845","name":"中证1000ETF","company":"华夏","category":"broad","style":"growth_broad","index_name":"中证1000","t_plus":"T+1","otc_code":"013922 / 013923","scale_yi":48.46,"daily_vol_yi":20.24,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":25.7,"pe_pct":49.6,"pb":2.07,"pb_pct":21.5,"div_yield":1.02,"tracking_error":0.44,"premium_rate":-0.2,"ret_1m":-15.11,"ret_1y":-8.89,"cagr_3y":6.49,"max_dd_3y":-31.34,"sharpe_3y":0.18,"tags":["降费最低档"],"fit_score":46.3,"val_src":"lg"},
+{"code":"159915","name":"创业板ETF","company":"易方达","category":"broad","style":"growth_broad","index_name":"创业板指","t_plus":"T+1","otc_code":"110026 / 004744","scale_yi":468.68,"daily_vol_yi":70.94,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":36.5,"pe_pct":48.0,"pb":4.6,"pb_pct":45.0,"div_yield":0.92,"tracking_error":0.37,"premium_rate":-0.07,"ret_1m":-24.19,"ret_1y":-14.66,"cagr_3y":12.58,"max_dd_3y":-40.89,"sharpe_3y":0.32,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":47.3,"val_src":"base"},
+{"code":"588000","name":"科创50ETF","company":"华夏","category":"broad","style":"growth_broad","index_name":"科创50","t_plus":"T+1","otc_code":"011612 / 011613","scale_yi":1097.15,"daily_vol_yi":79.42,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":145.0,"pe_pct":82.0,"pb":6.1,"pb_pct":70.0,"div_yield":0.3,"tracking_error":0.36,"premium_rate":-0.18,"ret_1m":-21.54,"ret_1y":-6.49,"cagr_3y":16.07,"max_dd_3y":-40.72,"sharpe_3y":0.39,"tags":["降费最低档","百亿龙头","汇金重仓"],"fit_score":41.5,"val_src":"base"},
+{"code":"510880","name":"红利ETF","company":"华泰柏瑞","category":"dividend","style":"dividend","index_name":"上证红利","t_plus":"T+1","otc_code":"012761 / 012762","scale_yi":191.42,"daily_vol_yi":4.93,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":9.35,"pe_pct":99.2,"pb":0.91,"pb_pct":69.4,"div_yield":5.62,"tracking_error":0.79,"premium_rate":-0.05,"ret_1m":-1.57,"ret_1y":7.09,"cagr_3y":9.07,"max_dd_3y":-13.99,"sharpe_3y":0.47,"tags":["百亿龙头","高股息"],"fit_score":57.8,"val_src":"lg"},
+{"code":"515080","name":"中证红利ETF","company":"招商","category":"dividend","style":"dividend","index_name":"中证红利","t_plus":"T+1","otc_code":"012643 / 012644","scale_yi":115.38,"daily_vol_yi":3.44,"mgmt_fee":0.2,"custody_fee":0.1,"total_fee":0.3,"pe":10.62,"pe_pct":48.0,"pb":0.78,"pb_pct":46.0,"div_yield":4.3,"tracking_error":0.75,"premium_rate":0.12,"ret_1m":-1.94,"ret_1y":-0.34,"cagr_3y":7.43,"max_dd_3y":-14.51,"sharpe_3y":0.38,"tags":["百亿龙头","高股息"],"fit_score":65.4,"val_src":"cs"},
+{"code":"512890","name":"红利低波ETF","company":"华泰柏瑞","category":"dividend","style":"dividend","index_name":"红利低波","t_plus":"T+1","otc_code":"007466 / 007467","scale_yi":306.21,"daily_vol_yi":7.21,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":7.87,"pe_pct":55.0,"pb":0.76,"pb_pct":52.0,"div_yield":5.02,"tracking_error":0.68,"premium_rate":0.02,"ret_1m":1.31,"ret_1y":0.25,"cagr_3y":9.6,"max_dd_3y":-14.01,"sharpe_3y":0.55,"tags":["百亿龙头","高股息"],"fit_score":64.3,"val_src":"cs"},
+{"code":"561580","name":"央企红利ETF","company":"华泰柏瑞","category":"dividend","style":"dividend","index_name":"中证央企红利","t_plus":"T+1","otc_code":"—","scale_yi":26.59,"daily_vol_yi":1.01,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":10.77,"pe_pct":46.0,"pb":0.7,"pb_pct":44.0,"div_yield":4.12,"tracking_error":0.95,"premium_rate":-0.04,"ret_1m":-0.01,"ret_1y":6.51,"cagr_3y":14.13,"max_dd_3y":-17.11,"sharpe_3y":0.83,"tags":["高股息"],"fit_score":61.4,"val_src":"cs"},
+{"code":"159201","name":"自由现金流ETF","company":"华夏","category":"dividend","style":"dividend","index_name":"国证自由现金流","t_plus":"T+1","otc_code":"—","scale_yi":129.57,"daily_vol_yi":2.5,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":10.2,"pe_pct":40.0,"pb":1.35,"pb_pct":38.0,"div_yield":4.12,"tracking_error":0.88,"premium_rate":-0.17,"ret_1m":-2.91,"ret_1y":-1.11,"cagr_3y":9.5,"max_dd_3y":-16.2,"sharpe_3y":0.62,"tags":["降费最低档","百亿龙头","高股息","成立<3年·3年指标估算"],"fit_score":68.2,"val_src":"base"},
+{"code":"159545","name":"恒生红利低波ETF","company":"易方达","category":"dividend","style":"hk_dividend","index_name":"恒生港股通高股息低波动","t_plus":"T+0","otc_code":"—","scale_yi":59.16,"daily_vol_yi":0.86,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":7.2,"pe_pct":45.0,"pb":0.68,"pb_pct":50.0,"div_yield":6.82,"tracking_error":1.35,"premium_rate":0.13,"ret_1m":-3.61,"ret_1y":-11.15,"cagr_3y":13.01,"max_dd_3y":-20.77,"sharpe_3y":0.71,"tags":["降费最低档","可T+0","高股息","港股通"],"fit_score":66.3,"val_src":"base"},
+{"code":"512480","name":"半导体ETF","company":"国联安","category":"sector","style":"growth_sector","index_name":"中证全指半导体","t_plus":"T+1","otc_code":"007300 / 007301","scale_yi":171.52,"daily_vol_yi":11.35,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":89.48,"pe_pct":76.0,"pb":5.2,"pb_pct":68.0,"div_yield":0.21,"tracking_error":0.95,"premium_rate":-0.16,"ret_1m":-22.95,"ret_1y":10.31,"cagr_3y":27.23,"max_dd_3y":-45.82,"sharpe_3y":0.62,"tags":["百亿龙头"],"fit_score":32.7,"val_src":"cs"},
+{"code":"159995","name":"芯片ETF","company":"华夏","category":"sector","style":"growth_sector","index_name":"国证芯片","t_plus":"T+1","otc_code":"008887 / 008888","scale_yi":371.99,"daily_vol_yi":6.61,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":88.0,"pe_pct":73.0,"pb":5.0,"pb_pct":66.0,"div_yield":0.38,"tracking_error":0.44,"premium_rate":-0.15,"ret_1m":-24.18,"ret_1y":-0.23,"cagr_3y":24.53,"max_dd_3y":-47.6,"sharpe_3y":0.56,"tags":["百亿龙头"],"fit_score":33.8,"val_src":"base"},
+{"code":"159819","name":"人工智能ETF","company":"易方达","category":"sector","style":"growth_sector","index_name":"中证人工智能主题","t_plus":"T+1","otc_code":"012733 / 012734","scale_yi":245.18,"daily_vol_yi":3.69,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":45.78,"pe_pct":70.0,"pb":4.8,"pb_pct":62.0,"div_yield":0.82,"tracking_error":0.88,"premium_rate":-0.07,"ret_1m":-20.63,"ret_1y":-2.56,"cagr_3y":26.56,"max_dd_3y":-35.44,"sharpe_3y":0.66,"tags":["降费最低档","百亿龙头"],"fit_score":40.5,"val_src":"cs"},
+{"code":"512010","name":"医药ETF","company":"易方达","category":"sector","style":"defensive_sector","index_name":"沪深300医药卫生","t_plus":"T+1","otc_code":"—","scale_yi":141.63,"daily_vol_yi":3.54,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":23.97,"pe_pct":32.0,"pb":3.1,"pb_pct":18.0,"div_yield":1.67,"tracking_error":0.78,"premium_rate":-0.03,"ret_1m":-4.34,"ret_1y":-11.3,"cagr_3y":-3.36,"max_dd_3y":-31.02,"sharpe_3y":-0.2,"tags":["百亿龙头"],"fit_score":48.6,"val_src":"cs"},
+{"code":"512170","name":"医疗ETF","company":"华宝","category":"sector","style":"defensive_sector","index_name":"中证医疗","t_plus":"T+1","otc_code":"162412","scale_yi":228.21,"daily_vol_yi":4.69,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":29.43,"pe_pct":28.0,"pb":3.4,"pb_pct":15.0,"div_yield":1.31,"tracking_error":0.48,"premium_rate":-0.06,"ret_1m":-6.19,"ret_1y":-11.85,"cagr_3y":-6.06,"max_dd_3y":-37.3,"sharpe_3y":-0.27,"tags":["百亿龙头"],"fit_score":48.5,"val_src":"cs"},
+{"code":"159928","name":"消费ETF","company":"汇添富","category":"sector","style":"defensive_sector","index_name":"中证主要消费","t_plus":"T+1","otc_code":"000248","scale_yi":143.44,"daily_vol_yi":2.56,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":17.03,"pe_pct":22.0,"pb":4.3,"pb_pct":20.0,"div_yield":4.22,"tracking_error":0.88,"premium_rate":-0.08,"ret_1m":-0.49,"ret_1y":-21.35,"cagr_3y":-8.06,"max_dd_3y":-34.4,"sharpe_3y":-0.47,"tags":["百亿龙头","高股息"],"fit_score":50.6,"val_src":"cs"},
+{"code":"515030","name":"新能源车ETF","company":"华夏","category":"sector","style":"growth_sector","index_name":"中证新能源汽车","t_plus":"T+1","otc_code":"—","scale_yi":16.66,"daily_vol_yi":1.32,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":25.17,"pe_pct":30.0,"pb":3.2,"pb_pct":25.0,"div_yield":1.15,"tracking_error":0.63,"premium_rate":0.02,"ret_1m":-16.28,"ret_1y":-27.76,"cagr_3y":1.46,"max_dd_3y":-42.37,"sharpe_3y":0.0,"tags":[],"fit_score":36.2,"val_src":"cs"},
+{"code":"512880","name":"证券ETF","company":"国泰","category":"sector","style":"growth_sector","index_name":"中证全指证券公司","t_plus":"T+1","otc_code":"012362 / 012363","scale_yi":567.69,"daily_vol_yi":13.47,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":14.54,"pe_pct":50.0,"pb":1.55,"pb_pct":48.0,"div_yield":2.21,"tracking_error":0.51,"premium_rate":0.13,"ret_1m":-6.71,"ret_1y":-18.99,"cagr_3y":3.03,"max_dd_3y":-27.63,"sharpe_3y":0.06,"tags":["百亿龙头"],"fit_score":41.5,"val_src":"cs"},
+{"code":"512660","name":"军工ETF","company":"国泰","category":"sector","style":"growth_sector","index_name":"中证军工","t_plus":"T+1","otc_code":"—","scale_yi":80.15,"daily_vol_yi":2.85,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":55.48,"pe_pct":66.0,"pb":3.5,"pb_pct":50.0,"div_yield":0.58,"tracking_error":0.38,"premium_rate":-0.13,"ret_1m":-10.95,"ret_1y":-12.15,"cagr_3y":3.82,"max_dd_3y":-37.55,"sharpe_3y":0.08,"tags":[],"fit_score":33.3,"val_src":"cs"},
+{"code":"516970","name":"基建50ETF","company":"广发","category":"sector","style":"cyclical","index_name":"中证基建工程","t_plus":"T+1","otc_code":"—","scale_yi":11.25,"daily_vol_yi":0.24,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":8.5,"pe_pct":20.0,"pb":0.75,"pb_pct":12.0,"div_yield":3.2,"tracking_error":1.25,"premium_rate":-0.05,"ret_1m":-7.25,"ret_1y":-16.75,"cagr_3y":0.03,"max_dd_3y":-23.61,"sharpe_3y":-0.07,"tags":[],"fit_score":45.6,"val_src":"base"},
+{"code":"159786","name":"VRETF","company":"银华","category":"sector","style":"growth_sector","index_name":"中证虚拟现实主题","t_plus":"T+1","otc_code":"—","scale_yi":1.45,"daily_vol_yi":0.09,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":55.0,"pe_pct":60.0,"pb":3.6,"pb_pct":52.0,"div_yield":0.52,"tracking_error":1.62,"premium_rate":0.06,"ret_1m":-18.4,"ret_1y":-13.77,"cagr_3y":11.43,"max_dd_3y":-35.7,"sharpe_3y":0.3,"tags":["流动性预警"],"fit_score":27.5,"val_src":"base"},
+{"code":"513180","name":"恒生科技指数ETF","company":"华夏","category":"cross","style":"hk_growth","index_name":"恒生科技","t_plus":"T+0","otc_code":"013402 / 013403","scale_yi":353.41,"daily_vol_yi":18.25,"mgmt_fee":0.5,"custody_fee":0.15,"total_fee":0.65,"pe":22.0,"pe_pct":35.0,"pb":2.6,"pb_pct":30.0,"div_yield":1.12,"tracking_error":1.42,"premium_rate":-0.44,"ret_1m":-14.9,"ret_1y":-40.31,"cagr_3y":-1.38,"max_dd_3y":-45.44,"sharpe_3y":-0.09,"tags":["百亿龙头","可T+0","QDII"],"fit_score":41.9,"val_src":"base"},
+{"code":"513130","name":"恒生科技ETF","company":"华泰柏瑞","category":"cross","style":"hk_growth","index_name":"恒生科技","t_plus":"T+0","otc_code":"015310 / 015311","scale_yi":297.08,"daily_vol_yi":18.86,"mgmt_fee":0.2,"custody_fee":0.05,"total_fee":0.25,"pe":22.0,"pe_pct":35.0,"pb":2.6,"pb_pct":30.0,"div_yield":1.12,"tracking_error":1.48,"premium_rate":-0.36,"ret_1m":-15.03,"ret_1y":-40.13,"cagr_3y":-1.61,"max_dd_3y":-45.24,"sharpe_3y":-0.1,"tags":["百亿龙头","可T+0","QDII"],"fit_score":46.3,"val_src":"base"},
+{"code":"513330","name":"恒生互联网ETF","company":"华夏","category":"cross","style":"hk_growth","index_name":"恒生互联网科技业","t_plus":"T+0","otc_code":"013171 / 013172","scale_yi":246.42,"daily_vol_yi":13.57,"mgmt_fee":0.5,"custody_fee":0.15,"total_fee":0.65,"pe":20.0,"pe_pct":32.0,"pb":2.8,"pb_pct":28.0,"div_yield":1.02,"tracking_error":1.55,"premium_rate":0.32,"ret_1m":-12.03,"ret_1y":-44.16,"cagr_3y":-5.09,"max_dd_3y":-49.22,"sharpe_3y":-0.19,"tags":["百亿龙头","可T+0","QDII"],"fit_score":40.7,"val_src":"base"},
+{"code":"513100","name":"纳指ETF","company":"国泰","category":"cross","style":"us_equity","index_name":"纳斯达克100","t_plus":"T+0","otc_code":"160213","scale_yi":193.3,"daily_vol_yi":5.28,"mgmt_fee":0.6,"custody_fee":0.2,"total_fee":0.8,"pe":33.0,"pe_pct":78.0,"pb":8.5,"pb_pct":85.0,"div_yield":0.72,"tracking_error":2.35,"premium_rate":13.33,"ret_1m":-2.65,"ret_1y":12.07,"cagr_3y":23.53,"max_dd_3y":-22.62,"sharpe_3y":1.06,"tags":["百亿龙头","可T+0","高溢价","QDII"],"fit_score":45.7,"val_src":"base"},
+{"code":"159941","name":"纳指ETF","company":"广发","category":"cross","style":"us_equity","index_name":"纳斯达克100","t_plus":"T+0","otc_code":"270042 / 006479","scale_yi":346.82,"daily_vol_yi":11.53,"mgmt_fee":0.8,"custody_fee":0.2,"total_fee":1.0,"pe":33.0,"pe_pct":78.0,"pb":8.5,"pb_pct":85.0,"div_yield":0.72,"tracking_error":2.48,"premium_rate":12.66,"ret_1m":-2.76,"ret_1y":11.52,"cagr_3y":23.15,"max_dd_3y":-22.63,"sharpe_3y":1.05,"tags":["百亿龙头","可T+0","高溢价","QDII"],"fit_score":44.5,"val_src":"base"},
+{"code":"513500","name":"标普500ETF","company":"博时","category":"cross","style":"us_equity","index_name":"标普500","t_plus":"T+0","otc_code":"050025 / 006075","scale_yi":263.28,"daily_vol_yi":3.44,"mgmt_fee":0.6,"custody_fee":0.2,"total_fee":0.8,"pe":26.0,"pe_pct":82.0,"pb":4.9,"pb_pct":88.0,"div_yield":1.32,"tracking_error":2.12,"premium_rate":6.82,"ret_1m":-0.54,"ret_1y":9.27,"cagr_3y":20.06,"max_dd_3y":-18.62,"sharpe_3y":1.23,"tags":["百亿龙头","可T+0","高溢价","QDII"],"fit_score":47.4,"val_src":"base"},
+{"code":"513880","name":"日经225ETF","company":"华安","category":"cross","style":"jp_equity","index_name":"日经225","t_plus":"T+0","otc_code":"020712 / 020713","scale_yi":26.26,"daily_vol_yi":2.05,"mgmt_fee":0.2,"custody_fee":0.05,"total_fee":0.25,"pe":21.0,"pe_pct":70.0,"pb":2.1,"pb_pct":75.0,"div_yield":1.72,"tracking_error":2.65,"premium_rate":4.99,"ret_1m":-3.55,"ret_1y":17.3,"cagr_3y":21.56,"max_dd_3y":-20.4,"sharpe_3y":0.81,"tags":["可T+0","高溢价","QDII"],"fit_score":45.3,"val_src":"base"},
+{"code":"518880","name":"黄金ETF","company":"华安","category":"commodity","style":"gold","index_name":"上海金AU9999","t_plus":"T+0","otc_code":"000216 / 000217","scale_yi":1022.08,"daily_vol_yi":34.82,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.52,"premium_rate":-0.09,"ret_1m":-5.6,"ret_1y":-7.81,"cagr_3y":22.28,"max_dd_3y":-30.29,"sharpe_3y":0.98,"tags":["百亿龙头","可T+0"],"fit_score":73.6},
+{"code":"159934","name":"黄金ETF","company":"易方达","category":"commodity","style":"gold","index_name":"上海金AU9999","t_plus":"T+0","otc_code":"000307 / 002963","scale_yi":330.95,"daily_vol_yi":7.25,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.58,"premium_rate":-0.08,"ret_1m":-5.6,"ret_1y":-7.84,"cagr_3y":22.38,"max_dd_3y":-30.31,"sharpe_3y":0.99,"tags":["百亿龙头","可T+0"],"fit_score":72.0},
+{"code":"159985","name":"豆粕ETF","company":"华夏","category":"commodity","style":"commodity","index_name":"大商所豆粕期货","t_plus":"T+0","otc_code":"007937 / 007938","scale_yi":29.78,"daily_vol_yi":3.84,"mgmt_fee":0.5,"custody_fee":0.1,"total_fee":0.6,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":1.85,"premium_rate":2.3,"ret_1m":-4.93,"ret_1y":15.61,"cagr_3y":-1.57,"max_dd_3y":-26.6,"sharpe_3y":-0.24,"tags":["可T+0","高溢价"],"fit_score":46.9},
+{"code":"159980","name":"有色ETF","company":"大成","category":"commodity","style":"commodity","index_name":"上期有色金属期货","t_plus":"T+0","otc_code":"007910 / 007911","scale_yi":52.84,"daily_vol_yi":3.63,"mgmt_fee":0.6,"custody_fee":0.1,"total_fee":0.7,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":1.72,"premium_rate":-0.78,"ret_1m":-3.19,"ret_1y":18.94,"cagr_3y":11.48,"max_dd_3y":-15.74,"sharpe_3y":0.8,"tags":["可T+0"],"fit_score":54.7},
+{"code":"511090","name":"30年国债ETF","company":"鹏扬","category":"bond","style":"long_bond","index_name":"中债-30年期国债","t_plus":"T+0","otc_code":"—","scale_yi":456.63,"daily_vol_yi":44.86,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.62,"premium_rate":0.2,"ret_1m":0.85,"ret_1y":2.7,"cagr_3y":8.08,"max_dd_3y":-9.53,"sharpe_3y":1.02,"tags":["降费最低档","百亿龙头","可T+0"],"fit_score":81.9},
+{"code":"511260","name":"10年国债ETF","company":"国泰","category":"bond","style":"long_bond","index_name":"上证10年期国债","t_plus":"T+0","otc_code":"—","scale_yi":265.33,"daily_vol_yi":33.52,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.38,"premium_rate":0.04,"ret_1m":0.37,"ret_1y":3.47,"cagr_3y":4.68,"max_dd_3y":-2.27,"sharpe_3y":1.67,"tags":["降费最低档","百亿龙头","可T+0"],"fit_score":85.0},
+{"code":"511520","name":"政金债ETF","company":"富国","category":"bond","style":"credit_bond","index_name":"中债7-10年政策性金融债","t_plus":"T+0","otc_code":"—","scale_yi":488.48,"daily_vol_yi":14.28,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.35,"premium_rate":0.14,"ret_1m":0.74,"ret_1y":4.24,"cagr_3y":5.01,"max_dd_3y":-2.59,"sharpe_3y":1.72,"tags":["降费最低档","百亿龙头","可T+0"],"fit_score":82.8},
+{"code":"511360","name":"短融ETF","company":"海富通","category":"bond","style":"cash","index_name":"中证短融","t_plus":"T+0","otc_code":"—","scale_yi":918.6,"daily_vol_yi":659.35,"mgmt_fee":0.15,"custody_fee":0.05,"total_fee":0.2,"pe":null,"pe_pct":null,"pb":null,"pb_pct":null,"div_yield":null,"tracking_error":0.12,"premium_rate":0.0,"ret_1m":0.1,"ret_1y":1.02,"cagr_3y":1.67,"max_dd_3y":-0.05,"sharpe_3y":1.23,"tags":["降费最低档","百亿龙头","可T+0"],"fit_score":83.3}
+]}/*__FALLBACK_ETF_DATA_END__*/;
+</script>
+
+<!-- MarketRegimeEngine：纯函数，与 scripts/update_etf_data.py 算法逐项对齐 -->
+<script id="engine">
+var MarketRegimeEngine = (function () {
+  'use strict';
+  var BOTTOM = 'BOTTOM_ACCUMULATE', BULL = 'BULL_TREND', RANGE = 'RANGE_DEFENSIVE', OVERHEAT = 'OVERHEAT_HEDGE';
+  var C = { broad: '#5a9ed6', dividend: '#e07a5f', sector: '#9b7fd4', cross: '#2bb3a3', commodity: '#d9b44a', bond: '#8fa3b8' };
+
+  var REGIMES = {};
+  REGIMES[BOTTOM] = {
+    code: BOTTOM, name: '底部左侧布局期', sub: '高赔率磨底', short: '底部布局期', icon: '🧭', color: '#38bdf8', equity: 70,
+    desc: '股债性价比进入高赔率区或宽基估值处于历史低位，但趋势尚未确认。宜左侧分批定投核心宽基，以红利低波为底仓，用国债与黄金平滑波动。',
+    focus: '核心宽基（沪深300 / 中证A500 / 科创50 / 恒生科技）+ 红利低波底仓',
+    alloc: [
+      { label: '核心宽基定投', pct: 40, color: C.broad }, { label: '红利低波底仓', pct: 20, color: C.dividend },
+      { label: '成长 / 港股弹性', pct: 10, color: C.cross }, { label: '国债固收', pct: 20, color: C.bond },
+      { label: '黄金', pct: 10, color: C.commodity }
+    ]
+  };
+  REGIMES[BULL] = {
+    code: BULL, name: '右侧景气主升期', sub: '动量共振', short: '右侧主升期', icon: '🚀', color: '#f97316', equity: 80,
+    desc: '估值尚未过热，价格站稳中长期均线且动量向上。顺势提升高弹性成长与景气行业权重，核心宽基作为压舱石，少量商品对冲通胀。',
+    focus: '高弹性成长与景气行业（半导体芯片 / 人工智能 / 创业板 / 科创 / 证券）+ 核心宽基',
+    alloc: [
+      { label: '景气成长行业', pct: 35, color: C.sector }, { label: '核心宽基', pct: 30, color: C.broad },
+      { label: '港股 / 海外', pct: 15, color: C.cross }, { label: '固收', pct: 10, color: C.bond },
+      { label: '商品黄金', pct: 10, color: C.commodity }
+    ]
+  };
+  REGIMES[RANGE] = {
+    code: RANGE, name: '震荡分化防御期', sub: '哑铃配置', short: '震荡防御期', icon: '⚖️', color: '#c8a84b', equity: 70,
+    desc: '估值中枢合理、趋势横盘分化。采用哑铃策略：一端红利低波收取现金流，一端低估宽基与跨境资产分批定投，国债与黄金对冲尾部风险。',
+    focus: '红利低波 / 央企红利 / 自由现金流 ETF + 高股息港股 / 债券 ETF',
+    alloc: [
+      { label: '红利防御', pct: 40, color: C.dividend }, { label: '低估宽基 / 跨境定投', pct: 30, color: C.broad },
+      { label: '国债 / 黄金', pct: 30, color: C.bond }
+    ]
+  };
+  REGIMES[OVERHEAT] = {
+    code: OVERHEAT, name: '高估过热 / 破位避险期', sub: '防守反击', short: '避险防守期', icon: '🛡️', color: '#ef5350', equity: 25,
+    desc: '估值进入历史高位、股债性价比跌破预警线或趋势破位。主动降低权益敞口，以长久期国债、政金债与黄金防守，保留低相关海外资产等待反击。',
+    focus: '30年 / 10年国债 ETF、政金债 ETF、黄金9999 ETF、纳指 / 标普等低相关资产',
+    alloc: [
+      { label: '国债固收', pct: 50, color: C.bond }, { label: '黄金 / 商品', pct: 25, color: C.commodity },
+      { label: '低相关跨境 / 红利', pct: 25, color: C.cross }
+    ]
+  };
+
+  var STYLE_FIT = {};
+  STYLE_FIT[BOTTOM] = { core: 98, growth_broad: 90, dividend: 88, hk_growth: 88, hk_dividend: 82, defensive_sector: 74, growth_sector: 72, cyclical: 70, us_equity: 55, jp_equity: 50, gold: 55, commodity: 45, long_bond: 50, credit_bond: 45, cash: 30 };
+  STYLE_FIT[BULL] = { growth_sector: 100, growth_broad: 96, hk_growth: 90, cyclical: 82, core: 76, commodity: 70, us_equity: 64, defensive_sector: 60, jp_equity: 58, dividend: 48, gold: 48, hk_dividend: 46, long_bond: 28, credit_bond: 25, cash: 18 };
+  STYLE_FIT[RANGE] = { dividend: 98, hk_dividend: 95, gold: 80, long_bond: 78, core: 75, credit_bond: 72, defensive_sector: 70, us_equity: 65, hk_growth: 60, cash: 60, growth_broad: 58, jp_equity: 58, cyclical: 55, commodity: 55, growth_sector: 45 };
+  STYLE_FIT[OVERHEAT] = { long_bond: 98, gold: 95, credit_bond: 92, cash: 85, us_equity: 72, dividend: 70, hk_dividend: 68, commodity: 60, jp_equity: 55, defensive_sector: 45, core: 40, cyclical: 35, hk_growth: 35, growth_broad: 28, growth_sector: 22 };
+
+  var W_CYCLE = 0.35, W_VALUE = 0.25, W_COST = 0.20, W_RISK = 0.20;
+  var LOG500 = Math.log10(500);
+
+  function isNum(v) { return typeof v === 'number' && isFinite(v); }
+  function clamp(x, lo, hi) { return x < lo ? lo : x > hi ? hi : x; }
+  function r1(x) { return Math.floor(x * 10 + 0.5) / 10; }
+  function r2(x) { return Math.floor(x * 100 + 0.5) / 100; }
+
+  function computeErp(pe, y) {
+    if (!isNum(pe) || pe <= 0 || !isNum(y)) return null;
+    return r2(100 / pe - y);
+  }
+  function computeTrendScore(d) {
+    if (!d) return null;
+    var keys = ['hs300_close', 'ma20', 'ma60', 'ma250', 'ret_20d', 'ret_60d'], v = {};
+    for (var i = 0; i < keys.length; i++) { var n = Number(d[keys[i]]); if (d[keys[i]] === null || d[keys[i]] === undefined || !isFinite(n)) return null; v[keys[i]] = n; }
+    function nz(x, s) { return clamp(x / s, -1, 1) * 100; }
+    function dev(ma) { return (v.hs300_close / ma - 1) * 100; }
+    var score = 0.25 * nz(dev(v.ma20), 5) + 0.25 * nz(dev(v.ma60), 8) + 0.20 * nz(dev(v.ma250), 15)
+      + 0.15 * nz(v.ret_20d, 8) + 0.15 * nz(v.ret_60d, 15);
+    return r1(clamp(score, -100, 100));
+  }
+  function detectRegime(m) {
+    var erp = isNum(m.erp) ? m.erp : 4.5;
+    var pePct = isNum(m.hs300_pe_pct) ? m.hs300_pe_pct : 50;
+    var trend = isNum(m.trend_score) ? m.trend_score : 0;
+    if (pePct >= 75 || erp <= 3.2) return OVERHEAT;
+    if (trend > 15) return BULL;
+    if (trend < -20) return OVERHEAT;
+    if (erp >= 5.2 || pePct <= 25) return BOTTOM;
+    return RANGE;
+  }
+
+  function feeScore(fee) { return !isNum(fee) ? 50 : clamp((1.0 - fee) / 0.8, 0, 1) * 100; }
+  function scaleScore(s) { if (!isNum(s)) return 50; if (s <= 0) return 0; return clamp(Math.log10(s) / LOG500, 0, 1) * 100; }
+  function volScore(v) { if (!isNum(v)) return 40; if (v <= 0) return 0; return clamp((Math.log10(v) + 1) / 3, 0, 1) * 100; }
+  function teScore(te) { return !isNum(te) ? 50 : 100 * Math.exp(-Math.max(te, 0) / 1.5); }
+  function sharpeScore(s) { return !isNum(s) ? 40 : clamp((s + 0.5) / 2.0, 0, 1) * 100; }
+  function ddScore(dd) { return !isNum(dd) ? 50 : clamp(1 - Math.abs(dd) / 50, 0, 1) * 100; }
+  function cagrScore(c) { return !isNum(c) ? 40 : clamp((c + 5) / 20, 0, 1) * 100; }
+
+  function cycleScore(e, regime) { var t = STYLE_FIT[regime] || {}; var v = t[e.style || '']; return isNum(v) ? v : 50; }
+  function valueScore(e, macro) {
+    if (isNum(e.pe_pct)) {
+      var pePart = 100 - e.pe_pct;
+      var pbPart = isNum(e.pb_pct) ? 100 - e.pb_pct : pePart;
+      var divPart = clamp((isNum(e.div_yield) ? e.div_yield : 0) / 6, 0, 1) * 100;
+      return 0.45 * pePart + 0.25 * pbPart + 0.30 * divPart;
+    }
+    if (e.style === 'long_bond' || e.style === 'credit_bond') {
+      var y = isNum(macro.cn10y_yield) ? macro.cn10y_yield : 2.0;
+      return clamp(60 + (y - 2.0) * 20, 30, 90);
+    }
+    return ({ cash: 60, gold: 55, commodity: 50 })[e.style] || 50;
+  }
+  function costScore(e) {
+    var penalty = isNum(e.premium_rate) ? Math.min(Math.abs(e.premium_rate) * 6, 30) : 0;
+    var s = 0.45 * feeScore(e.total_fee) + 0.30 * scaleScore(e.scale_yi) + 0.25 * volScore(e.daily_vol_yi) - penalty;
+    return clamp(s, 0, 100);
+  }
+  function riskScore(e) {
+    return 0.45 * sharpeScore(e.sharpe_3y) + 0.40 * ddScore(e.max_dd_3y) + 0.15 * teScore(e.tracking_error);
+  }
+  function fitBreakdown(e, regime, macro) {
+    var c = cycleScore(e, regime), v = valueScore(e, macro), co = costScore(e), ri = riskScore(e);
+    var total = r1(clamp(W_CYCLE * c + W_VALUE * v + W_COST * co + W_RISK * ri, 0, 100));
+    return { cycle: r1(c), value: r1(v), cost: r1(co), risk: r1(ri), total: total };
+  }
+  function fitScore(e, regime, macro) { return fitBreakdown(e, regime, macro).total; }
+
+  var RADAR_DIMS = [
+    { key: 'liq', label: '规模流动性' }, { key: 'fee', label: '低费率优势' }, { key: 'te', label: '低跟踪误差' },
+    { key: 'ret', label: '收益夏普' }, { key: 'dd', label: '抗回撤能力' }
+  ];
+  function radarDims(e) {
+    return {
+      liq: r1(0.55 * scaleScore(e.scale_yi) + 0.45 * volScore(e.daily_vol_yi)),
+      fee: r1(feeScore(e.total_fee)),
+      te: r1(teScore(e.tracking_error)),
+      ret: r1(0.6 * sharpeScore(e.sharpe_3y) + 0.4 * cagrScore(e.cagr_3y)),
+      dd: r1(ddScore(e.max_dd_3y))
+    };
+  }
+
+  function erpZone(erp) {
+    if (!isNum(erp)) return { label: '—', color: '#8b97a8' };
+    if (erp >= 5.2) return { label: '极高赔率击球区', color: '#3dc98a' };
+    if (erp >= 3.8) return { label: '合理区间', color: '#c8a84b' };
+    if (erp > 3.2) return { label: '中性偏贵', color: '#f59e0b' };
+    return { label: '高估预警区', color: '#ef5350' };
+  }
+  function pctZone(p) {
+    if (!isNum(p)) return { label: '—', color: '#8b97a8' };
+    if (p <= 25) return { label: '低估区', color: '#3dc98a' };
+    if (p >= 75) return { label: '过热区', color: '#ef5350' };
+    return { label: '中枢区', color: '#c8a84b' };
+  }
+  function trendZone(t) {
+    if (!isNum(t)) return { label: '—', color: '#8b97a8' };
+    if (t > 15) return { label: '多头动量', color: '#f0575a' };
+    if (t < -20) return { label: '趋势破位', color: '#2fb67c' };
+    return { label: '震荡整理', color: '#8b97a8' };
+  }
+  function explain(m, code) {
+    var erp = m.erp, p = m.hs300_pe_pct, t = m.trend_score;
+    var f = function (x, d) { return isNum(x) ? x.toFixed(d) : '—'; };
+    var sg = function (x) { return isNum(x) ? (x > 0 ? '+' : '') + x.toFixed(1) : '—'; };
+    var rows = [
+      { hit: false, text: 'ERP ' + f(erp, 2) + '% · ' + erpZone(erp).label },
+      { hit: false, text: '沪深300 PE 分位 ' + f(p, 1) + '% · ' + pctZone(p).label },
+      { hit: false, text: '趋势得分 ' + sg(t) + ' · ' + trendZone(t).label }
+    ];
+    var rule = '';
+    if (code === OVERHEAT) {
+      if (p >= 75) { rows[1].hit = true; rule = 'PE 分位 ≥ 75，估值过热一票否决'; }
+      else if (erp <= 3.2) { rows[0].hit = true; rule = 'ERP ≤ 3.2%，股债性价比进入高估预警区'; }
+      else { rows[2].hit = true; rule = '趋势得分 < −20，宽基跌破中长期均线（破位）'; }
+    } else if (code === BULL) {
+      rows[1].hit = rows[2].hit = true; rule = 'PE 分位 < 75 且趋势 > 15，站稳均线动量共振';
+    } else if (code === BOTTOM) {
+      rows[2].hit = true;
+      if (erp >= 5.2) rows[0].hit = true; else rows[1].hit = true;
+      rule = (erp >= 5.2 ? 'ERP ≥ 5.2%' : 'PE 分位 ≤ 25') + '，且趋势 ≤ 15 未确认';
+    } else {
+      rows[0].hit = rows[1].hit = rows[2].hit = true; rule = '25 < PE 分位 < 75、−20 ≤ 趋势 ≤ 15，ERP 未进入击球区';
+    }
+    rows.push({ hit: true, rule: true, text: '触发规则：' + rule });
+    return rows;
+  }
+
+  return {
+    BOTTOM: BOTTOM, BULL: BULL, RANGE: RANGE, OVERHEAT: OVERHEAT, ORDER: [BOTTOM, BULL, RANGE, OVERHEAT],
+    REGIMES: REGIMES, STYLE_FIT: STYLE_FIT, RADAR_DIMS: RADAR_DIMS,
+    isNum: isNum, clamp: clamp, r1: r1, r2: r2,
+    computeErp: computeErp, computeTrendScore: computeTrendScore, detectRegime: detectRegime,
+    cycleScore: cycleScore, valueScore: valueScore, costScore: costScore, riskScore: riskScore,
+    fitScore: fitScore, fitBreakdown: fitBreakdown, radarDims: radarDims,
+    erpZone: erpZone, pctZone: pctZone, trendZone: trendZone, explain: explain
+  };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = MarketRegimeEngine;
+</script>
+
+<script id="app">
+(function () {
+  'use strict';
+  var E = window.MarketRegimeEngine;
+  var isNum = E.isNum;
+
+  // ════════ 常量 ════════
+  var CAT = {
+    broad: { label: '核心宽基', short: '宽基', color: '#5a9ed6' },
+    dividend: { label: '红利策略', short: '红利', color: '#e07a5f' },
+    sector: { label: '行业主题', short: '行业', color: '#9b7fd4' },
+    cross: { label: '港股跨境', short: '跨境', color: '#2bb3a3' },
+    commodity: { label: '商品黄金', short: '商品', color: '#d9b44a' },
+    bond: { label: '国债固收', short: '固收', color: '#8fa3b8' }
+  };
+  var CAT_KEYS = ['broad', 'dividend', 'sector', 'cross', 'commodity', 'bond'];
+  var SCALE_STEPS = [0, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+  var SMALL_SCALE = 2;
+  // PK 系列色：前三色经 CVD 校验可两两区分；第 4 只额外使用虚线 + 菱形标记做二次编码
+  var SERIES = [
+    { color: '#3987e5', symbol: 'circle', dash: false },
+    { color: '#d95926', symbol: 'rect', dash: false },
+    { color: '#199e70', symbol: 'triangle', dash: false },
+    { color: '#d9d4c7', symbol: 'diamond', dash: true }
+  ];
+  var ECHARTS_CDNS = [
+    'https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js',
+    'https://cdn.bootcdn.net/ajax/libs/echarts/5.5.1/echarts.min.js',
+    'https://lib.baomitu.com/echarts/5.5.1/echarts.min.js',
+    'https://unpkg.com/echarts@5.5.1/dist/echarts.min.js'
+  ];
+  var LS = { favs: 'lifetools.etf.favs', view: 'lifetools.etf.view', imported: 'lifetools.etf.imported' };
+  var NUM_FIELDS = ['scale_yi', 'daily_vol_yi', 'mgmt_fee', 'custody_fee', 'total_fee', 'pe', 'pe_pct', 'pb', 'pb_pct',
+    'div_yield', 'tracking_error', 'premium_rate', 'ret_1m', 'ret_1y', 'cagr_3y', 'max_dd_3y', 'sharpe_3y', 'fit_score'];
+  var LOW_FIRST = { total_fee: 1, pe: 1, pe_pct: 1, pb_pct: 1, tracking_error: 1, premium_rate: 1, name: 1, code: 1, category: 1, index_name: 1, t_plus: 1 };
+
+  var PRESETS = {
+    top15: { hint: '🔥 按当前周期 FitScore 降序截取前 15 只（已隐藏 <2亿 小微基），切换沙盘周期可实时观察榜单轮动。',
+      apply: function () {}, sort: { key: 'fit', dir: 'desc' }, limit: 15 },
+    lowfee: { hint: '🛡️ 综合费率 ≤ 0.20%（管理费 0.15% + 托管费 0.05%）且规模 ≥ 50 亿的核心宽基：汇金等国家队重仓的低成本底仓。',
+      apply: function (f) { f.cats = ['broad']; f.maxFee = 0.2; f.minScaleIdx = 7; }, sort: { key: 'scale_yi', dir: 'desc' } },
+    dividend: { hint: '💰 股息率 ≥ 4% 的红利 / 高股息资产，震荡防御期的现金流底仓。',
+      apply: function (f) { f.minDiv = 4; }, sort: { key: 'div_yield', dir: 'desc' } },
+    t0: { hint: '⚡ 支持 T+0 回转交易的港股跨境、商品黄金与国债固收，便于日内调仓与快速避险（注意 QDII 溢价）。',
+      apply: function (f) { f.tplus = 'T+0'; f.cats = ['cross', 'commodity', 'bond']; }, sort: { key: 'fit', dir: 'desc' } },
+    value: { hint: '💎 跟踪指数 PE 处于近 10 年 30% 分位以下，适合左侧分批定投、拉长持有周期。',
+      apply: function (f) { f.maxPePct = 30; }, sort: { key: 'pe_pct', dir: 'asc' } }
+  };
+
+  // ════════ 工具 ════════
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(s) {
+    return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  var now = (window.performance && performance.now) ? function () { return performance.now(); } : function () { return Date.now(); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+    del: function (k) { try { localStorage.removeItem(k); } catch (e) { /* 隐私模式 */ } }
+  };
+  function fmt(v, d) { return isNum(v) ? v.toFixed(d === undefined ? 2 : d) : '—'; }
+  function fmtPct(v, d, sign) { return isNum(v) ? (sign && v > 0 ? '+' : '') + v.toFixed(d === undefined ? 2 : d) + '%' : '—'; }
+  function fmtScale(v) {
+    if (!isNum(v)) return '—';
+    if (v >= 100) return Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return v >= 10 ? v.toFixed(1) : v.toFixed(2);
+  }
+  function retCls(v) { return !isNum(v) ? 'muted' : v > 0 ? 'up' : v < 0 ? 'down' : ''; }
+  function fitColor(s) { return s >= 75 ? '#e5c96e' : s >= 62 ? '#c8a84b' : s >= 50 ? '#97824a' : '#5d6b7e'; }
+  function pctColor(p) { return p < 30 ? '#3dc98a' : p > 70 ? '#ef5350' : '#c8a84b'; }
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2400);
+  }
+  function setRangeFill(el) {
+    var min = +el.min, max = +el.max, p = max > min ? ((+el.value - min) / (max - min)) * 100 : 0;
+    el.style.setProperty('--p', p + '%');
+  }
+  function copyText(text, msg) {
+    var done = function () { toast(msg || '已复制：' + text); };
+    var legacy = function () {
+      var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:-1000px;opacity:0'; document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, text.length);
+      try { document.execCommand('copy'); done(); } catch (e) { toast('复制失败，请手动选择'); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, legacy);
+    else legacy();
+  }
+
+  // ════════ 状态 ════════
+  function defaultFilters() {
+    return { cats: [], tplus: 'all', q: '', minScaleIdx: 3, hideSmall: true, maxFee: 1, maxPePct: 100, minDiv: 0, maxDD: 60, favOnly: false };
+  }
+  var mqMobile = window.matchMedia ? window.matchMedia('(max-width: 767px)') : { matches: false };
+  var state = {
+    raw: null, data: null, source: 'fallback', baseMacro: {},
+    regimeMode: 'AUTO', sandbox: null, regime: null, calcMs: 0,
+    filters: defaultFilters(), preset: null, limit: null,
+    sort: { key: 'fit', dir: 'desc' },
+    selected: [], favs: {}, view: store.get(LS.view, null) || (mqMobile.matches ? 'card' : 'table'),
+    indexCount: {}
+  };
+  (store.get(LS.favs, []) || []).forEach(function (c) { state.favs[c] = true; });
+
+  // ════════ 数据层：三级渐进式加载 ════════
+  function isValid(d) { return !!(d && typeof d === 'object' && Array.isArray(d.etf_list) && d.etf_list.length && d.macro_context); }
+  function stamp(d) { return (d && (Date.parse(d.generated_at) || Date.parse(d.update_date))) || 0; }
+
+  function normalize(raw) {
+    var d = JSON.parse(JSON.stringify(raw));
+    var m = d.macro_context || (d.macro_context = {});
+    ['hs300_pe', 'hs300_pe_pct', 'all_share_pb', 'all_share_pb_pct', 'cn10y_yield', 'erp', 'trend_score'].forEach(function (k) {
+      if (m[k] !== null && m[k] !== undefined && m[k] !== '') m[k] = Number(m[k]); else m[k] = null;
+    });
+    if (!isNum(m.erp)) m.erp = E.computeErp(m.hs300_pe, m.cn10y_yield);
+    if (!isNum(m.trend_score)) m.trend_score = E.computeTrendScore(m.trend_detail);
+    var count = {};
+    d.etf_list = d.etf_list.filter(function (e) { return e && e.code; }).map(function (e) {
+      var o = {};
+      for (var k in e) if (Object.prototype.hasOwnProperty.call(e, k)) o[k] = e[k];
+      o.code = String(o.code).replace(/\D/g, '').padStart(6, '0');
+      NUM_FIELDS.forEach(function (k) {
+        var v = o[k];
+        o[k] = (v === null || v === undefined || v === '' || !isFinite(Number(v))) ? null : Number(v);
+      });
+      if (!isNum(o.total_fee) && isNum(o.mgmt_fee) && isNum(o.custody_fee)) o.total_fee = E.r2(o.mgmt_fee + o.custody_fee);
+      if (!CAT[o.category]) o.category = 'broad';
+      o.t_plus = o.t_plus === 'T+0' ? 'T+0' : 'T+1';
+      o.name = o.name || o.code; o.company = o.company || ''; o.index_name = o.index_name || '—';
+      o.otc_code = o.otc_code && String(o.otc_code).trim() ? String(o.otc_code).trim() : '—';
+      o.tags = Array.isArray(o.tags) ? o.tags : [];
+      o._search = [o.code, o.name, o.company, o.index_name, o.otc_code, CAT[o.category].label, o.tags.join(' ')].join(' ').toLowerCase();
+      count[o.index_name] = (count[o.index_name] || 0) + 1;
+      return o;
+    });
+    state.indexCount = count;
+    return d;
+  }
+
+  function applyDataset(raw, src) {
+    state.raw = raw;
+    state.data = normalize(raw);
+    state.source = src;
+    state.baseMacro = {};
+    for (var k in state.data.macro_context) state.baseMacro[k] = state.data.macro_context[k];
+    state.sandbox = null;
+    var codes = {}; state.data.etf_list.forEach(function (e) { codes[e.code] = true; });
+    state.selected = state.selected.filter(function (c) { return codes[c]; });
+    syncSandboxSliders();
+    renderAll();
+  }
+
+  function pickInitial() {
+    var cands = [];
+    if (isValid(window.__ETF_LATEST_DATA__)) cands.push({ d: window.__ETF_LATEST_DATA__, src: 'js' });
+    var imp = store.get(LS.imported, null);
+    if (isValid(imp)) cands.push({ d: imp, src: 'import' });
+    if (typeof FALLBACK_ETF_DATA !== 'undefined' && isValid(FALLBACK_ETF_DATA)) cands.push({ d: FALLBACK_ETF_DATA, src: 'fallback' });
+    var best = null;
+    cands.forEach(function (c) { if (!best || stamp(c.d) > stamp(best.d)) best = c; });
+    return best;
+  }
+
+  function fetchLatest() {
+    if (!/^https?:$/.test(location.protocol) || !window.fetch) return;
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 8000);
+    fetch('./data/etf_latest.json?t=' + Date.now(), { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) {
+        clearTimeout(timer);
+        if (!isValid(d)) throw new Error('JSON 结构不完整');
+        if (stamp(d) >= stamp(state.raw) || state.source === 'fallback') applyDataset(d, 'http');
+      })
+      .catch(function (err) { clearTimeout(timer); console.info('[ETF] 在线 JSON 不可用，沿用本地数据：', err && err.message); });
+  }
+
+  function importFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var text = String(reader.result || '').replace(/^\uFEFF/, '');
+        var s = text.indexOf('{'), e = text.lastIndexOf('}');
+        if (s < 0 || e < s) throw new Error('未找到 JSON 对象');
+        var d = JSON.parse(text.slice(s, e + 1));
+        if (!isValid(d)) throw new Error('缺少 etf_list / macro_context 字段');
+        var saved = store.set(LS.imported, d);
+        applyDataset(d, 'import');
+        toast('✅ 已导入 ' + d.etf_list.length + ' 只 ETF' + (saved ? '，已保存到本地' : '（存储空间不足，仅本次有效）'));
+      } catch (err) {
+        toast('❌ 导入失败：' + err.message);
+      }
+    };
+    reader.onerror = function () { toast('❌ 文件读取失败'); };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  // ════════ 计算 ════════
+  function effectiveMacro() {
+    var m = {}, k;
+    for (k in state.baseMacro) m[k] = state.baseMacro[k];
+    if (state.sandbox) for (k in state.sandbox) m[k] = state.sandbox[k];
+    return m;
+  }
+  function recalc() {
+    var t0 = now();
+    var macro = effectiveMacro();
+    var auto = E.detectRegime(macro);
+    var live = E.detectRegime(state.baseMacro);
+    var code = state.regimeMode === 'AUTO' ? auto : state.regimeMode;
+    state.regime = { code: code, auto: auto, live: live, macro: macro };
+    state.data.etf_list.forEach(function (e) {
+      e._fit = E.fitBreakdown(e, code, macro);
+      e.fit = e._fit.total;
+    });
+    state.calcMs = now() - t0;
+  }
+
+  function effMinScale() { var f = state.filters; return Math.max(SCALE_STEPS[f.minScaleIdx], f.hideSmall ? SMALL_SCALE : 0); }
+  function filterRows() {
+    var f = state.filters, q = f.q.trim().toLowerCase(), minScale = effMinScale();
+    var terms = q ? q.split(/\s+/) : [];
+    return state.data.etf_list.filter(function (e) {
+      if (f.cats.length && f.cats.indexOf(e.category) < 0) return false;
+      if (f.tplus !== 'all' && e.t_plus !== f.tplus) return false;
+      if (f.favOnly && !state.favs[e.code]) return false;
+      if (minScale > 0 && !(e.scale_yi >= minScale)) return false;
+      if (f.maxFee < 1 && !(isNum(e.total_fee) && e.total_fee <= f.maxFee + 1e-9)) return false;
+      if (f.maxPePct < 100 && !(isNum(e.pe_pct) && e.pe_pct <= f.maxPePct)) return false;
+      if (f.minDiv > 0 && !(isNum(e.div_yield) && e.div_yield >= f.minDiv)) return false;
+      if (f.maxDD < 60 && !(isNum(e.max_dd_3y) && Math.abs(e.max_dd_3y) <= f.maxDD)) return false;
+      for (var i = 0; i < terms.length; i++) if (e._search.indexOf(terms[i]) < 0) return false;
+      return true;
+    });
+  }
+  function sortVal(e, key) {
+    if (key === 'name') return e.name + e.company;
+    if (key === 'category') return CAT_KEYS.indexOf(e.category);
+    return e[key];
+  }
+  function sortRows(rows) {
+    var key = state.sort.key, dir = state.sort.dir === 'asc' ? 1 : -1;
+    return rows.slice().sort(function (a, b) {
+      var va = sortVal(a, key), vb = sortVal(b, key);
+      var na = va === null || va === undefined, nb = vb === null || vb === undefined;
+      if (na && nb) return b.fit - a.fit;
+      if (na) return 1;
+      if (nb) return -1;
+      var c = typeof va === 'string' ? va.localeCompare(vb, 'zh-CN') : va - vb;
+      return c !== 0 ? c * dir : b.fit - a.fit;
+    });
+  }
+  function activeFilterCount() {
+    var f = state.filters, d = defaultFilters(), n = 0;
+    if (f.cats.length) n++;
+    if (f.tplus !== d.tplus) n++;
+    if (f.q.trim()) n++;
+    if (effMinScale() !== SMALL_SCALE) n++;
+    if (f.maxFee < 1) n++;
+    if (f.maxPePct < 100) n++;
+    if (f.minDiv > 0) n++;
+    if (f.maxDD < 60) n++;
+    if (f.favOnly) n++;
+    return n;
+  }
+
+  // ════════ 渲染：顶部 ════════
+  var SRC_TEXT = { http: '🌐 在线 JSON', js: '📁 本地数据包 etf_latest.js', import: '📥 导入文件', fallback: '📦 内置离线快照' };
+  function renderHeader() {
+    var d = state.data, pill = $('#srcPill');
+    pill.className = 'pill src-' + state.source;
+    pill.textContent = SRC_TEXT[state.source] || state.source;
+    pill.title = '数据来源：' + (d.data_source || '—') + (d.generated_at ? ' · 生成于 ' + d.generated_at : '');
+    $('#datePill').innerHTML = '数据日期 <b>' + esc(d.update_date || '—') + '</b>';
+    $('#btnClearImport').classList.toggle('hidden', !store.get(LS.imported, null));
+    var notice = $('#baselineNotice');
+    if (d.data_source === 'baseline_snapshot') {
+      notice.innerHTML = '⚠️ 当前为<b>内置基准快照</b>（近似参考值，非实盘行情）。在仓库根目录运行 <code>python scripts/update_etf_data.py</code> 或等待 GitHub Actions 交易日 21:30 定时任务刷新后即可获得 AKShare 最新数据。';
+      notice.classList.remove('hidden');
+    } else notice.classList.add('hidden');
+  }
+
+  // ════════ 渲染：周期看板 ════════
+  function renderRegimeCard() {
+    var R = state.regime, meta = E.REGIMES[R.code], card = $('#regimeCard');
+    card.style.setProperty('--rc', meta.color);
+    var modeTxt, modeCls = 'rg-mode';
+    if (state.regimeMode !== 'AUTO') { modeTxt = '🎛 手动沙盘推演'; modeCls += ' sandbox'; }
+    else if (state.sandbox) { modeTxt = '🧪 自定义参数推演'; modeCls += ' sandbox'; }
+    else modeTxt = '📡 自动实盘判定';
+    var reasons = state.regimeMode !== 'AUTO'
+      ? [{ hit: true, text: '手动强制切换至「' + meta.short + '」，实盘判定为「' + E.REGIMES[R.live].short + '」' }]
+      : E.explain(R.macro, R.code);
+    var top = state.data.etf_list.slice().sort(function (a, b) { return b.fit - a.fit; }).slice(0, 3);
+    card.innerHTML =
+      '<div class="rg-eyebrow">MARKET REGIME · 当前周期 <span class="' + modeCls + '">' + modeTxt + '</span></div>' +
+      '<div class="rg-name"><strong>' + meta.icon + ' ' + esc(meta.name) + '</strong><span>' + esc(meta.sub) + '</span></div>' +
+      '<p class="rg-desc">' + esc(meta.desc) + '</p>' +
+      '<ul class="rg-reasons">' + reasons.map(function (r) {
+        return '<li class="' + (r.hit ? 'hit' : '') + '"><i>' + (r.rule ? '⚑' : r.hit ? '●' : '○') + '</i><span>' + esc(r.text) + '</span></li>';
+      }).join('') + '</ul>' +
+      '<div class="alloc"><div class="alloc-hd"><span>推荐大类资产仓位配比</span><span>权益敞口 <b>' + meta.equity + '%</b></span></div>' +
+      '<div class="alloc-bar" role="img" aria-label="' + esc(meta.alloc.map(function (a) { return a.label + a.pct + '%'; }).join('，')) + '">' +
+      meta.alloc.map(function (a) { return '<i style="flex:' + a.pct + ' 1 0;background:' + a.color + '" title="' + esc(a.label + ' ' + a.pct + '%') + '"></i>'; }).join('') + '</div>' +
+      '<div class="alloc-legend">' + meta.alloc.map(function (a) { return '<span style="--sw:' + a.color + '">' + esc(a.label) + '<b>' + a.pct + '%</b></span>'; }).join('') + '</div></div>' +
+      '<div class="rg-focus">重点加权：<b>' + esc(meta.focus) + '</b></div>' +
+      '<div class="rg-top">契合度前三：' + top.map(function (e) {
+        return '<button type="button" data-jump="' + e.code + '">' + esc(e.name) + '<em>' + e.fit.toFixed(1) + '</em></button>';
+      }).join('') + '</div>';
+  }
+
+  function erpGaugeSvg(erp) {
+    var MIN = 1.5, MAX = 8, cx = 115, cy = 108, r = 86;
+    function ang(v) { return Math.PI * (1 - (E.clamp(v, MIN, MAX) - MIN) / (MAX - MIN)); }
+    function pt(v, rr) { var a = ang(v); return [cx + rr * Math.cos(a), cy - rr * Math.sin(a)]; }
+    function arc(v1, v2, color) {
+      var p1 = pt(v1, r), p2 = pt(v2, r);
+      return '<path d="M' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2) + ' A' + r + ' ' + r + ' 0 0 1 ' + p2[0].toFixed(2) + ' ' + p2[1].toFixed(2) + '" stroke="' + color + '" stroke-width="12" fill="none"/>';
+    }
+    var g = 0.04, zones = [[MIN, 3.2, '#ef5350'], [3.2, 3.8, '#f59e0b'], [3.8, 5.2, '#c8a84b'], [5.2, MAX, '#3dc98a']];
+    var s = '<svg viewBox="0 0 230 122" role="img" aria-label="股债性价比 ERP 仪表盘">';
+    zones.forEach(function (z, i) { s += arc(z[0] + (i ? g : 0), z[1] - (i < 3 ? g : 0), z[2]); });
+    [3.2, 3.8, 5.2].forEach(function (v) {
+      var p = pt(v, r + 15);
+      s += '<text x="' + p[0].toFixed(1) + '" y="' + (p[1] + 3).toFixed(1) + '" fill="#8b97a8" font-size="9.5" text-anchor="middle" font-family="DM Mono, Consolas, monospace">' + v.toFixed(1) + '</text>';
+    });
+    if (isNum(erp)) {
+      var n = pt(erp, r - 22);
+      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + n[0].toFixed(2) + '" y2="' + n[1].toFixed(2) + '" stroke="#ddd8ce" stroke-width="3" stroke-linecap="round"/>';
+    }
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="#ddd8ce" stroke="#151b22" stroke-width="2"/></svg>';
+    return s;
+  }
+
+  function pbar(p) {
+    if (!isNum(p)) return '<div class="pbar"></div>';
+    return '<div class="pbar"><u style="left:25%"></u><u style="left:75%"></u><i style="width:' + p + '%;background:' + pctColor(p) + '"></i><b style="left:' + p + '%"></b></div>';
+  }
+
+  function renderMacro() {
+    var m = state.regime.macro, b = state.baseMacro, sb = state.sandbox || {};
+    var z = E.erpZone(m.erp);
+    var simTag = function (k) { return sb[k] !== undefined && sb[k] !== b[k] ? '<em>沙盘值</em>' : ''; };
+    $('#erpGauge').innerHTML = erpGaugeSvg(m.erp) +
+      '<div class="gauge-val" style="color:' + z.color + '">' + fmt(m.erp, 2) + '<small>%</small></div>' +
+      '<div class="gauge-lbl" style="color:' + z.color + '">股债性价比 ERP · ' + z.label + '</div>' +
+      '<div class="gauge-sub">' + (sb.erp !== undefined && sb.erp !== b.erp ? '实盘 ' + fmt(b.erp, 2) + '% · 沙盘推演中' : '盈利收益率 ' + fmt(isNum(b.hs300_pe) ? 100 / b.hs300_pe : null, 2) + '% − 10Y 国债 ' + fmt(b.cn10y_yield, 2) + '%') + '</div>';
+    var pbLabel = b.all_share_pb_label || '中证全指 PB';
+    $('#macroTiles').innerHTML =
+      '<div class="tile"><div class="tile-k"><span>沪深300 PE (TTM)</span>' + simTag('hs300_pe_pct') + '</div>' +
+      '<div class="tile-v">' + fmt(b.hs300_pe, 2) + '<small>倍</small></div>' +
+      '<div class="tile-s">近10年分位 <b style="color:' + E.pctZone(m.hs300_pe_pct).color + '">' + fmt(m.hs300_pe_pct, 1) + '%</b> · ' + E.pctZone(m.hs300_pe_pct).label + '</div>' + pbar(m.hs300_pe_pct) + '</div>' +
+      '<div class="tile"><div class="tile-k"><span>' + esc(pbLabel) + '</span></div>' +
+      '<div class="tile-v">' + fmt(b.all_share_pb, 2) + '<small>倍</small></div>' +
+      '<div class="tile-s">近10年分位 <b style="color:' + E.pctZone(b.all_share_pb_pct).color + '">' + fmt(b.all_share_pb_pct, 1) + '%</b></div>' + pbar(b.all_share_pb_pct) + '</div>' +
+      '<div class="tile"><div class="tile-k"><span>中国 10Y 国债收益率</span></div>' +
+      '<div class="tile-v">' + fmt(b.cn10y_yield, 2) + '<small>%</small></div>' +
+      '<div class="tile-s">无风险锚 · 越低越利好权益估值</div></div>' +
+      '<div class="tile"><div class="tile-k"><span>沪深300 盈利收益率</span></div>' +
+      '<div class="tile-v">' + fmt(isNum(b.hs300_pe) ? 100 / b.hs300_pe : null, 2) + '<small>%</small></div>' +
+      '<div class="tile-s">= 1 / PE，与国债收益率之差即 ERP</div></div>';
+
+    var t = m.trend_score, tz = E.trendZone(t), td = b.trend_detail || {};
+    var pos = function (v) { return ((E.clamp(v, -100, 100) + 100) / 200 * 100).toFixed(2) + '%'; };
+    var dev = function (ma) { return isNum(td.hs300_close) && isNum(ma) && ma ? (td.hs300_close / ma - 1) * 100 : null; };
+    $('#trendBox').innerHTML =
+      '<div class="trend-hd"><span>均线动量趋势得分</span><b style="color:' + tz.color + '">' + (isNum(t) ? (t > 0 ? '+' : '') + t.toFixed(1) : '—') + '</b>' +
+      '<span class="zone" style="color:' + tz.color + '">' + tz.label + '</span>' + (sb.trend_score !== undefined && sb.trend_score !== b.trend_score ? '<span class="zone" style="color:#f59e0b">沙盘值 · 实盘 ' + fmt(b.trend_score, 1) + '</span>' : '') + '</div>' +
+      '<div class="tbar"><div class="tz z-down" style="left:0;width:40%"></div><div class="tz z-mid" style="left:40%;width:17.5%"></div><div class="tz z-up" style="left:57.5%;width:42.5%"></div>' +
+      '<i class="t0" style="left:50%"></i>' + (isNum(t) ? '<b class="tm" style="left:' + pos(t) + '"></b>' : '') + '</div>' +
+      '<div class="tscale"><span style="left:0">-100</span><span style="left:40%">-20 破位</span><span style="left:50%">0</span><span style="left:57.5%">+15 多头</span><span style="left:100%">+100</span></div>' +
+      '<div class="tdetail">' +
+      '<span>沪深300 <b>' + fmt(td.hs300_close, 2) + '</b></span>' +
+      '<span>MA20 <b class="' + retCls(dev(td.ma20)) + '">' + fmtPct(dev(td.ma20), 2, true) + '</b></span>' +
+      '<span>MA60 <b class="' + retCls(dev(td.ma60)) + '">' + fmtPct(dev(td.ma60), 2, true) + '</b></span>' +
+      '<span>MA250 <b class="' + retCls(dev(td.ma250)) + '">' + fmtPct(dev(td.ma250), 2, true) + '</b></span>' +
+      '<span>近20日 <b class="' + retCls(td.ret_20d) + '">' + fmtPct(td.ret_20d, 2, true) + '</b></span>' +
+      '<span>近60日 <b class="' + retCls(td.ret_60d) + '">' + fmtPct(td.ret_60d, 2, true) + '</b></span></div>';
+    $('#macroNote').textContent = state.sandbox ? '含沙盘覆盖值' : '实盘数据';
+  }
+
+  function syncSandboxSliders() {
+    var m = effectiveMacro();
+    var set = function (id, v, d) { var el = $(id); el.value = isNum(v) ? v : d; setRangeFill(el); };
+    set('#sErp', m.erp, 4.5); set('#sPe', m.hs300_pe_pct, 50); set('#sTrend', m.trend_score, 0);
+  }
+
+  function renderSandbox() {
+    var R = state.regime;
+    $$('#regimeSeg button').forEach(function (b) {
+      var on = b.getAttribute('data-mode') === state.regimeMode;
+      b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    var m = effectiveMacro();
+    $('#vErp').textContent = fmt(m.erp, 2) + '%';
+    $('#vPe').textContent = fmt(m.hs300_pe_pct, 1) + '%';
+    $('#vTrend').textContent = isNum(m.trend_score) ? (m.trend_score > 0 ? '+' : '') + m.trend_score.toFixed(0) : '—';
+    ['#vErp', '#vPe', '#vTrend'].forEach(function (id) { $(id).classList.toggle('dim', state.regimeMode !== 'AUTO'); });
+    var live = E.REGIMES[R.live].short, cur = E.REGIMES[R.code].short;
+    var note;
+    if (state.regimeMode !== 'AUTO') note = '实盘判定：<b>' + live + '</b> → 手动沙盘：<b>' + cur + '</b>。全部 ETF 的契合度已按「' + cur + '」重算；拖动下方滑块将回到状态机自动判定。';
+    else if (state.sandbox) note = '自定义推演：状态机按滑块参数判定为 <b>' + cur + '</b>（实盘为 ' + live + '）。点击「回到实盘」恢复真实数据。';
+    else note = '当前为实盘自动判定：<b>' + cur + '</b>。可一键切换周期，或拖动 ERP / 估值分位 / 趋势滑块，观察推荐榜单如何轮动。';
+    $('#sandboxNote').innerHTML = note + ' <span class="muted">重算 ' + state.data.etf_list.length + ' 只耗时 ' + state.calcMs.toFixed(2) + ' ms</span>';
+  }
+
+  // ════════ 渲染：筛选控件 ════════
+  function renderFilterControls() {
+    var f = state.filters, all = state.data.etf_list;
+    var counts = {}; all.forEach(function (e) { counts[e.category] = (counts[e.category] || 0) + 1; });
+    $('#catChips').innerHTML = '<button type="button" class="chip all' + (f.cats.length ? '' : ' on') + '" data-cat="all">全部 <small>' + all.length + '</small></button>' +
+      CAT_KEYS.map(function (k) {
+        return '<button type="button" class="chip' + (f.cats.indexOf(k) >= 0 ? ' on' : '') + '" data-cat="' + k + '" style="--cc:' + CAT[k].color + '" aria-pressed="' + (f.cats.indexOf(k) >= 0) + '">' + CAT[k].label + ' <small>' + (counts[k] || 0) + '</small></button>';
+      }).join('');
+    $$('#tplusSeg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === f.tplus); });
+    var q = $('#q'); if (q.value !== f.q) q.value = f.q;
+    var setR = function (id, v) { var el = $(id); el.value = v; setRangeFill(el); };
+    setR('#fScale', f.minScaleIdx); setR('#fFee', f.maxFee); setR('#fPePct', f.maxPePct); setR('#fDiv', f.minDiv); setR('#fDD', f.maxDD);
+    var ms = effMinScale();
+    $('#vScale').textContent = ms > 0 ? '≥ ' + ms + ' 亿' : '不限';
+    $('#vFee').textContent = f.maxFee >= 1 ? '不限' : '≤ ' + f.maxFee.toFixed(2) + '%';
+    $('#vPePct').textContent = f.maxPePct >= 100 ? '不限' : '≤ ' + f.maxPePct + '%';
+    $('#vDiv').textContent = f.minDiv <= 0 ? '不限' : '≥ ' + f.minDiv.toFixed(1) + '%';
+    $('#vDD').textContent = f.maxDD >= 60 ? '不限' : '回撤 ≤ ' + f.maxDD + '%';
+    $('#fHideSmall').checked = f.hideSmall;
+    $('#fFav').checked = f.favOnly;
+    $('#favCount').textContent = Object.keys(state.favs).length;
+    var n = activeFilterCount();
+    $('#fActive').textContent = n ? n + ' 项生效' : '';
+    $('#fBadge').textContent = n ? n : '';
+    $$('#presetRow button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-preset') === state.preset); });
+    $$('#viewSeg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-view') === state.view); });
+  }
+
+  // ════════ 渲染：结果 ════════
+  var COLS = [
+    { key: 'fit', label: '当期契合度', title: 'FitScore 0~100：周期契合 35% + 估值股息 25% + 成本流动性 20% + 夏普回撤 20%' },
+    { key: 'category', label: '类别' },
+    { key: 'index_name', label: '跟踪指数' },
+    { key: 't_plus', label: '交易' },
+    { key: 'total_fee', label: '综合费率', num: true, title: '管理费 + 托管费（年化）' },
+    { key: 'scale_yi', label: '规模(亿)', num: true },
+    { key: 'daily_vol_yi', label: '日成交(亿)', num: true, title: '近 20 日日均成交额' },
+    { key: 'pe', label: 'PE', num: true },
+    { key: 'pe_pct', label: 'PE分位', num: true, title: '跟踪指数 PE 近 10 年历史分位' },
+    { key: 'pb_pct', label: 'PB分位', num: true },
+    { key: 'div_yield', label: '股息率', num: true },
+    { key: 'tracking_error', label: '跟踪误差', num: true, title: '近 1 年年化跟踪误差' },
+    { key: 'premium_rate', label: '溢价率', num: true, title: '场内价格相对 IOPV 的折溢价' },
+    { key: 'ret_1m', label: '近1月', num: true },
+    { key: 'ret_1y', label: '近1年', num: true },
+    { key: 'cagr_3y', label: '3年年化', num: true },
+    { key: 'max_dd_3y', label: '3年回撤', num: true },
+    { key: 'sharpe_3y', label: '夏普', num: true, title: '近 3 年夏普比率（无风险利率 1.5%）' },
+    { key: 'otc_code', label: '场外联接 A / C', nosort: true },
+    { key: 'tags', label: '特色标签', nosort: true }
+  ];
+
+  function feeHtml(e) { return fmtPct(e.total_fee, 2) + (isNum(e.total_fee) && e.total_fee <= 0.2 + 1e-9 ? '<span class="bdg good">最低费率档</span>' : ''); }
+  function scaleHtml(e) {
+    var b = '';
+    if (isNum(e.scale_yi) && e.scale_yi < 0.5) b = '<span class="bdg bad">清盘风险</span>';
+    else if (isNum(e.scale_yi) && e.scale_yi < 2) b = '<span class="bdg warn">流动性预警</span>';
+    return fmtScale(e.scale_yi) + b;
+  }
+  var VAL_SRC_TIP = {
+    lg: '乐咕乐股近 10 年月度 PE 分位（实盘）',
+    cs: 'PE / 股息率取自中证指数官网当期值；该指数暂无公开历史分位数据源，分位为基准估算值',
+    base: '该指数暂无公开估值数据源，PE / 分位为基准估算值'
+  };
+  function estMark(e) {
+    return e.val_src && e.val_src !== 'lg' ? '<span class="est" title="' + VAL_SRC_TIP[e.val_src] + '">≈</span>' : '';
+  }
+  function pePctHtml(e) {
+    if (!isNum(e.pe_pct)) return '<span class="muted">—</span>';
+    var b = e.pe_pct < 30 ? '<span class="bdg good">低估</span>' : e.pe_pct > 70 ? '<span class="bdg bad">高估</span>' : '';
+    return estMark(e) + '<span style="color:' + pctColor(e.pe_pct) + '">' + e.pe_pct.toFixed(1) + '%</span>' + b;
+  }
+  function premHtml(e) {
+    if (!isNum(e.premium_rate)) return '<span class="muted">—</span>';
+    return fmtPct(e.premium_rate, 2, true) + (Math.abs(e.premium_rate) >= 1.5 ? '<span class="bdg warn">高溢价</span>' : '');
+  }
+  function fitHtml(e) {
+    var p = e._fit;
+    var tip = '周期契合 ' + p.cycle + ' · 估值股息 ' + p.value + ' · 成本流动性 ' + p.cost + ' · 夏普回撤 ' + p.risk;
+    return '<div class="fit" title="' + tip + '"><div class="fit-bar"><i style="width:' + e.fit + '%;background:' + fitColor(e.fit) + '"></i></div><b style="color:' + fitColor(e.fit) + '">' + e.fit.toFixed(1) + '</b></div>';
+  }
+  function otcHtml(e) {
+    if (!e.otc_code || e.otc_code === '—') return '<span class="muted">—</span>';
+    return '<span class="otc">' + esc(e.otc_code) + '<button type="button" class="copy" data-act="copy" data-text="' + esc(e.otc_code) + '">复制</button></span>';
+  }
+  function idxHtml(e) {
+    var n = state.indexCount[e.index_name] || 0;
+    return '<span class="idx">' + esc(e.index_name) + (n >= 2 ? '<button type="button" class="idx-pk" data-act="idxpk" data-index="' + esc(e.index_name) + '" title="一键 PK 跟踪「' + esc(e.index_name) + '」的 ' + n + ' 只 ETF">⚔' + n + '</button>' : '') + '</span>';
+  }
+  function tagsHtml(e) { return '<span class="tags">' + e.tags.slice(0, 4).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</span>'; }
+  function cellHtml(e, key) {
+    switch (key) {
+      case 'fit': return fitHtml(e);
+      case 'category': return '<span class="cat" style="--cc:' + CAT[e.category].color + '">' + CAT[e.category].short + '</span>';
+      case 'index_name': return idxHtml(e);
+      case 't_plus': return '<span class="tp' + (e.t_plus === 'T+0' ? ' t0' : '') + '">' + e.t_plus + '</span>';
+      case 'total_fee': return feeHtml(e);
+      case 'scale_yi': return scaleHtml(e);
+      case 'daily_vol_yi': return fmt(e.daily_vol_yi, 2);
+      case 'pe': return isNum(e.pe) ? e.pe.toFixed(1) : '<span class="muted">—</span>';
+      case 'pe_pct': return pePctHtml(e);
+      case 'pb_pct': return isNum(e.pb_pct) ? '<span style="color:' + pctColor(e.pb_pct) + '">' + e.pb_pct.toFixed(1) + '%</span>' : '<span class="muted">—</span>';
+      case 'div_yield': return isNum(e.div_yield) ? '<span' + (e.div_yield >= 4 ? ' style="color:#e5c96e"' : '') + '>' + e.div_yield.toFixed(2) + '%</span>' : '<span class="muted">—</span>';
+      case 'tracking_error': return fmtPct(e.tracking_error, 2);
+      case 'premium_rate': return premHtml(e);
+      case 'ret_1m': case 'ret_1y': case 'cagr_3y': case 'max_dd_3y':
+        return '<span class="' + retCls(e[key]) + '">' + fmtPct(e[key], key === 'max_dd_3y' ? 1 : 2, key !== 'max_dd_3y') + '</span>';
+      case 'sharpe_3y': return '<span class="' + (isNum(e.sharpe_3y) && e.sharpe_3y < 0 ? 'down' : '') + '">' + fmt(e.sharpe_3y, 2) + '</span>';
+      case 'otc_code': return otcHtml(e);
+      case 'tags': return tagsHtml(e);
+    }
+    return esc(e[key]);
+  }
+  function nameHtml(e) {
+    var sel = state.selected.indexOf(e.code) >= 0, fav = !!state.favs[e.code];
+    return '<div class="name-cell">' +
+      '<label class="chk" title="加入横向 PK"><input type="checkbox" data-act="sel"' + (sel ? ' checked' : '') + ' aria-label="选择 ' + esc(e.name) + ' 进行 PK"><span>✓</span></label>' +
+      '<button type="button" class="star' + (fav ? ' on' : '') + '" data-act="fav" aria-label="' + (fav ? '移出' : '加入') + '自选池" aria-pressed="' + fav + '">' + (fav ? '★' : '☆') + '</button>' +
+      '<div class="nm"><b title="' + esc(e.name + ' · ' + e.company) + '">' + esc(e.name) + '</b><span>' + e.code + ' <i>' + esc(e.company) + '</i></span></div></div>';
+  }
+  function thHtml(key, label, cls, title, nosort) {
+    var sorted = state.sort.key === key;
+    var arr = sorted ? (state.sort.dir === 'asc' ? '▲' : '▼') : (nosort ? '' : '↕');
+    var aria = sorted ? (state.sort.dir === 'asc' ? 'ascending' : 'descending') : 'none';
+    return '<th class="' + (cls || '') + (sorted ? ' sorted' : '') + '"' + (nosort ? '' : ' data-sort="' + key + '" aria-sort="' + aria + '" tabindex="0"') + (title ? ' title="' + esc(title) + '"' : '') + '>' + label + (nosort ? '' : '<span class="arr">' + arr + '</span>') + '</th>';
+  }
+  function renderTable(rows) {
+    $('#grid thead').innerHTML = '<tr>' + thHtml('name', 'ETF / 代码', 'sticky-col') +
+      COLS.map(function (c) { return thHtml(c.key, c.label, c.num ? 'num' : '', c.title, c.nosort); }).join('') + '</tr>';
+    $('#grid tbody').innerHTML = rows.map(function (e) {
+      return '<tr data-code="' + e.code + '"' + (state.selected.indexOf(e.code) >= 0 ? ' class="sel"' : '') + '><td class="sticky-col">' + nameHtml(e) + '</td>' +
+        COLS.map(function (c) { return '<td' + (c.num ? ' class="num"' : '') + '>' + cellHtml(e, c.key) + '</td>'; }).join('') + '</tr>';
+    }).join('');
+  }
+  function renderCards(rows) {
+    $('#cardList').innerHTML = rows.map(function (e) {
+      var sel = state.selected.indexOf(e.code) >= 0;
+      var badges = [];
+      if (isNum(e.total_fee) && e.total_fee <= 0.2 + 1e-9) badges.push('<span class="bdg good">最低费率档</span>');
+      if (isNum(e.scale_yi) && e.scale_yi < 0.5) badges.push('<span class="bdg bad">清盘风险</span>');
+      else if (isNum(e.scale_yi) && e.scale_yi < 2) badges.push('<span class="bdg warn">流动性预警</span>');
+      if (isNum(e.pe_pct) && e.pe_pct < 30) badges.push('<span class="bdg good">PE低估</span>');
+      if (isNum(e.pe_pct) && e.pe_pct > 70) badges.push('<span class="bdg bad">PE高估</span>');
+      if (isNum(e.premium_rate) && Math.abs(e.premium_rate) >= 1.5) badges.push('<span class="bdg warn">高溢价</span>');
+      e.tags.forEach(function (t) { if (!/降费最低档|流动性预警|清盘风险|高溢价/.test(t)) badges.push('<span class="tag">' + esc(t) + '</span>'); });
+      var cell = function (label, html) { return '<div><span>' + label + '</span><b>' + html + '</b></div>'; };
+      return '<article class="ecard' + (sel ? ' sel' : '') + '" data-code="' + e.code + '">' +
+        '<div class="ec-hd">' + nameHtml(e).replace('<div class="name-cell">', '').replace(/<\/div>$/, '') + fitHtml(e) + '</div>' +
+        '<div class="ec-meta"><span class="cat" style="--cc:' + CAT[e.category].color + '">' + CAT[e.category].label + '</span>' + idxHtml(e) +
+        '<span class="tp' + (e.t_plus === 'T+0' ? ' t0' : '') + '">' + e.t_plus + '</span></div>' +
+        '<div class="ec-grid">' +
+        cell('综合费率', fmtPct(e.total_fee, 2)) + cell('规模(亿)', fmtScale(e.scale_yi)) + cell('日成交(亿)', fmt(e.daily_vol_yi, 2)) +
+        cell('PE分位', isNum(e.pe_pct) ? estMark(e) + '<span style="color:' + pctColor(e.pe_pct) + '">' + e.pe_pct.toFixed(1) + '%</span>' : '—') +
+        cell('股息率', fmtPct(e.div_yield, 2)) + cell('跟踪误差', fmtPct(e.tracking_error, 2)) +
+        cell('近1年', '<span class="' + retCls(e.ret_1y) + '">' + fmtPct(e.ret_1y, 2, true) + '</span>') +
+        cell('3年回撤', '<span class="' + retCls(e.max_dd_3y) + '">' + fmtPct(e.max_dd_3y, 1) + '</span>') +
+        cell('夏普', fmt(e.sharpe_3y, 2)) + '</div>' +
+        (badges.length ? '<div class="ec-badges">' + badges.join('') + '</div>' : '') +
+        '<div class="ec-ft"><span class="muted" style="font-size:11px">场外联接</span>' + otcHtml(e) + '</div></article>';
+    }).join('');
+  }
+  function renderResults() {
+    var t0 = now();
+    var all = filterRows();
+    var rows = sortRows(all);
+    if (state.limit) rows = rows.slice(0, state.limit);
+    var isTable = state.view === 'table';
+    $('#tableWrap').classList.toggle('hidden', !isTable || !rows.length);
+    $('#cardList').classList.toggle('hidden', isTable || !rows.length);
+    $('#empty').classList.toggle('hidden', rows.length > 0);
+    if (isTable) renderTable(rows); else renderCards(rows);
+    state.visible = rows;
+    $('#rCount').textContent = rows.length;
+    $('#rTotal').textContent = '/ ' + state.data.etf_list.length + ' 只' + (state.limit && all.length > rows.length ? '（截取 Top ' + state.limit + '）' : '');
+    $('#perf').textContent = '⚡ 重算 + 筛选 ' + (now() - t0 + state.calcMs).toFixed(2) + ' ms';
+    var hint = state.preset ? PRESETS[state.preset].hint : '';
+    if (!hint && state.sort.key !== 'fit') {
+      var col = COLS.filter(function (c) { return c.key === state.sort.key; })[0];
+      hint = '排序：' + (col ? col.label : '名称') + (state.sort.dir === 'asc' ? ' 升序' : ' 降序') + ' · 点击「当期契合度」表头恢复默认';
+    }
+    $('#rHint').textContent = hint;
+  }
+
+  function renderTray() {
+    var n = state.selected.length;
+    $('#tray').classList.toggle('hidden', n === 0);
+    $('#trayN').textContent = n;
+    $('#pkCount').textContent = n + '/4';
+    $('#btnPK').disabled = n < 2;
+    $('#btnTrayPK').disabled = n < 2;
+    var map = byCode();
+    $('#trayItems').innerHTML = state.selected.map(function (c, i) {
+      var e = map[c]; if (!e) return '';
+      return '<button type="button" data-unsel="' + c + '" style="--sw:' + SERIES[i].color + '" title="移出 PK">' + esc(e.name) + ' <em>' + c + ' ×</em></button>';
+    }).join('');
+  }
+  function byCode() { var m = {}; state.data.etf_list.forEach(function (e) { m[e.code] = e; }); return m; }
+
+  function renderAll() {
+    recalc();
+    renderHeader();
+    renderRegimeCard();
+    renderMacro();
+    renderSandbox();
+    renderFilterControls();
+    renderResults();
+    renderTray();
+    if ($('#pkDrawer').classList.contains('open')) renderPK();
+  }
+  function onRegimeChange() {
+    recalc(); renderRegimeCard(); renderMacro(); renderSandbox(); renderResults();
+    if ($('#pkDrawer').classList.contains('open')) renderPK();
+  }
+  function onFilterChange(keepPreset) {
+    if (!keepPreset) { state.preset = null; state.limit = null; }
+    renderFilterControls(); renderResults();
+  }
+
+  // ════════ 横向 PK ════════
+  var chart = null, echartsPromise = null;
+  function loadECharts() {
+    if (window.echarts) return Promise.resolve(window.echarts);
+    if (echartsPromise) return echartsPromise;
+    echartsPromise = new Promise(function (resolve, reject) {
+      var i = 0;
+      (function next() {
+        if (window.echarts) return resolve(window.echarts);
+        if (i >= ECHARTS_CDNS.length) return reject(new Error('ECharts CDN 均不可达'));
+        var s = document.createElement('script'), done = false;
+        var timer = setTimeout(function () { if (!done) { done = true; next(); } }, 7000);
+        s.src = ECHARTS_CDNS[i++]; s.async = true;
+        s.onload = function () { if (done) return; done = true; clearTimeout(timer); if (window.echarts) resolve(window.echarts); else next(); };
+        s.onerror = function () { if (done) return; done = true; clearTimeout(timer); next(); };
+        document.head.appendChild(s);
+      })();
+    });
+    echartsPromise.catch(function () { /* 离线：使用 SVG 雷达兜底 */ });
+    return echartsPromise;
+  }
+
+  function seriesLabel(e) { return e.name.replace(/ETF$/, '') + '·' + e.company; }
+
+  function svgRadar(sel, dims) {
+    var W = 520, H = 340, cx = W / 2, cy = H / 2 + 6, R = 120, n = E.RADAR_DIMS.length;
+    function pt(i, v) { var a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + R * v / 100 * Math.cos(a), cy + R * v / 100 * Math.sin(a)]; }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="五维能力雷达图">';
+    [25, 50, 75, 100].forEach(function (lv) {
+      s += '<polygon points="' + E.RADAR_DIMS.map(function (_, i) { return pt(i, lv).map(function (x) { return x.toFixed(1); }).join(','); }).join(' ') + '" fill="none" stroke="rgba(255,255,255,' + (lv === 100 ? 0.14 : 0.07) + ')"/>';
+    });
+    E.RADAR_DIMS.forEach(function (d, i) {
+      var p = pt(i, 100), l = pt(i, 118);
+      s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" stroke="rgba(255,255,255,.08)"/>';
+      var anchor = Math.abs(l[0] - cx) < 8 ? 'middle' : l[0] > cx ? 'start' : 'end';
+      s += '<text x="' + l[0].toFixed(1) + '" y="' + (l[1] + 4).toFixed(1) + '" fill="#8b97a8" font-size="12" text-anchor="' + anchor + '">' + d.label + '</text>';
+    });
+    sel.forEach(function (e, si) {
+      var S = SERIES[si], v = dims[si];
+      var pts = E.RADAR_DIMS.map(function (d, i) { return pt(i, v[d.key]); });
+      s += '<polygon points="' + pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + '" fill="' + S.color + '" fill-opacity="0.10" stroke="' + S.color + '" stroke-width="2"' + (S.dash ? ' stroke-dasharray="6 4"' : '') + '/>';
+      pts.forEach(function (p, i) {
+        var tip = seriesLabel(e) + ' · ' + E.RADAR_DIMS[i].label + ' ' + v[E.RADAR_DIMS[i].key];
+        var x = p[0].toFixed(1), y = p[1].toFixed(1), mark;
+        if (S.symbol === 'rect') mark = '<rect x="' + (p[0] - 4).toFixed(1) + '" y="' + (p[1] - 4).toFixed(1) + '" width="8" height="8"';
+        else if (S.symbol === 'triangle') mark = '<polygon points="' + x + ',' + (p[1] - 5).toFixed(1) + ' ' + (p[0] + 5).toFixed(1) + ',' + (p[1] + 4).toFixed(1) + ' ' + (p[0] - 5).toFixed(1) + ',' + (p[1] + 4).toFixed(1) + '"';
+        else if (S.symbol === 'diamond') mark = '<polygon points="' + x + ',' + (p[1] - 5).toFixed(1) + ' ' + (p[0] + 5).toFixed(1) + ',' + y + ' ' + x + ',' + (p[1] + 5).toFixed(1) + ' ' + (p[0] - 5).toFixed(1) + ',' + y + '"';
+        else mark = '<circle cx="' + x + '" cy="' + y + '" r="4"';
+        s += mark + ' fill="' + S.color + '" stroke="#0f1318" stroke-width="2"><title>' + esc(tip) + '</title>' + (S.symbol === 'circle' ? '</circle>' : S.symbol === 'rect' ? '</rect>' : '</polygon>');
+        s += '<circle cx="' + x + '" cy="' + y + '" r="11" fill="transparent"><title>' + esc(tip) + '</title></circle>';
+      });
+    });
+    return s + '</svg>';
+  }
+
+  function drawRadar(sel, dims) {
+    var box = $('#pkRadar');
+    if (chart) { chart.dispose(); chart = null; }
+    var paintSvg = function (note) { box.innerHTML = svgRadar(sel, dims) + '<span class="rd-engine">' + note + '</span>'; };
+    if (!window.echarts) {
+      paintSvg('SVG 渲染 · ECharts 加载中');
+      loadECharts().then(function () { if ($('#pkDrawer').classList.contains('open')) renderPK(); },
+        function () { paintSvg('SVG 离线渲染'); });
+      return;
+    }
+    box.innerHTML = '';
+    chart = window.echarts.init(box, null, { renderer: 'canvas' });
+    chart.setOption({
+      backgroundColor: 'transparent',
+      animationDuration: 500,
+      tooltip: { trigger: 'item', backgroundColor: '#151b22', borderColor: '#2a3542', textStyle: { color: '#ddd8ce', fontSize: 12 },
+        formatter: function (p) {
+          return '<b>' + esc(p.name) + '</b><br>' + E.RADAR_DIMS.map(function (d, i) { return d.label + '：<b>' + p.value[i] + '</b>'; }).join('<br>');
+        } },
+      radar: {
+        indicator: E.RADAR_DIMS.map(function (d) { return { name: d.label, max: 100, min: 0 }; }),
+        center: ['50%', '52%'], radius: '66%', splitNumber: 4, shape: 'polygon',
+        axisName: { color: '#8b97a8', fontSize: 12 },
+        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
+        splitArea: { show: false },
+        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }
+      },
+      series: [{
+        type: 'radar', emphasis: { lineStyle: { width: 3 } },
+        data: sel.map(function (e, i) {
+          var S = SERIES[i];
+          return {
+            name: seriesLabel(e) + ' ' + e.code,
+            value: E.RADAR_DIMS.map(function (d) { return dims[i][d.key]; }),
+            symbol: S.symbol, symbolSize: 8,
+            lineStyle: { color: S.color, width: 2, type: S.dash ? 'dashed' : 'solid' },
+            itemStyle: { color: S.color, borderColor: '#0f1318', borderWidth: 2 },
+            areaStyle: { color: S.color, opacity: 0.10 }
+          };
+        })
+      }]
+    });
+  }
+
+  var PK_ROWS = [
+    { sec: '契合度与成本' },
+    { key: 'fit', label: '当期契合度', best: 'high', f: function (e) { return e.fit.toFixed(1); } },
+    { key: 'total_fee', label: '综合费率', best: 'low', f: function (e) { return fmtPct(e.total_fee, 2); } },
+    { key: 'scale_yi', label: '基金规模(亿)', best: 'high', f: function (e) { return fmtScale(e.scale_yi); } },
+    { key: 'daily_vol_yi', label: '日均成交(亿)', best: 'high', f: function (e) { return fmt(e.daily_vol_yi, 2); } },
+    { key: 'tracking_error', label: '跟踪误差', best: 'low', f: function (e) { return fmtPct(e.tracking_error, 2); } },
+    { key: 'premium_rate', label: '折溢价率', best: 'abs', f: function (e) { return fmtPct(e.premium_rate, 2, true); } },
+    { sec: '估值与股息' },
+    { key: 'pe_pct', label: 'PE 历史分位', best: 'low', f: function (e) { return (isNum(e.pe_pct) ? estMark(e) : '') + fmtPct(e.pe_pct, 1); } },
+    { key: 'pb_pct', label: 'PB 历史分位', best: 'low', f: function (e) { return fmtPct(e.pb_pct, 1); } },
+    { key: 'div_yield', label: '股息率', best: 'high', f: function (e) { return fmtPct(e.div_yield, 2); } },
+    { sec: '业绩与风险' },
+    { key: 'ret_1y', label: '近 1 年收益', best: 'high', f: function (e) { return fmtPct(e.ret_1y, 2, true); } },
+    { key: 'cagr_3y', label: '近 3 年年化', best: 'high', f: function (e) { return fmtPct(e.cagr_3y, 2, true); } },
+    { key: 'max_dd_3y', label: '近 3 年最大回撤', best: 'high', f: function (e) { return fmtPct(e.max_dd_3y, 1); } },
+    { key: 'sharpe_3y', label: '近 3 年夏普', best: 'high', f: function (e) { return fmt(e.sharpe_3y, 2); } },
+    { sec: '交易信息' },
+    { key: 't_plus', label: '交易机制', f: function (e) { return e.t_plus; } },
+    { key: 'otc_code', label: '场外联接', f: function (e) { return esc(e.otc_code); } }
+  ];
+
+  function renderPK() {
+    var map = byCode();
+    var sel = state.selected.map(function (c) { return map[c]; }).filter(Boolean);
+    if (sel.length < 2) { closePK(); return; }
+    var dims = sel.map(function (e) { return E.radarDims(e); });
+    var avgs = dims.map(function (d) { return E.r1((d.liq + d.fee + d.te + d.ret + d.dd) / 5); });
+    var wi = 0;
+    avgs.forEach(function (a, i) { if (a > avgs[wi] || (a === avgs[wi] && (sel[i].scale_yi || 0) > (sel[wi].scale_yi || 0))) wi = i; });
+    var w = sel[wi];
+    var leads = E.RADAR_DIMS.filter(function (d) {
+      var mx = Math.max.apply(null, dims.map(function (x) { return x[d.key]; }));
+      return dims[wi][d.key] >= mx;
+    }).map(function (d) { return d.label; });
+    var sameIndex = sel.every(function (e) { return e.index_name === sel[0].index_name; });
+    $('#pkTitle').textContent = '横向 PK · ' + sel.length + ' 只' + (sameIndex ? ' · ' + sel[0].index_name : '');
+    $('#pkWinner').innerHTML = '🏆 综合胜出：<strong>' + esc(w.name) + ' · ' + esc(w.company) + '（' + w.code + '）</strong>' +
+      '<small>五维能力均分 ' + avgs[wi].toFixed(1) + (leads.length ? ' · 领先维度：' + leads.join('、') : '') + ' · 当期契合度 ' + w.fit.toFixed(1) + '</small>';
+    $('#pkNote').innerHTML = sameIndex
+      ? '同指数对比：估值、股息与收益来自同一指数，差异可忽略；<b>重点看综合费率、规模流动性、跟踪误差与折溢价</b>——长期持有时 0.1% 的费率差与跟踪误差会持续复利侵蚀收益。'
+      : '跨指数 / 跨品种对比：收益、回撤与估值差异主要来自<b>指数本身的风险收益特征</b>，建议结合当前周期的契合度与仓位配比做组合，而非简单二选一。';
+    $('#pkLegend').innerHTML = sel.map(function (e, i) {
+      var S = SERIES[i];
+      return '<span><svg width="22" height="10" aria-hidden="true"><line x1="1" y1="5" x2="21" y2="5" stroke="' + S.color + '" stroke-width="2"' + (S.dash ? ' stroke-dasharray="4 3"' : '') + '/></svg>' + esc(seriesLabel(e)) + ' ' + e.code + ' · 均分 ' + avgs[i].toFixed(1) + '</span>';
+    }).join('');
+    var head = '<thead><tr><th>指标</th>' + sel.map(function (e, i) {
+      return '<th><span class="ph' + (SERIES[i].dash ? ' dash' : '') + (i === wi ? ' win' : '') + '" style="--sw:' + SERIES[i].color + '"><b>' + esc(e.name) + '</b><span>' + e.code + ' · ' + esc(e.company) + '</span></span></th>';
+    }).join('') + '</tr></thead>';
+    var body = PK_ROWS.map(function (r) {
+      if (r.sec) return '<tr class="pk-sec"><td colspan="' + (sel.length + 1) + '">' + r.sec + '</td></tr>';
+      var vals = sel.map(function (e) { return e[r.key]; });
+      var nums = vals.filter(isNum), target = null;
+      if (r.best && nums.length >= 2) {
+        if (r.best === 'high') target = Math.max.apply(null, nums);
+        else if (r.best === 'low') target = Math.min.apply(null, nums);
+        else target = Math.min.apply(null, nums.map(Math.abs));
+        var allEq = nums.every(function (v) { return (r.best === 'abs' ? Math.abs(v) : v) === target; });
+        if (allEq) target = null;
+      }
+      return '<tr><td>' + r.label + '</td>' + sel.map(function (e, i) {
+        var v = vals[i], best = target !== null && isNum(v) && (r.best === 'abs' ? Math.abs(v) : v) === target;
+        return '<td' + (best ? ' class="best"' : '') + '>' + r.f(e) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    var radarRows = '<tr class="pk-sec"><td colspan="' + (sel.length + 1) + '">五维能力分（0~100）</td></tr>' +
+      E.RADAR_DIMS.map(function (d) {
+        var mx = Math.max.apply(null, dims.map(function (x) { return x[d.key]; }));
+        var allEq = dims.every(function (x) { return x[d.key] === mx; });
+        return '<tr><td>' + d.label + '</td>' + dims.map(function (x) { return '<td' + (!allEq && x[d.key] === mx ? ' class="best"' : '') + '>' + x[d.key].toFixed(1) + '</td>'; }).join('') + '</tr>';
+      }).join('');
+    $('#pkTable').innerHTML = head + '<tbody>' + body + radarRows + '</tbody>';
+    drawRadar(sel, dims);
+  }
+
+  var lastFocus = null;
+  function openPK() {
+    if (state.selected.length < 2) { toast('请至少勾选 2 只 ETF 进行横向 PK'); return; }
+    lastFocus = document.activeElement;
+    var dw = $('#pkDrawer');
+    dw.classList.add('open'); dw.setAttribute('aria-hidden', 'false');
+    $('#backdrop').classList.remove('hidden');
+    document.body.classList.add('lock');
+    renderPK();
+    setTimeout(function () { $('#btnClosePK').focus(); }, 50);
+  }
+  function closePK() {
+    var dw = $('#pkDrawer');
+    if (!dw.classList.contains('open')) return;
+    dw.classList.remove('open'); dw.setAttribute('aria-hidden', 'true');
+    if (!$('#filters').classList.contains('open')) { $('#backdrop').classList.add('hidden'); document.body.classList.remove('lock'); }
+    if (chart) { chart.dispose(); chart = null; }
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function openFilters() { $('#filters').classList.add('open'); $('#backdrop').classList.remove('hidden'); document.body.classList.add('lock'); }
+  function closeFilters() {
+    $('#filters').classList.remove('open');
+    if (!$('#pkDrawer').classList.contains('open')) { $('#backdrop').classList.add('hidden'); document.body.classList.remove('lock'); }
+  }
+
+  function toggleSelect(code, force) {
+    var i = state.selected.indexOf(code), on = force === undefined ? i < 0 : force;
+    if (on && i < 0) {
+      if (state.selected.length >= 4) { toast('最多同时 PK 4 只 ETF'); renderResults(); return; }
+      state.selected.push(code);
+    } else if (!on && i >= 0) state.selected.splice(i, 1);
+    renderResults(); renderTray();
+    if ($('#pkDrawer').classList.contains('open')) renderPK();
+  }
+  function toggleFav(code) {
+    if (state.favs[code]) delete state.favs[code]; else state.favs[code] = true;
+    if (!store.set(LS.favs, Object.keys(state.favs))) toast('当前浏览器禁止本地存储，自选仅本次有效');
+    else toast(state.favs[code] ? '★ 已加入自选池' : '已移出自选池');
+    renderFilterControls(); renderResults();
+  }
+  function pkIndex(name) {
+    var list = state.data.etf_list.filter(function (e) { return e.index_name === name; })
+      .sort(function (a, b) { return (b.scale_yi || 0) - (a.scale_yi || 0); }).slice(0, 4);
+    state.selected = list.map(function (e) { return e.code; });
+    renderResults(); renderTray(); openPK();
+  }
+
+  // ════════ CSV 导出（UTF-8 BOM）════════
+  function exportCSV() {
+    var rows = state.visible || [];
+    if (!rows.length) { toast('当前没有可导出的结果'); return; }
+    var head = ['代码', '名称', '基金公司', '类别', '跟踪指数', '交易机制', '场外联接', '当期契合度', '综合费率%', '管理费%', '托管费%',
+      '规模(亿)', '日均成交(亿)', 'PE', 'PE分位%', 'PE分位口径', 'PB', 'PB分位%', '股息率%', '跟踪误差%', '溢价率%', '近1月%', '近1年%',
+      '近3年年化%', '近3年最大回撤%', '近3年夏普', '标签'];
+    var SRC_CSV = { lg: '近10年实盘分位', cs: '当期PE实盘·分位估算', base: '基准估算' };
+    var q = function (v) { var s = v === null || v === undefined ? '' : String(v); return '"' + s.replace(/"/g, '""') + '"'; };
+    var t = function (v) { return '\t' + v; }; // 制表符前缀：防止 Excel 吞掉代码前导 0
+    var lines = [head.map(q).join(',')].concat(rows.map(function (e) {
+      return [t(e.code), e.name, e.company, CAT[e.category].label, e.index_name, e.t_plus, e.otc_code === '—' ? '' : t(e.otc_code), e.fit,
+        e.total_fee, e.mgmt_fee, e.custody_fee, e.scale_yi, e.daily_vol_yi, e.pe, e.pe_pct, SRC_CSV[e.val_src] || '', e.pb, e.pb_pct, e.div_yield,
+        e.tracking_error, e.premium_rate, e.ret_1m, e.ret_1y, e.cagr_3y, e.max_dd_3y, e.sharpe_3y, e.tags.join(' / ')].map(q).join(',');
+    }));
+    var csv = '\uFEFF' + lines.join('\r\n'); // UTF-8 BOM：Windows Excel 识别中文不乱码
+    var regimeName = E.REGIMES[state.regime.code].short;
+    var name = 'ETF筛选_' + regimeName + '_' + (state.data.update_date || 'latest') + '.csv';
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
+      copyText(lines.join('\n'), '微信内置浏览器不支持下载，已复制 CSV 文本；请用系统浏览器打开以下载文件');
+      return;
+    }
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    if (window.navigator.msSaveOrOpenBlob) { window.navigator.msSaveOrOpenBlob(blob, name); return; }
+    var url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    toast('⇩ 已导出 ' + rows.length + ' 只 ETF → ' + name);
+  }
+
+  // ════════ 事件绑定 ════════
+  function bind() {
+    $('#regimeSeg').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-mode]'); if (!b) return;
+      state.regimeMode = b.getAttribute('data-mode');
+      if (state.regimeMode === 'AUTO') { state.sandbox = null; syncSandboxSliders(); }
+      onRegimeChange();
+    });
+    var sliderMap = { '#sErp': 'erp', '#sPe': 'hs300_pe_pct', '#sTrend': 'trend_score' };
+    Object.keys(sliderMap).forEach(function (id) {
+      $(id).addEventListener('input', function (ev) {
+        setRangeFill(ev.target);
+        var m = effectiveMacro();
+        state.sandbox = { erp: m.erp, hs300_pe_pct: m.hs300_pe_pct, trend_score: m.trend_score };
+        state.sandbox[sliderMap[id]] = Number(ev.target.value);
+        state.regimeMode = 'AUTO';
+        onRegimeChange();
+      });
+    });
+    $('#btnResetSandbox').addEventListener('click', function () {
+      state.sandbox = null; state.regimeMode = 'AUTO'; syncSandboxSliders(); onRegimeChange(); toast('已恢复实盘数据判定');
+    });
+    $('#regimeCard').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-jump]'); if (!b) return;
+      var code = b.getAttribute('data-jump');
+      state.filters = defaultFilters(); state.filters.q = code; state.preset = null; state.limit = null;
+      onFilterChange(true);
+      var target = $('.results'); if (target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    $('#presetRow').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-preset]'); if (!b) return;
+      var key = b.getAttribute('data-preset');
+      state.filters = defaultFilters();
+      if (state.preset === key) { state.preset = null; state.limit = null; state.sort = { key: 'fit', dir: 'desc' }; onFilterChange(true); return; }
+      var p = PRESETS[key];
+      p.apply(state.filters);
+      state.preset = key; state.limit = p.limit || null; state.sort = { key: p.sort.key, dir: p.sort.dir };
+      onFilterChange(true);
+    });
+
+    $('#catChips').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-cat]'); if (!b) return;
+      var c = b.getAttribute('data-cat'), f = state.filters;
+      if (c === 'all') f.cats = [];
+      else { var i = f.cats.indexOf(c); if (i >= 0) f.cats.splice(i, 1); else f.cats.push(c); if (f.cats.length === CAT_KEYS.length) f.cats = []; }
+      onFilterChange();
+    });
+    $('#tplusSeg').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-v]'); if (!b) return;
+      state.filters.tplus = b.getAttribute('data-v'); onFilterChange();
+    });
+    var qTimer = null;
+    $('#q').addEventListener('input', function (ev) {
+      clearTimeout(qTimer);
+      var v = ev.target.value;
+      qTimer = setTimeout(function () { state.filters.q = v; onFilterChange(); }, 60);
+    });
+    $('#fScale').addEventListener('input', function (ev) {
+      var f = state.filters; f.minScaleIdx = +ev.target.value;
+      if (SCALE_STEPS[f.minScaleIdx] < SMALL_SCALE) f.hideSmall = false;
+      onFilterChange();
+    });
+    $('#fHideSmall').addEventListener('change', function (ev) {
+      var f = state.filters; f.hideSmall = ev.target.checked;
+      if (f.hideSmall && SCALE_STEPS[f.minScaleIdx] < SMALL_SCALE) f.minScaleIdx = SCALE_STEPS.indexOf(SMALL_SCALE);
+      if (!f.hideSmall && SCALE_STEPS[f.minScaleIdx] <= SMALL_SCALE) f.minScaleIdx = 0;
+      onFilterChange();
+    });
+    $('#fFee').addEventListener('input', function (ev) { state.filters.maxFee = +ev.target.value; onFilterChange(); });
+    $('#fPePct').addEventListener('input', function (ev) { state.filters.maxPePct = +ev.target.value; onFilterChange(); });
+    $('#fDiv').addEventListener('input', function (ev) { state.filters.minDiv = +ev.target.value; onFilterChange(); });
+    $('#fDD').addEventListener('input', function (ev) { state.filters.maxDD = +ev.target.value; onFilterChange(); });
+    $('#fFav').addEventListener('change', function (ev) { state.filters.favOnly = ev.target.checked; onFilterChange(); });
+    var resetAll = function () { state.filters = defaultFilters(); state.sort = { key: 'fit', dir: 'desc' }; onFilterChange(); };
+    $('#btnResetFilters').addEventListener('click', resetAll);
+    $('#btnEmptyReset').addEventListener('click', resetAll);
+
+    $('#viewSeg').addEventListener('click', function (ev) {
+      var b = ev.target.closest('button[data-view]'); if (!b) return;
+      state.view = b.getAttribute('data-view'); store.set(LS.view, state.view);
+      renderFilterControls(); renderResults();
+    });
+
+    var results = $('.results');
+    results.addEventListener('click', function (ev) {
+      var th = ev.target.closest('th[data-sort]');
+      if (th) {
+        var key = th.getAttribute('data-sort');
+        if (state.sort.key === key) state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+        else state.sort = { key: key, dir: LOW_FIRST[key] ? 'asc' : 'desc' };
+        if (state.preset && !PRESETS[state.preset].limit) state.preset = null;
+        renderFilterControls(); renderResults(); return;
+      }
+      var act = ev.target.closest('[data-act]'); if (!act) return;
+      var holder = act.closest('[data-code]'), code = holder && holder.getAttribute('data-code');
+      var a = act.getAttribute('data-act');
+      if (a === 'fav') toggleFav(code);
+      else if (a === 'copy') copyText(act.getAttribute('data-text'));
+      else if (a === 'idxpk') pkIndex(act.getAttribute('data-index'));
+    });
+    results.addEventListener('keydown', function (ev) {
+      if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('th[data-sort]')) { ev.preventDefault(); ev.target.click(); }
+    });
+    results.addEventListener('change', function (ev) {
+      if (ev.target.getAttribute('data-act') !== 'sel') return;
+      var holder = ev.target.closest('[data-code]');
+      toggleSelect(holder.getAttribute('data-code'), ev.target.checked);
+    });
+
+    $('#btnPK').addEventListener('click', openPK);
+    $('#btnTrayPK').addEventListener('click', openPK);
+    $('#btnTrayClear').addEventListener('click', function () { state.selected = []; renderResults(); renderTray(); });
+    $('#trayItems').addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-unsel]'); if (b) toggleSelect(b.getAttribute('data-unsel'), false);
+    });
+    $('#btnClosePK').addEventListener('click', closePK);
+    $('#backdrop').addEventListener('click', function () { closePK(); closeFilters(); });
+    $('#btnOpenFilters').addEventListener('click', openFilters);
+    $('#btnCloseFilters').addEventListener('click', closeFilters);
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { closePK(); closeFilters(); } });
+    window.addEventListener('resize', function () { if (chart) chart.resize(); });
+
+    $('#btnCSV').addEventListener('click', exportCSV);
+    $('#btnImport').addEventListener('click', function () { $('#fileInput').click(); });
+    $('#fileInput').addEventListener('change', function (ev) {
+      var file = ev.target.files && ev.target.files[0]; if (file) importFile(file); ev.target.value = '';
+    });
+    $('#btnClearImport').addEventListener('click', function () {
+      store.del(LS.imported);
+      var best = pickInitial();
+      if (best) applyDataset(best.d, best.src);
+      fetchLatest();
+      toast('已清除导入数据');
+    });
+  }
+
+  // ════════ 启动 ════════
+  function boot() {
+    bind();
+    var init = pickInitial();
+    if (!init) {
+      $('#regimeCard').innerHTML = '<p style="color:#ef5350">未能加载任何 ETF 数据：请确认 data/etf_latest.js 存在，或点击右上角「导入数据」选择 etf_latest.json。</p>';
+      return;
+    }
+    applyDataset(init.d, init.src);
+    fetchLatest();
+    setTimeout(function () { loadECharts(); }, 1500);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+</body>
+</html>
