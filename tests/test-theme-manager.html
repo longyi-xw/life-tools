@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
+<title>Theme Manager 单元测试(运行中)</title>
+<script>
+  // 测试夹具(必须先于 theme-manager.js 执行):
+  // 1) 快照并清空 lifetools_* 存储键,测试结束后还原,避免污染同源下的真实设置
+  // 2) 安装可控的 matchMedia 桩,模拟系统深/浅色与 change 事件
+  // 3) 包装 window.addEventListener,统计 storage / pageshow 的注册次数(验证幂等)
+  (function () {
+    var snap = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('lifetools_') === 0) snap[k] = localStorage.getItem(k);
+      }
+      Object.keys(snap).forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) { /* 存储不可用时跳过 */ }
+    window.__snapshot = snap;
+
+    var mm = { dark: true, listeners: [] };
+    mm.set = function (dark) {
+      mm.dark = dark;
+      mm.listeners.slice().forEach(function (fn) { fn({ matches: dark, media: '(prefers-color-scheme: dark)' }); });
+    };
+    window.__mm = mm;
+    window.__origMatchMedia = window.matchMedia;
+    window.matchMedia = function (q) {
+      var isDark = /prefers-color-scheme:\s*dark/.test(q);
+      return {
+        media: q,
+        get matches() { return isDark ? mm.dark : false; },
+        addEventListener: function (t, fn) { if (isDark && t === 'change') mm.listeners.push(fn); },
+        removeEventListener: function (t, fn) { mm.listeners = mm.listeners.filter(function (f) { return f !== fn; }); },
+        addListener: function (fn) { if (isDark) mm.listeners.push(fn); },
+        removeListener: function (fn) { mm.listeners = mm.listeners.filter(function (f) { return f !== fn; }); }
+      };
+    };
+
+    window.__reg = { storage: 0, pageshow: 0 };
+    window.__origAdd = window.addEventListener;
+    window.addEventListener = function (type) {
+      if (Object.prototype.hasOwnProperty.call(window.__reg, type)) window.__reg[type]++;
+      return window.__origAdd.apply(this, arguments);
+    };
+  })();
+</script>
+<script src="../theme-manager.js"></script>
+<script>
+  // 模拟真实页面的标准接入:在 <head> 内同步初始化,并记录此刻(body 尚未解析)的状态
+  (function () {
+    localStorage.setItem('lifetools_global_theme', 'light');
+    LifeToolsTheme.initAntiFOUC('testhead');
+    var root = document.documentElement;
+    window.__head = {
+      theme: root.getAttribute('data-theme'),
+      colorScheme: root.style.colorScheme,
+      bodyIsNull: document.body === null
+    };
+  })();
+</script>
+<style>
+  html { background: #f7f5ef; color: #24201a; }
+  html[data-theme="dark"] { background: #0f1218; color: #ddd8cc; }
+  body { margin: 0; padding: 24px; font: 14px/1.6 system-ui, "Microsoft YaHei", sans-serif; }
+  #summary { font-size: 22px; margin: 0 0 4px; }
+  #summary[data-status="pass"] { color: #12803f; }
+  #summary[data-status="fail"] { color: #c62828; }
+  #counts { margin: 0 0 18px; opacity: .8; }
+  h2 { font-size: 15px; margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(128,128,128,.35); }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { padding: 2px 0; }
+  li.ok::before { content: "✅ PASS  "; color: #12803f; font-weight: 600; }
+  li.bad::before { content: "❌ FAIL  "; color: #c62828; font-weight: 600; }
+  li .detail { display: block; margin-left: 5.5em; color: #c62828; font-size: 12px; white-space: pre-wrap; }
+  #fixtures { position: absolute; left: -9999px; top: 0; }
+</style>
+</head>
+<body data-status="running">
+  <h1 id="summary" data-status="running">测试运行中…</h1>
+  <p id="counts"></p>
+  <div id="results"></div>
+  <div id="fixtures"></div>
+
+<script>
+(async function () {
+  var T = window.LifeToolsTheme;
+  var KEYS = T.KEYS;
+  var root = document.documentElement;
+  var fixtures = document.getElementById('fixtures');
+  var results = [];
+
+  /* ---------- 断言工具 ---------- */
+  function check(name, cond, detail) { results.push({ name: name, ok: !!cond, detail: cond ? '' : (detail || '') }); }
+  function eq(name, actual, expected) {
+    check(name, actual === expected, '期望 ' + JSON.stringify(expected) + ',实际 ' + JSON.stringify(actual));
+  }
+  function noThrow(name, fn) {
+    try { fn(); check(name, true); } catch (e) { check(name, false, '抛出异常: ' + (e && e.message)); }
+  }
+  async function group(title, fn) {
+    results.push({ group: title });
+    try { await fn(); } catch (e) { check(title + ':未抛出未捕获异常', false, e && (e.stack || e.message || String(e))); }
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function clearKeys() {
+    var rm = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('lifetools_') === 0) rm.push(k);
+    }
+    rm.forEach(function (k) { localStorage.removeItem(k); });
+  }
+  // 每组开头重置:清空存储、系统设为深色、当前页回到 testhead
+  function reset() {
+    clearKeys();
+    window.__mm.dark = true;
+    T.initAntiFOUC('testhead');
+  }
+  function key(e, k, extra) {
+    var ev = new KeyboardEvent('keydown', Object.assign({ key: k, bubbles: true, cancelable: true }, extra || {}));
+    e.dispatchEvent(ev);
+    return ev;
+  }
+  function storageEvent(k) {
+    window.dispatchEvent(new StorageEvent('storage', { key: k, storageArea: localStorage }));
+  }
+  function theme() { return root.getAttribute('data-theme'); }
+  function listen() {
+    var log = [];
+    var off = T.onChange(function (e) { log.push(e.detail); });
+    return { log: log, off: off };
+  }
+
+  /* ---------- 1. 默认值与非法值回退 ---------- */
+  await group('默认值与非法值回退', function () {
+    reset();
+    eq('全局默认为 auto', T.getGlobalTheme(), 'auto');
+    eq('页面默认为 follow', T.getPageTheme('pg'), 'follow');
+    eq('KEYS.GLOBAL 取值', KEYS.GLOBAL, 'lifetools_global_theme');
+    eq('KEYS.PAGE_PREFIX 取值', KEYS.PAGE_PREFIX, 'lifetools_page_theme_');
+
+    localStorage.setItem(KEYS.GLOBAL, 'purple');
+    eq('存储里的非法全局值回退为 auto', T.getGlobalTheme(), 'auto');
+    localStorage.setItem(KEYS.GLOBAL, '');
+    eq('存储里的空串全局值回退为 auto', T.getGlobalTheme(), 'auto');
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'pg', 'auto');
+    eq('页面键里写入 auto(非法)回退为 follow', T.getPageTheme('pg'), 'follow');
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'pg', 'DARK');
+    eq('大小写不符的页面值回退为 follow', T.getPageTheme('pg'), 'follow');
+
+    T.setGlobalTheme('dark');
+    T.setGlobalTheme('bogus');
+    eq('setGlobalTheme 非法值被忽略(保留旧值)', T.getGlobalTheme(), 'dark');
+    T.setGlobalTheme(undefined);
+    eq('setGlobalTheme(undefined) 被忽略', T.getGlobalTheme(), 'dark');
+    T.setPageTheme('pg', 'light');
+    T.setPageTheme('pg', 'auto');
+    eq('setPageTheme 非法值被忽略(保留旧值)', T.getPageTheme('pg'), 'light');
+    noThrow('空 pageId 不抛错', function () { T.setPageTheme('', 'dark'); T.getPageTheme(''); T.getPageTheme(undefined); });
+    eq('空 pageId 读取为 follow', T.getPageTheme(''), 'follow');
+  });
+
+  /* ---------- 2. 全局 / 页面存取 ---------- */
+  await group('全局与页面存取', function () {
+    reset();
+    ['auto', 'dark', 'light'].forEach(function (m) {
+      T.setGlobalTheme(m);
+      eq('setGlobalTheme(' + m + ') 读回一致', T.getGlobalTheme(), m);
+      eq('全局 ' + m + ' 实际写入 localStorage', localStorage.getItem(KEYS.GLOBAL), m);
+    });
+    ['follow', 'dark', 'light', 'system'].forEach(function (m) {
+      T.setPageTheme('pg', m);
+      eq('setPageTheme(pg, ' + m + ') 读回一致', T.getPageTheme('pg'), m);
+      eq('页面 ' + m + ' 实际写入 ' + KEYS.PAGE_PREFIX + 'pg', localStorage.getItem(KEYS.PAGE_PREFIX + 'pg'), m);
+    });
+    T.setPageTheme('pgA', 'dark');
+    T.setPageTheme('pgB', 'light');
+    eq('不同页面的设置互不影响(A)', T.getPageTheme('pgA'), 'dark');
+    eq('不同页面的设置互不影响(B)', T.getPageTheme('pgB'), 'light');
+    eq('未设置的页面仍为 follow', T.getPageTheme('pgC'), 'follow');
+    T.setGlobalTheme('light');
+    eq('改全局不会改写页面设置', T.getPageTheme('pgA'), 'dark');
+  });
+
+  /* ---------- 3. resolveEffectiveTheme 全组合 ---------- */
+  await group('resolveEffectiveTheme 全部组合', function () {
+    reset();
+    [true, false].forEach(function (sysDark) {
+      var sys = sysDark ? 'dark' : 'light';
+      window.__mm.dark = sysDark;
+      ['auto', 'dark', 'light'].forEach(function (g) {
+        T.setGlobalTheme(g);
+        var globalResolved = g === 'auto' ? sys : g;
+        ['follow', 'dark', 'light', 'system'].forEach(function (p) {
+          T.setPageTheme('pg', p);
+          var expected = p === 'follow' ? globalResolved : p === 'system' ? sys : p;
+          eq('系统=' + sys + ' 全局=' + g + ' 页面=' + p + ' → ' + expected, T.resolveEffectiveTheme('pg'), expected);
+        });
+        eq('系统=' + sys + ' 全局=' + g + ' 首页 → ' + globalResolved, T.resolveEffectiveTheme('home'), globalResolved);
+      });
+    });
+
+    // 'home' 永不使用页面覆盖
+    window.__mm.dark = true;
+    T.setGlobalTheme('dark');
+    T.setPageTheme('home', 'light');
+    eq("'home' 的 setPageTheme 被忽略,仍跟全局", T.resolveEffectiveTheme('home'), 'dark');
+    eq("'home' 的页面设置恒为 follow", T.getPageTheme('home'), 'follow');
+    check("'home' 不会写入页面键", localStorage.getItem(KEYS.PAGE_PREFIX + 'home') === null);
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'home', 'light'); // 绕过 API 手动写入
+    eq("即便存储里有 home 页面键,解析仍跟全局", T.resolveEffectiveTheme('home'), 'dark');
+    T.setGlobalTheme('light');
+    eq("'home' 随全局切到浅色", T.resolveEffectiveTheme('home'), 'light');
+
+    // 系统切换后重新解析(不缓存)
+    T.setGlobalTheme('auto');
+    T.setPageTheme('pg', 'follow');
+    window.__mm.dark = true;
+    eq('auto 跟随系统深色', T.resolveEffectiveTheme('pg'), 'dark');
+    window.__mm.dark = false;
+    eq('系统改浅色后重新解析为浅色', T.resolveEffectiveTheme('pg'), 'light');
+
+    // 无 matchMedia / matchMedia 抛错 → 按深色
+    var saved = window.matchMedia;
+    window.matchMedia = undefined;
+    eq('无 matchMedia 时 auto 解析为 dark', T.resolveEffectiveTheme('home'), 'dark');
+    T.setPageTheme('pg', 'system');
+    eq('无 matchMedia 时 system 解析为 dark', T.resolveEffectiveTheme('pg'), 'dark');
+    window.matchMedia = function () { throw new Error('boom'); };
+    eq('matchMedia 抛错时按 dark 处理', T.resolveEffectiveTheme('pg'), 'dark');
+    window.matchMedia = saved;
+  });
+
+  /* ---------- 4. applyTheme ---------- */
+  await group('applyTheme 写 DOM 并派发事件', function () {
+    reset();
+    window.__mm.dark = true;
+    T.setGlobalTheme('dark');
+    T.setPageTheme('pg', 'light');
+    var l = listen();
+    var ret = T.applyTheme('pg');
+    eq('页面 light 覆盖 → data-theme=light', theme(), 'light');
+    eq('同时设置 style.colorScheme=light', root.style.colorScheme, 'light');
+    eq('派发了 1 次 lifetools:themechange', l.log.length, 1);
+    eq('事件 detail.pageId', l.log[0] && l.log[0].pageId, 'pg');
+    eq('事件 detail.theme 为生效主题', l.log[0] && l.log[0].theme, 'light');
+    eq('事件 detail.mode 为页面模式', l.log[0] && l.log[0].mode, 'light');
+    eq('applyTheme 返回生效主题', ret, 'light');
+
+    T.setPageTheme('pg', 'follow');
+    l.log.length = 0;
+    T.applyTheme('pg');
+    eq('follow + 全局 dark → data-theme=dark', theme(), 'dark');
+    eq('colorScheme=dark', root.style.colorScheme, 'dark');
+    eq('mode=follow', l.log[0] && l.log[0].mode, 'follow');
+
+    l.log.length = 0;
+    T.applyTheme('home');
+    eq('home 的 detail.theme', l.log[0] && l.log[0].theme, 'dark');
+    eq('home 的 detail.mode 为全局模式', l.log[0] && l.log[0].mode, 'dark');
+    eq('事件为 CustomEvent 且名称正确', (function () {
+      var got = null;
+      var h = function (e) { got = e; };
+      window.addEventListener('lifetools:themechange', h);
+      T.applyTheme('pg');
+      window.removeEventListener('lifetools:themechange', h);
+      return got && got.type + '|' + (got instanceof CustomEvent);
+    })(), 'lifetools:themechange|true');
+
+    // onChange 返回的取消订阅函数
+    l.log.length = 0;
+    l.off();
+    T.applyTheme('pg');
+    eq('onChange 取消订阅后不再收到事件', l.log.length, 0);
+    noThrow('onChange 传入非函数不抛错', function () { T.onChange(null)(); });
+  });
+
+  /* ---------- 5. initAntiFOUC ---------- */
+  await group('initAntiFOUC 防闪烁与幂等', function () {
+    // 来自 <head> 内联脚本的快照:此时 body 还没解析
+    eq('head 内调用时 body 尚未解析', window.__head.bodyIsNull, true);
+    eq('head 内调用后 data-theme 已就绪(全局 light)', window.__head.theme, 'light');
+    eq('head 内调用后 colorScheme 已就绪', window.__head.colorScheme, 'light');
+
+    var storageBefore = window.__reg.storage;
+    var mqBefore = window.__mm.listeners.length;
+    T.initAntiFOUC('testhead');
+    T.initAntiFOUC('testhead');
+    T.initAntiFOUC('other');
+    T.initAntiFOUC('testhead');
+    eq('storage 监听只注册 1 次(跨 5 次 init)', window.__reg.storage, 1);
+    eq('storage 监听在重复 init 后没有增加', window.__reg.storage, storageBefore);
+    eq('pageshow 监听只注册 1 次', window.__reg.pageshow, 1);
+    eq('系统主题监听只注册 1 次', window.__mm.listeners.length, 1);
+    eq('系统主题监听在重复 init 后没有增加', window.__mm.listeners.length, mqBefore);
+
+    reset();
+    T.setGlobalTheme('dark');
+    var l = listen();
+    T.initAntiFOUC('testhead');
+    eq('重复 init 仍会立即应用当前存储的主题', theme(), 'dark');
+    eq('每次 init 派发 1 次事件(无叠加监听)', l.log.length, 1);
+    l.off();
+  });
+
+  /* ---------- 6. setter 自动应用 + 跨标签页(storage 事件) + 系统变化 ---------- */
+  await group('当前页自动应用 / storage 同步 / 系统主题监听', function () {
+    reset();
+    window.__mm.dark = true;
+    var l = listen();
+
+    T.setGlobalTheme('light');
+    eq('setGlobalTheme 后当前页立即应用(light)', theme(), 'light');
+    eq('setGlobalTheme 触发事件', l.log.length, 1);
+    T.setGlobalTheme('dark');
+    eq('setGlobalTheme(dark) 立即应用', theme(), 'dark');
+    T.setPageTheme('testhead', 'light');
+    eq('setPageTheme(当前页) 立即应用', theme(), 'light');
+    T.setPageTheme('testhead', 'follow');
+    eq('回到 follow 后跟全局 dark', theme(), 'dark');
+
+    // 模拟另一个标签页改了全局键(只写存储 + 派发 storage 事件,不经过本页 API)
+    l.log.length = 0;
+    localStorage.setItem(KEYS.GLOBAL, 'light');
+    storageEvent(KEYS.GLOBAL);
+    eq('storage 事件(全局键)→ 无刷新同步为 light', theme(), 'light');
+    eq('storage 同步时派发 themechange', l.log.length, 1);
+
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'testhead', 'dark');
+    storageEvent(KEYS.PAGE_PREFIX + 'testhead');
+    eq('storage 事件(本页键)→ 同步为 dark', theme(), 'dark');
+
+    l.log.length = 0;
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'otherPage', 'light');
+    storageEvent(KEYS.PAGE_PREFIX + 'otherPage');
+    eq('其它页面的键变化不触发本页重算', l.log.length, 0);
+    storageEvent('some_unrelated_key');
+    eq('无关键变化不触发重算', l.log.length, 0);
+
+    localStorage.removeItem(KEYS.PAGE_PREFIX + 'testhead');
+    localStorage.setItem(KEYS.GLOBAL, 'dark');
+    storageEvent(null);
+    eq('localStorage.clear() 的 storage 事件(key=null)触发重算', l.log.length, 1);
+    eq('key=null 事件后数据回到最新存储值', theme(), 'dark');
+
+    // 系统主题变化监听
+    T.setGlobalTheme('auto');
+    T.setPageTheme('testhead', 'follow');
+    window.__mm.set(true);
+    eq('auto + 系统深色 → dark', theme(), 'dark');
+    l.log.length = 0;
+    window.__mm.set(false);
+    eq('系统切到浅色 → 当前页无刷新变为 light', theme(), 'light');
+    eq('系统变化时派发 themechange', l.log.length, 1);
+    T.setGlobalTheme('dark');
+    window.__mm.set(true);
+    window.__mm.set(false);
+    eq('全局固定 dark 时系统变化不影响', theme(), 'dark');
+    T.setPageTheme('testhead', 'system');
+    eq('页面 system 模式:系统浅色 → light', theme(), 'light');
+    window.__mm.set(true);
+    eq('页面 system 模式:系统深色 → dark', theme(), 'dark');
+    l.off();
+  });
+
+  /* ---------- 6b. 真实跨文档 storage 事件(iframe 写入) ---------- */
+  await group('真实跨文档 storage 事件', async function () {
+    reset();
+    T.setGlobalTheme('dark');
+    eq('前置:当前为 dark', theme(), 'dark');
+    var got = new Promise(function (resolve) {
+      var t = setTimeout(function () { resolve(false); }, 1500);
+      var off = T.onChange(function (e) {
+        if (e.detail.theme === 'light') { clearTimeout(t); off(); resolve(true); }
+      });
+    });
+    var ifr = document.createElement('iframe');
+    ifr.srcdoc = '<script>localStorage.setItem("' + KEYS.GLOBAL + '","light");<\/script>';
+    fixtures.appendChild(ifr);
+    var synced = await got;
+    check('另一个文档写入 localStorage 后,本页收到真实 storage 事件并同步', synced,
+      '1.5s 内未收到变更(可能是当前环境对 file:// iframe 的存储隔离)');
+    eq('同步后 data-theme=light', theme(), 'light');
+    ifr.remove();
+  });
+
+  /* ---------- 7. 存储不可用 ---------- */
+  await group('存储不可用时的降级', function () {
+    reset();
+    window.__mm.dark = true;
+    var desc = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    check('能获取 localStorage 属性描述符(用于还原)', !!desc);
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: function () { throw new DOMException('denied', 'SecurityError'); }
+    });
+    try {
+      noThrow('存储抛异常时 getGlobalTheme 不抛错', function () { T.getGlobalTheme(); });
+      eq('存储抛异常时全局默认 auto', T.getGlobalTheme(), 'auto');
+      noThrow('存储抛异常时 setGlobalTheme 不抛错', function () { T.setGlobalTheme('light'); });
+      eq('降级为内存值:全局读回 light', T.getGlobalTheme(), 'light');
+      eq('降级后当前页仍能应用主题', theme(), 'light');
+      noThrow('存储抛异常时 setPageTheme 不抛错', function () { T.setPageTheme('deg', 'dark'); });
+      eq('降级为内存值:页面读回 dark', T.getPageTheme('deg'), 'dark');
+      eq('降级后 resolve 正确', T.resolveEffectiveTheme('deg'), 'dark');
+      noThrow('存储抛异常时 applyTheme/initAntiFOUC 不抛错', function () { T.applyTheme('deg'); T.initAntiFOUC('testhead'); });
+      noThrow('存储抛异常时 mount/unmount 不抛错', function () {
+        var r = T.mountThemeControl('deg', { container: fixtures });
+        check('存储抛异常时仍可挂载挂件', r && r.nodeType === 1);
+        r.querySelector('.lt-theme-btn').click();
+        r.querySelector('[data-mode="light"]').click();
+        eq('降级下通过挂件选择后读回 light', T.getPageTheme('deg'), 'light');
+        T.unmountThemeControl('deg');
+      });
+    } finally {
+      Object.defineProperty(window, 'localStorage', desc);
+    }
+    check('存储恢复后可正常读写', (function () {
+      T.setGlobalTheme('dark'); T.setPageTheme('deg', 'follow');
+      return localStorage.getItem(KEYS.GLOBAL) === 'dark' && localStorage.getItem(KEYS.PAGE_PREFIX + 'deg') === 'follow';
+    })());
+
+    // 只有写入失败(配额 / Safari 隐私模式),读取仍正常
+    var origSet = Storage.prototype.setItem;
+    Storage.prototype.setItem = function () { throw new DOMException('quota', 'QuotaExceededError'); };
+    try {
+      noThrow('setItem 抛配额异常时 setGlobalTheme 不抛错', function () { T.setGlobalTheme('light'); });
+      eq('写入失败时读回内存值 light', T.getGlobalTheme(), 'light');
+      eq('写入失败时当前页仍应用 light', theme(), 'light');
+    } finally {
+      Storage.prototype.setItem = origSet;
+    }
+    T.setGlobalTheme('auto'); // 存储恢复后重写一次,清掉内存兜底值
+    T.setPageTheme('deg', 'follow');
+    eq('恢复后读回存储值', T.getGlobalTheme(), 'auto');
+  });
+
+  /* ---------- 8. mountThemeControl ---------- */
+  await group('mountThemeControl:基础与幂等', function () {
+    reset();
+    T.setGlobalTheme('dark');
+    fixtures.textContent = '';
+
+    eq("'home' 返回 null", T.mountThemeControl('home'), null);
+    eq("'home' 不渲染任何挂件", document.querySelectorAll('.lt-theme-root[data-page="home"]').length, 0);
+    eq('空 pageId 返回 null', T.mountThemeControl(''), null);
+    noThrow('unmountThemeControl(未挂载的页面)不抛错', function () { T.unmountThemeControl('never-mounted'); });
+
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var inline = T.mountThemeControl('mp', { container: host });
+    check('内联模式返回挂件根节点', inline && inline.nodeType === 1);
+    check('内联模式渲染进指定容器', host.contains(inline));
+    eq('内联模式不使用 fixed 定位', getComputedStyle(inline).position, 'relative');
+    eq('内联模式根节点携带 data-page', inline.getAttribute('data-page'), 'mp');
+    var again = T.mountThemeControl('mp', { container: host });
+    check('重复挂载返回同一节点(幂等)', again === inline);
+    eq('重复挂载后仅保留 1 个挂件', document.querySelectorAll('.lt-theme-root[data-page="mp"]').length, 1);
+    var againNoOpt = T.mountThemeControl('mp');
+    check('不同参数重复挂载同样幂等', againNoOpt === inline && document.querySelectorAll('.lt-theme-root[data-page="mp"]').length === 1);
+    eq('样式只注入 1 份', document.querySelectorAll('#lt-theme-style').length, 1);
+
+    var btn = inline.querySelector('.lt-theme-btn');
+    var menu = inline.querySelector('[role="menu"]');
+    var items = Array.prototype.slice.call(inline.querySelectorAll('[role="menuitemradio"]'));
+    check('存在触发按钮', !!btn);
+    eq('按钮初始 aria-expanded=false', btn.getAttribute('aria-expanded'), 'false');
+    eq('按钮声明 aria-haspopup=menu', btn.getAttribute('aria-haspopup'), 'menu');
+    eq('按钮 aria-controls 指向菜单', btn.getAttribute('aria-controls'), menu && menu.id);
+    check('菜单 id 存在且唯一', menu && menu.id && document.querySelectorAll('#' + menu.id).length === 1);
+    eq('菜单有 4 个选项', items.length, 4);
+    eq('选项顺序:跟随首页/浅色/深色/跟随系统', items.map(function (i) { return i.getAttribute('data-mode'); }).join(','), 'follow,light,dark,system');
+    eq('选项文案', items.map(function (i) { return i.textContent.replace(/[^一-龥]/g, ''); }).join(','), '跟随首页,浅色,深色,跟随系统');
+    check('按钮触控目标 ≥ 40px', btn.offsetHeight >= 40 && btn.offsetWidth >= 40, btn.offsetWidth + 'x' + btn.offsetHeight);
+    eq('收起时菜单不占布局(display:none,不会撑出滚动条)', getComputedStyle(menu).display, 'none');
+    btn.click(); // 收起时尺寸为 0,展开后再量
+    check('每个菜单项触控高度 ≥ 40px', items.every(function (i) { return i.offsetHeight >= 40; }),
+      items.map(function (i) { return i.offsetHeight; }).join(','));
+    btn.click();
+
+    eq('默认模式 follow 被选中', inline.querySelector('[aria-checked="true"]').getAttribute('data-mode'), 'follow');
+    eq('仅有 1 个选中项', inline.querySelectorAll('[aria-checked="true"]').length, 1);
+    var status = inline.querySelector('.lt-theme-status');
+    eq('菜单显示当前生效主题(全局 dark)', status.textContent, '当前:深色');
+
+    // 样式随 html[data-theme] 变化(自包含,不依赖宿主 CSS 变量)
+    // 读自定义属性而不是 background-color:后者带 transition,切换瞬间读到的还是旧值
+    var darkBg = getComputedStyle(inline).getPropertyValue('--lt-theme-bg');
+    T.setGlobalTheme('light');
+    var lightBg = getComputedStyle(inline).getPropertyValue('--lt-theme-bg');
+    check('挂件配色随 html[data-theme] 切换', darkBg !== lightBg, darkBg + ' vs ' + lightBg);
+    eq('全局切到浅色后状态文案同步', status.textContent, '当前:浅色');
+    T.setGlobalTheme('dark');
+
+    // XSS:pageId 含 HTML 也不会被解析
+    var evil = '<img src=x onerror="window.__xss=1">';
+    var er = T.mountThemeControl(evil, { container: host });
+    check('含 HTML 的 pageId 不会生成额外元素', er && !er.querySelector('img') && !host.querySelector('img') && !window.__xss);
+    T.unmountThemeControl(evil);
+
+    T.unmountThemeControl('mp');
+    check('unmount 后节点从 DOM 移除', !document.body.contains(inline));
+    eq('unmount 后可再次挂载并得到新节点', (function () {
+      var n = T.mountThemeControl('mp', { container: host });
+      var ok = n !== inline && host.contains(n);
+      T.unmountThemeControl('mp');
+      return ok;
+    })(), true);
+    var removed = T.mountThemeControl('mp2', { container: host });
+    removed.remove(); // 宿主页手动移除节点
+    var remade = T.mountThemeControl('mp2', { container: host });
+    check('节点被宿主移除后再次挂载会重建', remade !== removed && host.contains(remade));
+    T.unmountThemeControl('mp2');
+  });
+
+  await group('mountThemeControl:悬浮模式与定位', function () {
+    reset();
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var br = T.mountThemeControl('fl');
+    eq('悬浮模式默认使用 fixed', getComputedStyle(br).position, 'fixed');
+    eq('默认挂到 body', br.parentNode, document.body);
+    var r = br.getBoundingClientRect();
+    check('默认位置在右下角(距边 16px)', Math.abs(r.right - (vw - 16)) <= 1 && Math.abs(r.bottom - (vh - 16)) <= 1, JSON.stringify(r));
+    T.unmountThemeControl('fl');
+
+    [['top-left', 'left', 'top'], ['top-right', 'right', 'top'], ['bottom-left', 'left', 'bottom']].forEach(function (c) {
+      var n = T.mountThemeControl('fl-' + c[0], { position: c[0] });
+      var rect = n.getBoundingClientRect();
+      var okX = c[1] === 'left' ? Math.abs(rect.left - 16) <= 1 : Math.abs(rect.right - (vw - 16)) <= 1;
+      var okY = c[2] === 'top' ? Math.abs(rect.top - 16) <= 1 : Math.abs(rect.bottom - (vh - 16)) <= 1;
+      check('position=' + c[0] + ' 定位正确', okX && okY, JSON.stringify(rect));
+      T.unmountThemeControl('fl-' + c[0]);
+    });
+    var bad = T.mountThemeControl('fl-bad', { position: 'middle-nowhere' });
+    var br2 = bad.getBoundingClientRect();
+    check('非法 position 回退为 bottom-right', Math.abs(br2.right - (vw - 16)) <= 1 && Math.abs(br2.bottom - (vh - 16)) <= 1);
+    T.unmountThemeControl('fl-bad');
+    eq('卸载后无残留挂件', document.querySelectorAll('.lt-theme-root').length, 0);
+  });
+
+  await group('mountThemeControl:点击与选择', function () {
+    reset();
+    T.initAntiFOUC('mc'); // 挂件的 pageId 与当前页一致,选择后才会作用到 data-theme
+    T.setGlobalTheme('dark');
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var w = T.mountThemeControl('mc', { container: host });
+    var btn = w.querySelector('.lt-theme-btn');
+    var q = function (m) { return w.querySelector('[data-mode="' + m + '"]'); };
+    var status = w.querySelector('.lt-theme-status');
+
+    btn.click();
+    eq('点击按钮展开 aria-expanded=true', btn.getAttribute('aria-expanded'), 'true');
+    eq('根节点 data-open=true', w.getAttribute('data-open'), 'true');
+    check('展开时菜单可见', getComputedStyle(w.querySelector('.lt-theme-menu')).display !== 'none');
+    eq('展开后焦点落在选中项(follow)', document.activeElement, q('follow'));
+    btn.click();
+    eq('再次点击按钮收起', btn.getAttribute('aria-expanded'), 'false');
+
+    btn.click();
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    eq('点击外部(pointerdown)收起', btn.getAttribute('aria-expanded'), 'false');
+    btn.click();
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    eq('点击外部(click)收起', btn.getAttribute('aria-expanded'), 'false');
+    btn.click();
+    w.querySelector('.lt-theme-menu').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    eq('点击挂件内部不会收起', btn.getAttribute('aria-expanded'), 'true');
+
+    // 选择:深色
+    var l = listen();
+    q('light').click();
+    eq('选择浅色 → 写入页面设置', T.getPageTheme('mc'), 'light');
+    eq('选择后立即生效 data-theme=light', theme(), 'light');
+    eq('选择后菜单收起', btn.getAttribute('aria-expanded'), 'false');
+    eq('选择后焦点回到按钮', document.activeElement, btn);
+    eq('选中态移到浅色', q('light').getAttribute('aria-checked'), 'true');
+    eq('其它选项取消选中', w.querySelectorAll('[aria-checked="true"]').length, 1);
+    eq('状态文案更新为浅色', status.textContent, '当前:浅色');
+    check('按钮 aria-label 反映当前主题', btn.getAttribute('aria-label').indexOf('浅色') >= 0, btn.getAttribute('aria-label'));
+    eq('选择时派发 themechange', l.log.length >= 1 && l.log[l.log.length - 1].theme, 'light');
+
+    btn.click();
+    q('dark').click();
+    eq('选择深色 → data-theme=dark', theme(), 'dark');
+    eq('深色选项选中', q('dark').getAttribute('aria-checked'), 'true');
+    eq('状态文案更新为深色', status.textContent, '当前:深色');
+
+    // 跟随系统 / 跟随首页
+    window.__mm.dark = false;
+    btn.click();
+    q('system').click();
+    eq('选择跟随系统 → 页面模式 system', T.getPageTheme('mc'), 'system');
+    eq('系统浅色 → 生效 light', theme(), 'light');
+    window.__mm.set(true);
+    eq('系统切深色后挂件文案同步(无刷新)', status.textContent, '当前:深色');
+    eq('系统切深色后选中态仍为 system', q('system').getAttribute('aria-checked'), 'true');
+    btn.click();
+    q('follow').click();
+    eq('选择跟随首页 → follow', T.getPageTheme('mc'), 'follow');
+    T.setGlobalTheme('light');
+    eq('首页(全局)改浅色后挂件文案同步', status.textContent, '当前:浅色');
+    eq('跟随首页下 data-theme 同步', theme(), 'light');
+
+    // 其它标签页修改页面键 → 挂件同步选中态
+    localStorage.setItem(KEYS.PAGE_PREFIX + 'mc', 'dark');
+    storageEvent(KEYS.PAGE_PREFIX + 'mc');
+    eq('跨标签页修改后挂件选中态同步', q('dark').getAttribute('aria-checked'), 'true');
+    eq('跨标签页修改后状态文案同步', status.textContent, '当前:深色');
+    l.off();
+    T.unmountThemeControl('mc');
+    T.initAntiFOUC('testhead');
+  });
+
+  await group('mountThemeControl:键盘操作', async function () {
+    reset();
+    T.initAntiFOUC('mk');
+    T.setGlobalTheme('dark');
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var w = T.mountThemeControl('mk', { container: host });
+    var btn = w.querySelector('.lt-theme-btn');
+    var items = Array.prototype.slice.call(w.querySelectorAll('[role="menuitemradio"]'));
+    var menu = w.querySelector('.lt-theme-menu');
+
+    btn.focus();
+    eq('按钮可聚焦', document.activeElement, btn);
+    var ev = key(btn, 'ArrowDown');
+    eq('按钮上 ArrowDown 展开菜单', btn.getAttribute('aria-expanded'), 'true');
+    check('ArrowDown 阻止了页面滚动(preventDefault)', ev.defaultPrevented);
+    eq('展开后焦点落在选中项', document.activeElement, items[0]);
+
+    key(document.activeElement, 'ArrowDown');
+    eq('ArrowDown 移到下一项', document.activeElement, items[1]);
+    key(document.activeElement, 'ArrowRight');
+    eq('ArrowRight 同样前进', document.activeElement, items[2]);
+    key(document.activeElement, 'ArrowUp');
+    eq('ArrowUp 回到上一项', document.activeElement, items[1]);
+    key(document.activeElement, 'ArrowLeft');
+    eq('ArrowLeft 同样后退', document.activeElement, items[0]);
+    key(document.activeElement, 'ArrowUp');
+    eq('第一项 ArrowUp 循环到最后一项', document.activeElement, items[3]);
+    key(document.activeElement, 'ArrowDown');
+    eq('最后一项 ArrowDown 循环到第一项', document.activeElement, items[0]);
+    key(document.activeElement, 'End');
+    eq('End 到最后一项', document.activeElement, items[3]);
+    key(document.activeElement, 'Home');
+    eq('Home 到第一项', document.activeElement, items[0]);
+
+    key(document.activeElement, 'Escape');
+    eq('Esc 收起菜单', btn.getAttribute('aria-expanded'), 'false');
+    eq('Esc 后焦点回到按钮', document.activeElement, btn);
+
+    key(btn, 'ArrowUp');
+    eq('按钮上 ArrowUp 也能展开', btn.getAttribute('aria-expanded'), 'true');
+    items[3].focus();
+    key(items[3], 'Tab');
+    eq('从最后一项 Tab 离开时收起菜单', btn.getAttribute('aria-expanded'), 'false');
+
+    btn.click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    eq('焦点在别处时全局 Esc 也能收起', btn.getAttribute('aria-expanded'), 'false');
+
+    // 键盘选择:聚焦 → Enter(原生按钮会触发 click)
+    key(btn, 'ArrowDown');
+    items[2].focus();
+    items[2].click();
+    eq('键盘选择深色 → 页面模式 dark', T.getPageTheme('mk'), 'dark');
+    eq('选择后菜单收起且焦点回按钮', btn.getAttribute('aria-expanded') + '|' + (document.activeElement === btn), 'false|true');
+
+    // 所有选项都是原生 button,天然可 Tab 聚焦且 Enter/Space 可触发
+    check('选项均为原生 <button>(可 Tab 聚焦,Enter/Space 触发)', items.every(function (i) { return i.tagName === 'BUTTON' && i.tabIndex >= 0; }));
+    await wait(400); // 等收起动画结束,display 才会变为 none
+    eq('收起后菜单 display:none(不进入 Tab 序列)', getComputedStyle(menu).display, 'none');
+    T.unmountThemeControl('mk');
+  });
+
+  await group('mountThemeControl:卸载后不残留监听', function () {
+    reset();
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var w = T.mountThemeControl('mu', { container: host });
+    var status = w.querySelector('.lt-theme-status');
+    T.setGlobalTheme('dark');
+    eq('前置:卸载前文案为深色', status.textContent, '当前:深色');
+    T.unmountThemeControl('mu');
+    T.setGlobalTheme('light');
+    eq('卸载后主题变化不再更新已移除的节点(监听已取消)', status.textContent, '当前:深色');
+    noThrow('卸载后操作其它 API 不抛错', function () { T.setGlobalTheme('auto'); T.applyTheme('mu'); });
+    eq('卸载后页面中没有该挂件', document.querySelectorAll('.lt-theme-root[data-page="mu"]').length, 0);
+  });
+
+  /* ---------- 收尾:还原用户存储 ---------- */
+  var snapshot = window.__snapshot || {};
+  try {
+    clearKeys();
+    Object.keys(snapshot).forEach(function (k) { localStorage.setItem(k, snapshot[k]); });
+  } catch (e) { /* ignore */ }
+  window.matchMedia = window.__origMatchMedia;
+  window.addEventListener = window.__origAdd;
+  fixtures.textContent = '';
+
+  /* ---------- 汇总并写入 DOM ---------- */
+  var pass = 0, fail = 0;
+  var out = document.getElementById('results');
+  var ul = null;
+  results.forEach(function (r) {
+    if (r.group) {
+      var h = document.createElement('h2');
+      h.textContent = r.group;
+      out.appendChild(h);
+      ul = document.createElement('ul');
+      out.appendChild(ul);
+      return;
+    }
+    var li = document.createElement('li');
+    li.className = r.ok ? 'ok' : 'bad';
+    li.appendChild(document.createTextNode(r.name));
+    if (!r.ok && r.detail) {
+      var d = document.createElement('span');
+      d.className = 'detail';
+      d.textContent = r.detail;
+      li.appendChild(d);
+    }
+    (ul || out).appendChild(li);
+    if (r.ok) pass++; else fail++;
+  });
+  var total = pass + fail;
+  var summary = document.getElementById('summary');
+  var status = fail === 0 ? 'pass' : 'fail';
+  summary.setAttribute('data-status', status);
+  document.body.setAttribute('data-status', status);
+  summary.textContent = fail === 0 ? '全部通过 (' + pass + '/' + total + ')' : '有失败 (失败 ' + fail + ' / 共 ' + total + ')';
+  document.getElementById('counts').textContent = 'PASS: ' + pass + '  FAIL: ' + fail + '  TOTAL: ' + total;
+  document.title = (fail === 0 ? '[全部通过] ' : '[有失败] ') + 'Theme Manager 单元测试 ' + pass + '/' + total;
+})();
+</script>
+</body>
+</html>
