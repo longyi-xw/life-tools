@@ -1,495 +1,1471 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>羽毛球费用平摊计算器</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b1e'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='38'%3E🏸%3C/text%3E%3C/svg%3E">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-        }
-        body {
-            background-color: #f5f5f5;
-            padding: 15px;
-            color: #333;
-            font-size: 14px;
-        }
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            padding: 15px;
-            overflow: hidden;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 8px;
-            font-size: 1.4rem;
-        }
-        .input-section {
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 0.95rem;
-        }
-        input, select {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95rem;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            transition: background-color 0.3s;
-            width: 100%;
-            margin-top: 5px;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .players-list {
-            margin-top: 12px;
-        }
-        .player-item {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            gap: 8px;
-        }
-        .player-inputs {
-            display: flex;
-            gap: 8px;
-        }
-        .player-name {
-            flex: 2;
-        }
-        .player-expense {
-            flex: 1;
-        }
-        .remove-btn {
-            background-color: #e74c3c;
-            padding: 8px;
-            font-size: 0.9rem;
-        }
-        .remove-btn:hover {
-            background-color: #c0392b;
-        }
-        .results {
-            margin-top: 20px;
-            display: none;
-        }
-        .result-card {
-            background: white;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .result-card h3 {
-            color: #2c3e50;
-            margin-bottom: 8px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-            font-size: 1.1rem;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-            font-size: 0.85rem;
-        }
-        th, td {
-            padding: 8px 5px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-size: 0.9rem;
-        }
-        .positive {
-            color: #27ae60;
-            font-weight: bold;
-        }
-        .negative {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .summary {
-            background-color: #ecf0f1;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-        }
-        .payment-list {
-            margin: 10px 0;
-        }
-        .payment-list ul {
-            padding-left: 20px;
-        }
-        .payment-list li {
-            margin-bottom: 5px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 15px;
-            color: #7f8c8d;
-            font-size: 0.8rem;
-        }
-        
-        /* 平板和桌面端适配 */
-        @media (min-width: 768px) {
-            body {
-                font-size: 16px;
-                padding: 20px;
-            }
-            .container {
-                max-width: 700px;
-                padding: 20px;
-            }
-            h1 {
-                font-size: 1.6rem;
-                margin-bottom: 20px;
-            }
-            .input-section {
-                padding: 15px;
-            }
-            .player-item {
-                flex-direction: row;
-                align-items: center;
-            }
-            .player-inputs {
-                flex: 1;
-            }
-            .remove-btn {
-                width: auto;
-                margin-top: 0;
-            }
-            button {
-                width: auto;
-                margin-top: 0;
-            }
-            table {
-                font-size: 0.9rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<!-- 主题接入必须同步加载、放在任何 <style> 之前，首屏才不会闪白；缺失时退化为 :root 的浅色配色 -->
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC('badminton');</script>
+<title>羽毛球费用平摊计算器</title>
+<meta name="description" content="羽毛球费用 AA 平摊：极速平摊、多人垫付精细分账、最少转账路径，一键复制微信账单">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1b1e'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='38'%3E🏸%3C/text%3E%3C/svg%3E">
+<style>
+  /* ============ 设计令牌：:root 为浅色（无 JS 回退），html[data-theme="dark"] 为 LifeTools 暗黑科技风 ============ */
+  :root {
+    color-scheme: light;
+    --bg: #f1f5f2;
+    --bg-glow: rgba(16, 185, 129, 0.16);
+    --grid: rgba(10, 125, 95, 0.05);
+    --surface: #ffffff;
+    --surface2: #eaf0ec;
+    --text: #14211c;
+    --muted: #51615a;
+    --border: #d5dfd9;
+    --border-strong: #b5c5bc;
+    --primary: #0a7d5f;
+    --primary-ink: #ffffff;
+    --primary-soft: rgba(10, 125, 95, 0.1);
+    --primary-line: rgba(10, 125, 95, 0.38);
+    /* *-t 是"文字专用"的加深版本：在半透明色块(soft)上也能保持 WCAG AA，暗色下与主色相同 */
+    --primary-t: #066248;
+    --accent-t: #775008;
+    --pay-t: #9f2f18;
+    --recv-t: #076a49;
+    --accent: #8a5f0a;
+    --accent-soft: rgba(138, 95, 10, 0.11);
+    --pay: #b3361d;
+    --pay-soft: rgba(179, 54, 29, 0.1);
+    --recv: #0a7a54;
+    --recv-soft: rgba(10, 122, 84, 0.1);
+    --shadow: 0 1px 2px rgba(20, 33, 28, 0.06), 0 10px 26px -14px rgba(20, 33, 28, 0.22);
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", "Noto Sans SC", sans-serif;
+    --font-num: "Bahnschrift", "DIN Alternate", "Segoe UI Variable Display", "Segoe UI", -apple-system, system-ui, sans-serif;
+    --font-mono: ui-monospace, "Share Tech Mono", Consolas, Menlo, monospace;
+    /* 主题切换的过渡时长：首屏为 0，渲染完成后由 html.theme-ready 打开，避免首屏动画 */
+    --tt: 0s;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #080a0d;
+    --bg-glow: rgba(61, 220, 154, 0.1);
+    --grid: rgba(200, 168, 75, 0.035);
+    --surface: #0f1218;
+    --surface2: #161c26;
+    --text: #ddd8cc;
+    --muted: #93a0b5;
+    --border: #232c3f;
+    --border-strong: #33405a;
+    --primary: #3ddc9a;
+    --primary-ink: #04140d;
+    --primary-soft: rgba(61, 220, 154, 0.12);
+    --primary-line: rgba(61, 220, 154, 0.42);
+    --primary-t: #3ddc9a;
+    --accent-t: #e8c56a;
+    --pay-t: #ff8d7a;
+    --recv-t: #4ade80;
+    --accent: #e8c56a;
+    --accent-soft: rgba(232, 197, 106, 0.12);
+    --pay: #ff8d7a;
+    --pay-soft: rgba(255, 141, 122, 0.12);
+    --recv: #4ade80;
+    --recv-soft: rgba(74, 222, 128, 0.12);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -16px rgba(0, 0, 0, 0.75);
+  }
+  html.theme-ready { --tt: 0.28s; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; }
+  body {
+    min-height: 100vh;
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text);
+    background: var(--bg);
+    overflow-x: hidden;
+    transition: background-color var(--tt) ease, color var(--tt) ease;
+  }
+  /* 背景：顶部辉光 + 细网格，与首页的科技感网格呼应 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(60% 38% at 50% 0%, var(--bg-glow), transparent 70%),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: auto, 40px 40px, 40px 40px;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ============ 布局 ============ */
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 16px 56px;
+  }
+  .topbar {
+    position: relative;
+    z-index: 30; /* 主题挂件的下拉菜单要盖过下方的卡片 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+  }
+  .back {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease, background-color var(--tt) ease, color var(--tt) ease;
+  }
+  .back:hover { border-color: var(--primary); transform: translateX(-2px); }
+  .back-arrow { transition: transform 0.2s ease; }
+  .back:hover .back-arrow { transform: translateX(-2px); }
+  .topbar h1 {
+    flex: 1;
+    min-width: 0;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .theme-slot { flex: none; display: flex; justify-content: flex-end; min-width: 44px; min-height: 44px; }
+
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 14px 0 18px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background:
+      radial-gradient(120% 140% at 0% 0%, var(--primary-soft), transparent 60%),
+      var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .hero-mark {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    font-size: 28px;
+    border-radius: 18px;
+    background: var(--surface2);
+    border: 1px solid var(--primary-line);
+    box-shadow: 0 0 0 5px var(--primary-soft);
+    transform: rotate(-8deg);
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--primary-t);
+    margin-bottom: 4px;
+  }
+  .hero-title { font-size: clamp(18px, 5.4vw, 22px); font-weight: 800; line-height: 1.25; letter-spacing: 0.01em; }
+  .hero-sub { margin-top: 4px; font-size: 13px; color: var(--muted); }
+
+  /* ============ Tabs ============ */
+  .tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface2);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .tab-ind {
+    position: absolute;
+    top: 4px; bottom: 4px; left: 4px;
+    width: calc(50% - 4px);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  html.theme-ready .tab-ind { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color var(--tt) ease; }
+  .tabs[data-active="detailed"] .tab-ind { transform: translateX(100%); }
+  .tab {
+    position: relative;
+    z-index: 1;
+    min-height: 46px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+  .tab[aria-selected="true"] { color: var(--primary-t); }
+  .tab:not([aria-selected="true"]):hover { color: var(--text); }
+
+  /* ============ 卡片与表单 ============ */
+  .panel { display: grid; gap: 14px; }
+  .card {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .card-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .card-head::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .card-desc { margin-bottom: 16px; font-size: 13.5px; color: var(--muted); }
+  .field { display: grid; gap: 8px; margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label, .field > .label { font-size: 14px; font-weight: 700; }
+  .label-opt { font-weight: 500; color: var(--muted); font-size: 12.5px; margin-left: 6px; }
+  .hint { font-size: 12.5px; color: var(--muted); }
+
+  input[type="text"], select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    font-size: 16px; /* 16px 以上 iOS 才不会在聚焦时放大页面 */
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color var(--tt) ease, color var(--tt) ease;
+  }
+  input::placeholder { color: var(--muted); opacity: 0.75; }
+  input[type="text"]:hover, select:hover { border-color: var(--primary-line); }
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-soft);
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+  .affix-wrap { position: relative; }
+  .affix {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-weight: 700; pointer-events: none;
+  }
+  .affix-wrap input { padding-left: 32px; }
+  .amount-input { font-family: var(--font-num); font-size: 22px !important; font-weight: 700; letter-spacing: 0.01em; }
+
+  /* 人数快捷芯片 + 步进器 */
+  .chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .chip {
+    min-height: 46px;
+    padding: 0 4px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface);
+    font-size: 14.5px;
+    font-weight: 700;
+    transition: transform 0.12s ease, border-color 0.18s ease, background-color var(--tt) ease, color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .chip:hover { border-color: var(--primary); }
+  .chip:active { transform: scale(0.94); }
+  .chip[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary-t);
+    box-shadow: inset 0 0 0 1px var(--primary);
+  }
+  .stepper { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+  .stepper-label { font-size: 13px; color: var(--muted); margin-right: auto; }
+  .step {
+    flex: none;
+    width: 46px; height: 46px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface2);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    transition: transform 0.12s ease, border-color 0.18s ease, background-color var(--tt) ease;
+  }
+  .step:hover { border-color: var(--primary); }
+  .step:active { transform: scale(0.92); }
+  .stepper input { width: 84px; text-align: center; font-family: var(--font-num); font-weight: 700; font-size: 18px; }
+
+  /* 清算方式单选卡 */
+  .opts { display: grid; gap: 8px; border: 0; min-width: 0; }
+  .opt { position: relative; display: block; cursor: pointer; }
+  .opt input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+  .opt-body {
+    display: grid;
+    gap: 2px;
+    padding: 12px 44px 12px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    background: var(--surface);
+    transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .opt-body::after {
+    content: "";
+    position: absolute; right: 14px; top: 50%;
+    width: 20px; height: 20px; margin-top: -10px;
+    border: 2px solid var(--border-strong);
+    border-radius: 50%;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  }
+  .opt:hover .opt-body { border-color: var(--primary-line); }
+  .opt input:checked + .opt-body { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
+  .opt input:checked + .opt-body::after {
+    border-color: var(--primary);
+    background: radial-gradient(circle, var(--primary) 0 4px, transparent 4.5px);
+  }
+  .opt input:focus-visible + .opt-body { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .opt-title { font-weight: 700; font-size: 14.5px; }
+  .opt-desc { font-size: 12.5px; color: var(--muted); }
+  .tag {
+    display: inline-block; margin-left: 6px; padding: 1px 8px;
+    border-radius: 999px; font-size: 11px; font-weight: 700; vertical-align: 1px;
+    background: var(--accent-soft); color: var(--accent-t);
+  }
+  .payer-field { padding: 14px; margin-top: 14px; border: 1px dashed var(--primary-line); border-radius: 14px; background: var(--primary-soft); }
+  .payer-field.rise { animation: rise 0.3s ease both; }
+
+  /* 球友列表 */
+  .players { list-style: none; display: grid; gap: 10px; margin-bottom: 12px; }
+  .player {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "no name del" ". exp .";
+    gap: 8px 10px;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface2);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .player.rise { animation: rise 0.28s ease both; }
+  .p-no {
+    grid-area: no;
+    display: grid; place-items: center;
+    width: 30px; height: 30px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    color: var(--primary-t);
+    font-family: var(--font-num);
+    font-size: 13px; font-weight: 800;
+  }
+  .p-name { grid-area: name; }
+  .p-exp { grid-area: exp; }
+  .p-del {
+    grid-area: del;
+    width: 44px; height: 44px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 18px;
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+  }
+  .p-del:hover { color: var(--pay-t); background: var(--pay-soft); border-color: var(--pay); }
+  .p-del:active { transform: scale(0.92); }
+  .list-foot { display: flex; align-items: center; gap: 10px; }
+  .list-foot .count { margin-left: auto; font-size: 13px; color: var(--muted); }
+
+  /* ============ 按钮 ============ */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease, background-color var(--tt) ease, color var(--tt) ease, border-color 0.2s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-primary {
+    width: 100%;
+    min-height: 52px;
+    background: var(--primary);
+    color: var(--primary-ink);
+    box-shadow: 0 10px 22px -10px var(--primary-line);
+  }
+  .btn-primary:hover:not([disabled]) { filter: brightness(1.08); box-shadow: 0 14px 26px -10px var(--primary-line); }
+  .btn-ghost { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+  .btn-ghost:hover:not([disabled]) { border-color: var(--primary); color: var(--primary-t); }
+  .btn-dashed {
+    width: 100%; min-height: 48px;
+    border: 1.5px dashed var(--primary-line);
+    background: transparent;
+    color: var(--primary-t);
+  }
+  .btn-dashed:hover:not([disabled]) { background: var(--primary-soft); border-color: var(--primary); }
+  .btn-copy.done { background: var(--recv); border-color: var(--recv); color: var(--primary-ink); }
+
+  /* ============ 提示条 / Toast ============ */
+  .notice {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 12px 14px;
+    border: 1px solid var(--pay);
+    border-left-width: 4px;
+    border-radius: 12px;
+    background: var(--pay-soft);
+    color: var(--text);
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+  }
+  .notice[data-show="false"] { height: 0; padding: 0; margin: -7px 0; border: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+  .notice-icon { flex: none; color: var(--pay-t); font-weight: 800; }
+  .toast {
+    position: fixed;
+    left: 50%; bottom: 24px;
+    z-index: 100001;
+    max-width: calc(100vw - 32px);
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 14px; font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translate(-50%, 12px);
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.is-error { background: var(--pay); color: #fff; border-color: transparent; }
+  html[data-theme="dark"] .toast.is-error { color: #1a0703; }
+
+  /* ============ 结果 ============ */
+  .rise { animation: rise 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .empty {
+    display: grid; justify-items: center; gap: 6px;
+    padding: 26px 18px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius);
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .empty-icon { font-size: 28px; filter: grayscale(0.2); }
+  .result-hero {
+    position: relative;
+    padding: 20px 18px 18px;
+    border: 1px solid var(--primary-line);
+    border-radius: 20px;
+    background: radial-gradient(130% 120% at 100% 0%, var(--primary-soft), transparent 62%), var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .result-hero::after {
+    content: "🏸";
+    position: absolute; right: -6px; bottom: -22px;
+    font-size: 112px; line-height: 1;
+    opacity: 0.07;
+    transform: rotate(-16deg);
+    pointer-events: none;
+  }
+  .rh-top { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; justify-content: space-between; }
+  .rh-label { font-size: 13px; font-weight: 700; color: var(--primary-t); letter-spacing: 0.08em; }
+  .rh-formula { font-size: 12.5px; color: var(--muted); }
+  .rh-amount { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 14px; font-family: var(--font-num); }
+  .rh-cur { font-size: 26px; font-weight: 700; color: var(--accent-t); }
+  .rh-num { font-size: clamp(44px, 14vw, 60px); font-weight: 800; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .rh-per { font-size: 15px; color: var(--muted); font-family: var(--font); }
+  .rh-num.pop { animation: pop 0.3s ease; }
+  @keyframes pop { 0% { transform: scale(0.94); opacity: 0.6; } 60% { transform: scale(1.04); } 100% { transform: none; opacity: 1; } }
+  .stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .stat {
+    padding: 10px 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface2);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .stat-label { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+  .stat-value { display: block; margin-top: 3px; font-family: var(--font-num); font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .lines { list-style: none; display: grid; gap: 10px; }
+  .lines li { position: relative; padding-left: 24px; font-size: 14px; }
+  .lines li::before {
+    content: "✓"; position: absolute; left: 0; top: 1px;
+    display: grid; place-items: center; width: 17px; height: 17px;
+    border-radius: 50%; background: var(--primary-soft); color: var(--primary-t);
+    font-size: 11px; font-weight: 800;
+  }
+  .lines li.warn::before { content: "i"; background: var(--accent-soft); color: var(--accent-t); font-style: italic; }
+  .lines li.warn { color: var(--accent-t); }
+  .actions { display: grid; gap: 10px; }
+  .preview {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .preview summary {
+    display: flex; align-items: center; min-height: 44px; padding: 0 14px;
+    font-size: 13.5px; font-weight: 600; color: var(--muted); cursor: pointer;
+  }
+  .preview summary { list-style: none; justify-content: space-between; }
+  .preview summary::-webkit-details-marker { display: none; }
+  .preview summary::after { content: "▾"; transition: transform 0.2s ease; }
+  .preview[open] summary::after { transform: rotate(180deg); }
+  .preview summary:hover { color: var(--primary-t); }
+  .preview pre {
+    margin: 0; padding: 4px 14px 14px;
+    font-family: var(--font); font-size: 13px; line-height: 1.7;
+    white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text);
+  }
+
+  /* 智能优化徽标 */
+  .smart {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 14px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .smart-icon { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--surface2); font-size: 20px; }
+  .smart-kicker { display: block; margin-bottom: 1px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; color: var(--muted); }
+  .smart-text { font-size: 14.5px; font-weight: 600; }
+  .smart-save { display: inline-block; margin-left: 8px; padding: 1px 9px; border-radius: 999px; background: var(--primary); color: var(--primary-ink); font-size: 12px; font-weight: 800; white-space: nowrap; vertical-align: 1px; }
+  .smart.is-boost { border-color: var(--primary); background: linear-gradient(135deg, var(--primary-soft), transparent 70%), var(--surface); box-shadow: 0 0 0 3px var(--primary-soft), var(--shadow); }
+  .smart.is-boost .smart-icon { background: var(--primary); }
+  .smart.is-boost .smart-kicker { color: var(--primary-t); }
+  .smart.is-star { border-color: var(--accent); background: linear-gradient(135deg, var(--accent-soft), transparent 70%), var(--surface); }
+  .smart.is-star .smart-kicker { color: var(--accent-t); }
+  .smart.is-done { border-color: var(--recv); background: linear-gradient(135deg, var(--recv-soft), transparent 70%), var(--surface); }
+  .smart.is-done .smart-kicker { color: var(--recv-t); }
+
+  .stale-note {
+    padding: 10px 14px; border: 1px solid var(--accent); border-radius: 12px;
+    background: var(--accent-soft); color: var(--accent-t); font-size: 13.5px; font-weight: 600;
+  }
+  .result.is-stale .smart, .result.is-stale .result-body { opacity: 0.45; filter: saturate(0.6); transition: opacity 0.2s ease; }
+  .notes { display: grid; gap: 8px; }
+  .note {
+    padding: 10px 14px; border-radius: 12px; font-size: 13px;
+    background: var(--accent-soft); color: var(--text); border: 1px solid transparent;
+    border-left: 3px solid var(--accent);
+    border-radius: 4px 12px 12px 4px;
+  }
+  .sub-head { margin: 4px 0 -2px; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .sub-head small { font-weight: 600; color: var(--muted); font-size: 12.5px; }
+
+  /* 差额表格 */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 11px 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+  th { font-size: 12px; font-weight: 700; color: var(--muted); background: var(--surface2); letter-spacing: 0.04em; }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.n-name { font-weight: 700; }
+  .mini-tag { display: inline-block; margin: 2px 0 0 6px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--accent-soft); color: var(--accent-t); white-space: nowrap; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-weight: 800; font-size: 13px; white-space: nowrap; }
+  .pill.pay { background: var(--pay-soft); color: var(--pay-t); }
+  .pill.recv { background: var(--recv-soft); color: var(--recv-t); }
+  .pill.even { background: var(--surface2); color: var(--muted); }
+
+  /* 转账路径卡片：[转账人] ──( 金额 )──► [收款人]；窄屏改为纵向 */
+  .routes { list-style: none; display: grid; gap: 10px; }
+  .route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface2);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .route.rise { animation-delay: calc(var(--i, 0) * 60ms); }
+  .rt-node {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--surface);
+    transition: background-color var(--tt) ease, border-color var(--tt) ease;
+  }
+  .rt-node.is-organizer { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .rt-role { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
+  .rt-from .rt-role { color: var(--pay-t); }
+  .rt-to .rt-role { color: var(--recv-t); }
+  .rt-name { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
+  .rt-link { position: relative; display: flex; align-items: center; justify-content: center; min-width: 112px; height: 44px; padding: 0 6px; }
+  .rt-link::before {
+    content: ""; position: absolute; left: 0; right: 8px; top: 50%; height: 2px; margin-top: -1px;
+    background: linear-gradient(90deg, var(--primary) 6px, transparent 6px) 0 0 / 11px 2px repeat-x;
+    animation: flow-x 0.9s linear infinite;
+  }
+  .rt-link::after {
+    content: ""; position: absolute; right: 0; top: 50%; margin-top: -6px;
+    border-left: 9px solid var(--primary); border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+  }
+  .rt-amount {
+    position: relative; z-index: 1;
+    padding: 4px 11px;
+    border: 1px solid var(--primary-line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--primary-t);
+    font-family: var(--font-num);
+    font-weight: 800;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    transition: background-color var(--tt) ease;
+  }
+  @keyframes flow-x { to { background-position-x: 11px; } }
+  @keyframes flow-y { to { background-position-y: 11px; } }
+
+  .done-card { display: grid; justify-items: center; gap: 4px; padding: 26px 18px; text-align: center; border: 1px solid var(--recv); border-radius: var(--radius); background: var(--recv-soft); }
+  .done-card .big { font-size: 34px; }
+  .done-card strong { font-size: 17px; }
+  .done-card span { font-size: 13.5px; color: var(--muted); }
+
+  .footer { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 12.5px; line-height: 1.8; color: var(--muted); text-align: center; }
+  .footer strong { color: var(--text); }
+  .noscript { padding: 16px; margin: 16px 0; border: 1px solid var(--pay); border-radius: 12px; background: var(--pay-soft); }
+
+  /* ============ 响应式 ============ */
+  @media (min-width: 440px) {
+    .player { grid-template-columns: auto minmax(0, 1fr) 132px auto; grid-template-areas: "no name exp del"; }
+  }
+  @media (min-width: 560px) {
+    .app { padding: 20px 20px 72px; }
+    .player { grid-template-columns: auto minmax(0, 1fr) 150px auto; }
+    .card { padding: 22px; }
+    .result-hero { padding: 24px 24px 22px; }
+    .stat-value { font-size: 18px; }
+  }
+  @media (max-width: 519px) {
+    .route { grid-template-columns: minmax(0, 1fr); }
+    .rt-node { align-items: center; text-align: center; padding: 8px 12px; }
+    .rt-link { width: 100%; min-width: 0; height: 56px; }
+    .rt-link::before {
+      left: 50%; right: auto; top: 0; bottom: 8px; width: 2px; height: auto; margin: 0 0 0 -1px;
+      background: linear-gradient(180deg, var(--primary) 6px, transparent 6px) 0 0 / 2px 11px repeat-y;
+      animation-name: flow-y;
+    }
+    .rt-link::after {
+      left: 50%; right: auto; top: auto; bottom: 0; margin: 0 0 0 -6px;
+      border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 9px solid var(--primary); border-bottom: 0;
+    }
+  }
+  /* 窄屏把差额表格卡片化：关键的"差额"始终在第一屏，不必横向滚动 */
+  @media (max-width: 479px) {
+    .table-wrap { border: 0; background: none; overflow: visible; }
+    table, tbody { display: block; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+    tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas: "name diff" "exp share";
+      gap: 8px 12px;
+      margin-bottom: 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+    th, td { padding: 0; border: 0; text-align: left; white-space: normal; }
+    td:nth-child(1) { grid-area: name; }
+    td:nth-child(2) { grid-area: exp; }
+    td:nth-child(3) { grid-area: share; }
+    td:nth-child(4) { grid-area: diff; justify-self: end; }
+    td[data-label]:nth-child(2)::before, td[data-label]:nth-child(3)::before {
+      content: attr(data-label); display: block; font-size: 11.5px; font-weight: 600; color: var(--muted);
+    }
+    td:nth-child(3) { text-align: right; }
+    tbody tr:last-child td { border-bottom: 0; }
+  }
+  /* 超窄屏上顶栏三块并排会把标题挤成"羽毛球…":主题挂件只留图标(按钮自带 aria-label,读屏不受影响) */
+  @media (max-width: 374px) {
+    .topbar .theme-slot .lt-theme-label { display: none; }
+    .topbar .theme-slot .lt-theme-btn { padding: 0; }
+  }
+  @media (max-width: 380px) {
+    .app { padding-left: 12px; padding-right: 12px; }
+    .card, .hero { padding: 14px; }
+    .stats { gap: 6px; }
+    .stat { padding: 9px 8px; }
+    .stat-value { font-size: 15px; }
+    .hero-mark { width: 48px; height: 48px; font-size: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>羽毛球费用平摊计算器</h1>
-        
-        <div class="input-section">
-            <div class="form-group">
-                <label for="totalAmount">总费用（元）</label>
-                <input type="number" id="totalAmount" placeholder="输入总费用，留空则自动计算">
-            </div>
-            
-            <div class="form-group">
-                <label for="payerSelect">指定收款人</label>
-                <select id="payerSelect">
-                    <option value="">-- 请选择收款人 --</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>球友列表</label>
-                <div class="players-list" id="playersList">
-                    <!-- 球友项目将在这里动态添加 -->
-                </div>
-                <button type="button" id="addPlayerBtn">添加球友</button>
-            </div>
-            
-            <button type="button" id="calculateBtn">计算平摊费用</button>
+<div class="app">
+  <header class="topbar">
+    <a class="back" href="index.html"><span class="back-arrow" aria-hidden="true">←</span>首页</a>
+    <h1>羽毛球费用平摊</h1>
+    <div class="theme-slot" id="themeSlot"></div>
+  </header>
+
+  <section class="hero" aria-label="简介">
+    <div class="hero-mark" aria-hidden="true">🏸</div>
+    <div>
+      <p class="hero-eyebrow">AA · Split · Clean</p>
+      <p class="hero-title">谁垫了钱，谁该转多少</p>
+      <p class="hero-sub">精确到分，少转几笔，一键发群。</p>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="计算模式" id="tabs" data-active="quick">
+    <span class="tab-ind" aria-hidden="true"></span>
+    <button type="button" class="tab" role="tab" id="tab-quick" aria-selected="true" aria-controls="panel-quick" tabindex="0">⚡ 极速平摊</button>
+    <button type="button" class="tab" role="tab" id="tab-detailed" aria-selected="false" aria-controls="panel-detailed" tabindex="-1">📋 精细分账</button>
+  </div>
+
+  <!-- ===== 模式一：极速平摊 ===== -->
+  <section class="panel" id="panel-quick" role="tabpanel" aria-labelledby="tab-quick" tabindex="-1">
+    <div class="card">
+      <p class="card-desc">一个人先垫付全款，其余每个人转给 TA 同样的金额。输入即时计算。</p>
+      <div class="field">
+        <label for="q-total">总费用（元）</label>
+        <div class="affix-wrap">
+          <span class="affix" aria-hidden="true">¥</span>
+          <input type="text" id="q-total" class="amount-input" inputmode="decimal" autocomplete="off" enterkeyhint="done" placeholder="例如 240">
         </div>
-        
-        <div class="results" id="resultsSection">
-            <div class="result-card">
-                <h3>平摊结果</h3>
-                <table id="resultsTable">
-                    <thead>
-                        <tr>
-                            <th>球友</th>
-                            <th>已支出</th>
-                            <th>应平摊</th>
-                            <th>差额</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- 结果将在这里动态添加 -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="result-card">
-                <h3>收款和转账明细</h3>
-                <div id="paymentDetails">
-                    <!-- 收款和转账明细将在这里显示 -->
-                </div>
-            </div>
+      </div>
+      <div class="field">
+        <span class="label" id="q-count-label">参与人数</span>
+        <div class="chips" role="group" aria-labelledby="q-count-label" id="q-chips">
+          <button type="button" class="chip" data-count="2" aria-pressed="false">2 人</button>
+          <button type="button" class="chip" data-count="4" aria-pressed="true">4 人</button>
+          <button type="button" class="chip" data-count="6" aria-pressed="false">6 人</button>
+          <button type="button" class="chip" data-count="8" aria-pressed="false">8 人</button>
+          <button type="button" class="chip" data-count="10" aria-pressed="false">10 人</button>
         </div>
-        
-        <div class="footer">
-            <p>羽毛球费用平摊计算器 | 使用说明：添加球友并输入已支出金额，指定收款人后点击计算</p>
+        <div class="stepper">
+          <span class="stepper-label">其他人数</span>
+          <button type="button" class="step" id="q-dec" aria-label="减少一人">−</button>
+          <input type="text" id="q-count" inputmode="numeric" autocomplete="off" maxlength="3" value="4" aria-label="自定义人数">
+          <button type="button" class="step" id="q-inc" aria-label="增加一人">+</button>
         </div>
+      </div>
+      <div class="field">
+        <label for="q-payer">收款人称呼<span class="label-opt">可选</span></label>
+        <input type="text" id="q-payer" maxlength="12" autocomplete="off" enterkeyhint="done" placeholder="默认叫「收款人」，例如 小明">
+      </div>
+    </div>
+    <div class="notice" id="q-notice" role="alert" aria-live="assertive" data-show="false"></div>
+    <div id="q-result" aria-live="polite"></div>
+  </section>
+
+  <!-- ===== 模式二：精细分账 ===== -->
+  <section class="panel" id="panel-detailed" role="tabpanel" aria-labelledby="tab-detailed" tabindex="-1" hidden>
+    <div class="card">
+      <p class="card-desc">多人各自垫付了不同金额？录入每个人垫付的钱，自动算出怎么转最省事。</p>
+      <div class="field">
+        <label for="d-total">总费用（元）<span class="label-opt">可留空，自动合计各人支出</span></label>
+        <div class="affix-wrap">
+          <span class="affix" aria-hidden="true">¥</span>
+          <input type="text" id="d-total" class="amount-input" inputmode="decimal" autocomplete="off" placeholder="留空 = 自动合计">
+        </div>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const playersList = document.getElementById('playersList');
-            const addPlayerBtn = document.getElementById('addPlayerBtn');
-            const calculateBtn = document.getElementById('calculateBtn');
-            const payerSelect = document.getElementById('payerSelect');
-            const resultsSection = document.getElementById('resultsSection');
-            const resultsTable = document.getElementById('resultsTable');
-            const paymentDetails = document.getElementById('paymentDetails');
-            const totalAmountInput = document.getElementById('totalAmount');
-            
-            // 获取下一个球友编号：取当前未被占用的最小正整数，删除后可按顺序补位
-            function getNextPlayerNumber() {
-                const usedNumbers = new Set();
-                playersList.querySelectorAll('.remove-btn').forEach(btn => {
-                    usedNumbers.add(parseInt(btn.getAttribute('data-id').replace('player', ''), 10));
-                });
-                let number = 1;
-                while (usedNumbers.has(number)) {
-                    number++;
-                }
-                return number;
-            }
+    <div class="card">
+      <div class="card-head"><span class="card-title">球友 &amp; 已支出</span></div>
+      <ul class="players" id="d-players"></ul>
+      <div class="list-foot">
+        <button type="button" class="btn btn-dashed" id="d-add">＋ 添加球友</button>
+      </div>
+      <p class="hint" style="margin-top:10px"><span id="d-count">共 0 人</span>，没垫付过钱的球友「已支出」留空即可。</p>
+    </div>
 
-            // 添加球友
-            addPlayerBtn.addEventListener('click', function() {
-                const playerNumber = getNextPlayerNumber();
-                const playerId = `player${playerNumber}`;
-                
-                const playerItem = document.createElement('div');
-                playerItem.className = 'player-item';
-                playerItem.innerHTML = `
-                    <div class="player-inputs">
-                        <input type="text" class="player-name" placeholder="球友姓名" value="球友${playerNumber}">
-                        <input type="number" class="player-expense" placeholder="已支出金额">
-                    </div>
-                    <button type="button" class="remove-btn" data-id="${playerId}">删除</button>
-                `;
-                
-                playersList.appendChild(playerItem);
-                
-                // 更新收款人选择列表
-                const option = document.createElement('option');
-                option.value = playerId;
-                option.textContent = `球友${playerNumber}`;
-                payerSelect.appendChild(option);
-                
-                // 添加删除功能
-                playerItem.querySelector('.remove-btn').addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    playersList.removeChild(playerItem);
-                    
-                    // 从收款人选择列表中移除
-                    const optionToRemove = payerSelect.querySelector(`option[value="${id}"]`);
-                    if (optionToRemove) {
-                        payerSelect.removeChild(optionToRemove);
-                    }
-                    
-                    // 如果删除的是当前选中的收款人，清空选择
-                    if (payerSelect.value === id) {
-                        payerSelect.value = '';
-                    }
-                });
-                
-                // 当姓名输入框内容变化时，更新选择列表
-                playerItem.querySelector('.player-name').addEventListener('input', function() {
-                    const id = this.parentNode.parentNode.querySelector('.remove-btn').getAttribute('data-id');
-                    const option = payerSelect.querySelector(`option[value="${id}"]`);
-                    if (option) {
-                        option.textContent = this.value || `球友${id.replace('player', '')}`;
-                    }
-                });
-            });
-            
-            // 计算平摊费用
-            calculateBtn.addEventListener('click', function() {
-                // 获取所有球友数据
-                const players = [];
-                const playerItems = playersList.querySelectorAll('.player-item');
-                
-                if (playerItems.length === 0) {
-                    alert('请至少添加一个球友！');
-                    return;
-                }
-                
-                playerItems.forEach(item => {
-                    const name = item.querySelector('.player-name').value || `球友${item.querySelector('.remove-btn').getAttribute('data-id').replace('player', '')}`;
-                    const expense = parseFloat(item.querySelector('.player-expense').value) || 0;
-                    players.push({
-                        id: item.querySelector('.remove-btn').getAttribute('data-id'),
-                        name: name,
-                        expense: expense
-                    });
-                });
-                
-                // 获取总费用
-                let totalAmount = parseFloat(totalAmountInput.value);
-                if (!totalAmount || totalAmount <= 0) {
-                    // 如果没有输入总费用，则计算所有球友支出之和
-                    totalAmount = players.reduce((sum, player) => sum + player.expense, 0);
-                    totalAmountInput.value = totalAmount.toFixed(2);
-                }
-                
-                // 检查是否选择了收款人
-                const payerId = payerSelect.value;
-                if (!payerId) {
-                    alert('请指定一个收款人！');
-                    return;
-                }
-                
-                // 计算平摊金额
-                const perPersonAmount = totalAmount / players.length;
-                
-                // 计算每个球友的差额
-                players.forEach(player => {
-                    player.balance = perPersonAmount - player.expense;
-                });
-                
-                // 显示结果
-                displayResults(players, perPersonAmount, payerId);
-                
-                // 计算收款和转账明细
-                calculatePaymentDetails(players, payerId);
-                
-                // 显示结果区域
-                resultsSection.style.display = 'block';
-                
-                // 滚动到结果区域
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-            });
-            
-            // 显示平摊结果
-            function displayResults(players, perPersonAmount, payerId) {
-                const tbody = resultsTable.querySelector('tbody');
-                tbody.innerHTML = '';
-                
-                players.forEach(player => {
-                    const row = document.createElement('tr');
-                    
-                    // 标记收款人
-                    const nameCell = document.createElement('td');
-                    nameCell.textContent = player.id === payerId ? `${player.name} (收款人)` : player.name;
-                    
-                    const expenseCell = document.createElement('td');
-                    expenseCell.textContent = player.expense.toFixed(2);
-                    
-                    const perPersonCell = document.createElement('td');
-                    perPersonCell.textContent = perPersonAmount.toFixed(2);
-                    
-                    const balanceCell = document.createElement('td');
-                    balanceCell.textContent = player.balance.toFixed(2);
-                    
-                    if (player.balance > 0) {
-                        balanceCell.className = 'negative';
-                    } else if (player.balance < 0) {
-                        balanceCell.className = 'positive';
-                    }
-                    
-                    row.appendChild(nameCell);
-                    row.appendChild(expenseCell);
-                    row.appendChild(perPersonCell);
-                    row.appendChild(balanceCell);
-                    
-                    tbody.appendChild(row);
-                });
-            }
-            
-            // 计算收款和转账明细
-            function calculatePaymentDetails(players, payerId) {
-                // 找到收款人
-                const payer = players.find(p => p.id === payerId);
-                
-                // 计算收款和转账
-                const payments = {
-                    receive: [],
-                    pay: []
-                };
-                
-                players.forEach(player => {
-                    if (player.id !== payerId) {
-                        if (player.balance > 0) {
-                            // 该球友需要付钱给收款人
-                            payments.receive.push({
-                                name: player.name,
-                                amount: player.balance
-                            });
-                        } else if (player.balance < 0) {
-                            // 收款人需要付钱给该球友
-                            payments.pay.push({
-                                name: player.name,
-                                amount: -player.balance
-                            });
-                        }
-                    }
-                });
-                
-                // 显示收款和转账明细
-                let html = `
-                    <div class="summary">
-                        <p><strong>收款人：${payer.name}</strong></p>
-                        <p>每人平摊金额：${(players.reduce((sum, p) => sum + p.expense, 0) / players.length).toFixed(2)}元</p>
-                    </div>
-                `;
-                
-                if (payments.receive.length > 0) {
-                    html += '<div class="payment-list"><h4>应收款：</h4><ul>';
-                    payments.receive.forEach(payment => {
-                        html += `<li>从 ${payment.name} 收款：<span class="negative">${payment.amount.toFixed(2)}元</span></li>`;
-                    });
-                    html += '</ul></div>';
-                }
-                
-                if (payments.pay.length > 0) {
-                    html += '<div class="payment-list"><h4>应转账：</h4><ul>';
-                    payments.pay.forEach(payment => {
-                        html += `<li>向 ${payment.name} 转账：<span class="positive">${payment.amount.toFixed(2)}元</span></li>`;
-                    });
-                    html += '</ul></div>';
-                }
-                
-                paymentDetails.innerHTML = html;
-            }
-            
-            // 初始添加一个球友
-            addPlayerBtn.click();
+    <div class="card">
+      <div class="card-head"><span class="card-title">清算方式</span></div>
+      <fieldset class="opts" role="radiogroup" aria-label="清算方式">
+        <label class="opt">
+          <input type="radio" name="strategy" value="auto" checked>
+          <span class="opt-body"><span class="opt-title">智能自适应<span class="tag">推荐</span></span><span class="opt-desc">只有 2 人有差额时直接互转；人多时自动压缩转账笔数</span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="strategy" value="min_transfer">
+          <span class="opt-body"><span class="opt-title">最少转账</span><span class="opt-desc">全局最优拆分，转账笔数永远最少</span></span>
+        </label>
+        <label class="opt">
+          <input type="radio" name="strategy" value="star">
+          <span class="opt-body"><span class="opt-title">指定组织者统一收款</span><span class="opt-desc">所有人只和组织者结算，简单直观，笔数稍多</span></span>
+        </label>
+      </fieldset>
+      <div class="payer-field" id="d-payer-field" hidden>
+        <div class="field">
+          <label for="d-payer" id="d-payer-label">组织者（统一收款人）</label>
+          <select id="d-payer"></select>
+          <p class="hint" id="d-payer-hint"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice" id="d-notice" role="alert" aria-live="assertive" data-show="false"></div>
+    <button type="button" class="btn btn-primary" id="d-calc">计算分账</button>
+    <div id="d-result" aria-live="polite"></div>
+  </section>
+
+  <noscript><div class="noscript">需要启用 JavaScript 才能使用计算器。</div></noscript>
+
+  <footer class="footer">
+    <p><strong>怎么用？</strong> ⚡ 极速平摊适合「一人垫付全款，大家转给 TA」；📋 精细分账适合多人各自垫了不同金额，系统会自动算出最少转账笔数。</p>
+    <p>金额全部按「分」精确计算，除不尽的零头由收款人（或被指定的人）多承担几分钱，总额分毫不差。计算只在你的浏览器里完成，不会上传任何数据。</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="badminton-algorithm.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var Algo = window.BadmintonAlgo;
+  var MODE_KEY = 'lifetools_badminton_mode';
+  var MAX_PLAYERS = 30;
+  var MAX_COUNT = 999;
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 小工具 ---------- */
+
+  // 所有动态内容都走 createElement + 文本节点，用户输入不会被当作 HTML 解析
+  function h(tag, props) {
+    var node = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        var v = props[k];
+        if (v == null || v === false) return;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else node.setAttribute(k, v === true ? '' : v);
+      });
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c == null || c === false) continue;
+      node.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+    }
+    return node;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function money(n) { return '¥' + Algo.formatMoney(n); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function todayText() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  // 存储在隐私模式/禁用 Cookie 时会抛错，读写都包一层
+  function storageGet(key) { try { return window.localStorage.getItem(key); } catch (e) { return null; } }
+  function storageSet(key, value) { try { window.localStorage.setItem(key, value); } catch (e) { /* 忽略 */ } }
+
+  /* ---------- 提示条 / Toast ---------- */
+
+  function showNotice(box, message) {
+    clear(box);
+    box.appendChild(h('span', { class: 'notice-icon', 'aria-hidden': 'true', text: '⚠' }));
+    box.appendChild(h('span', { text: message }));
+    box.setAttribute('data-show', 'true');
+  }
+  function hideNotice(box) {
+    box.setAttribute('data-show', 'false');
+    clear(box);
+  }
+
+  var toastEl = $('toast');
+  var toastTimer = 0;
+  function toast(message, isError) {
+    toastEl.textContent = message;
+    toastEl.className = 'toast show' + (isError ? ' is-error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 2400);
+  }
+
+  /* ---------- 复制：优先 Clipboard API，file:// 或非安全上下文回退 execCommand ---------- */
+
+  function legacyCopy(text) {
+    var active = document.activeElement;
+    var ta = h('textarea', { readonly: true, 'aria-hidden': 'true', tabindex: '-1' });
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:-9999px;width:1px;height:1px;opacity:0;font-size:16px;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (active && typeof active.focus === 'function') active.focus();
+    return ok;
+  }
+  function copyText(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+      try {
+        return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
+      } catch (e) { /* 权限策略等同步异常，走回退 */ }
+    }
+    return Promise.resolve(legacyCopy(text));
+  }
+  function makeCopyButton(getText) {
+    var btn = h('button', { type: 'button', class: 'btn btn-primary btn-copy' }, '📋 复制微信账单');
+    var timer = 0;
+    btn.addEventListener('click', function () {
+      var text = getText();
+      if (!text) { toast('还没有可复制的账单，请先计算', true); return; }
+      copyText(text).then(function (ok) {
+        if (ok) {
+          toast('已复制，去微信/群里粘贴吧');
+          btn.classList.add('done');
+          btn.textContent = '✅ 已复制';
+          clearTimeout(timer);
+          timer = setTimeout(function () { btn.classList.remove('done'); btn.textContent = '📋 复制微信账单'; }, 1800);
+        } else {
+          toast('复制失败，请展开下方「预览账单文案」手动长按复制', true);
+        }
+      });
+    });
+    return btn;
+  }
+  function makePreview() {
+    var pre = h('pre');
+    var box = h('details', { class: 'preview' }, h('summary', { text: '预览账单文案' }), pre);
+    return { box: box, pre: pre };
+  }
+
+  /* =====================================================================
+   * Tabs：键盘左右键切换，记住上次模式
+   * ===================================================================== */
+  var tabsEl = $('tabs');
+  var tabEls = { quick: $('tab-quick'), detailed: $('tab-detailed') };
+  var panelEls = { quick: $('panel-quick'), detailed: $('panel-detailed') };
+  var MODES = ['quick', 'detailed'];
+
+  function setMode(mode, opts) {
+    if (MODES.indexOf(mode) < 0) mode = 'quick';
+    MODES.forEach(function (m) {
+      var on = m === mode;
+      tabEls[m].setAttribute('aria-selected', String(on));
+      tabEls[m].setAttribute('tabindex', on ? '0' : '-1');
+      panelEls[m].hidden = !on;
+    });
+    tabsEl.setAttribute('data-active', mode);
+    if (opts && opts.focus) tabEls[mode].focus();
+    if (!opts || opts.save !== false) storageSet(MODE_KEY, mode);
+  }
+  MODES.forEach(function (m) {
+    tabEls[m].addEventListener('click', function () { setMode(m); });
+  });
+  tabsEl.addEventListener('keydown', function (e) {
+    var idx = MODES.indexOf(tabsEl.getAttribute('data-active'));
+    var next = -1;
+    if (e.key === 'ArrowRight') next = (idx + 1) % MODES.length;
+    else if (e.key === 'ArrowLeft') next = (idx + MODES.length - 1) % MODES.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = MODES.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    setMode(MODES[next], { focus: true });
+  });
+
+  /* =====================================================================
+   * 模式一：极速平摊（输入即时计算）
+   * ===================================================================== */
+  var qTotal = $('q-total');
+  var qCount = $('q-count');
+  var qPayer = $('q-payer');
+  var qNotice = $('q-notice');
+  var qResultBox = $('q-result');
+  var qChips = Array.prototype.slice.call($('q-chips').querySelectorAll('.chip'));
+
+  var qEmpty = h('div', { class: 'empty' },
+    h('span', { class: 'empty-icon', 'aria-hidden': 'true', text: '🧮' }),
+    h('strong', { text: '输入总费用，马上算出人均' }),
+    h('span', { text: '选好人数就能看到每个人该转多少' }));
+
+  // 结果区骨架只建一次，之后原地更新文字：不闪烁，也能保留「预览」的展开状态
+  var qUI = (function () {
+    var num = h('span', { class: 'rh-num' });
+    var formula = h('span', { class: 'rh-formula' });
+    var tiles = {
+      advance: h('span', { class: 'stat-value' }),
+      others: h('span', { class: 'stat-value' }),
+      self: h('span', { class: 'stat-value' })
+    };
+    var othersLabel = h('span', { class: 'stat-label' });
+    var selfLabel = h('span', { class: 'stat-label' });
+    var lines = h('ul', { class: 'lines' });
+    var preview = makePreview();
+    var lastText = '';
+    var copyBtn = makeCopyButton(function () { return lastText; });
+
+    var hero = h('div', { class: 'result-hero' },
+      h('div', { class: 'rh-top' }, h('span', { class: 'rh-label', text: '人均应付' }), formula),
+      h('div', { class: 'rh-amount' }, h('span', { class: 'rh-cur', text: '¥' }), num, h('span', { class: 'rh-per', text: '/ 人' })),
+      h('div', { class: 'stats' },
+        h('div', { class: 'stat' }, h('span', { class: 'stat-label', text: '收款人先垫付' }), tiles.advance),
+        h('div', { class: 'stat' }, othersLabel, tiles.others),
+        h('div', { class: 'stat' }, selfLabel, tiles.self)));
+    var detail = h('div', { class: 'card' }, h('div', { class: 'card-head' }, h('span', { class: 'card-title', text: '账单明细' })), lines);
+    var root = h('div', { class: 'panel' }, hero, detail, h('div', { class: 'actions' }, copyBtn, preview.box));
+
+    return {
+      root: root,
+      update: function (res, animateNum) {
+        num.textContent = Algo.formatMoney(res.perPerson);
+        if (animateNum) { num.classList.remove('pop'); void num.offsetWidth; num.classList.add('pop'); }
+        formula.textContent = money(res.totalAmount) + ' ÷ ' + res.playerCount + ' 人';
+        tiles.advance.textContent = money(res.totalAmount);
+        othersLabel.textContent = res.othersCount > 0 ? '其余 ' + res.othersCount + ' 人转入' : '无需转账';
+        tiles.others.textContent = money(res.othersTotal);
+        selfLabel.textContent = res.payerName + ' 承担';
+        tiles.self.textContent = money(res.payerShare);
+        clear(lines);
+        res.lines.forEach(function (l, i) {
+          // 最后一条余数说明用提示样式，和常规明细区分开
+          var isNote = res.hasRemainder && res.playerCount > 1 && i === res.lines.length - 1;
+          lines.appendChild(h('li', { class: isNote ? 'warn' : '', text: l }));
         });
-    </script>
+        lastText = Algo.buildQuickBillText(res, { dateText: todayText() });
+        preview.pre.textContent = lastText;
+      }
+    };
+  })();
+
+  var qState = { shown: false, lastPer: null };
+
+  function syncChips(count) {
+    qChips.forEach(function (chip) {
+      chip.setAttribute('aria-pressed', String(Number(chip.getAttribute('data-count')) === count));
+    });
+  }
+
+  function renderQuick() {
+    var totalStr = qTotal.value.trim();
+    var countStr = qCount.value.trim();
+    syncChips(/^\d+$/.test(countStr) ? Number(countStr) : -1);
+
+    if (totalStr === '') {
+      hideNotice(qNotice);
+      showQuickEmpty();
+      return;
+    }
+    var res = Algo.calculateQuickSplit(totalStr, countStr, qPayer.value);
+    if (!res.ok) {
+      showNotice(qNotice, res.error);
+      showQuickEmpty();
+      return;
+    }
+    hideNotice(qNotice);
+    var firstShow = !qState.shown;
+    if (firstShow) {
+      clear(qResultBox);
+      qResultBox.appendChild(qUI.root);
+      qUI.root.classList.add('rise');
+      qState.shown = true;
+    }
+    qUI.update(res, !firstShow && qState.lastPer !== res.perPerson);
+    qState.lastPer = res.perPerson;
+  }
+  function showQuickEmpty() {
+    if (qState.shown || !qResultBox.firstChild) {
+      clear(qResultBox);
+      qResultBox.appendChild(qEmpty);
+      qState.shown = false;
+      qState.lastPer = null;
+      qUI.root.classList.remove('rise');
+    }
+  }
+
+  function setQuickCount(n) {
+    n = Math.max(1, Math.min(MAX_COUNT, n));
+    qCount.value = String(n);
+    renderQuick();
+  }
+  qChips.forEach(function (chip) {
+    chip.addEventListener('click', function () { setQuickCount(Number(chip.getAttribute('data-count'))); });
+  });
+  $('q-dec').addEventListener('click', function () {
+    var n = parseInt(qCount.value, 10);
+    setQuickCount((isNaN(n) ? 2 : n) - 1);
+  });
+  $('q-inc').addEventListener('click', function () {
+    var n = parseInt(qCount.value, 10);
+    setQuickCount((isNaN(n) ? 0 : n) + 1);
+  });
+  qCount.addEventListener('input', function () {
+    // 人数只可能是正整数，直接过滤掉其它字符，少一类无意义的报错
+    var cleaned = qCount.value.replace(/[^\d]/g, '');
+    if (cleaned !== qCount.value) qCount.value = cleaned;
+    renderQuick();
+  });
+  qCount.addEventListener('focus', function () { qCount.select(); });
+  qTotal.addEventListener('input', renderQuick);
+  qPayer.addEventListener('input', renderQuick);
+
+  /* =====================================================================
+   * 模式二：精细分账
+   * ===================================================================== */
+  var dTotal = $('d-total');
+  var dPlayers = $('d-players');
+  var dCount = $('d-count');
+  var dAdd = $('d-add');
+  var dCalc = $('d-calc');
+  var dNotice = $('d-notice');
+  var dResultBox = $('d-result');
+  var dPayerField = $('d-payer-field');
+  var dPayer = $('d-payer');
+  var dPayerLabel = $('d-payer-label');
+  var dPayerHint = $('d-payer-hint');
+  var strategyRadios = Array.prototype.slice.call(document.querySelectorAll('input[name="strategy"]'));
+
+  var players = [];          // { id, name, expense }：expense 保留用户输入的原始字符串
+  var gapMode = false;       // 总费用比支出合计多时，需要让用户指定"差额承担人"
+  var lastDetailed = null;   // 最近一次成功的计算结果
+  var lastDetailedText = '';
+  var previewOpen = false;
+
+  function currentStrategy() {
+    for (var i = 0; i < strategyRadios.length; i++) if (strategyRadios[i].checked) return strategyRadios[i].value;
+    return 'auto';
+  }
+  function playerLabel(p) {
+    var name = p.name.trim();
+    return name || '球友' + p.id.replace(/^player/, '');
+  }
+
+  function renderPlayers(focusId) {
+    clear(dPlayers);
+    players.forEach(function (p) {
+      var no = p.id.replace(/^player/, '');
+      var nameInput = h('input', { type: 'text', class: 'p-name', maxlength: '12', autocomplete: 'off', 'aria-label': '球友 ' + no + ' 姓名', placeholder: '球友' + no, 'data-id': p.id });
+      nameInput.value = p.name;
+      var expInput = h('input', { type: 'text', class: 'p-exp', inputmode: 'decimal', autocomplete: 'off', 'aria-label': '球友 ' + no + ' 已支出（元）', placeholder: '已支出（元）', 'data-id': p.id });
+      expInput.value = p.expense;
+      var del = h('button', { type: 'button', class: 'p-del', 'aria-label': '删除球友 ' + no, 'data-id': p.id, text: '✕' });
+      var row = h('li', { class: 'player' + (p.isNew ? ' rise' : '') },
+        h('span', { class: 'p-no', 'aria-hidden': 'true', text: no }), nameInput, expInput, del);
+      p.isNew = false;
+
+      nameInput.addEventListener('input', function () {
+        p.name = nameInput.value;
+        refreshPayerOptions();
+        markStale();
+      });
+      nameInput.addEventListener('focus', function () { nameInput.select(); });
+      expInput.addEventListener('input', function () { p.expense = expInput.value; markStale(); });
+      [nameInput, expInput].forEach(function (inp) {
+        inp.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); calcDetailed(); }
+        });
+      });
+      del.addEventListener('click', function () { removePlayer(p.id); });
+      dPlayers.appendChild(row);
+    });
+    dCount.textContent = '共 ' + players.length + ' 人';
+    dAdd.disabled = players.length >= MAX_PLAYERS;
+    refreshPayerOptions();
+    if (focusId) {
+      var target = dPlayers.querySelector('.p-name[data-id="' + focusId + '"]');
+      if (target) { target.focus(); target.select(); }
+    }
+  }
+
+  function addPlayer(silent) {
+    if (players.length >= MAX_PLAYERS) { toast('最多支持 ' + MAX_PLAYERS + ' 位球友', true); return; }
+    var n = Algo.getNextPlayerNumber(players);  // 取最小未占用编号：删除中间的人之后会补位
+    var p = { id: 'player' + n, name: '球友' + n, expense: '', isNew: !silent };
+    players.push(p);
+    renderPlayers(silent ? null : p.id);
+    markStale();
+  }
+  function removePlayer(id) {
+    var idx = -1;
+    players.forEach(function (p, i) { if (p.id === id) idx = i; });
+    if (idx < 0) return;
+    players.splice(idx, 1);
+    var neighbor = players[idx] || players[idx - 1];
+    renderPlayers();
+    if (neighbor) {
+      var f = dPlayers.querySelector('.p-del[data-id="' + neighbor.id + '"]');
+      if (f) f.focus();
+    } else {
+      dAdd.focus();
+    }
+    markStale();
+  }
+
+  // 组织者/差额承担人下拉：保持当前选中，姓名改动时同步文字
+  function refreshPayerOptions() {
+    var keep = dPayer.value;
+    clear(dPayer);
+    dPayer.appendChild(h('option', { value: '', text: '-- 请选择 --' }));
+    players.forEach(function (p) {
+      dPayer.appendChild(h('option', { value: p.id, text: playerLabel(p) }));
+    });
+    dPayer.value = players.some(function (p) { return p.id === keep; }) ? keep : '';
+  }
+
+  function updatePayerField(focus) {
+    var strategy = currentStrategy();
+    var show = strategy === 'star' || gapMode;
+    var wasHidden = dPayerField.hidden;
+    dPayerField.hidden = !show;
+    if (!show) return;
+    if (strategy === 'star') {
+      dPayerLabel.textContent = '组织者（统一收款人）';
+      dPayerHint.textContent = gapMode
+        ? '大家只和 TA 结算：欠钱的转给 TA，TA 再转给该收回钱的人。总费用多出的差额也记在 TA 名下。'
+        : '大家只和 TA 结算：欠钱的转给 TA，TA 再转给该收回钱的人。';
+    } else {
+      dPayerLabel.textContent = '差额承担人';
+      dPayerHint.textContent = '总费用比各人已填的支出合计多，多出的这部分视为这位球友垫付。也可以回去补录球友的支出。';
+    }
+    if (wasHidden) { dPayerField.classList.remove('rise'); void dPayerField.offsetWidth; dPayerField.classList.add('rise'); }
+    if (focus) dPayer.focus();
+  }
+
+  strategyRadios.forEach(function (r) {
+    r.addEventListener('change', function () { updatePayerField(r.value === 'star'); markStale(); });
+  });
+  dPayer.addEventListener('change', markStale);
+  dTotal.addEventListener('input', markStale);
+  dTotal.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); calcDetailed(); } });
+  dAdd.addEventListener('click', function () { addPlayer(false); });
+  dCalc.addEventListener('click', calcDetailed);
+
+  // 结果已展示后又改了输入：提示重新计算，并禁止复制过期的账单
+  function markStale() {
+    var box = dResultBox.querySelector('.result');
+    if (!box) return;
+    box.classList.add('is-stale');
+    var note = box.querySelector('.stale-note');
+    if (note) note.hidden = false;
+    var btn = box.querySelector('.btn-copy');
+    if (btn) btn.disabled = true;
+  }
+
+  function calcDetailed() {
+    var strategy = currentStrategy();
+    var payerId = (strategy === 'star' || gapMode) ? dPayer.value : '';
+    var input = players.map(function (p) { return { id: p.id, name: p.name, expense: p.expense }; });
+    var res = Algo.calculateDetailedSplit(input, dTotal.value, strategy, payerId);
+
+    if (!res.ok) {
+      lastDetailed = null;
+      clear(dResultBox);
+      var msg = res.error;
+      if (res.code === 'GAP_NEEDS_PAYER') {
+        gapMode = true;
+        msg = '总费用比各人已填的支出合计多了 ' + money(res.gap) + '。这笔差额是谁付的？请在下方「差额承担人」里选一位（视为 TA 垫付），或者回去补录球友的支出。';
+        updatePayerField(true);
+      } else if (res.code === 'NEED_PAYER') {
+        updatePayerField(true);
+        msg = '请先选择一位组织者（统一收款人）。';
+      } else if (res.code === 'EXPENSE_OVER_TOTAL') {
+        msg += '。可以清空「总费用」让系统自动合计。';
+      } else if (res.code === 'NO_AMOUNT') {
+        msg = '还没有金额：请填写总费用，或至少录入一位球友的已支出金额。';
+      }
+      showNotice(dNotice, msg);
+      return;
+    }
+
+    hideNotice(dNotice);
+    // 差额消失后（且不是组织者模式）收起承担人下拉，界面回到干净状态
+    gapMode = res.gap > 0;
+    updatePayerField(false);
+    lastDetailed = res;
+    renderDetailedResult(res);
+    var box = dResultBox.querySelector('.result');
+    if (box && typeof box.scrollIntoView === 'function') {
+      box.scrollIntoView({ behavior: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+
+  function smartInfo(res) {
+    if (res.settled) return { cls: 'is-done', icon: '🎉', kicker: 'ALL CLEAR' };
+    if (res.routeType === 'direct') return { cls: 'is-boost', icon: '🎯', kicker: 'SMART · DIRECT' };
+    if (res.routeType === 'star') return { cls: 'is-star', icon: '📍', kicker: 'ORGANIZER' };
+    if (res.savedTransfers > 0) return { cls: 'is-boost', icon: '✨', kicker: 'SMART · COMPRESSED' };
+    return { cls: '', icon: '🧮', kicker: 'SMART · OPTIMAL' };
+  }
+
+  function renderDetailedResult(res) {
+    var openBefore = previewOpen;
+    var info = smartInfo(res);
+    var text = Algo.buildDetailedBillText(res, { dateText: todayText() });
+    lastDetailedText = text;
+
+    var smartText = h('span', { class: 'smart-text', text: res.hint });
+    if (res.savedTransfers > 0 && res.routeType === 'min_transfer') {
+      smartText.appendChild(h('span', { class: 'smart-save', text: '省 ' + res.savedTransfers + ' 笔' }));
+    }
+    var smart = h('div', { class: 'smart ' + info.cls },
+      h('span', { class: 'smart-icon', 'aria-hidden': 'true', text: info.icon }),
+      h('div', null, h('span', { class: 'smart-kicker', text: info.kicker }), smartText));
+
+    var stats = h('div', { class: 'stats' },
+      h('div', { class: 'stat' }, h('span', { class: 'stat-label', text: '总费用' }), h('span', { class: 'stat-value', text: money(res.totalAmount) })),
+      h('div', { class: 'stat' }, h('span', { class: 'stat-label', text: '人均应摊' }), h('span', { class: 'stat-value', text: money(res.perPerson) })),
+      h('div', { class: 'stat' }, h('span', { class: 'stat-label', text: '转账笔数' }), h('span', { class: 'stat-value', text: res.transfers.length + ' 笔' })));
+
+    var notes = h('div', { class: 'notes' });
+    res.players.forEach(function (p) {
+      if (p.extraExpense > 0) {
+        notes.appendChild(h('p', { class: 'note', text: '总费用比已填支出多 ' + money(p.extraExpense) + '，已记在「' + p.name + '」名下（视为 TA 垫付）。' }));
+      }
+    });
+    if (res.hasRemainder) {
+      notes.appendChild(h('p', { class: 'note', text: '总额不能被 ' + res.players.length + ' 人整除：有 ' + res.remainderCents + ' 位球友多承担 0.01 元，总额分毫不差。' }));
+    }
+
+    // 差额表格：应付/应收用「文字 + 颜色」双重标识
+    var tbody = h('tbody');
+    res.players.forEach(function (p) {
+      var nameCell = h('td', { class: 'n-name', 'data-label': '球友', role: 'cell' }, p.name);
+      if (res.routeType === 'star' && p.id === res.payerId) nameCell.appendChild(h('span', { class: 'mini-tag', text: '组织者' }));
+      if (p.extraExpense > 0) nameCell.appendChild(h('span', { class: 'mini-tag', text: '承担差额 ' + money(p.extraExpense) }));
+      var pill;
+      if (p.balance > 0) pill = h('span', { class: 'pill pay' }, '应付 ' + money(p.balance));
+      else if (p.balance < 0) pill = h('span', { class: 'pill recv' }, '应收 ' + money(-p.balance));
+      else pill = h('span', { class: 'pill even' }, '持平 ✓');
+      tbody.appendChild(h('tr', { role: 'row' },
+        nameCell,
+        h('td', { class: 'num', 'data-label': '已支出', role: 'cell' }, money(p.expense + p.extraExpense)),
+        h('td', { class: 'num', 'data-label': '应摊', role: 'cell' }, money(p.share)),
+        h('td', { 'data-label': '差额', role: 'cell' }, pill)));
+    });
+    var table = h('table', { role: 'table', 'aria-label': '差额明细' },
+      h('thead', null, h('tr', { role: 'row' },
+        h('th', { scope: 'col', role: 'columnheader', text: '球友' }), h('th', { scope: 'col', role: 'columnheader', text: '已支出' }),
+        h('th', { scope: 'col', role: 'columnheader', text: '应摊' }), h('th', { scope: 'col', role: 'columnheader', text: '差额' }))),
+      tbody);
+
+    var body = h('div', { class: 'result-body panel' });
+    body.appendChild(stats);
+    if (notes.firstChild) body.appendChild(notes);
+    body.appendChild(h('p', { class: 'sub-head' }, '差额明细'));
+    body.appendChild(h('div', { class: 'table-wrap' }, table));
+
+    if (res.settled) {
+      body.appendChild(h('div', { class: 'done-card' },
+        h('span', { class: 'big', 'aria-hidden': 'true', text: '🎉' }),
+        h('strong', { text: '账已结清，谁都不用转账' }),
+        h('span', { text: '每个人垫付的钱恰好等于应摊份额。' })));
+    } else {
+      body.appendChild(h('p', { class: 'sub-head' }, '转账路径', h('small', { text: '共 ' + res.transfers.length + ' 笔' })));
+      var routes = h('ol', { class: 'routes' });
+      res.transfers.forEach(function (t, i) {
+        var organizer = res.routeType === 'star' && res.payerId != null;
+        var li = h('li', { class: 'route rise', style: '--i:' + i },
+          h('span', { class: 'sr-only', text: t.fromName + ' 转给 ' + t.toName + ' ' + money(t.amount) }),
+          h('span', { class: 'rt-node rt-from' + (organizer && t.fromId === res.payerId ? ' is-organizer' : ''), 'aria-hidden': 'true' },
+            h('span', { class: 'rt-role', text: '转账人' }), h('span', { class: 'rt-name', text: t.fromName })),
+          h('span', { class: 'rt-link', 'aria-hidden': 'true' }, h('span', { class: 'rt-amount', text: money(t.amount) })),
+          h('span', { class: 'rt-node rt-to' + (organizer && t.toId === res.payerId ? ' is-organizer' : ''), 'aria-hidden': 'true' },
+            h('span', { class: 'rt-role', text: '收款人' }), h('span', { class: 'rt-name', text: t.toName })));
+        routes.appendChild(li);
+      });
+      body.appendChild(routes);
+    }
+
+    var preview = makePreview();
+    preview.pre.textContent = text;
+    preview.box.open = openBefore;
+    preview.box.addEventListener('toggle', function () { previewOpen = preview.box.open; });
+    var copyBtn = makeCopyButton(function () { return lastDetailedText; });
+
+    var staleNote = h('p', { class: 'stale-note', role: 'status', text: '输入已修改，点击上方「计算分账」刷新结果。', hidden: true });
+    var root = h('div', { class: 'result panel rise' }, staleNote, smart, body, h('div', { class: 'actions' }, copyBtn, preview.box));
+    clear(dResultBox);
+    dResultBox.appendChild(root);
+  }
+
+  /* =====================================================================
+   * 启动
+   * ===================================================================== */
+  if (!Algo) {
+    showNotice(qNotice, '算法模块（badminton-algorithm.js）加载失败，请刷新页面重试。');
+    return;
+  }
+
+  var saved = storageGet(MODE_KEY);
+  setMode(saved === 'detailed' ? 'detailed' : 'quick', { save: false });
+
+  for (var i = 0; i < 4; i++) addPlayer(true);
+  renderQuick();
+
+  // 主题挂件内联进顶栏；theme-manager.js 缺失或出错都不影响页面功能
+  try {
+    if (window.LifeToolsTheme && typeof window.LifeToolsTheme.mountThemeControl === 'function') {
+      window.LifeToolsTheme.mountThemeControl('badminton', { container: $('themeSlot') });
+    }
+  } catch (e) { /* 忽略：页面仍使用 :root 默认配色 */ }
+
+  // 首屏渲染完成后再打开主题切换的过渡动画，保证刷新时不出现颜色渐变
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { document.documentElement.classList.add('theme-ready'); });
+  });
+})();
+</script>
 </body>
 </html>
