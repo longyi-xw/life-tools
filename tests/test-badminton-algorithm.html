@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badminton Algorithm Unit Test</title>
+<style>
+  body { font: 14px/1.6 "Microsoft YaHei", sans-serif; margin: 16px; color: #1c2420; background: #f7f9f8; }
+  h1 { font-size: 18px; margin: 0 0 8px; }
+  #summary { font-weight: 700; padding: 8px 12px; border-radius: 6px; background: #e6efe9; margin-bottom: 12px; }
+  body[data-status="fail"] #summary { background: #f8dcd8; }
+  h2 { font-size: 14px; margin: 16px 0 4px; padding-top: 8px; border-top: 1px solid #d5ddd8; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { padding: 1px 0; }
+  li.pass::before { content: "✅ PASS: "; }
+  li.fail::before { content: "❌ FAIL: "; font-weight: 700; }
+  li.fail { color: #b3261e; }
+  .detail { color: #7a847e; font-size: 12px; }
+</style>
+</head>
+<body data-status="running">
+<h1>羽毛球算法单元测试(badminton-algorithm.js)</h1>
+<div id="summary">Running tests...</div>
+<div id="failures"></div>
+<div id="results"></div>
+
+<script src="../badminton-algorithm.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var A = window.BadmintonAlgo;
+  var pass = 0, failCount = 0;
+  var failures = [];
+  var resultsEl = document.getElementById('results');
+  var currentList = null;
+
+  function group(title) {
+    var h = document.createElement('h2');
+    h.textContent = title;
+    resultsEl.appendChild(h);
+    currentList = document.createElement('ul');
+    resultsEl.appendChild(currentList);
+  }
+
+  function record(name, ok, detail) {
+    var li = document.createElement('li');
+    li.className = ok ? 'pass' : 'fail';
+    li.textContent = name;
+    if (!ok && detail) {
+      var d = document.createElement('div');
+      d.className = 'detail';
+      d.textContent = detail;
+      li.appendChild(d);
+    }
+    currentList.appendChild(li);
+    if (ok) { pass++; } else { failCount++; failures.push(name + (detail ? ' -> ' + detail : '')); }
+  }
+
+  function assert(name, cond, detail) {
+    record(name, !!cond, detail);
+  }
+  function eq(name, actual, expected) {
+    var a = JSON.stringify(actual), e = JSON.stringify(expected);
+    record(name, a === e, 'expected ' + e + ' but got ' + a);
+  }
+  // 异常也算失败,而不是让整页测试中断
+  function guard(name, fn) {
+    try { fn(); } catch (e) { record(name + '(抛出异常)', false, String(e && e.stack || e)); }
+  }
+
+  /* ---------- 工具 ---------- */
+  function mk(expenses, names) {
+    return expenses.map(function (e, i) {
+      return { id: 'player' + (i + 1), name: names ? names[i] : String.fromCharCode(65 + i), expense: e };
+    });
+  }
+  function cents(x) { return A.toCents(x); }
+  // 给用例名用的简短展示:区分 undefined / NaN / 字符串
+  function show(v) {
+    if (v === undefined) return 'undefined';
+    if (typeof v === 'number') return String(v);
+    return JSON.stringify(v);
+  }
+  function describeTransfers(r) {
+    return r.transfers.map(function (t) { return t.fromName + '->' + t.toName + ':' + t.amount; });
+  }
+  function byIdBalance(r, id) {
+    for (var i = 0; i < r.players.length; i++) if (r.players[i].id === id) return cents(r.players[i].balance);
+    return NaN;
+  }
+  // 校验"一致性不变量":返回错误描述数组,空数组表示全部成立
+  function invariantErrors(r) {
+    var errs = [];
+    if (!r || !r.ok) return ['result not ok: ' + (r && r.error)];
+    var byId = {};
+    var sumBal = 0, sumShare = 0, sumPaid = 0, nz = 0;
+    r.players.forEach(function (p) {
+      byId[p.id] = cents(p.balance);
+      sumBal += cents(p.balance);
+      sumShare += cents(p.share);
+      sumPaid += cents(p.expense) + cents(p.extraExpense);
+      if (cents(p.balance) !== 0) nz++;
+      if (cents(p.balance) !== cents(p.share) - cents(p.expense) - cents(p.extraExpense)) errs.push('balance formula wrong for ' + p.id);
+    });
+    if (sumBal !== 0) errs.push('sum(balance) != 0: ' + sumBal);
+    if (sumShare !== cents(r.totalAmount)) errs.push('sum(share) != total');
+    if (sumPaid !== cents(r.totalAmount)) errs.push('sum(paid) != total');
+    var pairs = {};
+    r.transfers.forEach(function (t) {
+      var c = cents(t.amount);
+      if (!(c > 0)) errs.push('amount <= 0');
+      if (Math.abs(t.amount * 100 - c) > 1e-6) errs.push('amount has more than 2 decimals: ' + t.amount);
+      if (t.fromId === t.toId) errs.push('self transfer ' + t.fromId);
+      if (pairs[t.toId + '>' + t.fromId]) errs.push('round trip ' + t.fromId + '<->' + t.toId);
+      pairs[t.fromId + '>' + t.toId] = true;
+      byId[t.fromId] -= c;
+      byId[t.toId] += c;
+    });
+    Object.keys(byId).forEach(function (id) { if (byId[id] !== 0) errs.push('net of ' + id + ' not zero: ' + byId[id]); });
+    // star 模式下组织者即使自己持平也要作为中转点,所以上限是"非零人数",组织者自己有差额时才是"非零人数-1"
+    var limit = Math.max(0, nz - 1);
+    if (r.routeType === 'star' && r.payerId != null && byIdBalance(r, r.payerId) === 0) limit = nz;
+    if (r.transfers.length > limit) errs.push('too many transfers ' + r.transfers.length + ' > ' + limit);
+    if (r.settled !== (r.transfers.length === 0)) errs.push('settled flag mismatch');
+    if (r.savedTransfers < 0) errs.push('savedTransfers < 0');
+    return errs;
+  }
+  function assertInvariants(name, r) {
+    var errs = invariantErrors(r);
+    record(name, errs.length === 0, errs.join('; '));
+  }
+
+  /* =====================================================================
+   * 1. 计划文档中的 4 个用例
+   * ===================================================================== */
+  group('计划用例(Task 3)');
+
+  guard('case1', function () {
+    var q = A.calculateQuickSplit(240, 6, '');
+    assert('用例1 快速平摊:240 元 6 人 -> ok', q.ok === true);
+    eq('用例1 每人 40 元', q.perPerson, 40);
+    eq('用例1 收款人自己承担 40 元', q.payerShare, 40);
+    eq('用例1 其余 5 人合计转入 200 元(收款人需收回)', [q.othersCount, q.othersTotal, q.payerAdvance], [5, 200, 200]);
+    assert('用例1 整除时无余数', q.hasRemainder === false && q.remainderCents === 0);
+    assert('用例1 lines 给出明细', Array.isArray(q.lines) && q.lines.length >= 2);
+  });
+
+  guard('case2', function () {
+    // 6 人:4 人垫付 40,A 垫付 0,B 垫付 80
+    var r = A.calculateDetailedSplit(mk([0, 80, 40, 40, 40, 40]), '', 'auto', '');
+    assert('用例2 智能直连:ok', r.ok === true);
+    eq('用例2 每人应摊 40', r.perPerson, 40);
+    eq('用例2 有且仅有 1 笔转账', r.transfers.length, 1);
+    var t = r.transfers[0] || {};
+    var line = t.fromName + ' 直接转 ' + t.toName + ' ' + t.amount + ' 元';
+    eq('用例2 输出 "A 直接转 B 40 元"', line, 'A 直接转 B 40 元');
+    eq('用例2 routeType=direct', r.routeType, 'direct');
+    assert('用例2 无第三方介入(C~F 不出现在转账里)', r.transfers.every(function (x) {
+      return ['player1', 'player2'].indexOf(x.fromId) >= 0 && ['player1', 'player2'].indexOf(x.toId) >= 0;
+    }));
+    assert('用例2 提示语命中直连', /直连/.test(r.hint) && r.hint.indexOf('A 直接转给 B') >= 0, r.hint);
+    eq('用例2 相比统一收款节省 0 笔(本来就只需 1 笔)', r.savedTransfers, 0);
+    assertInvariants('用例2 不变量', r);
+  });
+
+  guard('case3', function () {
+    var r = A.calculateDetailedSplit(mk([120, 60, 0, 0]), '', 'auto', '');
+    assert('用例3 最少转账:ok', r.ok === true);
+    eq('用例3 人均 45', r.perPerson, 45);
+    eq('用例3 最少笔数为 3', r.transfers.length, 3);
+    eq('用例3 routeType=min_transfer', r.routeType, 'min_transfer');
+    var total = r.transfers.reduce(function (s, t) { return s + cents(t.amount); }, 0);
+    eq('用例3 金额守恒:转账总额 = C、D 应付合计 90 元', total, 9000);
+    assertInvariants('用例3 不变量(每人净额归零)', r);
+    // 手工校验净额守恒
+    var net = {};
+    r.players.forEach(function (p) { net[p.id] = cents(p.balance); });
+    r.transfers.forEach(function (t) { net[t.fromId] -= cents(t.amount); net[t.toId] += cents(t.amount); });
+    eq('用例3 转账后每人净额=0', Object.keys(net).map(function (k) { return net[k]; }), [0, 0, 0, 0]);
+    var star = A.calculateDetailedSplit(mk([120, 60, 0, 0]), '', 'star', 'player1');
+    assert('用例3 min_transfer 笔数 <= star 笔数', r.transfers.length <= star.transfers.length);
+  });
+
+  guard('case4', function () {
+    var r = A.calculateDetailedSplit(mk([120, 60, 0, 0]), '', 'star', 'player1');
+    assert('用例4 指定组织者 A:ok', r.ok === true);
+    eq('用例4 routeType=star', r.routeType, 'star');
+    var got = describeTransfers(r).sort();
+    eq('用例4 C、D 各转 A 45,A 退 B 15', got, ['A->B:15', 'C->A:45', 'D->A:45']);
+    assert('用例4 收款人 A 不出现在对手方两侧(只作为中心节点)', r.transfers.every(function (t) {
+      return t.fromId === 'player1' || t.toId === 'player1';
+    }));
+    eq('用例4 回显 payer 与 strategy', [r.payerId, r.payerName, r.strategy], ['player1', 'A', 'star']);
+    assertInvariants('用例4 不变量', r);
+  });
+
+  /* =====================================================================
+   * 2. 金额工具
+   * ===================================================================== */
+  group('金额工具:toCents / fromCents / formatMoney');
+
+  guard('money', function () {
+    eq('toCents(0.1+0.2) = 30(浮点陷阱)', cents(0.1 + 0.2), 30);
+    eq('toCents(33.335) = 3334(逢五进一)', cents(33.335), 3334);
+    eq('toCents("1.005") = 101', cents('1.005'), 101);
+    eq('toCents(2.675) = 268', cents(2.675), 268);
+    eq('toCents(1.255) = 126', cents(1.255), 126);
+    eq('toCents(0.01) = 1', cents(0.01), 1);
+    eq('toCents(0.004) = 0', cents(0.004), 0);
+    eq('toCents(0.005) = 1', cents(0.005), 1);
+    eq('toCents(40) = 4000', cents(40), 4000);
+    eq('toCents("1,200.50") = 120050(千分位)', cents('1,200.50'), 120050);
+    eq('toCents(" ¥ 12.5 ") = 1250', cents(' ¥12.5 '), 1250);
+    eq('toCents(-12.345) = -1235', cents(-12.345), -1235);
+    eq('toCents(1.1) = 110', cents(1.1), 110);
+    eq('toCents(4.35) = 435(4.35*100=434.99999)', cents(4.35), 435);
+    assert('toCents(0) 不产生 -0', Object.is(cents(0), 0) && Object.is(cents(-0.001), 0));
+    ['abc', '', '   ', null, undefined, NaN, Infinity, -Infinity, {}, [], true, '0x10', '1e3', '12.3.4'].forEach(function (bad) {
+      assert('toCents(' + show(bad) + ') = NaN', isNaN(cents(bad)));
+    });
+    eq('fromCents(3334) = 33.34', A.fromCents(3334), 33.34);
+    eq('fromCents(10) = 0.1', A.fromCents(10), 0.1);
+    eq('formatMoney(40) = "40.00"', A.formatMoney(40), '40.00');
+    eq('formatMoney(0.1+0.2) = "0.30"', A.formatMoney(0.1 + 0.2), '0.30');
+    eq('formatMoney(33.335) = "33.34"', A.formatMoney(33.335), '33.34');
+    eq('formatMoney("12.5") = "12.50"', A.formatMoney('12.5'), '12.50');
+    eq('formatMoney(1000000) = "1000000.00"', A.formatMoney(1000000), '1000000.00');
+    eq('formatMoney(-5.5) = "-5.50"', A.formatMoney(-5.5), '-5.50');
+    eq('formatMoney(NaN) = "0.00"', A.formatMoney(NaN), '0.00');
+    eq('formatMoney(0.07) = "0.07"', A.formatMoney(0.07), '0.07');
+  });
+
+  group('导出形态');
+  guard('exports', function () {
+    ['toCents', 'fromCents', 'formatMoney', 'getNextPlayerNumber', 'calculateQuickSplit', 'calculateDetailedSplit',
+      'buildQuickBillText', 'buildDetailedBillText'].forEach(function (k) {
+      assert('BadmintonAlgo.' + k + ' 是函数', typeof A[k] === 'function');
+      assert('全局 ' + k + ' 与命名空间一致', window[k] === A[k]);
+    });
+  });
+
+  /* =====================================================================
+   * 3. 极速平摊
+   * ===================================================================== */
+  group('极速平摊:余数分与边界');
+
+  function closes(total, n) {
+    var q = A.calculateQuickSplit(total, n, 'P');
+    if (!q.ok) return 'not ok';
+    var sum = cents(q.perPerson) * (n - 1) + cents(q.payerShare);
+    return sum === cents(total) ? '' : 'sum ' + sum + ' != ' + cents(total);
+  }
+
+  guard('quick', function () {
+    var q = A.calculateQuickSplit(100, 3, '小明');
+    eq('100 元 3 人:每人 33.33', q.perPerson, 33.33);
+    eq('100 元 3 人:收款人承担 33.34', q.payerShare, 33.34);
+    eq('100 元 3 人:其余 2 人合计 66.66', q.othersTotal, 66.66);
+    eq('100 元 3 人:余数 1 分', [q.hasRemainder, q.remainderCents], [true, 1]);
+    assert('100 元 3 人:lines 说明了余数', q.lines.some(function (l) { return l.indexOf('1 分') >= 0 && l.indexOf('小明') >= 0; }), q.lines.join('|'));
+
+    q = A.calculateQuickSplit(100, 6, '');
+    eq('100 元 6 人:每人 16.66,收款人 16.70(余 4 分)', [q.perPerson, q.payerShare, q.remainderCents, q.payerName], [16.66, 16.7, 4, '收款人']);
+
+    q = A.calculateQuickSplit(0.01, 1, '');
+    eq('0.01 元 1 人:收款人自担,无需转账', [q.ok, q.perPerson, q.othersCount, q.othersTotal, q.payerShare], [true, 0.01, 0, 0, 0.01]);
+
+    q = A.calculateQuickSplit(0.01, 3, '');
+    eq('0.01 元 3 人:每人 0,收款人承担 0.01', [q.ok, q.perPerson, q.payerShare, q.othersTotal, q.remainderCents], [true, 0, 0.01, 0, 1]);
+    assert('0.01 元 3 人:lines 提示金额过小', q.lines.some(function (l) { return l.indexOf('不足 0.01') >= 0; }), q.lines.join('|'));
+
+    q = A.calculateQuickSplit(0.1 + 0.2, 3, '');
+    eq('0.1+0.2 元 3 人:每人恰好 0.10', [q.totalAmount, q.perPerson, q.payerShare, q.hasRemainder], [0.3, 0.1, 0.1, false]);
+
+    q = A.calculateQuickSplit(33.335, 1, '');
+    eq('33.335 元 1 人:总额规整为 33.34', q.totalAmount, 33.34);
+
+    q = A.calculateQuickSplit(1, 7, '');
+    eq('1 元 7 人:每人 0.14,余 2 分', [q.perPerson, q.payerShare, q.remainderCents], [0.14, 0.16, 2]);
+
+    q = A.calculateQuickSplit(240, 1, '  ');
+    eq('单人:othersCount=0 且无需转账', [q.ok, q.othersCount, q.othersTotal, q.payerAdvance, q.perPerson], [true, 0, 0, 0, 240]);
+    assert('单人:lines 给出"无需转账"', q.lines.some(function (l) { return l.indexOf('无需转账') >= 0; }));
+
+    q = A.calculateQuickSplit('240', '6', '  小明  ');
+    eq('字符串入参、收款人去空格', [q.ok, q.perPerson, q.playerCount, q.payerName], [true, 40, 6, '小明']);
+
+    q = A.calculateQuickSplit(' 1,000.5 ', 4, '');
+    eq('千分位字符串 1,000.5 / 4 -> 250.12 余 2 分', [q.ok, q.perPerson, q.remainderCents], [true, 250.12, 2]);
+
+    // 总额精确闭合:perPerson*(N-1) + payerShare === total
+    var bad = [];
+    [[100, 3], [100, 6], [0.01, 7], [1234.56, 9], [999.99, 11], [0.1 + 0.2, 7], [33.335, 5], [5000, 13], [1, 99], [88.88, 8]].forEach(function (c) {
+      var e = closes(c[0], c[1]);
+      if (e) bad.push(c.join('/') + ' ' + e);
+    });
+    record('总额精确闭合(10 组样例)', bad.length === 0, bad.join('; '));
+  });
+
+  group('极速平摊:无效输入');
+  guard('quick-invalid', function () {
+    [0, -1, '', '   ', 'abc', null, undefined, NaN, Infinity, 0.004, 1e12].forEach(function (bad) {
+      var q = A.calculateQuickSplit(bad, 4, '');
+      assert('总额 ' + show(bad) + ' -> 失败且带中文提示', q.ok === false && typeof q.error === 'string' && /[一-龥]/.test(q.error), JSON.stringify(q));
+    });
+    [0, -2, 2.5, 'x', '', null, undefined, NaN, Infinity].forEach(function (bad) {
+      var q = A.calculateQuickSplit(240, bad, '');
+      assert('人数 ' + show(bad) + ' -> 失败且带中文提示', q.ok === false && typeof q.error === 'string' && /[一-龥]/.test(q.error), JSON.stringify(q));
+    });
+    assert('无参数不抛异常', A.calculateQuickSplit().ok === false);
+  });
+
+  /* =====================================================================
+   * 4. getNextPlayerNumber
+   * ===================================================================== */
+  group('getNextPlayerNumber 补位');
+  guard('next', function () {
+    var n = A.getNextPlayerNumber;
+    eq('空数组 -> 1', n([]), 1);
+    eq('非数组 -> 1', [n(), n(null), n('player1'), n({})], [1, 1, 1, 1]);
+    eq('连续 1,2 -> 3', n(['player1', 'player2']), 3);
+    eq('删除中间编号 1,3 -> 2', n(['player1', 'player3']), 2);
+    eq('删除第一个 2,3 -> 1', n(['player2', 'player3']), 1);
+    eq('乱序 3,1,2 -> 4', n(['player3', 'player1', 'player2']), 4);
+    eq('乱序且有缺口 5,1,3,2 -> 4', n(['player5', 'player1', 'player3', 'player2']), 4);
+    eq('对象数组 {id}', n([{ id: 'player1' }, { id: 'player2' }, { id: 'player4' }]), 3);
+    eq('数字数组', n([1, 2, 4]), 3);
+    eq('混合形态', n(['player1', { id: 'player2' }, 3, { id: 'player5' }]), 4);
+    eq('混入无效条目被忽略', n(['abc', null, undefined, {}, { id: null }, 'player', 'playerX', 'player0', -1, 1.5, NaN, true, []]), 1);
+    eq('无效条目不影响有效条目', n(['abc', 'player1', null, 'player2', {}]), 3);
+    eq('player01 视为 1', n(['player01']), 2);
+    var list = ['player1', 'player2', 'player3'];
+    list.splice(1, 1); // 删除 player2
+    var next = n(list);
+    list.push('player' + next);
+    eq('删除中间再添加:补位到 2', [next, list.join(',')], [2, 'player1,player3,player2']);
+  });
+
+  /* =====================================================================
+   * 5. 精细分账:边界与差额
+   * ===================================================================== */
+  group('精细分账:基本形态与边界');
+  guard('detail-basic', function () {
+    var r = A.calculateDetailedSplit(mk([100, 0, 0]), '', 'auto', '');
+    eq('余数分:先给支出最大者 -> 份额 A=33.34 B=33.33 C=33.33', r.players.map(function (p) { return p.share; }), [33.34, 33.33, 33.33]);
+    eq('余数分:A 应收 66.66,B/C 各应付 33.33', r.players.map(function (p) { return p.balance; }), [-66.66, 33.33, 33.33]);
+    eq('余数分:标记 hasRemainder / remainderCents', [r.hasRemainder, r.remainderCents, r.perPerson], [true, 1, 33.33]);
+    eq('余数分:两笔转账 B->A、C->A', describeTransfers(r), ['B->A:33.33', 'C->A:33.33']);
+    assertInvariants('余数分:不变量', r);
+
+    r = A.calculateDetailedSplit(mk([0, 0, 100]), '', 'star', 'player2');
+    eq('余数分:指定收款人优先吃零头 -> B=33.34', r.players.map(function (p) { return p.share; }), [33.33, 33.34, 33.33]);
+    assertInvariants('余数分(指定收款人):不变量', r);
+
+    r = A.calculateDetailedSplit(mk([10, 10, 10, 0]), '', 'auto', '');
+    eq('10/10/10/0:总额 30,人均 7.5', [r.totalAmount, r.perPerson], [30, 7.5]);
+    assertInvariants('10/10/10/0:不变量', r);
+
+    r = A.calculateDetailedSplit(mk([0.1, 0.2]), '', 'auto', '');
+    eq('0.1 与 0.2:总额 0.3,A 转 B 0.05', [r.totalAmount, describeTransfers(r)], [0.3, ['A->B:0.05']]);
+
+    r = A.calculateDetailedSplit(mk([0.01, 0, 0]), '', 'auto', '');
+    eq('0.01 元边界:A 垫 1 分,3 人 -> A 吃零头,不产生 0 元转账', [r.ok, r.transfers.length, r.perPerson, r.players[0].share], [true, 0, 0, 0.01]);
+    assert('0.01 元边界:账已结清', r.settled === true && /结清/.test(r.hint));
+    assertInvariants('0.01 元边界:不变量', r);
+
+    r = A.calculateDetailedSplit(mk([33.335, 0]), '', 'auto', '');
+    eq('33.335 的支出按分四舍五入为 33.34', [r.players[0].expense, r.totalAmount, describeTransfers(r)], [33.34, 33.34, ['B->A:16.67']]);
+
+    r = A.calculateDetailedSplit(mk([12.345, '8.1', ' 3 ']), '', 'auto', '');
+    eq('字符串/带空格支出被正确解析', r.players.map(function (p) { return p.expense; }), [12.35, 8.1, 3]);
+    assertInvariants('字符串支出:不变量', r);
+  });
+
+  guard('detail-single', function () {
+    var r = A.calculateDetailedSplit(mk([100]), '', 'auto', '');
+    eq('单人:账已结清', [r.ok, r.settled, r.transfers.length, r.totalAmount, r.perPerson], [true, true, 0, 100, 100]);
+    assert('单人:hint 含"账已结清"', r.hint.indexOf('账已结清') >= 0, r.hint);
+    r = A.calculateDetailedSplit(mk([100]), 100, 'star', 'player1');
+    eq('单人 + star:账已结清且 routeType=star', [r.ok, r.settled, r.routeType], [true, true, 'star']);
+    r = A.calculateDetailedSplit(mk([40]), 100, 'auto', 'player1');
+    eq('单人 + 总额大于支出 + 指定收款人:差额记在本人,仍结清', [r.ok, r.settled, r.gap, r.players[0].extraExpense], [true, true, 60, 60]);
+  });
+
+  guard('detail-settled', function () {
+    var r = A.calculateDetailedSplit(mk([30, 30, 30, 30]), '', 'auto', '');
+    eq('全员持平:settled', [r.ok, r.settled, r.transfers.length, r.savedTransfers, r.routeType], [true, true, 0, 0, 'min_transfer']);
+    assert('全员持平:hint 为"账已结清"', r.hint.indexOf('账已结清') >= 0, r.hint);
+    r = A.calculateDetailedSplit(mk([30, 30, 30, 30]), 120, 'star', 'player2');
+    eq('全员持平 + star:settled 且 routeType=star', [r.settled, r.routeType, r.transfers.length], [true, 'star', 0]);
+    r = A.calculateDetailedSplit(mk([30, 30, 30, 30]), '', 'min_transfer', '');
+    assert('全员持平 + min_transfer:settled', r.settled === true);
+  });
+
+  guard('detail-duplicate-names', function () {
+    var players = [{ id: 'p1', name: '小明', expense: 100 }, { id: 'p2', name: '小明', expense: 0 }, { id: 'p3', name: '小明', expense: 50 }];
+    var r = A.calculateDetailedSplit(players, '', 'auto', '');
+    assert('重名球友:ok', r.ok === true);
+    eq('重名球友:以 id 区分转账双方', r.transfers.map(function (t) { return t.fromId + '>' + t.toId + ':' + t.amount; }), ['p2>p1:50']);
+    assertInvariants('重名球友:不变量', r);
+    r = A.calculateDetailedSplit(players, '', 'star', 'p3');
+    eq('重名球友 + star:以 id 指定组织者', [r.ok, r.payerId, r.transfers.length], [true, 'p3', 2]);
+    assertInvariants('重名球友 + star:不变量', r);
+    r = A.calculateDetailedSplit([{ id: 'player3', name: '', expense: 30 }, { id: 'x', name: '   ', expense: 0 }], '', 'auto', '');
+    eq('姓名留空时兜底为 球友N', r.players.map(function (p) { return p.name; }), ['球友3', '球友2']);
+  });
+
+  group('精细分账:差额(总费用与支出合计不一致)');
+  guard('detail-gap', function () {
+    // 支出 50/30/0,总费用 100 -> 差额 20,记在指定收款人名下
+    var r = A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'auto', 'player3');
+    assert('gap>0 + 指定收款人:ok', r.ok === true);
+    eq('gap>0:gap=20,sumExpense=80', [r.gap, r.sumExpense, r.totalAmount], [20, 80, 100]);
+    eq('gap>0:差额记在指定收款人名下', r.players.map(function (p) { return p.extraExpense; }), [0, 0, 20]);
+    eq('gap>0:收款人优先吃零头', r.players.map(function (p) { return p.share; }), [33.33, 33.33, 33.34]);
+    assertInvariants('gap>0 + auto:不变量', r);
+    r = A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'min_transfer', 'player3');
+    assert('gap>0 + min_transfer:指定收款人仅吸收差额,路径仍为 min_transfer', r.ok && r.routeType === 'min_transfer', r.routeType);
+    assertInvariants('gap>0 + min_transfer:不变量', r);
+    r = A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'star', 'player3');
+    assert('gap>0 + star:ok 且 routeType=star', r.ok && r.routeType === 'star');
+    assertInvariants('gap>0 + star:不变量', r);
+
+    r = A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'auto', '');
+    assert('gap>0 无指定收款人:失败', r.ok === false);
+    assert('gap>0 无指定收款人:提示"请指定收款人承担差额或补录支出"', r.error.indexOf('请指定收款人承担差额或补录支出') >= 0, r.error);
+    eq('gap>0 无指定收款人:code 与 gap 字段', [r.code, r.gap], ['GAP_NEEDS_PAYER', 20]);
+    r = A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'min_transfer', 'nobody');
+    assert('gap>0 指定了不存在的收款人:同样失败', r.ok === false && r.error.indexOf('请指定收款人承担差额') >= 0);
+
+    r = A.calculateDetailedSplit(mk([50, 30, 40]), 100, 'auto', 'player1');
+    assert('gap<0:已记录支出超过总费用 -> 失败', r.ok === false && /超过/.test(r.error), r.error);
+    eq('gap<0:code', r.code, 'EXPENSE_OVER_TOTAL');
+    r = A.calculateDetailedSplit(mk([50, 30, 40]), 100, 'star', 'player1');
+    assert('gap<0 + star:同样失败', r.ok === false);
+
+    r = A.calculateDetailedSplit(mk([50, 30, 40]), 120, 'auto', '');
+    eq('总额等于支出合计(无差额):gap=0,无需指定收款人', [r.ok, r.gap], [true, 0]);
+    r = A.calculateDetailedSplit(mk([50, 30, 40]), '120', 'auto', '');
+    eq('总额为字符串 "120" 同样成立', [r.ok, r.gap], [true, 0]);
+    r = A.calculateDetailedSplit(mk([0.1, 0.2]), 0.3, 'auto', '');
+    eq('总额 0.3 与 0.1+0.2 的支出合计一致(无浮点误差)', [r.ok, r.gap], [true, 0]);
+
+    // 总额无效或 <=0 -> 自动合计
+    ['', null, undefined, 0, -5, 'abc', NaN, '  ', 0.004].forEach(function (bad) {
+      var x = A.calculateDetailedSplit(mk([50, 30, 40]), bad, 'auto', '');
+      assert('总额 ' + show(bad) + ' -> 自动合计 120', x.ok && x.totalAmount === 120 && x.gap === 0, JSON.stringify(x));
+    });
+
+    r = A.calculateDetailedSplit(mk([0, 0, 0]), 90, 'auto', 'player2');
+    eq('全员 0 支出 + 总额 90 + 指定收款人:差额全记在其名下,另两人各付 30', [r.ok, r.gap, describeTransfers(r)], [true, 90, ['A->B:30', 'C->B:30']]);
+    r = A.calculateDetailedSplit(mk([0, 0, 0]), '', 'auto', '');
+    eq('全员 0 支出且无总额:失败(code=NO_AMOUNT)', [r.ok, r.code], [false, 'NO_AMOUNT']);
+    r = A.calculateDetailedSplit(mk([0, 0, 0]), 0, 'star', 'player1');
+    eq('全员 0 支出且总额为 0 + star:同样失败', r.ok, false);
+  });
+
+  group('精细分账:无效输入');
+  guard('detail-invalid', function () {
+    var r;
+    r = A.calculateDetailedSplit(mk([-5, 10]), '', 'auto', '');
+    assert('负数支出 -> 失败并指出球友', r.ok === false && r.error.indexOf('A') >= 0 && /负数/.test(r.error), r.error);
+    ['', null, undefined, NaN, 'abc', '  '].forEach(function (bad) {
+      var x = A.calculateDetailedSplit(mk([bad, 30]), '', 'auto', '');
+      assert('支出 ' + show(bad) + ' 按 0 处理', x.ok && x.players[0].expense === 0, JSON.stringify(x));
+    });
+    assert('支出为 Infinity -> 失败', A.calculateDetailedSplit(mk([Infinity, 30]), '', 'auto', '').ok === false);
+    assert('支出过大 -> 失败', A.calculateDetailedSplit(mk([1e12, 30]), '', 'auto', '').ok === false);
+    assert('球友为空数组 -> 失败', A.calculateDetailedSplit([], '', 'auto', '').ok === false);
+    assert('球友不是数组 -> 失败', A.calculateDetailedSplit('x', '', 'auto', '').ok === false && A.calculateDetailedSplit(null, '', 'auto', '').ok === false);
+    r = A.calculateDetailedSplit([{ id: 'a', name: 'x', expense: 1 }, { id: 'a', name: 'y', expense: 2 }], '', 'auto', '');
+    eq('id 重复 -> 失败(code=DUP_ID)', [r.ok, r.code], [false, 'DUP_ID']);
+    assert('缺少 id -> 失败', A.calculateDetailedSplit([{ name: 'x', expense: 1 }], '', 'auto', '').ok === false);
+    assert('条目为 null -> 失败', A.calculateDetailedSplit([null], '', 'auto', '').ok === false);
+    r = A.calculateDetailedSplit(mk([10, 20]), '', 'bogus', '');
+    eq('未知 strategy -> 失败', [r.ok, r.code], [false, 'BAD_STRATEGY']);
+    r = A.calculateDetailedSplit(mk([10, 20]), '', 'star', '');
+    eq('star 未指定收款人 -> 失败(code=NEED_PAYER)', [r.ok, r.code], [false, 'NEED_PAYER']);
+    r = A.calculateDetailedSplit(mk([10, 20]), '', 'star', 'ghost');
+    eq('star 指定了不存在的收款人 -> 失败', [r.ok, r.code], [false, 'NEED_PAYER']);
+    r = A.calculateDetailedSplit(mk([10, 20]), '', undefined, undefined);
+    eq('strategy 省略 -> 默认 auto 并回显', [r.ok, r.strategy], [true, 'auto']);
+    var threw = false;
+    try { A.calculateDetailedSplit(); A.calculateDetailedSplit(null, null, null, null); A.calculateDetailedSplit([{}], {}, [], {}); } catch (e) { threw = true; }
+    assert('怪异入参不抛异常', threw === false);
+    assert('所有失败都带中文 error 字段', [
+      A.calculateDetailedSplit([], '', 'auto', ''), A.calculateDetailedSplit(mk([-1]), '', 'auto', ''), A.calculateDetailedSplit(mk([5, 1]), 3, 'auto', '')
+    ].every(function (x) { return x.ok === false && /[一-龥]/.test(x.error); }));
+  });
+
+  group('精细分账:路径引擎');
+  guard('detail-engine', function () {
+    // 两组独立的 2 人对冲:最少 2 笔,比统一收款(3 笔)少 1 笔
+    var players = mk([80, 20, 70, 30]); // 份额 50:A-30,B+30,C-20,D+20
+    var r = A.calculateDetailedSplit(players, '', 'auto', '');
+    eq('两组对冲:B->A 30、D->C 20', describeTransfers(r).sort(), ['B->A:30', 'D->C:20']);
+    eq('两组对冲:savedTransfers=1', r.savedTransfers, 1);
+    assert('两组对冲:提示"智能压缩…少 1 笔"', r.hint.indexOf('智能压缩') >= 0 && r.hint.indexOf('少 1 笔') >= 0, r.hint);
+    eq('两组对冲:routeType=min_transfer', r.routeType, 'min_transfer');
+    var s = A.calculateDetailedSplit(players, '', 'star', 'player1');
+    eq('同一输入 star(A) 需要 3 笔', s.transfers.length, 3);
+    eq('star 的 savedTransfers=0', s.savedTransfers, 0);
+
+    // 全局"最大对最大"贪心会得到 4 笔,位掩码 DP 才能找到 3 笔({+5,-5} 与 {+4,+4,-8})
+    r = A.calculateDetailedSplit(mk([5, 6, 6, 15, 18]), '', 'auto', '');
+    eq('DP 最优:{+5,-5}+{+4,+4,-8} 只需 3 笔', r.transfers.length, 3);
+    assertInvariants('DP 最优:不变量', r);
+
+    // 确定性:同输入同输出
+    var a = JSON.stringify(A.calculateDetailedSplit(mk([5, 6, 6, 15, 18]), '', 'auto', ''));
+    var b = JSON.stringify(A.calculateDetailedSplit(mk([5, 6, 6, 15, 18]), '', 'auto', ''));
+    assert('确定性:两次调用结果完全一致', a === b);
+
+    // 2 个非零人但夹杂持平者 -> 仍是直连
+    r = A.calculateDetailedSplit(mk([40, 0, 40, 40, 80]), '', 'min_transfer', '');
+    eq('min_transfer 下 2 人有差额同样标记 direct', [r.routeType, r.transfers.length], ['direct', 1]);
+
+    // auto:1 付款人 + 多收款人 -> 等价 min_transfer,而非 direct
+    r = A.calculateDetailedSplit(mk([0, 30, 30]), '', 'auto', '');
+    eq('1 付 2 收 -> 非 direct', [r.routeType, describeTransfers(r)], ['min_transfer', ['A->B:10', 'A->C:10']]);
+
+    // 大规模降级(非零人数 > 16):不变量仍成立
+    var big = [];
+    for (var i = 0; i < 24; i++) big.push((i % 7) * 10 + 3 + (i % 4));
+    r = A.calculateDetailedSplit(mk(big), '', 'auto', '');
+    var bigNz = r.players.filter(function (p) { return cents(p.balance) !== 0; }).length;
+    assert('24 人:非零人数 > 16,走降级路径(实际 ' + bigNz + ')', r.ok === true && bigNz > 16);
+    assertInvariants('24 人(降级贪心):不变量', r);
+    // 精确配对:18 人 = 9 对完全相反的差额(份额 50,支出 50-b / 50+b),应恰好 9 笔
+    var pairs = [];
+    for (var j = 1; j <= 9; j++) { pairs.push(50 - j); pairs.push(50 + j); }
+    r = A.calculateDetailedSplit(mk(pairs), '', 'auto', '');
+    assertInvariants('18 人(精确配对):不变量', r);
+    eq('18 人(精确配对):9 对各 1 笔', r.transfers.length, 9);
+    var sw = A.calculateDetailedSplit(mk(pairs), '', 'star', 'player1');
+    assert('18 人:笔数不超过 star(' + sw.transfers.length + ')', r.transfers.length <= sw.transfers.length);
+
+    // 顺序保持
+    r = A.calculateDetailedSplit(players, '', 'auto', '');
+    eq('players 保持输入顺序', r.players.map(function (p) { return p.id; }), ['player1', 'player2', 'player3', 'player4']);
+    eq('players 字段齐全', Object.keys(r.players[0]).sort(), ['balance', 'expense', 'extraExpense', 'id', 'name', 'share']);
+    eq('transfers 字段齐全', Object.keys(r.transfers[0]).sort(), ['amount', 'fromId', 'fromName', 'toId', 'toName']);
+  });
+
+  /* =====================================================================
+   * 6. 账单文案
+   * ===================================================================== */
+  group('账单文案 buildQuickBillText / buildDetailedBillText');
+  guard('bill', function () {
+    var q = A.calculateQuickSplit(240, 6, '小明');
+    var t = A.buildQuickBillText(q, { dateText: '2026-10-29' });
+    assert('快速:默认标题', t.split('\n')[0] === '🏸 羽毛球费用结算', t);
+    assert('快速:含日期', t.indexOf('2026-10-29') >= 0);
+    assert('快速:含总额/人数/人均', t.indexOf('240.00元') >= 0 && t.indexOf('6人') >= 0 && t.indexOf('40.00元') >= 0, t);
+    assert('快速:含收款人与转账行(➜)', t.indexOf('小明') >= 0 && /其余 5 人 ➜ 小明 每人 40\.00元/.test(t), t);
+    assert('快速:无 Markdown 标记', !/(\*\*|^#|```|\|)/m.test(t), t);
+    assert('快速:自定义标题', A.buildQuickBillText(q, { title: '周五打球' }).split('\n')[0] === '周五打球');
+    assert('快速:行数克制(<=30)', t.split('\n').length <= 30);
+    var rem = A.buildQuickBillText(A.calculateQuickSplit(100, 3, '小明'));
+    assert('快速:余数说明', rem.indexOf('1 分') >= 0 && rem.indexOf('33.34元') >= 0, rem);
+    assert('快速:单人无需转账', A.buildQuickBillText(A.calculateQuickSplit(50, 1, '')).indexOf('无需转账') >= 0);
+    eq('快速:失败结果返回空串', [A.buildQuickBillText({ ok: false }), A.buildQuickBillText(null), A.buildQuickBillText()], ['', '', '']);
+
+    var d = A.calculateDetailedSplit(mk([120, 60, 0, 0]), '', 'auto', '');
+    var dt = A.buildDetailedBillText(d, { dateText: '10月29日' });
+    assert('精细:默认标题与日期', dt.split('\n')[0] === '🏸 羽毛球费用结算' && dt.indexOf('10月29日') >= 0, dt);
+    assert('精细:含总额/人数/人均', dt.indexOf('180.00元') >= 0 && dt.indexOf('4人') >= 0 && dt.indexOf('45.00元') >= 0, dt);
+    assert('精细:逐行 "A ➜ B 金额元"', /C ➜ A 45\.00元/.test(dt) && /D ➜ A 30\.00元/.test(dt) && /D ➜ B 15\.00元/.test(dt), dt);
+    assert('精细:转账笔数', dt.indexOf('共 3 笔') >= 0);
+    assert('精细:含提示语', dt.indexOf(d.hint) >= 0);
+    assert('精细:无 Markdown 标记', !/(\*\*|^#|```|\|)/m.test(dt), dt);
+    var settled = A.buildDetailedBillText(A.calculateDetailedSplit(mk([30, 30]), '', 'auto', ''));
+    assert('精细:账已结清文案', settled.indexOf('账已结清') >= 0 && settled.indexOf('➜') < 0, settled);
+    var gapTxt = A.buildDetailedBillText(A.calculateDetailedSplit(mk([50, 30, 0]), 100, 'auto', 'player3'));
+    assert('精细:差额备注', gapTxt.indexOf('多 20.00元') >= 0 && gapTxt.indexOf('记在 C 名下') >= 0, gapTxt);
+    var star = A.buildDetailedBillText(A.calculateDetailedSplit(mk([120, 60, 0, 0]), '', 'star', 'player1'));
+    assert('精细:star 文案含 A ➜ B 15.00元', star.indexOf('A ➜ B 15.00元') >= 0, star);
+    var many = [];
+    for (var i = 0; i < 12; i++) many.push(i % 2 ? 0 : 60);
+    var manyTxt = A.buildDetailedBillText(A.calculateDetailedSplit(mk(many), '', 'auto', ''));
+    assert('精细:12 人行数 <= 30', manyTxt.split('\n').length <= 30, manyTxt.split('\n').length + ' lines');
+    eq('精细:失败结果返回空串', [A.buildDetailedBillText({ ok: false }), A.buildDetailedBillText(null), A.buildDetailedBillText()], ['', '', '']);
+  });
+
+  /* =====================================================================
+   * 7. 随机性质测试 + 暴力交叉验证
+   * ===================================================================== */
+  // 固定种子的 mulberry32,保证每次运行完全一致、失败可复现
+  function prng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function ri(rnd, lo, hi) { return lo + Math.floor(rnd() * (hi - lo + 1)); }
+
+  // 暴力:枚举 nz 个人的所有集合划分,求"每块和都为 0"时的最大块数
+  function bruteMaxZeroBlocks(vals) {
+    var n = vals.length, best = 0;
+    var sums = [];
+    (function rec(i, blocks) {
+      if (i === n) {
+        for (var b = 0; b < sums.length; b++) if (sums[b] !== 0) return;
+        if (sums.length > best) best = sums.length;
+        return;
+      }
+      for (var b2 = 0; b2 < sums.length; b2++) {
+        sums[b2] += vals[i];
+        rec(i + 1);
+        sums[b2] -= vals[i];
+      }
+      sums.push(vals[i]);
+      rec(i + 1);
+      sums.pop();
+    })(0);
+    return best;
+  }
+  function bruteMinTransfers(r) {
+    var vals = r.players.map(function (p) { return cents(p.balance); }).filter(function (v) { return v !== 0; });
+    if (vals.length === 0) return 0;
+    return vals.length - bruteMaxZeroBlocks(vals);
+  }
+
+  function genGeneral(rnd) {
+    var n = ri(rnd, 1, rnd() < 0.15 ? 20 : 11);
+    var kind = ri(rnd, 0, 2);
+    var expenses = [];
+    for (var i = 0; i < n; i++) {
+      var v;
+      if (kind === 0) v = ri(rnd, 0, 12) * 10;                          // 整十元,易出现并列与零和子集
+      else if (kind === 1) v = ri(rnd, 0, 30000) / 100;                  // 任意两位小数
+      else v = rnd() < 0.4 ? 0 : ri(rnd, 1, 400) / 4;                    // 大量 0 + 四分之一元
+      expenses.push(v);
+    }
+    var sum = expenses.reduce(function (s, v) { return s + cents(v); }, 0);
+    var tMode = ri(rnd, 0, 4);
+    var total;
+    if (tMode === 0) total = '';
+    else if (tMode === 1) total = sum / 100;
+    else if (tMode === 2) total = (sum + ri(rnd, 1, 5000)) / 100;                 // gap > 0
+    else if (tMode === 3) total = Math.max(0.01, (sum - ri(rnd, 1, 5000)) / 100);  // 多半 gap < 0
+    else total = String(sum / 100);
+    var designated = rnd() < 0.5 ? 'player' + ri(rnd, 1, n) : (rnd() < 0.1 ? 'ghost' : '');
+    return { expenses: expenses, total: total, designated: designated, n: n };
+  }
+
+  // 结构化用例:直接构造若干"和为 0"的小组,让 DP 有真实优化空间(份额固定 50 元,无零头)
+  function genStructured(rnd) {
+    var share = 50, bals = [];
+    var groups = ri(rnd, 1, 3);
+    for (var g = 0; g < groups; g++) {
+      var size = ri(rnd, 2, 4), acc = 0, grp = [];
+      for (var k = 0; k < size - 1; k++) { var b = ri(rnd, -share, share); grp.push(b); acc += b; }
+      // 末位凑零;超出份额范围(支出会变成负数)时退化为一对相反数
+      if (Math.abs(acc) > share) { var x = ri(rnd, 1, share); grp = [x, -x]; }
+      else grp.push(-acc);
+      bals = bals.concat(grp);
+    }
+    if (bals.length < 2 || bals.length > 10) return null;
+    // 打乱,使同组成员在输入里不相邻
+    for (var i = bals.length - 1; i > 0; i--) { var j = ri(rnd, 0, i); var tmp = bals[i]; bals[i] = bals[j]; bals[j] = tmp; }
+    var expenses = bals.map(function (b) { return share - b; });
+    return { expenses: expenses, total: bals.length * share, designated: '', n: bals.length };
+  }
+
+  group('随机性质测试(固定种子 PRNG)');
+  guard('random', function () {
+    var rnd = prng(20261029);
+    var okCases = 0, errCases = 0, runs = 0;
+    var invFail = [], cmpFail = [], bruteFail = [], errFail = [];
+    var bruteChecked = 0, bruteBeat = 0;
+    var errCodes = {};
+    var strategies = ['auto', 'min_transfer', 'star'];
+
+    function check(r, s, label) {
+      if (r.ok) {
+        okCases++;
+        var errs = invariantErrors(r);
+        if (errs.length) invFail.push(label + ' ' + s + ': ' + errs.join(';'));
+        if (r.strategy !== s) invFail.push(label + ' strategy echo wrong');
+        if (s === 'star' && r.routeType !== 'star') invFail.push(label + ' star routeType');
+        if (s !== 'star' && r.routeType === 'star') invFail.push(label + ' non-star routeType');
+        if (r.routeType === 'direct' && r.transfers.length !== 1) invFail.push(label + ' direct != 1 transfer');
+        if (!r.hint) invFail.push(label + ' empty hint');
+      } else {
+        errCases++;
+        errCodes[r.code] = (errCodes[r.code] || 0) + 1;
+        if (!(typeof r.error === 'string' && r.error && r.code)) errFail.push(label + ' ' + s + ' bad error shape');
+      }
+    }
+
+    function runCase(c, idx, tag) {
+      var players = mk(c.expenses);
+      var label = tag + '#' + idx;
+      // (a) 三种策略使用同一个有效收款人 -> 差额口径一致,笔数才有可比性
+      var dp = /^player\d+$/.test(c.designated) ? c.designated : 'player' + ri(rnd, 1, c.n);
+      var res = {};
+      strategies.forEach(function (s) {
+        res[s] = A.calculateDetailedSplit(players, c.total, s, dp);
+        runs++;
+        check(res[s], s, label);
+      });
+      // (b) 原始(可能为空/无效)的指定收款人:覆盖"差额无人承担"等失败路径
+      ['auto', 'min_transfer'].forEach(function (s) {
+        check(A.calculateDetailedSplit(players, c.total, s, c.designated), s, label + '(raw)');
+        runs++;
+      });
+      // 同一输入下:min_transfer(含 auto)笔数 <= star 笔数
+      if (res.star.ok && res.min_transfer.ok) {
+        if (res.min_transfer.transfers.length > res.star.transfers.length) {
+          cmpFail.push(label + ' min=' + res.min_transfer.transfers.length + ' star=' + res.star.transfers.length);
+        }
+        if (res.auto.transfers.length !== res.min_transfer.transfers.length) {
+          cmpFail.push(label + ' auto != min_transfer');
+        }
+        var b1 = res.star.players.map(function (p) { return p.balance; }).join(',');
+        var b2 = res.min_transfer.players.map(function (p) { return p.balance; }).join(',');
+        if (b1 !== b2) cmpFail.push(label + ' balances differ between strategies');
+      }
+      // 暴力交叉验证:非零人数 <= 8 时,min_transfer 笔数必须等于真正的最小值
+      var mt = res.min_transfer;
+      if (mt.ok) {
+        var nz = mt.players.filter(function (p) { return cents(p.balance) !== 0; }).length;
+        if (nz <= 8) {
+          bruteChecked++;
+          var best = bruteMinTransfers(mt);
+          if (mt.transfers.length !== best) bruteFail.push(tag + '#' + idx + ' engine=' + mt.transfers.length + ' brute=' + best);
+          // 统计:引擎比"全局贪心上界(非零人数-1)"更优的次数,证明用例确有区分度
+          if (mt.transfers.length < nz - 1) bruteBeat++;
+        }
+      }
+    }
+
+    var i;
+    for (i = 0; i < 900; i++) runCase(genGeneral(rnd), i, 'G');
+    var structured = 0;
+    for (i = 0; structured < 500 && i < 3000; i++) {
+      var c = genStructured(rnd);
+      if (c) { runCase(c, structured, 'S'); structured++; }
+    }
+
+    var totalCases = 900 + structured;
+    assert('随机输入组数 >= 500(实际 ' + totalCases + ' 组,共 ' + runs + ' 次引擎调用)', totalCases >= 500);
+    assert('随机:成功与失败两类路径都被覆盖(ok=' + okCases + ', error=' + errCases + ')', okCases > 500 && errCases > 20);
+    assert('随机:差额两类错误都出现过 ' + JSON.stringify(errCodes), errCodes.GAP_NEEDS_PAYER > 0 && errCodes.EXPENSE_OVER_TOTAL > 0);
+    record('随机:一致性不变量全部成立(净额归零/无自转账/无往返/金额>0/笔数<=非零人数-1)', invFail.length === 0, invFail.slice(0, 5).join(' | '));
+    record('随机:失败结果均为 { ok:false, error, code } 形态', errFail.length === 0, errFail.slice(0, 5).join(' | '));
+    record('随机:min_transfer 笔数 <= star 笔数,且 auto 与 min_transfer 一致', cmpFail.length === 0, cmpFail.slice(0, 5).join(' | '));
+    record('暴力验证:min_transfer 笔数等于枚举所有划分得到的最小值(共校验 ' + bruteChecked + ' 例)', bruteFail.length === 0, bruteFail.slice(0, 5).join(' | '));
+    assert('暴力验证:样本充分(>= 300 例)且确有比"非零人数-1"更优的用例(' + bruteBeat + ' 例)', bruteChecked >= 300 && bruteBeat >= 50, bruteChecked + '/' + bruteBeat);
+  });
+
+  /* ---------- 汇总 ---------- */
+  var total = pass + failCount;
+  var summary = document.getElementById('summary');
+  summary.textContent = 'RESULT: ' + (failCount === 0 ? 'ALL PASS' : 'HAS FAIL') + ' | PASS=' + pass + ' FAIL=' + failCount + ' TOTAL=' + total;
+  document.body.setAttribute('data-status', failCount === 0 ? 'pass' : 'fail');
+  document.title = (failCount === 0 ? 'PASS ' : 'FAIL ') + pass + '/' + total + ' - Badminton Algorithm Unit Test';
+  if (failures.length) {
+    var box = document.getElementById('failures');
+    var h = document.createElement('h2');
+    h.textContent = '失败汇总';
+    box.appendChild(h);
+    var ul = document.createElement('ul');
+    failures.forEach(function (f) {
+      var li = document.createElement('li');
+      li.className = 'fail';
+      li.textContent = f;
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  }
+  window.__TEST_RESULT__ = { pass: pass, fail: failCount, total: total };
+})();
+</script>
+</body>
+</html>
