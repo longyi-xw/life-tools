@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>生活工具箱 · LifeTools</title>
+<!-- 主题中枢:必须同步加载并在任何 <style> 之前初始化,避免首屏闪烁;theme-manager.js 缺失时保持 :root 的深色回退 -->
+<meta name="color-scheme" content="light dark">
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC('home');</script>
 <meta name="description" content="工具箱：投资、分析、量化、生活等实用工具合集">
 <!-- 首页专用 Favicon：金色多功能工具箱矢量图标 -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f5d77f'/%3E%3Cstop offset='100%25' stop-color='%23b88e28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b0f19'/%3E%3Cpath d='M23 20V16a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='10' y='20' width='44' height='32' rx='6' fill='url(%23g)'/%3E%3Crect x='10' y='31' width='44' height='3.5' fill='%230b0f19'/%3E%3Crect x='26' y='27.5' width='12' height='10.5' rx='2.5' fill='%230b0f19'/%3E%3Ccircle cx='32' cy='32.5' r='2' fill='url(%23g)'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
+  /* 主题变量::root 是深色(无 JS / theme-manager.js 缺失时的回退),浅色由 html[data-theme="light"] 覆盖 */
   :root {
     --bg: #080a0d;
     --surface: #0f1218;
@@ -17,18 +22,78 @@
     --border: #1e2535;
     --gold: #c8a84b;
     --gold2: #e8c56a;
-    --gold-dim: rgba(200,168,75,0.12);
-    --green: #3ddc84;
-    --blue: #4a9eff;
-    --purple: #a855f7;
-    --orange: #f97316;
+    --gold-text: var(--gold); /* 小字号金色文字专用:浅色下需要更深才能满足对比度 */
+    --gold-rgb: 200,168,75;
+    --gold-dim: rgba(var(--gold-rgb),0.12);
+    /* 状态色以 rgb 通道存储,标签底色/描边直接复用,浅色下只需换一组通道值 */
+    --green-rgb: 61,220,132;
+    --blue-rgb: 74,158,255;
+    --purple-rgb: 168,85,247;
+    --orange-rgb: 249,115,22;
+    --green: rgb(var(--green-rgb));
+    --blue: rgb(var(--blue-rgb));
+    --purple: rgb(var(--purple-rgb));
+    --orange: rgb(var(--orange-rgb));
     --red: #ef4444;
     --teal: #14b8a6;
     --text: #ddd8cc;
     --muted: #5a6478;
+    --muted-ctl: #8b95a8; /* 主题切换器里未选中项的文字色:比 --muted 亮一档,深色下对比度 ≥ 4.5:1 */
     --mono: 'Share Tech Mono', monospace;
     --serif: 'Noto Serif SC', serif;
     --display: 'Bebas Neue', sans-serif;
+
+    /* 装饰性变量(网格、光晕、阴影等),两套主题各给一组取值 */
+    --grid-line: rgba(var(--gold-rgb),0.03);
+    --header-glow: rgba(var(--gold-rgb),0.05);
+    --title-shadow: 0 0 60px rgba(var(--gold-rgb),0.3);
+    --title-glow-lo: 0 0 40px rgba(var(--gold-rgb),0.2);
+    --title-glow-hi: 0 0 80px rgba(var(--gold-rgb),0.5), 0 0 120px rgba(var(--gold-rgb),0.2);
+    --card-shadow: none;
+    --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+    --featured-tint: rgba(var(--gold-rgb),0.06);
+    --featured-border: rgba(var(--gold-rgb),0.3);
+    --input-shadow: 0 0 0 0 transparent; /* 保持是合法的阴影值,focus 时才能和描边光圈并列 */
+    --toast-shadow: none;
+    --soon-bg: rgba(90,100,120,0.2);
+    --soon-border: rgba(90,100,120,0.3);
+    --soon-opacity: 0.5;
+    --eyebrow-opacity: 0.8;
+  }
+
+  /* 浅色:雅致米白底 + 暖金点缀。文字/次要文字/金色文字对比度均 ≥ 4.5:1(WCAG AA) */
+  html[data-theme="light"] {
+    --bg: #f7f5ef;
+    --surface: #ffffff;
+    --surface2: #f1ede3;
+    --border: #e3ded2;
+    --gold: #9e7520;      /* 装饰:描边、竖条、圆点 */
+    --gold2: #6f4f0d;     /* 强调文字:标题、悬停态 */
+    --gold-text: #7a5712; /* 小号金色文字 */
+    --gold-rgb: 158,117,32;
+    --green-rgb: 20,108,51;
+    --blue-rgb: 29,78,216;
+    --purple-rgb: 126,34,206;
+    --orange-rgb: 163,70,10;
+    --text: #24201a;
+    --muted: #6b6457;
+    --muted-ctl: var(--muted);
+
+    --grid-line: rgba(var(--gold-rgb),0.07);
+    --header-glow: rgba(var(--gold-rgb),0.1);
+    --title-shadow: 0 1px 28px rgba(var(--gold-rgb),0.14);
+    --title-glow-lo: 0 1px 24px rgba(var(--gold-rgb),0.1);
+    --title-glow-hi: 0 1px 36px rgba(var(--gold-rgb),0.3);
+    --card-shadow: 0 1px 2px rgba(60,48,20,0.06), 0 2px 8px rgba(60,48,20,0.04);
+    --card-shadow-hover: 0 12px 28px rgba(60,48,20,0.14), 0 2px 6px rgba(60,48,20,0.08);
+    --featured-tint: rgba(var(--gold-rgb),0.07);
+    --featured-border: rgba(var(--gold-rgb),0.42);
+    --input-shadow: inset 0 1px 2px rgba(60,48,20,0.06);
+    --toast-shadow: 0 8px 24px rgba(60,48,20,0.2);
+    --soon-bg: rgba(107,100,87,0.12);
+    --soon-border: rgba(107,100,87,0.25);
+    --soon-opacity: 0.62;
+    --eyebrow-opacity: 1; /* 浅色下不再降低透明度,否则小字对比度掉到 4:1 以下 */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,14 +106,29 @@
     overflow-x: hidden;
   }
 
+  /* 切换主题时临时给全站加颜色过渡(≈0.25s)。class 只在切换时由脚本加上,
+     首屏加载没有它,所以刷新页面不会看到"从深色渐变到浅色"的动画 */
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.theme-switching,
+    html.theme-switching *,
+    html.theme-switching *::before,
+    html.theme-switching *::after { transition: none !important; }
+  }
+
   /* === GRID BG === */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
     z-index: 0;
@@ -58,20 +138,65 @@
   header {
     position: relative;
     z-index: 10;
-    padding: 48px 20px 36px;
+    padding: 64px 20px 36px;
     text-align: center;
     border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(200,168,75,0.05) 0%, transparent 100%);
+    background: linear-gradient(180deg, var(--header-glow) 0%, transparent 100%);
+  }
+
+  /* === THEME SWITCH(三段式:自动 / 深色 / 浅色) === */
+  .theme-switch {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    z-index: 2;
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--card-shadow);
+  }
+  .theme-switch[hidden] { display: none; }
+  .theme-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-ctl);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .theme-opt:hover { color: var(--text); }
+  .theme-opt[aria-checked="true"] {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold2);
+  }
+  .theme-opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (pointer: coarse) { .theme-opt { min-height: 40px; } }
+  @media (max-width: 480px) {
+    .theme-switch { top: 10px; right: 10px; }
+    .theme-opt { padding: 0 9px; letter-spacing: 0; }
   }
 
   .site-eyebrow {
     font-family: var(--mono);
     font-size: 11px;
-    color: var(--gold);
+    color: var(--gold-text);
     letter-spacing: 4px;
     text-transform: uppercase;
     margin-bottom: 12px;
-    opacity: 0.8;
+    opacity: var(--eyebrow-opacity);
   }
 
   .site-title {
@@ -82,13 +207,13 @@
     letter-spacing: 0.14em;
     padding-left: 0.14em; /* 抵消末字后的字距，保证视觉居中 */
     line-height: 1.15;
-    text-shadow: 0 0 60px rgba(200,168,75,0.3);
+    text-shadow: var(--title-shadow);
     animation: titleGlow 4s ease-in-out infinite;
   }
 
   @keyframes titleGlow {
-    0%, 100% { text-shadow: 0 0 40px rgba(200,168,75,0.2); }
-    50% { text-shadow: 0 0 80px rgba(200,168,75,0.5), 0 0 120px rgba(200,168,75,0.2); }
+    0%, 100% { text-shadow: var(--title-glow-lo); }
+    50% { text-shadow: var(--title-glow-hi); }
   }
 
   .site-sub {
@@ -112,7 +237,7 @@
   .hstat-num {
     font-family: var(--display);
     font-size: 28px;
-    color: var(--gold);
+    color: var(--gold-text);
     letter-spacing: 2px;
     line-height: 1;
   }
@@ -142,9 +267,10 @@
     font-family: var(--mono);
     font-size: 13px;
     outline: none;
-    transition: border-color 0.2s;
+    box-shadow: var(--input-shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .search-input:focus { border-color: var(--gold); }
+  .search-input:focus { border-color: var(--gold); box-shadow: var(--input-shadow), 0 0 0 3px var(--gold-dim); }
   .search-input::placeholder { color: var(--muted); }
   .search-icon {
     position: absolute;
@@ -231,6 +357,7 @@
     color: inherit;
     position: relative;
     overflow: hidden;
+    box-shadow: var(--card-shadow);
   }
   .tool-card::before {
     content: '';
@@ -247,21 +374,23 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--card-glow, rgba(200,168,75,0.04)), transparent 60%);
+    background: linear-gradient(135deg, var(--card-glow, rgba(var(--gold-rgb),0.06)), transparent 60%);
     opacity: 0;
     transition: opacity 0.25s;
   }
   .tool-card:hover {
     border-color: var(--card-accent, var(--gold));
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    box-shadow: var(--card-shadow-hover);
   }
   .tool-card:hover::before { transform: scaleY(1); }
   .tool-card:hover::after { opacity: 1; }
 
+  /* 底色单独走 background-color,切换主题时才能平滑过渡;金色渐变只是一层很淡的叠加 */
   .tool-card.featured {
-    background: linear-gradient(135deg, rgba(200,168,75,0.06), var(--surface));
-    border-color: rgba(200,168,75,0.3);
+    background-color: var(--surface);
+    background-image: linear-gradient(135deg, var(--featured-tint), transparent);
+    border-color: var(--featured-border);
   }
   .tool-card.featured::before { transform: scaleY(1); }
 
@@ -275,8 +404,8 @@
     justify-content: center;
     font-size: 22px;
     flex-shrink: 0;
-    background: var(--icon-bg, rgba(200,168,75,0.1));
-    border: 1px solid var(--icon-border, rgba(200,168,75,0.2));
+    background: var(--icon-bg, rgba(var(--gold-rgb),0.1));
+    border: 1px solid var(--icon-border, rgba(var(--gold-rgb),0.25));
     position: relative;
     z-index: 1;
   }
@@ -318,10 +447,10 @@
     letter-spacing: 0.5px;
     white-space: nowrap;
   }
-  .tag-new { background: rgba(61,220,132,0.12); color: var(--green); border: 1px solid rgba(61,220,132,0.25); }
-  .tag-hot { background: rgba(249,115,22,0.12); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
-  .tag-pro { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.25); }
-  .tag-free { background: rgba(74,158,255,0.12); color: var(--blue); border: 1px solid rgba(74,158,255,0.25); }
+  .tag-new { background: rgba(var(--green-rgb),0.12); color: var(--green); border: 1px solid rgba(var(--green-rgb),0.25); }
+  .tag-hot { background: rgba(var(--orange-rgb),0.12); color: var(--orange); border: 1px solid rgba(var(--orange-rgb),0.25); }
+  .tag-pro { background: rgba(var(--purple-rgb),0.12); color: var(--purple); border: 1px solid rgba(var(--purple-rgb),0.25); }
+  .tag-free { background: rgba(var(--blue-rgb),0.12); color: var(--blue); border: 1px solid rgba(var(--blue-rgb),0.25); }
 
   .tool-desc {
     font-size: 12px;
@@ -362,16 +491,16 @@
 
   /* Coming soon card */
   .tool-card.coming-soon {
-    opacity: 0.5;
+    opacity: var(--soon-opacity);
     cursor: not-allowed;
   }
   .tool-card.coming-soon:hover {
     transform: none;
     border-color: var(--border);
-    box-shadow: none;
+    box-shadow: var(--card-shadow);
   }
   .tool-card.coming-soon::before { display: none; }
-  .tag-soon { background: rgba(90,100,120,0.2); color: var(--muted); border: 1px solid rgba(90,100,120,0.3); }
+  .tag-soon { background: var(--soon-bg); color: var(--muted); border: 1px solid var(--soon-border); }
 
   /* Empty state */
   .empty-state {
@@ -441,12 +570,18 @@
     transition: transform 0.3s;
     border: 1px solid var(--gold);
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.show { transform: translateX(-50%) translateY(0); box-shadow: var(--toast-shadow); } /* 阴影只在显示时出现,收起状态下不会漏进视口 */
 </style>
 </head>
 <body>
 
 <header>
+  <!-- 全站主题主控:选择结果写入 localStorage,各工具页默认"跟随首页" -->
+  <div class="theme-switch" id="theme-switch" role="radiogroup" aria-label="主题模式" title="切换主题(同步到所有工具页)">
+    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="auto" aria-label="自动(跟随系统)" title="自动:跟随系统"><span aria-hidden="true">💻</span>自动</button>
+    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="dark" aria-label="深色" title="深色"><span aria-hidden="true">🌙</span>深色</button>
+    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="light" aria-label="浅色" title="浅色"><span aria-hidden="true">☀️</span>浅色</button>
+  </div>
   <div class="site-eyebrow">⬡ PERSONAL TOOLKIT</div>
   <div class="site-title">工具箱</div>
   <div class="site-sub">投资 · 分析 · 量化 · 生活</div>
@@ -491,8 +626,7 @@
   <a class="tool-card featured"
      href="graham-calculator.html"
      data-name="格雷厄姆廉价股计算器 量化 价值投资 NCAV EPS 内在价值"
-     data-cat="value quant"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="value quant">
     <div class="tool-icon">📊</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -516,8 +650,7 @@
   <a class="tool-card featured"
      href="earnings-calculator.html"
      data-name="基金债券收益计算器 量化 价值投资 NCAV EPS 内在价值"
-     data-cat="value quant"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="value quant">
     <div class="tool-icon">📊</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -540,9 +673,8 @@
 
   <a class="tool-card featured"
      href="badminton-cost-calculator.html"
-     data-name="羽毛球价格计算器 量化 体育 生活工具"
-     data-cat="life"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-name="羽毛球价格计算器 羽毛球费用AA平摊 分账 转账 微信账单 量化 体育 生活工具"
+     data-cat="life">
     <div class="tool-icon">🏸</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -553,7 +685,7 @@
         </div>
       </div>
       <div class="tool-desc">
-        多人组合价格计算计算，<br>动态根据人数，计算分散价格
+        极速平摊 + 精细分账，智能直连与最少转账，<br>一键复制微信账单
       </div>
       <div class="tool-meta">
         <span class="tool-meta-item"><span>📐</span> 运动健身</span>
@@ -566,8 +698,7 @@
   <a class="tool-card featured"
      href="anal-lifting-trainer.html"
      data-name="提肛运动计数器 身心健康 生活工具"
-     data-cat="life"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="life">
     <div class="tool-icon">🥦</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -591,8 +722,7 @@
   <a class="tool-card featured"
      href="frontend-interview-guide.html"
      data-name="前端面试宝典 工作 面试 生活工具"
-     data-cat="life"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="life">
     <div class="tool-icon">📝</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -616,8 +746,7 @@
   <a class="tool-card featured"
      href="dcf-calculator.html"
      data-name="DCF内在价值计算器 现金流折现"
-     data-cat="value quant"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="value quant">
     <div class="tool-icon">💰</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -641,8 +770,7 @@
     <a class="tool-card featured"
      href="geopolitical-map.html"
      data-name="全球地图"
-     data-cat="macro"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="macro">
     <div class="tool-icon">🌎</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -666,8 +794,7 @@
   <a class="tool-card featured"
      href="technical_analysis_guide_cn.html"
      data-name="技术面分析手册"
-     data-cat="macro"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="macro">
     <div class="tool-icon">💰</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -691,8 +818,7 @@
   <a class="tool-card featured"
      href="reading_list_card.html"
      data-name="认知成长核心书单 读书清单 进阶追踪 思维模型 宏观工具"
-     data-cat="macro"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="macro">
     <div class="tool-icon">📚</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -717,8 +843,7 @@
   <a class="tool-card featured"
      href="iphone17-pro-camera-master.html"
      data-name="iPhone17 Pro Max 摄影 录像 拍照技巧 参数设置 构图 摆拍 生活工具"
-     data-cat="life"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="life">
     <div class="tool-icon">📸</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -743,8 +868,7 @@
   <a class="tool-card featured"
      href="etf-screener.html"
      data-name="etf 指数基金筛选器 周期配置 股债性价比 宽基 红利 估值 index fund screener"
-     data-cat="macro value quant"
-     style="--card-accent:#c8a84b; --card-glow:rgba(200,168,75,0.06); --icon-bg:rgba(200,168,75,0.1); --icon-border:rgba(200,168,75,0.25);">
+     data-cat="macro value quant">
     <div class="tool-icon">📈</div>
     <div class="tool-body">
       <div class="tool-top">
@@ -829,7 +953,7 @@
 </div>
 
 <footer>
-  <div style="margin-bottom:6px;color:var(--gold);letter-spacing:3px;font-family:var(--serif);">工具箱</div>
+  <div style="margin-bottom:6px;color:var(--gold-text);letter-spacing:3px;font-family:var(--serif);">工具箱</div>
   <div>走在寂静前，走在黄昏前</div>
   <div style="margin-top:4px;font-size:10px;">Deploy on GitHub Pages · 新增工具持续更新</div>
 </footer>
@@ -884,6 +1008,69 @@ document.querySelectorAll('.tool-card.coming-soon').forEach(card => {
     setTimeout(() => t.classList.remove('show'), 2200);
   });
 });
+
+// === 主题切换器(三段式单选:自动 / 深色 / 浅色) ===
+(function initThemeSwitch() {
+  const group = document.getElementById('theme-switch');
+  const T = window.LifeToolsTheme;
+  if (!group) return;
+  if (!T) { group.hidden = true; return; } // theme-manager.js 加载失败时不展示无效控件
+
+  const opts = Array.from(group.querySelectorAll('.theme-opt'));
+  const THEME_TEXT = { dark: '深色', light: '浅色' };
+  const root = document.documentElement;
+  let lastTheme = root.getAttribute('data-theme');
+  let switchTimer = 0;
+
+  function sync() {
+    const mode = T.getGlobalTheme();
+    opts.forEach(btn => {
+      const on = btn.dataset.mode === mode;
+      btn.setAttribute('aria-checked', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1; // 单选组只让选中项进入 Tab 序列,方向键在组内移动
+    });
+    const autoBtn = opts.find(b => b.dataset.mode === 'auto');
+    if (autoBtn) autoBtn.title = '自动:跟随系统(当前' + THEME_TEXT[T.resolveEffectiveTheme('home')] + ')';
+  }
+
+  function choose(btn) {
+    T.setGlobalTheme(btn.dataset.mode);
+    sync(); // 存储不可用时 setGlobalTheme 仍会应用并广播,这里兜底刷新高亮
+  }
+
+  group.addEventListener('click', e => {
+    const btn = e.target.closest('.theme-opt');
+    if (btn) choose(btn);
+  });
+
+  group.addEventListener('keydown', e => {
+    const i = opts.indexOf(document.activeElement);
+    if (i < 0) return;
+    let next = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % opts.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + opts.length) % opts.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = opts.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    opts[next].focus();
+    choose(opts[next]);
+  });
+
+  // 本页点击、其它标签页修改、系统主题变化都会触发该事件
+  T.onChange(e => {
+    // 只在生效主题真的变化时给全站短暂加上颜色过渡;首屏不经过这里,所以刷新没有过渡动画
+    if (e.detail.theme !== lastTheme) {
+      lastTheme = e.detail.theme;
+      root.classList.add('theme-switching');
+      clearTimeout(switchTimer);
+      switchTimer = setTimeout(() => root.classList.remove('theme-switching'), 350);
+    }
+    sync();
+  });
+
+  sync();
+})();
 </script>
 </body>
 </html>
