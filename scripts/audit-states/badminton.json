@@ -1,0 +1,136 @@
+{
+  "_comment": "羽毛球计算器:默认视图是「极速平摊」空态;其余结果面板、提示条、精细分账各分支都在交互之后才出现,逐个声明让审计覆盖。「主题挂件-展开菜单」里菜单会盖住下方内容,审计会话里把被盖住的 .hero/.tabs/.panel/.footer 用 visibility:hidden 隐掉(只在审计里,不改页面),只看菜单本身与顶栏,免得把被菜单盖住的文字都报成人工复核。点击「计算分账」后页面会用 smooth 滚动到结果区,所以其后统一 wait 1500ms 等滚动结束再审计(机器繁忙时滚动未结束会让采样位置漂移,偶发把贴着吸顶栏的控件上边框误判)。",
+  "states": [
+    {
+      "name": "极速-结果",
+      "steps": [
+        { "type": { "selector": "#q-total", "text": "240" } },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "极速-余数提示+预览展开",
+      "steps": [
+        { "type": { "selector": "#q-total", "text": "100" } },
+        { "click": "#q-chips .chip[data-count=\"6\"]" },
+        { "eval": "document.querySelector('#q-result .preview').open = true" },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "极速-复制成功",
+      "steps": [
+        { "type": { "selector": "#q-total", "text": "240" } },
+        { "click": "#q-result .btn-copy" },
+        { "wait": 300 },
+        { "eval": "document.getElementById('toast').className = 'toast'" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "提示条-成功",
+      "steps": [
+        { "eval": "document.querySelector('.app').style.visibility = 'hidden'; var t = document.getElementById('toast'); t.textContent = '已复制，去微信/群里粘贴吧'; t.className = 'toast show'" },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "提示条-错误",
+      "steps": [
+        { "eval": "document.querySelector('.app').style.visibility = 'hidden'; var t = document.getElementById('toast'); t.textContent = '最多支持 30 位球友'; t.className = 'toast show is-error'" },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "极速-错误提示",
+      "steps": [
+        { "type": { "selector": "#q-total", "text": "abc" } },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "精细-默认",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "精细-智能结果",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "100" } },
+        { "type": { "selector": "#d-players li:nth-child(2) .p-exp", "text": "60" } },
+        { "type": { "selector": "#d-players li:nth-child(3) .p-exp", "text": "20" } },
+        { "click": "#d-calc" },
+        { "wait": 1500 },
+        { "eval": "document.querySelector('#d-result .preview').open = true" },
+        { "wait": 600 }
+      ]
+    },
+    {
+      "name": "精细-直接互转",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "240" } },
+        { "click": "#d-calc" },
+        { "wait": 1500 }
+      ]
+    },
+    {
+      "name": "精细-组织者统一收款",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "100" } },
+        { "type": { "selector": "#d-players li:nth-child(2) .p-exp", "text": "60" } },
+        { "click": "input[name=\"strategy\"][value=\"star\"]" },
+        { "eval": "var s=document.getElementById('d-payer'); s.value='player1'; s.dispatchEvent(new Event('change',{bubbles:true}))" },
+        { "click": "#d-calc" },
+        { "wait": 1500 }
+      ]
+    },
+    {
+      "name": "精细-差额承担人+错误提示",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-total", "text": "300" } },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "100" } },
+        { "click": "#d-calc" },
+        { "wait": 1500 }
+      ]
+    },
+    {
+      "name": "精细-已结清",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "60" } },
+        { "type": { "selector": "#d-players li:nth-child(2) .p-exp", "text": "60" } },
+        { "type": { "selector": "#d-players li:nth-child(3) .p-exp", "text": "60" } },
+        { "type": { "selector": "#d-players li:nth-child(4) .p-exp", "text": "60" } },
+        { "click": "#d-calc" },
+        { "wait": 1500 }
+      ]
+    },
+    {
+      "name": "精细-结果过期",
+      "steps": [
+        { "click": "#tab-detailed" },
+        { "type": { "selector": "#d-players li:nth-child(1) .p-exp", "text": "100" } },
+        { "type": { "selector": "#d-players li:nth-child(2) .p-exp", "text": "60" } },
+        { "click": "#d-calc" },
+        { "wait": 1500 },
+        { "type": { "selector": "#d-players li:nth-child(3) .p-exp", "text": "20" } },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "主题挂件-展开菜单",
+      "steps": [
+        { "click": ".lt-theme-root .lt-theme-btn" },
+        { "wait": 500 },
+        { "eval": "(function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.hero,#tabs,.panel,.footer{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    }
+  ]
+}

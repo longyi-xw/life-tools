@@ -1,0 +1,490 @@
+{
+  "_comment": "地缘地图:默认视图只有 3D 地球 + 常驻侧栏。国家信息面板、分析色阶(贸易/同盟/GDP/军事)+图例、图层(网格/首都/争议区)、2D 视图、放大后的全部标签、英文界面、标注弹窗与已保存标注、搜索下拉、悬浮提示、移动端侧栏、主题挂件菜单都在交互之后才出现,逐个声明让审计覆盖。国家信息依赖 restcountries 接口,离线时显示『API不可用』分支,同样会被审计。 国家路径是 SVG 元素(没有 .click()),所以用 dispatchEvent 派发 click。 窄屏(<=768px)回放末尾的两类收尾步骤(宽屏不生效):(1)选中国家会自动展开侧栏并盖一层遮罩,地图整体被侧栏遮住 / 压暗成失效区,审计对 pointer-events:none 的 SVG 文字判不了遮挡、会拿侧栏 / 遮罩的像素当背景造成误报,所以这些状态把 #mapC 设为 visibility:hidden,只审计侧栏本体;遮罩(position:fixed 满屏)同样盖在底部状态栏 .sbar 上,状态栏文字被压暗成失效区、取样会判 obscured 转人工复核(每套配色 5 条,共 200 条),所以一并把 .sbar 设为 visibility:hidden(状态栏在不带遮罩的默认状态与其余状态里照常审),地图标签 / 色阶 / 首都点等由不带侧栏的状态覆盖;(2)其余带地图的状态里,390 宽的地图标签难免落在缩放按钮 / 小地图 / 坐标条 / 图例 / 搜索下拉 / 悬浮提示 / 标注弹窗与标注点 / 主题菜单这些不透明控件底下(用户看不到),同样会被误判,所以把与这些控件相交的标签 / 圆点设为 visibility:hidden,只审计用户真正看得见的部分。 2D 放大状态在窄屏下国名 / 首都名 / 海域名互相叠压(原页面行为,放大后标签密集),被叠压的一半会取到邻居标签底板的像素;所以该状态在窄屏(<=768)末尾再按 DOM 顺序把与已保留标签相交的标签设为 visibility:hidden,只审计互不叠压的标签,各类标签(国名 / 首都 / 海域)仍都在列。 2D 放大状态在宽屏(1280)下,德黑兰首都名恰好落在右上角小地图(.mmap)正下方、被它永久盖住(用户看不到),审计会判 obscured 转人工复核(每套配色 1 条);所以该状态末尾(宽窄屏通用)把与 .mmap 相交的地图文字设为 visibility:hidden。 每个状态的第一步都先等地图数据(CDN 的 world-atlas,即 S.ct)加载完成再操作:网络慢时 setView / 点选国家会在数据到位前执行而抛 TypeError(原页面行为),与主题无关,等待后回放才稳定。",
+  "states": [
+    {
+      "name": "国家面板-中国",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "document.querySelector('.country-path[data-id=\"156\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+        },
+        {
+          "wait": 3500
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "window.innerWidth<=768&&(document.getElementById('mapC').style.visibility='hidden',document.querySelector('.sbar').style.visibility='hidden')"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "国家面板-美国-英文",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": ".cb[onclick=\"toggleLang()\"]"
+        },
+        {
+          "eval": "document.querySelector('.country-path[data-id=\"840\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+        },
+        {
+          "wait": 3500
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "window.innerWidth<=768&&(document.getElementById('mapC').style.visibility='hidden',document.querySelector('.sbar').style.visibility='hidden')"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "色阶-GDP",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('gdp')\"]"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "色阶-军事",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('military')\"]"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "色阶-同盟",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('alliance')\"]"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "色阶-贸易",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('trade')\"]"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "色阶-GDP+选中中国",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('gdp')\"]"
+        },
+        {
+          "eval": "document.querySelector('.country-path[data-id=\"156\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+        },
+        {
+          "wait": 3500
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "window.innerWidth<=768&&(document.getElementById('mapC').style.visibility='hidden',document.querySelector('.sbar').style.visibility='hidden')"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "图层-网格首都争议区",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#layerGraticule"
+        },
+        {
+          "click": "#layerCapitals"
+        },
+        {
+          "click": "#layerDisputes"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "放大3倍-全部标签",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "svg.call(zoomB.scaleBy, 3)"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "放大3倍-选中中国+首都",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#layerCapitals"
+        },
+        {
+          "eval": "svg.call(zoomB.scaleBy, 3)"
+        },
+        {
+          "eval": "document.querySelector('.country-path[data-id=\"156\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+        },
+        {
+          "wait": 3500
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "window.innerWidth<=768&&(document.getElementById('mapC').style.visibility='hidden',document.querySelector('.sbar').style.visibility='hidden')"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "2D视图",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "setView('2d')"
+        },
+        {
+          "wait": 800
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "2D视图-放大+色阶+图层",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "setView('2d')"
+        },
+        {
+          "click": "button[onclick=\"toggleAnalysis('military')\"]"
+        },
+        {
+          "click": "#layerCapitals"
+        },
+        {
+          "click": "#layerDisputes"
+        },
+        {
+          "eval": "svg.call(zoomB.scaleBy, 2.5)"
+        },
+        {
+          "wait": 800
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ts=[...document.querySelectorAll('#mapSvg text')].filter(t=>t.style.visibility!=='hidden'&&t.getBoundingClientRect().width>0);const kept=[];ts.forEach(t=>{const r=t.getBoundingClientRect();if(kept.some(k=>r.left<k.right&&r.right>k.left&&r.top<k.bottom&&r.bottom>k.top))t.style.visibility='hidden';else kept.push(r)});return kept.length})()"
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{const m=document.querySelector('.mmap').getBoundingClientRect();document.querySelectorAll('#mapSvg text').forEach(t=>{const r=t.getBoundingClientRect();if(r.left<m.right&&r.right>m.left&&r.top<m.bottom&&r.bottom>m.top)t.style.visibility='hidden'});})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "英文界面",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": ".cb[onclick=\"toggleLang()\"]"
+        },
+        {
+          "eval": "svg.call(zoomB.scaleBy, 2)"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "标注-弹窗",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#labelTog"
+        },
+        {
+          "click": "#annotateBtn"
+        },
+        {
+          "eval": "showAI({pageX:300,pageY:300,offsetX:300,offsetY:300})"
+        },
+        {
+          "wait": 400
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "标注-已保存",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#annotateBtn"
+        },
+        {
+          "eval": "showAI({pageX:300,pageY:300,offsetX:300,offsetY:300})"
+        },
+        {
+          "eval": "document.getElementById('aTxt').value='测试标注:霍尔木兹航运风险'; document.getElementById('aTp').value='risk'; saveA(); showAI({pageX:360,pageY:280,offsetX:360,offsetY:280}); document.getElementById('aTxt').value='经济观察'; document.getElementById('aTp').value='economic'; saveA(); showAI({pageX:240,pageY:340,offsetX:240,offsetY:340}); document.getElementById('aTxt').value='战略要点'; document.getElementById('aTp').value='strategic'; saveA(); showAI({pageX:300,pageY:380,offsetX:300,offsetY:380}); document.getElementById('aTxt').value='备注'; document.getElementById('aTp').value='note'; saveA();"
+        },
+        {
+          "wait": 600
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "搜索下拉",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "(()=>{const i=document.getElementById('searchInput');i.value='an';i.dispatchEvent(new Event('input'));})()"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "悬浮提示",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "eval": "showTip({offsetX:520,offsetY:300}, S.ct.features.find(f=>f.id==='156'))"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "移动端侧栏展开+选中",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#menuBtn"
+        },
+        {
+          "eval": "document.querySelector('.country-path[data-id=\"392\"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))"
+        },
+        {
+          "wait": 3500
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "window.innerWidth<=768&&(document.getElementById('mapC').style.visibility='hidden',document.querySelector('.sbar').style.visibility='hidden')"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "主题挂件菜单",
+      "steps": [
+        {
+          "eval": "new Promise(r=>{const t=setInterval(()=>{if(typeof S!=='undefined'&&S.ct){clearInterval(t);r(1)}},100);setTimeout(()=>{clearInterval(t);r(0)},20000)})"
+        },
+        {
+          "click": "#labelTog"
+        },
+        {
+          "click": ".lt-theme-btn"
+        },
+        {
+          "wait": 500
+        },
+        {
+          "eval": "(()=>{if(window.innerWidth>768)return 0;const ov=[...document.querySelectorAll('.zb,.coords,.mmap,.mleg,.sbox-drop.vis,.ttip,.aover .abox,.lt-theme-menu,#mapSvg .anno-marker')].filter(e=>e.offsetParent!==null||e.closest('.topbar')).map(e=>e.getBoundingClientRect());document.querySelectorAll('#mapSvg text,#mapSvg circle:not(.anno-marker)').forEach(t=>{const r=t.getBoundingClientRect();if(ov.some(o=>r.left<o.right&&r.right>o.left&&r.top<o.bottom&&r.bottom>o.top))t.style.visibility='hidden'});return ov.length})()"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    }
+  ]
+}

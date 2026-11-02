@@ -1,0 +1,111 @@
+{
+  "_comment": "面试宝典(Nuxt 预渲染页,约 1.5MB):默认视图是整页长文档。解题模式、搜索结果、计划弹窗、笔记面板、窄屏侧栏、回到顶部按钮、主题挂件菜单都要交互后才出现,逐个声明。选择器均取自页面现有 DOM,不改 #__nuxt 内容。弹窗/面板/侧栏/挂件菜单这几个状态会在打开后用 visibility:hidden 隐藏被遮罩盖住的背景内容(只在审计会话里,不改页面):被半透明遮罩压暗的底层文字本来就不是给人读的,若不隐藏,审计会把成百上千行被遮挡文字都报成人工复核,淹没真正要看的弹窗本身。",
+  "states": [
+    {
+      "name": "解题模式",
+      "steps": [
+        { "click": ".quiz-toggle" },
+        { "wait": 500 }
+      ]
+    },
+    {
+      "name": "解题模式-作答并揭晓答案",
+      "steps": [
+        { "click": ".quiz-toggle" },
+        { "wait": 300 },
+        { "scrollTo": ".qa-block .qa-input" },
+        { "type": { "selector": ".qa-block .qa-input", "text": "我的作答示例" } },
+        { "click": ".qa-block .qa-toggle" },
+        { "wait": 500 }
+      ]
+    },
+    {
+      "name": "搜索-有结果",
+      "steps": [
+        { "type": { "selector": ".search-box", "text": "Promise" } },
+        { "wait": 600 }
+      ]
+    },
+    {
+      "name": "搜索-无结果",
+      "steps": [
+        { "type": { "selector": ".search-box", "text": "zzzzqqq无结果" } },
+        { "wait": 600 }
+      ]
+    },
+    {
+      "name": "计划弹窗",
+      "steps": [
+        { "click": ".plan-fab" },
+        { "wait": 600 },
+        { "eval": "(function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.sidebar,.main{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "笔记面板-空",
+      "steps": [
+        { "eval": "document.querySelectorAll('.note-btn')[3].click()" },
+        { "wait": 600 },
+        { "eval": "(function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.sidebar,.main{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "笔记面板-已添加与预览",
+      "steps": [
+        { "eval": "document.querySelectorAll('.note-btn')[3].click()" },
+        { "wait": 400 },
+        { "type": { "selector": ".note-textarea", "text": "**加粗** 与 `code` 与 [链接](https://example.com)" } },
+        { "click": ".note-add-btn" },
+        { "wait": 400 },
+        { "type": { "selector": ".note-textarea", "text": "第二条草稿，切到预览看看" } },
+        { "click": ".note-input-tabs button:nth-child(2)" },
+        { "wait": 500 },
+        { "eval": "(function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.sidebar,.main{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "笔记徽标-关闭面板后",
+      "steps": [
+        { "eval": "document.querySelectorAll('.note-btn')[3].click()" },
+        { "wait": 400 },
+        { "type": { "selector": ".note-textarea", "text": "一条笔记" } },
+        { "click": ".note-add-btn" },
+        { "wait": 300 },
+        { "click": ".note-panel-close" },
+        { "wait": 300 },
+        { "eval": "document.querySelectorAll('.note-btn')[3].scrollIntoView({block:'center'})" },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "侧栏展开(窄屏)",
+      "steps": [
+        { "eval": "innerWidth <= 900 && document.querySelector('.menu-toggle').click()" },
+        { "wait": 500 },
+        { "eval": "innerWidth <= 900 && (function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.main{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "回到顶部按钮",
+      "steps": [
+        { "eval": "window.scrollTo(0, 5000)" },
+        { "wait": 600 }
+      ]
+    },
+    {
+      "name": "主题挂件-展开菜单",
+      "steps": [
+        { "eval": "window.scrollTo(0, 5000)" },
+        { "wait": 400 },
+        { "click": ".lt-theme-root .lt-theme-btn" },
+        { "wait": 500 },
+        { "eval": "(function(){var s=document.createElement('style');s.id='lt-audit-hide';s.textContent='.sidebar,.main{visibility:hidden!important}';document.head.appendChild(s)})()" },
+        { "wait": 200 }
+      ]
+    }
+  ]
+}

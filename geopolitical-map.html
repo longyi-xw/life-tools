@@ -3,13 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="light dark">
+<!-- 主题接入必须同步加载、放在任何 <style> 之前，首屏才不会闪色；缺失时退化为 :root 的原生深色配色 -->
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC('geopolitical');</script>
+<link rel="stylesheet" href="theme-tokens.css">
 <title>GeoStrategy Atlas</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1320'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E🌎%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-:root{--bg0:#0a0e17;--bg1:#111827;--bg2:#1a2235;--a1:#00d4aa;--a2:#0ea5e9;--aw:#f59e0b;--ad:#ef4444;--ap:#a78bfa;--t1:#e2e8f0;--t2:#94a3b8;--t3:#64748b;--bc:#1e293b;--ocean:#0c1422;--land:#1a2744;--lh:#243656;--la:#2d4a6f;}
+:root{--bg0:#0a0e17;--bg1:#111827;--bg2:#1a2235;--a1:#00d4aa;--a1t:#00d4aa;--a1b:#00b894;--on-a1:#0a0e17;--a2:#0ea5e9;--a2b:#3b82f6;--aw:#f59e0b;--ad:#ef4444;--adt:#f87171;--ap:#a78bfa;--t1:#e2e8f0;--t2:#94a3b8;--t3:#7e8ea6;--bc:#1e293b;--bcs:#64748b;
+  --ocean:#0c1422;--land:#1a2744;--lh:#243656;--la:#2d4a6f;--sph-a:#0f1d33;--sph-b:#0a0e17;--cl:rgba(255,255,255,.36);--mm-line:rgba(255,255,255,.5);--grat:rgba(255,255,255,.035);--outline:rgba(255,255,255,.07);--lbl:rgba(255,255,255,.74);--lbl-m:rgba(255,255,255,.8);--geo-lbl:#8cc8f2;--cap-dot:#f59e0b;--cap-ring:#000000;--cap-txt:#fbbf24;--disp-fill:rgba(239,68,68,.1);--disp-line:rgba(239,68,68,1);--an-strat:#ef4444;--an-eco:#f59e0b;--an-risk:#f97316;--an-note:#00d4aa;--an-ring:#ffffff;
+  --gdp1:#1a3a4a;--gdp2:#1a5050;--gdp3:#0d7a5f;--gdp4:#00d4aa;--gdp5:#00ffcc;
+  --mil1:#2a1a44;--mil2:#3a1a55;--mil3:#5a1a77;--mil4:#8b5cf6;--mil5:#a78bfa;
+  --nato:rgba(14,165,233,.4);--nato-lg:rgba(14,165,233,0.6);--brics:rgba(239,68,68,.4);--brics-lg:rgba(239,68,68,0.6);--trade-hi:rgba(0,212,170,.5);--trade-md:rgba(0,212,170,.25);--bcsm:#64748b;
+}
+/* 派生色:由主色 / 底色按比例混合得出,随 --a1 / --bg1 等变量联动。classic 深色下与原来的 rgba 字面量逐值相同 */
+:root{--a1-10:color-mix(in srgb,var(--a1) 10%,transparent);--a1-08:color-mix(in srgb,var(--a1) 8%,transparent);--a1-30:color-mix(in srgb,var(--a1) 30%,transparent);--a2-30:color-mix(in srgb,var(--a2) 30%,transparent);--aw-10:color-mix(in srgb,var(--aw) 10%,transparent);--aw-30:color-mix(in srgb,var(--aw) 30%,transparent);--ad-08:color-mix(in srgb,var(--ad) 8%,transparent);--ad-30:color-mix(in srgb,var(--ad) 30%,transparent);--ad-bd:color-mix(in srgb,var(--ad) 80%,transparent);
+  --glass-88:color-mix(in srgb,var(--bg1) 88%,transparent);--glass-95:color-mix(in srgb,var(--bg1) 95%,transparent);--lbl-halo:color-mix(in srgb,var(--bg0) 85%,transparent);
+  --hair:rgba(255,255,255,.03);--scrim:rgba(0,0,0,.5);--sh-drop:0 8px 24px rgba(0,0,0,.5);--sh-tip:0 6px 20px rgba(0,0,0,.4);--sh-box:0 6px 24px rgba(0,0,0,.5)}
+html[data-theme="light"]{--bg0:#edf1f6;--bg1:#f7f9fc;--bg2:#e3e9f1;--a1:#00796b;--a1t:#00594f;--a1b:#0a9b87;--on-a1:#ffffff;--a2:#0b5cad;--a2b:#2b7fd4;--aw:#8a5200;--ad:#b42318;--adt:#b42318;--ap:#6a3fbd;--t1:#1a2230;--t2:#3d4a60;--t3:#4e5b73;--bc:#cdd6e3;--bcs:#6b7a93;
+  --ocean:#cddfec;--land:#efe9d9;--lh:#e1dac3;--la:#cde5da;--sph-a:#d9e8f3;--sph-b:#b8d0e3;--cl:rgba(22,34,56,.62);--mm-line:rgba(22,34,56,.75);--grat:rgba(22,34,56,.08);--outline:rgba(22,34,56,.25);--lbl:#262f45;--lbl-m:#1a2230;--geo-lbl:#123e66;--cap-dot:#6b3400;--cap-ring:#ffffff;--cap-txt:#5c3300;--disp-fill:rgba(180,35,24,.1);--disp-line:rgba(180,35,24,.85);--an-strat:#b42318;--an-eco:#8a5200;--an-risk:#b4470a;--an-note:#00796b;--an-ring:#ffffff;
+  --gdp1:#c3e2d5;--gdp2:#9fd3c3;--gdp3:#5fb7a0;--gdp4:#2a9d84;--gdp5:#0b7a66;
+  --mil1:#e3d9f3;--mil2:#c9b6ea;--mil3:#a98ae0;--mil4:#7550c4;--mil5:#5b34a8;
+  --nato:rgba(11,92,173,.35);--nato-lg:rgba(11,92,173,0.55);--brics:rgba(180,35,24,.3);--brics-lg:rgba(180,35,24,0.5);--trade-hi:rgba(0,121,107,.5);--trade-md:rgba(0,121,107,.25);--bcsm:#4e5b73;
+}
+html[data-theme="light"]{--hair:rgba(22,34,56,.07);--scrim:rgba(20,28,42,.4);--sh-drop:0 8px 24px rgba(22,34,56,.18);--sh-tip:0 6px 20px rgba(22,34,56,.16);--sh-box:0 6px 24px rgba(22,34,56,.18)}
+/* LT-THEME-MAP
+   非 classic 风格(tech / fresh / paper)：把本页变量别名到 theme-tokens.css 的共享令牌，随首页风格与明暗联动。
+   classic = 页面原生配色(上面的 :root 深色与 html[data-theme="light"] 浅色)，不在此映射。
+   选择器特异性 (0,2,1) 高于 :root (0,1,0) 与 html[data-theme] (0,1,1)，无需 !important；回退值 = :root 原值，theme-tokens.css 缺失时页面照常可用。
+   语义对应：a1 / a1t = accent(填充)/ accent-strong(文字)；a2 = info；aw = warn；ad / adt = bad；t2 = 正文与弱化文字之间的过渡色。
+   地图自有配色(陆海、色阶、标注色、标签色等)令牌里没有对应项，按「风格 x 明暗」逐套写在下面 6 个专属块里，每套都单独过对比度审计。 */
+html[data-style]:not([data-style="classic"]){
+  --bg0:var(--lt-bg,#0a0e17);
+  --bg1:var(--lt-surface,#111827);
+  --bg2:var(--lt-surface-2,#1a2235);
+  --a1:var(--lt-accent,#00d4aa);
+  --a1t:var(--lt-accent-strong,#00d4aa);
+  --a1b:var(--lt-accent-strong,#00b894);
+  --on-a1:var(--lt-on-accent,#0a0e17);
+  --a2:var(--lt-info,#0ea5e9);
+  --a2b:var(--lt-info,#3b82f6);
+  --aw:var(--lt-warn,#f59e0b);
+  --ad:var(--lt-bad,#ef4444);
+  --adt:var(--lt-bad,#f87171);
+  --t1:var(--lt-text,#e2e8f0);
+  --t2:color-mix(in srgb,var(--lt-text,#94a3b8) 45%,var(--lt-text-muted,#94a3b8));
+  --t3:var(--lt-text-muted,#7e8ea6);
+  --bc:var(--lt-border,#1e293b);
+  --bcs:var(--lt-border-strong,#64748b);
+}
+/* 地图专属配色:6 套「非经典风格 x 明暗」(经典深 / 浅分别在 :root 与 html[data-theme="light"] 里) */
+html[data-style="tech"][data-theme="dark"]{
+  --ap:#b9a4ff;
+  --ocean:#0a1220;--land:#16243e;--lh:#1f3256;--la:#28476f;--sph-a:#0f1b30;--sph-b:#080e1a;--cl:rgba(160,210,255,.52);--mm-line:rgba(160,210,255,.62);--grat:rgba(116,205,250,.05);--outline:rgba(116,205,250,.12);--lbl:rgba(235,245,255,.82);--lbl-m:rgba(235,245,255,.93);--geo-lbl:#8fc7ff;--cap-dot:#fbbf24;--cap-ring:#000000;--cap-txt:#fcd34d;--disp-fill:rgba(255,122,138,.1);--disp-line:rgba(255,122,138,.85);--an-strat:#ff7a8a;--an-eco:#fbbf24;--an-risk:#ff9b54;--an-note:#26b5f2;--an-ring:#ffffff;
+  --gdp1:#173a52;--gdp2:#1b5878;--gdp3:#18709a;--gdp4:#26b5f2;--gdp5:#74dcff;
+  --mil1:#26204a;--mil2:#352c70;--mil3:#4a3a9a;--mil4:#8f7bff;--mil5:#b9aeff;
+  --nato:rgba(38,181,242,.4);--nato-lg:rgba(38,181,242,0.6);--brics:rgba(255,122,138,.4);--brics-lg:rgba(255,122,138,0.6);--trade-hi:rgba(38,181,242,.5);--trade-md:rgba(38,181,242,.25);--bcsm:#5a739c;
+}
+html[data-style="tech"][data-theme="light"]{
+  --ap:#5b3fc4;
+  --ocean:#c7d9ee;--land:#f3f6fb;--lh:#e3eaf5;--la:#bdd0ee;--sph-a:#d5e4f5;--sph-b:#b9cfe8;--cl:rgba(26,50,100,.68);--mm-line:rgba(26,50,100,.8);--grat:rgba(26,71,184,.1);--outline:rgba(26,71,184,.3);--lbl:#222d44;--lbl-m:#141c2c;--geo-lbl:#123f7a;--cap-dot:#6b3400;--cap-ring:#ffffff;--cap-txt:#5c3300;--disp-fill:rgba(173,34,56,.1);--disp-line:rgba(173,34,56,.85);--an-strat:#ad2238;--an-eco:#8a5200;--an-risk:#b4470a;--an-note:#1a47b8;--an-ring:#ffffff;
+  --gdp1:#d7e5f8;--gdp2:#a9c6f0;--gdp3:#6f9be0;--gdp4:#2f62c4;--gdp5:#1a47b8;
+  --mil1:#e3dbf7;--mil2:#c9bbf0;--mil3:#a994e6;--mil4:#7452d0;--mil5:#5b3fc4;
+  --nato:rgba(26,71,184,.35);--nato-lg:rgba(26,71,184,0.55);--brics:rgba(173,34,56,.3);--brics-lg:rgba(173,34,56,0.5);--trade-hi:rgba(26,71,184,.45);--trade-md:rgba(26,71,184,.22);--bcsm:#4a5b75;
+}
+html[data-style="fresh"][data-theme="dark"]{
+  --ap:#bba6ff;
+  --ocean:#091a17;--land:#143832;--lh:#1c4840;--la:#27605a;--sph-a:#0e2824;--sph-b:#07120f;--cl:rgba(160,235,215,.5);--mm-line:rgba(160,235,215,.58);--grat:rgba(127,227,195,.05);--outline:rgba(127,227,195,.12);--lbl:rgba(230,250,244,.82);--lbl-m:rgba(230,250,244,.93);--geo-lbl:#8fe0c8;--cap-dot:#f4b942;--cap-ring:#000000;--cap-txt:#f9cf70;--disp-fill:rgba(255,128,128,.1);--disp-line:rgba(255,128,128,.85);--an-strat:#ff8080;--an-eco:#f4b942;--an-risk:#ff9b54;--an-note:#3ccfa0;--an-ring:#ffffff;
+  --gdp1:#1a4a40;--gdp2:#1c6656;--gdp3:#1f8a72;--gdp4:#3ccfa0;--gdp5:#8ff0cf;
+  --mil1:#2a2748;--mil2:#3a3470;--mil3:#51489a;--mil4:#7f6be8;--mil5:#ae9fff;
+  --nato:rgba(106,184,255,.4);--nato-lg:rgba(106,184,255,0.6);--brics:rgba(255,128,128,.4);--brics-lg:rgba(255,128,128,0.6);--trade-hi:rgba(60,207,160,.5);--trade-md:rgba(60,207,160,.25);--bcsm:#4f7d75;
+}
+html[data-style="fresh"][data-theme="light"]{
+  --ap:#5b3fc4;
+  --ocean:#bfe1dc;--land:#f2f8ef;--lh:#e1eedf;--la:#c2e7cd;--sph-a:#cdebe6;--sph-b:#a9d3cd;--cl:rgba(15,70,60,.72);--mm-line:rgba(15,70,60,.85);--grat:rgba(11,107,92,.1);--outline:rgba(11,107,92,.3);--lbl:#1c3833;--lbl-m:#0f2420;--geo-lbl:#08405f;--cap-dot:#6b3400;--cap-ring:#ffffff;--cap-txt:#5c3300;--disp-fill:rgba(174,37,29,.1);--disp-line:rgba(174,37,29,.85);--an-strat:#ae251d;--an-eco:#8a5200;--an-risk:#b4470a;--an-note:#0a5f52;--an-ring:#ffffff;
+  --gdp1:#d3eedd;--gdp2:#a4dcc0;--gdp3:#66c1a0;--gdp4:#2f9f83;--gdp5:#0a5f52;
+  --mil1:#e3dbf7;--mil2:#c9bbf0;--mil3:#a994e6;--mil4:#7452d0;--mil5:#5b3fc4;
+  --nato:rgba(20,86,184,.35);--nato-lg:rgba(20,86,184,0.55);--brics:rgba(174,37,29,.3);--brics-lg:rgba(174,37,29,0.5);--trade-hi:rgba(10,95,82,.45);--trade-md:rgba(10,95,82,.22);--bcsm:#476560;
+}
+html[data-style="paper"][data-theme="dark"]{
+  --ap:#c2aaf0;
+  --ocean:#15120e;--land:#352c20;--lh:#43382a;--la:#594833;--sph-a:#1d1912;--sph-b:#100d09;--cl:rgba(240,215,170,.5);--mm-line:rgba(240,215,170,.58);--grat:rgba(224,160,80,.06);--outline:rgba(224,160,80,.14);--lbl:rgba(250,240,222,.82);--lbl-m:rgba(250,240,222,.93);--geo-lbl:#a9c8e8;--cap-dot:#e8b04a;--cap-ring:#000000;--cap-txt:#f0c46a;--disp-fill:rgba(240,144,127,.1);--disp-line:rgba(240,144,127,.85);--an-strat:#f0907f;--an-eco:#e8b04a;--an-risk:#f0a060;--an-note:#8fd18a;--an-ring:#ffffff;
+  --gdp1:#4a3a22;--gdp2:#6a4f26;--gdp3:#8a6a2c;--gdp4:#d99a52;--gdp5:#f4c488;
+  --mil1:#3a2a40;--mil2:#4e3858;--mil3:#664a78;--mil4:#9a78c8;--mil5:#c4aaee;
+  --nato:rgba(134,184,230,.4);--nato-lg:rgba(134,184,230,0.6);--brics:rgba(240,144,127,.4);--brics-lg:rgba(240,144,127,0.6);--trade-hi:rgba(232,147,90,.5);--trade-md:rgba(232,147,90,.25);--bcsm:#85745a;
+}
+html[data-style="paper"][data-theme="light"]{
+  --ap:#6a3fa8;
+  --ocean:#d6ccb2;--land:#f7f0df;--lh:#eadfc5;--la:#e2cfa4;--sph-a:#e0d6bd;--sph-b:#c9bd9d;--cl:rgba(60,40,15,.68);--mm-line:rgba(60,40,15,.8);--grat:rgba(120,90,50,.12);--outline:rgba(120,90,50,.3);--lbl:#33291b;--lbl-m:#1c1812;--geo-lbl:#0f3a6a;--cap-dot:#9c2f1a;--cap-ring:#ffffff;--cap-txt:#6a1d0f;--disp-fill:rgba(166,28,56,.1);--disp-line:rgba(166,28,56,.85);--an-strat:#a61c38;--an-eco:#7a4a08;--an-risk:#a8480a;--an-note:#2a6125;--an-ring:#ffffff;
+  --gdp1:#efd9b0;--gdp2:#e0b98a;--gdp3:#d09a6a;--gdp4:#b86a45;--gdp5:#9c2f1a;
+  --mil1:#e8dcef;--mil2:#d0bce0;--mil3:#b394cf;--mil4:#8f6bb8;--mil5:#6a3fa8;
+  --nato:rgba(30,87,148,.35);--nato-lg:rgba(30,87,148,0.55);--brics:rgba(166,28,56,.3);--brics-lg:rgba(166,28,56,0.5);--trade-hi:rgba(156,47,26,.45);--trade-md:rgba(156,47,26,.22);--bcsm:#5f5546;
+}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color:var(--t1);overflow:hidden;height:100vh;height:100dvh;width:100vw;touch-action:none}
 
@@ -17,27 +106,29 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 .app{display:grid;grid-template-columns:300px 1fr;grid-template-rows:48px 1fr 32px;height:100vh;height:100dvh}
 
 /* ═══ TOPBAR ═══ */
-.topbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg1);border-bottom:1px solid var(--bc);z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.topbar::-webkit-scrollbar{display:none}
+/* 顶栏不再是滚动容器(overflow:visible):主题挂件的下拉菜单要越出 48px 顶栏向下展开,窄屏靠下方的紧凑规则保证内容放得下 */
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--bg1);border-bottom:1px solid var(--bc);z-index:100}
 .menu-btn{display:none;background:0;border:0;color:var(--t1);font-size:20px;cursor:pointer;padding:4px 8px;flex-shrink:0}
 .logo{display:flex;align-items:center;gap:7px;flex-shrink:0}
 .logo-i{width:28px;height:28px;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.logo-t{font-weight:700;font-size:13px;letter-spacing:.3px;white-space:nowrap}.logo-t span{color:var(--a1)}
+.logo-t{font-weight:700;font-size:13px;letter-spacing:.3px;white-space:nowrap}.logo-t span{color:var(--a1t)}
 .spacer{flex:1;min-width:4px}
-.cb{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
-.cb:hover,.cb.active{border-color:var(--a1);color:var(--a1)}
-.cb.active{background:rgba(0,212,170,.1)}
-.vtog{display:flex;background:var(--bg2);border-radius:5px;border:1px solid var(--bc);overflow:hidden;flex-shrink:0}
+.theme-slot{display:flex;align-items:center;flex-shrink:0}
+.cb{background:var(--bg2);border:1px solid var(--bcs);color:var(--t2);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .2s;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
+.cb:hover,.cb.active{border-color:var(--a1);color:var(--a1t)}
+.cb.active{background:var(--a1-10)}
+.vtog{display:flex;background:var(--bg2);border-radius:5px;border:1px solid var(--bcs);overflow:hidden;flex-shrink:0}
 .vtog button{background:0;border:0;color:var(--t2);padding:4px 11px;cursor:pointer;font-size:10px;font-family:inherit;transition:all .15s}
-.vtog button.active{background:var(--a1);color:var(--bg0);font-weight:600}
+.vtog button.active{background:var(--a1);color:var(--on-a1);font-weight:600}
 .sbox{position:relative;flex-shrink:0}
-.sbox input{background:var(--bg2);border:1px solid var(--bc);color:var(--t1);padding:4px 8px 4px 26px;border-radius:5px;font-size:10px;font-family:inherit;width:140px;outline:0;transition:all .2s}
+.sbox input{background:var(--bg2);border:1px solid var(--bcs);color:var(--t1);padding:4px 8px 4px 26px;border-radius:5px;font-size:10px;font-family:inherit;width:140px;outline:0;transition:all .2s}
 .sbox input:focus{border-color:var(--a1);width:170px}
+.sbox input::placeholder,.abox textarea::placeholder{color:var(--t3);opacity:1}
 .sbox::before{content:'⌕';position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:12px}
-.sbox-drop{position:absolute;top:100%;left:0;right:0;margin-top:3px;background:var(--bg1);border:1px solid var(--bc);border-radius:5px;max-height:200px;overflow-y:auto;z-index:300;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.sbox-drop{position:absolute;top:100%;left:0;right:0;margin-top:3px;background:var(--bg1);border:1px solid var(--bc);border-radius:5px;max-height:200px;overflow-y:auto;z-index:300;display:none;box-shadow:var(--sh-drop)}
 .sbox-drop.vis{display:block}
-.sbox-item{padding:6px 10px;font-size:10px;color:var(--t2);cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.03)}
-.sbox-item:hover{background:var(--bg2);color:var(--a1)}
+.sbox-item{padding:6px 10px;font-size:10px;color:var(--t2);cursor:pointer;display:flex;justify-content:space-between;border-bottom:1px solid var(--hair)}
+.sbox-item:hover{background:var(--bg2);color:var(--a1t)}
 .sbox-item .si-en{color:var(--t3);font-size:9px}
 .ltog{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t2);cursor:pointer;user-select:none;flex-shrink:0}
 .ltog input{accent-color:var(--a1);width:14px;height:14px}
@@ -48,8 +139,8 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 .sec{padding:12px;border-bottom:1px solid var(--bc)}
 .sec h3{font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--t3);margin-bottom:8px;display:flex;align-items:center;gap:4px}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.tb{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:8px 4px;border-radius:5px;cursor:pointer;font-size:9px;font-family:inherit;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-.tb .ico{font-size:16px}.tb:hover{border-color:var(--a2);color:var(--a2)}.tb.active{border-color:var(--a1);color:var(--a1);background:rgba(0,212,170,.08)}
+.tb{background:var(--bg2);border:1px solid var(--bcs);color:var(--t2);padding:8px 4px;border-radius:5px;cursor:pointer;font-size:9px;font-family:inherit;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tb .ico{font-size:16px}.tb:hover{border-color:var(--a2);color:var(--a2)}.tb.active{border-color:var(--a1);color:var(--a1t);background:var(--a1-08)}
 
 .cpanel{display:none}.cpanel.vis{display:block}
 .chead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -57,55 +148,60 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
 .scard{background:var(--bg2);border:1px solid var(--bc);border-radius:6px;padding:7px}
 .slbl{font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.3px}
-.sval{font-size:14px;font-weight:700;color:var(--a1);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.sval{font-size:14px;font-weight:700;color:var(--a1t);font-family:'JetBrains Mono',monospace;margin-top:1px}
 .sval.b{color:var(--a2)}.sval.y{color:var(--aw)}.sval.p{color:var(--ap)}
 .tsec{margin-bottom:10px}.tsec h4{font-size:10px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:4px}
 .tbar{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:9px}
 .tbar-l{width:65px;flex-shrink:0;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tbar-t{flex:1;height:4px;background:var(--bg0);border-radius:2px;overflow:hidden}
 .tbar-f{height:100%;border-radius:2px;transition:width .5s}.tbar-p{width:28px;text-align:right;color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:8px}
-.ef{background:linear-gradient(90deg,var(--a1),#00b894)}.if{background:linear-gradient(90deg,var(--a2),#3b82f6)}
+.ef{background:linear-gradient(90deg,var(--a1),var(--a1b))}.if{background:linear-gradient(90deg,var(--a2),var(--a2b))}
 .dtags{display:flex;flex-wrap:wrap;gap:3px}
 .dtag{background:var(--bg2);border:1px solid var(--bc);color:var(--t2);padding:2px 6px;border-radius:3px;font-size:8px;transition:all .15s}
-.dtag.ally{border-color:rgba(0,212,170,.3);color:var(--a1)}.dtag.rival{border-color:rgba(239,68,68,.3);color:var(--ad)}.dtag.partner{border-color:rgba(14,165,233,.3);color:var(--a2)}.dtag.neighbor{border-color:rgba(245,158,11,.3);color:var(--aw)}
+.dtag.ally{border-color:var(--a1-30);color:var(--a1t)}.dtag.rival{border-color:var(--ad-30);color:var(--adt)}.dtag.partner{border-color:var(--a2-30);color:var(--a2)}.dtag.neighbor{border-color:var(--aw-30);color:var(--aw)}
 .api-ld{display:flex;align-items:center;gap:5px;padding:6px 0;color:var(--t3);font-size:10px}
 .api-sp{width:12px;height:12px;border:2px solid var(--bc);border-top-color:var(--a1);border-radius:50%;animation:spin .7s linear infinite}
 .alist{max-height:160px;overflow-y:auto}
 .aitem{background:var(--bg2);border:1px solid var(--bc);border-radius:4px;padding:6px 8px;margin-bottom:4px;font-size:9px;display:flex;align-items:flex-start;gap:5px}
-.aitem .atxt{flex:1;color:var(--t2);line-height:1.4}.aitem .atype{font-size:7px;color:var(--aw);background:rgba(245,158,11,.1);padding:1px 4px;border-radius:2px;white-space:nowrap}
-.adel{background:0;border:0;color:var(--t3);cursor:pointer;font-size:12px;padding:0 2px}.adel:hover{color:var(--ad)}
-.clrbtn{width:100%;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--ad);padding:6px;border-radius:4px;cursor:pointer;font-size:9px;font-family:inherit;margin-top:5px}
+.aitem .atxt{flex:1;color:var(--t2);line-height:1.4}.aitem .atype{font-size:7px;color:var(--aw);background:var(--aw-10);padding:1px 4px;border-radius:2px;white-space:nowrap}
+.adel{background:0;border:0;color:var(--t3);cursor:pointer;font-size:12px;padding:0 2px}.adel:hover{color:var(--adt)}
+.clrbtn{width:100%;background:var(--ad-08);border:1px solid var(--ad-bd);color:var(--adt);padding:6px;border-radius:4px;cursor:pointer;font-size:9px;font-family:inherit;margin-top:5px}
 
 /* ═══ MAP ═══ */
 .mapc{position:relative;overflow:hidden;background:var(--ocean);touch-action:none}
 .mapc svg{width:100%;height:100%;touch-action:none}
 .zctrl{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;gap:3px;z-index:50}
-.zb{width:36px;height:36px;background:var(--bg1);border:1px solid var(--bc);color:var(--t1);border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.zb:hover{border-color:var(--a1);color:var(--a1)}
-.coords{position:absolute;bottom:14px;left:14px;background:rgba(17,24,39,.88);border:1px solid var(--bc);padding:4px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);z-index:50}
+.zb{width:36px;height:36px;background:var(--bg1);border:1px solid var(--bcsm);color:var(--t1);border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.zb:hover{border-color:var(--a1);color:var(--a1t)}
+.coords{position:absolute;bottom:14px;left:14px;background:var(--glass-88);border:1px solid var(--bc);padding:4px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);z-index:50}
 .mmap{position:absolute;top:10px;right:10px;width:130px;height:72px;background:var(--bg1);border:1px solid var(--bc);border-radius:6px;overflow:hidden;z-index:50;opacity:.8}
 .mmap svg{width:100%;height:100%}
-.ttip{position:absolute;background:rgba(17,24,39,.95);border:1px solid var(--bc);padding:6px 10px;border-radius:6px;font-size:10px;pointer-events:none;z-index:200;backdrop-filter:blur(10px);box-shadow:0 6px 20px rgba(0,0,0,.4);display:none;max-width:180px}
+.mmap-bg{fill:var(--ocean)}.mc{fill:var(--land);stroke:var(--mm-line);stroke-width:.2}
+.ttip{position:absolute;background:var(--glass-95);border:1px solid var(--bc);padding:6px 10px;border-radius:6px;font-size:10px;pointer-events:none;z-index:200;backdrop-filter:blur(10px);box-shadow:var(--sh-tip);display:none;max-width:180px}
 .ttip .tn{font-weight:700;color:var(--t1)}.ttip .td{font-size:8px;color:var(--t3)}
-.mleg{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.88);border:1px solid var(--bc);border-radius:6px;padding:8px 10px;font-size:8px;z-index:50;display:none}
+.mleg{position:absolute;top:10px;left:10px;background:var(--glass-88);border:1px solid var(--bc);border-radius:6px;padding:8px 10px;font-size:8px;z-index:50;display:none}
 .mleg-t{font-weight:600;font-size:9px;margin-bottom:4px;color:var(--t2)}.mleg-i{display:flex;align-items:center;gap:4px;margin-bottom:2px;color:var(--t3)}.mleg-d{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .aover{position:absolute;z-index:150;display:none}
-.abox{background:var(--bg1);border:1px solid var(--a1);border-radius:6px;padding:8px;width:220px;box-shadow:0 6px 24px rgba(0,0,0,.5)}
-.abox textarea{width:100%;background:var(--bg2);border:1px solid var(--bc);color:var(--t1);border-radius:3px;padding:4px 6px;font-size:10px;font-family:inherit;resize:none;outline:0;height:50px;margin-bottom:4px}
-.abox select{width:100%;background:var(--bg2);border:1px solid var(--bc);color:var(--t1);border-radius:3px;padding:3px 4px;font-size:9px;font-family:inherit;outline:0;margin-bottom:4px}
-.aacts{display:flex;gap:4px}.aacts button{flex:1;padding:4px;border-radius:3px;border:1px solid var(--bc);font-size:9px;font-family:inherit;cursor:pointer}
-.asave{background:var(--a1)!important;color:var(--bg0)!important;border-color:var(--a1)!important;font-weight:600}.acancel{background:var(--bg2);color:var(--t2)}
+.abox{background:var(--bg1);border:1px solid var(--a1);border-radius:6px;padding:8px;width:220px;box-shadow:var(--sh-box)}
+.abox textarea{width:100%;background:var(--bg2);border:1px solid var(--bcs);color:var(--t1);border-radius:3px;padding:4px 6px;font-size:10px;font-family:inherit;resize:none;outline:0;height:50px;margin-bottom:4px}
+.abox select{width:100%;background:var(--bg2);border:1px solid var(--bcs);color:var(--t1);border-radius:3px;padding:3px 24px 3px 4px;font-size:9px;font-family:inherit;outline:0;margin-bottom:4px}
+.aacts{display:flex;gap:4px}.aacts button{flex:1;padding:4px;border-radius:3px;border:1px solid var(--bcs);font-size:9px;font-family:inherit;cursor:pointer}
+.asave{background:var(--a1)!important;color:var(--on-a1)!important;border-color:var(--a1)!important;font-weight:600}.acancel{background:var(--bg2);color:var(--t2)}
 .lov{position:absolute;inset:0;background:var(--bg0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .5s}
 .lov.hid{opacity:0;pointer-events:none}
 .lsp{width:40px;height:40px;border:3px solid var(--bc);border-top-color:var(--a1);border-radius:50%;animation:spin .9s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.country-label{fill:rgba(255,255,255,.5);font-family:'Noto Sans SC','DM Sans',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(10,14,23,.85);stroke-width:2.5px;stroke-linejoin:round}
-.country-label.major{fill:rgba(255,255,255,.8);font-weight:600}
-.geo-label{fill:rgba(100,180,230,.45);font-family:'DM Sans','Noto Sans SC',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;font-style:italic;letter-spacing:.5px}
-.country-path{fill:var(--land);stroke:rgba(255,255,255,.1);stroke-width:.4;cursor:pointer;transition:fill .12s}
+.country-label{fill:var(--lbl);font-family:'Noto Sans SC','DM Sans',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:var(--lbl-halo);stroke-width:2.5px;stroke-linejoin:round}
+.country-label.major{fill:var(--lbl-m);font-weight:600}
+/* 底板:海域名始终垫一块海洋色半透明板(#geoChip)——它常跨在海岸线与国界上;色阶 / 同盟 / 贸易着色开启时(JS 给标签加 .chip),国名与首都名也垫板(#lblChip,底色 = --bg0)。
+   文字不再叠在忽明忽暗的色阶与国界线上,对比度稳定 */
+.geo-label{filter:url(#geoChip)}
+.country-label.chip,.cap-l.chip{filter:url(#lblChip)}
+.geo-label{fill:var(--geo-lbl);font-family:'DM Sans','Noto Sans SC',sans-serif;pointer-events:none;text-anchor:middle;dominant-baseline:central;font-style:italic;letter-spacing:.5px}
+.country-path{fill:var(--land);stroke:var(--cl);stroke-width:.4;cursor:pointer;transition:fill .12s}
 .country-path:hover{fill:var(--lh)}.country-path.selected{fill:var(--la);stroke:var(--a1);stroke-width:1}
-.graticule{fill:none;stroke:rgba(255,255,255,.035);stroke-width:.4}
-.globe-outline{fill:none;stroke:rgba(255,255,255,.07);stroke-width:1.2}
+.graticule{fill:none;stroke:var(--grat);stroke-width:.4}
+.globe-outline{fill:none;stroke:var(--outline);stroke-width:1.2}
 .sphere{fill:var(--ocean)}
 
 /* ═══ STATUS ═══ */
@@ -115,7 +211,7 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* Mobile overlay for sidebar */
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:85}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:var(--scrim);z-index:85}
 
 /* ═══ MOBILE ═══ */
 @media(max-width:768px){
@@ -139,6 +235,25 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
   .vtog button{padding:3px 8px;font-size:9px}
   .sbox{display:none}
 }
+/* 窄屏:顶栏放不下主题挂件时,依次收紧(≤640 挂件收成图标、≤560 控件紧凑、≤470 隐藏搜索框(原为 ≤400)、≤360 间距与字距再收)。挂件选择器特异性是 (0,3,0),这里叠 5 层类名压过,不用 !important;按钮名称仍在 aria-label / title 里 */
+@media(max-width:640px){
+  .topbar .theme-slot .lt-theme-root.lt-theme-root .lt-theme-label{display:none}
+}
+@media(max-width:560px){
+  .cb{padding:3px 6px}
+  .vtog button{padding:3px 8px}
+  .sbox input{width:80px}
+  .sbox input:focus{width:100px}
+}
+@media(max-width:470px){
+  .sbox{display:none}
+}
+@media(max-width:360px){
+  .topbar{gap:4px;padding:0 6px}
+  .menu-btn{padding:4px 5px}
+  .vtog button{padding:3px 6px}
+  .spacer{min-width:0}
+}
 </style>
 </head>
 <body>
@@ -152,6 +267,7 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
   <label class="ltog"><input type="checkbox" id="labelTog" checked onchange="toggleLabels()"/><span data-i18n="labels">地名</span></label>
   <button class="cb" onclick="toggleLang()">🌐 <span id="langLbl">EN</span></button>
   <button class="cb" id="annotateBtn" onclick="toggleTool('annotate')">📌 <span data-i18n="annotate">标注</span></button>
+  <div class="theme-slot" id="themeSlot"></div>
 </div>
 <div class="sidebar-overlay" id="sidebarOv" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
@@ -197,8 +313,13 @@ body{font-family:'Noto Sans SC','DM Sans',sans-serif;background:var(--bg0);color
 /* ═══════ STATE ═══════ */
 const S={lang:'zh',view:'3d',sel:null,tool:null,ana:null,annos:[],
   layers:{countries:1,graticule:0,capitals:0,disputes:0},
-  showLbl:1,rot:[0,-20,0],scale:1,wd:null,ct:null,apiC:{}};
+  showLbl:1,rot:[0,-20,0],scale:1,wd:null,ct:null,apiC:{},paint:null};
 const isMobile=()=>window.innerWidth<=768;
+
+/* ═══════ THEME ═══════
+   JS 绘制的颜色(色阶着色、首都 / 争议区 / 标注标记、标签色调)一律运行时读 <html> 上的 CSS 变量,
+   主题或风格切换(lifetools:themechange)后重绘,换色立即生效、无需刷新。 */
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 /* ═══════ I18N ═══════ */
 const I={
@@ -261,14 +382,14 @@ function initMap(){
   svg=d3.select('#mapSvg').attr('width',W).attr('height',H);
   proj=d3.geoOrthographic().scale(Math.min(W,H)/2.3).translate([W/2,H/2]).rotate(S.rot).clipAngle(90);
   path=d3.geoPath().projection(proj);
-  svg.append('defs').html('<radialGradient id="oG" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:#0f1d33"/><stop offset="100%" style="stop-color:#0a0e17"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>');
+  svg.append('defs').html('<radialGradient id="oG" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:var(--sph-a)"/><stop offset="100%" style="stop-color:var(--sph-b)"/></radialGradient><filter id="lblChip" x="-14%" y="-32%" width="128%" height="164%"><feFlood style="flood-color:var(--bg0);flood-opacity:.9"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="geoChip" x="-14%" y="-32%" width="128%" height="164%"><feFlood style="flood-color:var(--ocean);flood-opacity:.9"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>');
   g=svg.append('g');
   g.append('path').datum({type:'Sphere'}).attr('class','sphere').attr('d',path).style('fill','url(#oG)');
   g.append('path').datum(d3.geoGraticule()()).attr('class','graticule').attr('d',path).style('display','none');
   g.append('path').datum({type:'Sphere'}).attr('class','globe-outline').attr('d',path);
   lblG=svg.append('g');
   mmSvg=d3.select('#mmSvg');mmP=d3.geoNaturalEarth1().scale(22).translate([65,38]);mmPh=d3.geoPath().projection(mmP);
-  mmSvg.append('rect').attr('width',130).attr('height',72).attr('fill','#0c1422');
+  mmSvg.append('rect').attr('class','mmap-bg').attr('width',130).attr('height',72);
   loadWorld();setupZoom();setupSearch();
 }
 
@@ -279,7 +400,7 @@ async function loadWorld(){
     renderC();renderLbl();renderMM();
     document.getElementById('lov').classList.add('hid');
     updCC();
-  }catch(e){document.getElementById('lov').innerHTML='<div style="color:var(--ad)">加载失败</div>';}
+  }catch(e){document.getElementById('lov').innerHTML='<div style="color:var(--adt)">加载失败</div>';}
 }
 
 function renderC(){
@@ -332,6 +453,8 @@ const GEO_LABELS=[
 function renderLbl(){
   lblG.selectAll('*').remove();
   if(!S.showLbl||!S.ct)return;
+  /* 色阶 / 同盟 / 贸易着色开启时,标签底下垫一块半透明底板(滤镜 #lblChip),文字不再叠在忽明忽暗的色阶与国界线上 */
+  const chip=S.ana?' chip':'';
   /* Country name labels */
   S.ct.features.forEach(f=>{
     const id=f.id,nm=S.lang==='zh'?(ZH[id]||''):(EN[id]||'');if(!nm)return;
@@ -342,7 +465,7 @@ function renderLbl(){
     if(S.view==='2d'&&!mj&&S.scale<1.2)return;
     let fs=mj?10:7;
     if(S.view==='2d')fs=Math.min((mj?10:7)/Math.max(S.scale*.65,.35),16);
-    lblG.append('text').attr('class','country-label'+(mj?' major':'')).attr('x',pos[0]).attr('y',pos[1])
+    lblG.append('text').attr('class','country-label'+(mj?' major':'')+chip).attr('x',pos[0]).attr('y',pos[1])
       .attr('data-lng',ct[0]).attr('data-lat',ct[1]).style('font-size',fs+'px').text(nm);
   });
   /* Geographic water body labels */
@@ -360,7 +483,7 @@ function renderLbl(){
   }
 }
 
-function renderMM(){if(!S.ct)return;mmSvg.selectAll('.mc').remove();mmSvg.selectAll('.mc').data(S.ct.features).enter().append('path').attr('class','mc').attr('d',mmPh).attr('fill','#1a2744').attr('stroke','rgba(255,255,255,.06)').attr('stroke-width',.2);}
+function renderMM(){if(!S.ct)return;mmSvg.selectAll('.mc').remove();mmSvg.selectAll('.mc').data(S.ct.features).enter().append('path').attr('class','mc').attr('d',mmPh);}
 
 /* ═══════ ZOOM + ROTATION (THE FIX) ═══════ */
 function setupZoom(){
@@ -515,19 +638,22 @@ function toggleTool(t){if(S.tool===t){S.tool=null;document.getElementById(t+'Btn
 function toggleLayer(l){S.layers[l]=!S.layers[l];const b=document.getElementById('layer'+l[0].toUpperCase()+l.slice(1));if(b)b.classList.toggle('active',S.layers[l]);if(l==='graticule')g.select('.graticule').style('display',S.layers.graticule?'block':'none');if(l==='capitals'){S.layers.capitals?renderCaps():g.selectAll('.cap-d,.cap-l').remove();}if(l==='disputes'){S.layers.disputes?showDisp():(g.selectAll('.disp-c').remove(),document.getElementById('mLeg').style.display='none');}}
 
 const CAPS=[{z:'北京',e:'Beijing',a:39.9,o:116.4},{z:'华盛顿',e:'Washington',a:38.9,o:-77},{z:'莫斯科',e:'Moscow',a:55.75,o:37.6},{z:'伦敦',e:'London',a:51.5,o:-.12},{z:'东京',e:'Tokyo',a:35.7,o:139.7},{z:'新德里',e:'New Delhi',a:28.6,o:77.2},{z:'巴黎',e:'Paris',a:48.85,o:2.35},{z:'柏林',e:'Berlin',a:52.52,o:13.4},{z:'堪培拉',e:'Canberra',a:-35.3,o:149.1},{z:'巴西利亚',e:'Brasília',a:-15.8,o:-47.9},{z:'利雅得',e:'Riyadh',a:24.7,o:46.7},{z:'首尔',e:'Seoul',a:37.57,o:127},{z:'渥太华',e:'Ottawa',a:45.4,o:-75.7},{z:'墨西哥城',e:'Mexico City',a:19.4,o:-99.1},{z:'雅加达',e:'Jakarta',a:-6.2,o:106.85},{z:'开罗',e:'Cairo',a:30.05,o:31.25},{z:'安卡拉',e:'Ankara',a:39.93,o:32.85},{z:'新加坡',e:'Singapore',a:1.35,o:103.8},{z:'河内',e:'Hanoi',a:21.03,o:105.85},{z:'曼谷',e:'Bangkok',a:13.75,o:100.5},{z:'马德里',e:'Madrid',a:40.42,o:-3.7},{z:'罗马',e:'Rome',a:41.9,o:12.5},{z:'基辅',e:'Kyiv',a:50.45,o:30.5},{z:'华沙',e:'Warsaw',a:52.23,o:21},{z:'德黑兰',e:'Tehran',a:35.7,o:51.4},{z:'内罗毕',e:'Nairobi',a:-1.3,o:36.8},{z:'布宜诺斯',e:'B. Aires',a:-34.6,o:-58.4}];
-function renderCaps(){g.selectAll('.cap-d,.cap-l').remove();CAPS.forEach(c=>{const co=[c.o,c.a],p=proj(co);if(!p)return;if(S.view==='3d'&&d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;g.append('circle').attr('class','cap-d').attr('cx',p[0]).attr('cy',p[1]).attr('r',2).attr('fill','#f59e0b').attr('stroke','#000').attr('stroke-width',.4).attr('data-lat',c.a).attr('data-lng',c.o);g.append('text').attr('class','cap-l').attr('x',p[0]+4).attr('y',p[1]+3).attr('fill','#fbbf24').attr('font-size','7px').attr('font-family',"'Noto Sans SC',sans-serif").attr('data-lat',c.a).attr('data-lng',c.o).text(S.lang==='zh'?c.z:c.e);});}
-function showDisp(){g.selectAll('.disp-c').remove();[{a:34.5,o:76.5,r:10},{a:12,o:114,r:13},{a:33.1,o:35.8,r:4},{a:45,o:34,r:7},{a:24.5,o:-13,r:9},{a:24,o:119.5,r:6}].forEach(d=>{const p=proj([d.o,d.a]);if(!p)return;g.append('circle').attr('class','disp-c').attr('cx',p[0]).attr('cy',p[1]).attr('r',d.r).attr('fill','rgba(239,68,68,.1)').attr('stroke','rgba(239,68,68,.45)').attr('stroke-width',.8).attr('stroke-dasharray','3,2').attr('data-lat',d.a).attr('data-lng',d.o);});document.getElementById('mLeg').style.display='block';document.getElementById('legC').innerHTML=`<div class="mleg-i"><div class="mleg-d" style="background:var(--ad);opacity:.5"></div>${S.lang==='zh'?'争议区域':'Disputed'}</div>`;}
+function renderCaps(){g.selectAll('.cap-d,.cap-l').remove();const cDot=cv('--cap-dot'),cRing=cv('--cap-ring'),cTxt=cv('--cap-txt');CAPS.forEach(c=>{const co=[c.o,c.a],p=proj(co);if(!p)return;if(S.view==='3d'&&d3.geoDistance(co,[-proj.rotate()[0],-proj.rotate()[1]])>Math.PI/2)return;g.append('circle').attr('class','cap-d').attr('cx',p[0]).attr('cy',p[1]).attr('r',2).attr('fill',cDot).attr('stroke',cRing).attr('stroke-width',.4).attr('data-lat',c.a).attr('data-lng',c.o);g.append('text').attr('class','cap-l'+(S.ana?' chip':'')).attr('x',p[0]+4).attr('y',p[1]+3).attr('fill',cTxt).attr('font-size','7px').attr('font-family',"'Noto Sans SC',sans-serif").attr('data-lat',c.a).attr('data-lng',c.o).text(S.lang==='zh'?c.z:c.e);});}
+function showDisp(){g.selectAll('.disp-c').remove();const dFill=cv('--disp-fill'),dLine=cv('--disp-line');[{a:34.5,o:76.5,r:10},{a:12,o:114,r:13},{a:33.1,o:35.8,r:4},{a:45,o:34,r:7},{a:24.5,o:-13,r:9},{a:24,o:119.5,r:6}].forEach(d=>{const p=proj([d.o,d.a]);if(!p)return;g.append('circle').attr('class','disp-c').attr('cx',p[0]).attr('cy',p[1]).attr('r',d.r).attr('fill',dFill).attr('stroke',dLine).attr('stroke-width',.8).attr('stroke-dasharray','3,2').attr('data-lat',d.a).attr('data-lng',d.o);});document.getElementById('mLeg').style.display='block';document.getElementById('legC').innerHTML=`<div class="mleg-i"><div class="mleg-d" style="background:var(--ad);opacity:.5"></div>${S.lang==='zh'?'争议区域':'Disputed'}</div>`;}
 
 /* ═══════ ANALYSIS ═══════ */
-function toggleAnalysis(t){if(S.ana===t){S.ana=null;g.selectAll('.country-path').style('fill',null);document.getElementById('mLeg').style.display='none';return;}S.ana=t;({gdp:showGDP,alliance:showAlliance,trade:showTrade,military:showMil})[t]();}
+function toggleAnalysis(t){if(S.ana===t){S.ana=null;S.paint=null;g.selectAll('.country-path').style('fill',null);document.getElementById('mLeg').style.display='none';g.selectAll('.cap-l').classed('chip',false);renderLbl();return;}S.ana=t;({gdp:showGDP,alliance:showAlliance,trade:showTrade,military:showMil})[t]();}
+/* 着色:colorOf(国家id)->颜色(运行时读 CSS 变量);S.paint 留作主题切换后重绘;着色期间标签与首都名垫底板(.chip) */
+function paintMap(colorOf){S.paint=()=>{g.selectAll('.country-path').each(function(){d3.select(this).style('fill',colorOf(this.getAttribute('data-id')));});g.selectAll('.cap-l').classed('chip',true);renderLbl();};S.paint();}
+const ramp=(p,lv)=>cv(lv?'--'+p+lv:'--land');
 const GT={'840':5,'156':5,'392':4,'276':4,'826':4,'356':4,'250':4,'380':3,'124':3,'076':3,'410':3,'036':3,'643':3,'484':2,'360':2,'682':2,'792':2,'528':2,'756':2,'752':2,'616':2,'566':2,'764':2,'784':2,'056':2,'724':2};
-const GC=['#1a2744','#1a3a4a','#1a5050','#0d7a5f','#00d4aa','#00ffcc'];
-function showGDP(){g.selectAll('.country-path').each(function(){d3.select(this).style('fill',GC[GT[d3.select(this).attr('data-id')]||0]);});sL('GDP',[{c:GC[5],l:'>$15T'},{c:GC[4],l:'$3-15T'},{c:GC[3],l:'$1-3T'},{c:GC[2],l:'$0.5-1T'}]);}
+/* 色阶 0 = 陆地默认色(--land),1~5 = --gdp1~5 / --mil1~5,各风格 x 明暗在 <style> 里逐套给值 */
+function showGDP(){paintMap(id=>ramp('gdp',GT[id]||0));sL('GDP',[{c:'var(--gdp5)',l:'>$15T'},{c:'var(--gdp4)',l:'$3-15T'},{c:'var(--gdp3)',l:'$1-3T'},{c:'var(--gdp2)',l:'$0.5-1T'}]);}
 const MT={'840':5,'643':4,'156':4,'356':3,'826':3,'250':3,'392':3,'410':2,'792':2,'276':2,'036':2,'076':2,'380':2,'818':2,'682':2,'586':2,'364':2};
-const MC=['#1a2744','#2a1a44','#3a1a55','#5a1a77','#8b5cf6','#a78bfa'];
-function showMil(){g.selectAll('.country-path').each(function(){d3.select(this).style('fill',MC[MT[d3.select(this).attr('data-id')]||0]);});sL(S.lang==='zh'?'军事实力':'Military',[{c:MC[5],l:S.lang==='zh'?'超级大国':'Super'},{c:MC[4],l:S.lang==='zh'?'强国':'Major'},{c:MC[3],l:S.lang==='zh'?'区域':'Regional'},{c:MC[2],l:S.lang==='zh'?'中等':'Medium'}]);}
-function showAlliance(){const n=new Set(['840','124','826','250','276','380','616','792','578','208','056','528','724','620','300','348','203','233','428','440','191','100','642','703','705']),b=new Set(['076','643','356','156','710','818','364','784','231']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',n.has(id)?'rgba(14,165,233,.4)':b.has(id)?'rgba(239,68,68,.4)':'#1a2744');});sL(S.lang==='zh'?'同盟':'Alliances',[{c:'rgba(14,165,233,.6)',l:'NATO'},{c:'rgba(239,68,68,.6)',l:'BRICS+'}]);}
-function showTrade(){const hi=new Set(['156','840','276','392','826','250','528','410','380','124','484','356']),md=new Set(['076','036','682','702','764','792','360','458','616','752','056','784','704','566','608']);g.selectAll('.country-path').each(function(){const e=d3.select(this),id=e.attr('data-id');e.style('fill',hi.has(id)?'rgba(0,212,170,.5)':md.has(id)?'rgba(0,212,170,.25)':'#1a2744');});sL(S.lang==='zh'?'贸易':'Trade',[{c:'rgba(0,212,170,.5)',l:S.lang==='zh'?'主要':'Major'},{c:'rgba(0,212,170,.25)',l:S.lang==='zh'?'重要':'Signif.'}]);}
+
+function showMil(){paintMap(id=>ramp('mil',MT[id]||0));sL(S.lang==='zh'?'军事实力':'Military',[{c:'var(--mil5)',l:S.lang==='zh'?'超级大国':'Super'},{c:'var(--mil4)',l:S.lang==='zh'?'强国':'Major'},{c:'var(--mil3)',l:S.lang==='zh'?'区域':'Regional'},{c:'var(--mil2)',l:S.lang==='zh'?'中等':'Medium'}]);}
+function showAlliance(){const n=new Set(['840','124','826','250','276','380','616','792','578','208','056','528','724','620','300','348','203','233','428','440','191','100','642','703','705']),b=new Set(['076','643','356','156','710','818','364','784','231']);paintMap(id=>n.has(id)?cv('--nato'):b.has(id)?cv('--brics'):cv('--land'));sL(S.lang==='zh'?'同盟':'Alliances',[{c:'var(--nato-lg)',l:'NATO'},{c:'var(--brics-lg)',l:'BRICS+'}]);}
+function showTrade(){const hi=new Set(['156','840','276','392','826','250','528','410','380','124','484','356']),md=new Set(['076','036','682','702','764','792','360','458','616','752','056','784','704','566','608']);paintMap(id=>hi.has(id)?cv('--trade-hi'):md.has(id)?cv('--trade-md'):cv('--land'));sL(S.lang==='zh'?'贸易':'Trade',[{c:'var(--trade-hi)',l:S.lang==='zh'?'主要':'Major'},{c:'var(--trade-md)',l:S.lang==='zh'?'重要':'Signif.'}]);}
 function sL(t,items){document.getElementById('mLeg').style.display='block';document.querySelector('.mleg-t').textContent=t;document.getElementById('legC').innerHTML=items.map(i=>`<div class="mleg-i"><div class="mleg-d" style="background:${i.c}"></div>${i.l}</div>`).join('');}
 
 /* ═══════ ANNOTATIONS ═══════ */
@@ -535,7 +661,7 @@ let pA=null;
 function showAI(ev){const[x,y]=d3.pointer(ev);let co;if(S.view==='2d'){const t=d3.zoomTransform(svg.node());co=proj.invert([(x-t.x)/t.k,(y-t.y)/t.k]);}else co=proj.invert([x,y]);if(!co)return;pA={lat:co[1],lng:co[0]};const ov=document.getElementById('aOv');ov.style.display='block';ov.style.left=Math.min(ev.offsetX+8,W-230)+'px';ov.style.top=Math.min(ev.offsetY-8,H-150)+'px';document.getElementById('aTxt').value='';document.getElementById('aTxt').focus();}
 function cancelA(){document.getElementById('aOv').style.display='none';pA=null;}
 function saveA(){const t=document.getElementById('aTxt').value.trim(),tp=document.getElementById('aTp').value;if(!t||!pA)return;S.annos.push({id:Date.now(),lat:pA.lat,lng:pA.lng,text:t,type:tp,time:new Date().toLocaleString()});sAS();renderAM();updAUI();cancelA();}
-function renderAM(){g.selectAll('.anno-marker').remove();const cs={strategic:'#ef4444',economic:'#f59e0b',risk:'#f97316',note:'#00d4aa'};S.annos.forEach(a=>{const p=proj([a.lng,a.lat]);if(!p)return;g.append('circle').attr('class','anno-marker').attr('cx',p[0]).attr('cy',p[1]).attr('r',5).attr('fill',cs[a.type]||'#00d4aa').attr('stroke','#fff').attr('stroke-width',1.5).attr('data-lat',a.lat).attr('data-lng',a.lng).style('cursor','pointer').on('mouseover',function(ev){const tt=document.getElementById('ttip');tt.innerHTML=`<div class="tn">${a.text}</div><div class="td">${a.time}</div>`;tt.style.display='block';tt.style.left=(ev.offsetX+12)+'px';tt.style.top=(ev.offsetY-8)+'px';}).on('mouseout',hideTip);});}
+function renderAM(){g.selectAll('.anno-marker').remove();const cs={strategic:cv('--an-strat'),economic:cv('--an-eco'),risk:cv('--an-risk'),note:cv('--an-note')},ring=cv('--an-ring');S.annos.forEach(a=>{const p=proj([a.lng,a.lat]);if(!p)return;g.append('circle').attr('class','anno-marker').attr('cx',p[0]).attr('cy',p[1]).attr('r',5).attr('fill',cs[a.type]||cs.note).attr('stroke',ring).attr('stroke-width',1.5).attr('data-lat',a.lat).attr('data-lng',a.lng).style('cursor','pointer').on('mouseover',function(ev){const tt=document.getElementById('ttip');tt.innerHTML=`<div class="tn">${a.text}</div><div class="td">${a.time}</div>`;tt.style.display='block';tt.style.left=(ev.offsetX+12)+'px';tt.style.top=(ev.offsetY-8)+'px';}).on('mouseout',hideTip);});}
 function updAUI(){const li=document.getElementById('aList'),btn=document.getElementById('clrBtn'),ic={strategic:'🎯',economic:'💰',risk:'⚠️',note:'📝'};if(!S.annos.length){li.innerHTML=`<div style="text-align:center;color:var(--t3);font-size:9px;padding:12px 0">${I[S.lang].noAnnotations}</div>`;btn.style.display='none';}else{btn.style.display='block';li.innerHTML=S.annos.map(a=>`<div class="aitem"><div class="atxt">${a.text}</div><div class="atype">${ic[a.type]||'📝'}</div><button class="adel" onclick="delA(${a.id})">×</button></div>`).join('');}document.getElementById('stA').textContent=S.annos.length;}
 function delA(id){S.annos=S.annos.filter(a=>a.id!==id);sAS();renderAM();updAUI();}
 function clearAnnos(){if(!confirm(S.lang==='zh'?'确定清除所有标注？':'Clear all?'))return;S.annos=[];sAS();renderAM();updAUI();}
@@ -594,7 +720,7 @@ function setupSearch(){
   inp.addEventListener('focus',function(){if(this.value.trim())this.dispatchEvent(new Event('input'));});
 
   function hlItem(items){
-    items.forEach((el,i)=>{el.style.background=i===selIdx?'var(--bg2)':'';el.style.color=i===selIdx?'var(--a1)':'';});
+    items.forEach((el,i)=>{el.style.background=i===selIdx?'var(--bg2)':'';el.style.color=i===selIdx?'var(--a1t)':'';});
   }
   function pickSearch(cid){
     const el=g.select(`[data-id="${cid}"]`);
@@ -608,8 +734,23 @@ function setupSearch(){
 /* ═══════ RESIZE ═══════ */
 window.addEventListener('resize',()=>{const c=document.getElementById('mapC');W=c.clientWidth;H=c.clientHeight;svg.attr('width',W).attr('height',H);proj.translate([W/2,H/2]);if(S.view==='3d')proj.scale(Math.min(W,H)/2.3*S.scale);else proj.scale(Math.min(W,H)/3.5);path=d3.geoPath().projection(proj);if(S.ct){renderC();renderLbl();}});
 
+/* ═══════ THEME REDRAW ═══════ */
+/* 主题 / 风格切换:外围界面与地图底色靠 CSS 变量自动换色;这里重绘由脚本取色的内容(色阶着色、标签色调、首都 / 争议区 / 标注标记) */
+function repaintTheme(){
+  if(!g||!S.ct)return; /* 地图尚未就绪:首次绘制时自然读到新值 */
+  if(S.ana&&S.paint)S.paint();else renderLbl();
+  if(S.layers.capitals)renderCaps();
+  if(S.layers.disputes){const f=cv('--disp-fill'),l=cv('--disp-line');g.selectAll('.disp-c').attr('fill',f).attr('stroke',l);}
+  renderAM();
+}
+if(window.LifeToolsTheme&&typeof LifeToolsTheme.onChange==='function')LifeToolsTheme.onChange(repaintTheme);
+
 /* ═══════ BOOT ═══════ */
-window.addEventListener('DOMContentLoaded',()=>{initMap();lAS();});
+window.addEventListener('DOMContentLoaded',()=>{
+  /* 主题挂件先于地图初始化:D3 / 地图数据来自 CDN,离线时 initMap 会抛错,挂件仍应可用 */
+  if(window.LifeToolsTheme&&typeof LifeToolsTheme.mountThemeControl==='function')LifeToolsTheme.mountThemeControl('geopolitical',{container:document.getElementById('themeSlot')});
+  initMap();lAS();
+});
 </script>
 </body>
 </html>

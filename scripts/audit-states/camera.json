@@ -1,0 +1,146 @@
+{
+  "_comment": "影像工坊:默认视图是 焦段实验室(取景器) + 搜索 / 模式标签 + 全部卡片(原理面板收起)。展开的原理面板、搜索命中高亮、搜索无结果、模式筛选、底部模式面板(sheet)+遮罩、网格 / 水平仪叠层、已勾选的设置清单、复制口诀的『已复制』提示与按钮态、长焦 / 超广角下的取景器取景框,都要交互后才出现,逐个声明让审计覆盖。提示条(toast)自带 2 秒定时器,审计回放来不及,所以用 eval 直接给出常驻的显示态。 内容类状态(展开 / 搜索 / 筛选 / 勾选 / 镜头)回放末尾做两件事:(1)把固定底栏 .fab 设为 visibility:hidden:审计一路滚动取样,总会有正文一半压在底栏半透明玻璃与它的图标描边下面,取样点落在底栏像素上就被当成正文背景;底栏本体在默认状态(及模式面板、网格叠层状态)里单独审过。(2)把吸顶的 .dock(搜索 + 模式标签)改成 position:static(仍可见、仍被审计,只是不再吸顶):390 宽下吸顶栏有 105px 高,正文滚到它下面时,一行文字的上半截压在栏内标签胶囊的描边 / 底色上,取样点落在胶囊像素上就被当成正文背景(滚动取样的采样位置随回放时序漂移,时有时无);吸顶态下的标签文字本身在默认状态里照常审。 浮层类状态(底部模式面板+遮罩、网格 / 水平仪叠层、提示条)里,页面正文被浮层盖住或被浮层线条横穿(水平仪的黄线 / 九宫格线 / 提示条正压在正文上),审计会拿浮层的像素当正文背景造成误判,正文在默认状态与各筛选 / 搜索 / 展开状态里已逐套审过;所以这几个状态回放末尾把 header.hero / .dock / main 设为 visibility:hidden,只审计浮层本体(模式面板、遮罩、提示条、水平仪读数与提示芯片、已按下的网格按钮、已复制的口诀按钮)。",
+  "states": [
+    {
+      "name": "展开全部原理",
+      "steps": [
+        { "click": "#toggleAll" },
+        { "wait": 800 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "搜索-命中高亮",
+      "steps": [
+        { "scrollTo": "#q" },
+        { "type": { "selector": "#q", "text": "夜景" } },
+        { "wait": 600 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "搜索-命中高亮+展开原理",
+      "steps": [
+        { "type": { "selector": "#q", "text": "逆光" } },
+        { "wait": 400 },
+        { "click": "#toggleAll" },
+        { "wait": 800 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "搜索-无结果",
+      "steps": [
+        { "type": { "selector": "#q", "text": "zzzz-no-such-card" } },
+        { "wait": 600 },
+        { "scrollTo": "#empty" },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "筛选-拍照实战",
+      "steps": [
+        { "click": "#tabs [data-filter=\"photo\"]" },
+        { "wait": 900 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "筛选-系统设置+勾选清单",
+      "steps": [
+        { "click": "#tabs [data-filter=\"set\"]" },
+        { "wait": 900 },
+        { "click": ".checks li:nth-child(1) label" },
+        { "click": ".checks li:nth-child(2) label" },
+        { "click": ".checks li:nth-child(4) label" },
+        { "wait": 300 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "筛选-姿态引导+展开原理",
+      "steps": [
+        { "click": "#tabs [data-filter=\"pose\"]" },
+        { "wait": 600 },
+        { "click": "#toggleAll" },
+        { "wait": 800 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "底部模式面板",
+      "steps": [
+        { "click": "#fabMode" },
+        { "wait": 700 },
+        { "eval": "document.querySelectorAll('header.hero,.dock,main,.theme-slot,.theme-slot *').forEach(e=>{e.style.visibility='hidden'});document.querySelector('.fab').style.visibility='hidden'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "网格叠层-无陀螺仪",
+      "steps": [
+        { "click": "#fabGrid" },
+        { "wait": 1700 },
+        { "eval": "document.querySelectorAll('header.hero,.dock,main,.theme-slot,.theme-slot *').forEach(e=>{e.style.visibility='hidden'})" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "网格叠层-水平仪倾斜与水平",
+      "steps": [
+        { "click": "#fabGrid" },
+        { "wait": 1700 },
+        { "eval": "(()=>{const l=document.getElementById('level');l.classList.remove('flat');l.classList.add('ok');document.getElementById('levelDeg').textContent='水平';document.getElementById('ovText').textContent='倾斜手机，中线对齐变黄即水平';})()" },
+        { "wait": 300 },
+        { "eval": "document.querySelectorAll('header.hero,.dock,main,.theme-slot,.theme-slot *').forEach(e=>{e.style.visibility='hidden'})" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "网格叠层-水平仪偏角",
+      "steps": [
+        { "click": "#fabGrid" },
+        { "wait": 1700 },
+        { "eval": "(()=>{const l=document.getElementById('level');l.classList.remove('flat','ok');document.getElementById('levelC').style.transform='rotate(-3.4deg)';document.getElementById('levelDeg').textContent='3.4°';})()" },
+        { "wait": 300 },
+        { "eval": "document.querySelectorAll('header.hero,.dock,main,.theme-slot,.theme-slot *').forEach(e=>{e.style.visibility='hidden'})" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "镜头-超广角",
+      "steps": [
+        { "click": "#pills .pill:nth-child(1)" },
+        { "wait": 1800 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "镜头-长焦8倍+对焦框",
+      "steps": [
+        { "click": "#pills .pill:nth-child(5)" },
+        { "wait": 1800 },
+        { "eval": "document.getElementById('af').classList.add('show')" },
+        { "wait": 200 },
+        { "eval": "document.querySelector('.fab').style.visibility='hidden';document.querySelector('.dock').style.position='static'" },
+        { "wait": 200 }
+      ]
+    },
+    {
+      "name": "提示条与已复制按钮",
+      "steps": [
+        { "scrollTo": ".copy-btn" },
+        { "eval": "(()=>{const t=document.getElementById('toast');t.textContent='已复制「人像虚化」口诀';t.classList.add('show');const b=document.querySelector('.copy-btn');b.classList.add('done');const m=b.closest('.mantra');document.querySelectorAll('header.hero,.dock,main,.theme-slot,.theme-slot *').forEach(e=>{e.style.visibility='hidden'});m.style.visibility='visible';})()" },
+        { "wait": 500 }
+      ]
+    }
+  ]
+}
