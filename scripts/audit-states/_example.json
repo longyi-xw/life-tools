@@ -1,0 +1,27 @@
+{
+  "_comment": "示例(不会被自动加载,文件名不是任何 pageId)。复制为 <pageId>.json 后生效。步骤类型: click / eval / wait / scrollTo / type;每个状态重载页面后回放,彼此独立。",
+  "states": [
+    {
+      "name": "筛选-价值投资",
+      "steps": [
+        { "click": ".filter-btn:nth-child(3)" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "搜索无结果",
+      "steps": [
+        { "scrollTo": ".search-input" },
+        { "type": { "selector": ".search-input", "text": "zzzz-no-such-tool" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "滚到底部(eval)",
+      "steps": [
+        { "eval": "window.scrollTo(0, document.body.scrollHeight)" },
+        { "wait": 200 }
+      ]
+    }
+  ]
+}
