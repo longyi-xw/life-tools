@@ -1,0 +1,46 @@
+{
+  "_comment": "提肛训练计时器:默认视图是待机(0/10、缩紧红色阶段、开始钮可用、暂停/重置禁用)。计时中(缩紧/放松两个阶段)、暂停、训练完成各有不同的配色,都要交互后才出现,逐个声明让审计覆盖。每个状态先关提示音与震动提示,避免离线时 beep 的 play() 抛未捕获异常、以及无用户手势时 navigator.vibrate 被 Chrome 拦截的 [intervention] 污染控制台统计(业务代码不变)。",
+  "states": [
+    {
+      "name": "计时中-缩紧(红色阶段)",
+      "steps": [
+        { "eval": "soundToggle.checked = false; vibrationToggle.checked = false" },
+        { "click": "#start-btn" },
+        { "wait": 500 }
+      ]
+    },
+    {
+      "name": "计时中-放松(绿色阶段)",
+      "steps": [
+        { "eval": "soundToggle.checked = false; vibrationToggle.checked = false; tightenSlider.value = 1; tightenSlider.dispatchEvent(new Event('input'))" },
+        { "click": "#start-btn" },
+        { "wait": 1600 }
+      ]
+    },
+    {
+      "name": "已暂停(继续训练)",
+      "steps": [
+        { "eval": "soundToggle.checked = false; vibrationToggle.checked = false" },
+        { "click": "#start-btn" },
+        { "wait": 400 },
+        { "click": "#pause-btn" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "训练完成(金色完成态)",
+      "steps": [
+        { "eval": "soundToggle.checked = false; vibrationToggle.checked = false; tightenSlider.value = 1; tightenSlider.dispatchEvent(new Event('input')); relaxSlider.value = 1; relaxSlider.dispatchEvent(new Event('input')); for (var i = 0; i < 9; i++) decreaseGroupsBtn.click(); var _st = window.setTimeout; window.setTimeout = function (f, ms) { return ms === 3000 ? 0 : _st.apply(window, arguments); };" },
+        { "click": "#start-btn" },
+        { "wait": 3000 }
+      ]
+    },
+    {
+      "name": "组数调整-最大值与统计非零",
+      "steps": [
+        { "eval": "for (var i = 0; i < 40; i++) increaseGroupsBtn.click(); todaySessionsEl.textContent = '12'; totalGroupsEl.textContent = '345'; currentStreakEl.textContent = '7'; totalSessionsEl.textContent = '28';" },
+        { "wait": 300 }
+      ]
+    }
+  ]
+}

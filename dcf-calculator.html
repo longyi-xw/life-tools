@@ -3,11 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 主题接入:必须同步加载并在任何 <style> 之前初始化;theme-manager.js / theme-tokens.css 缺失时保持 :root 的深色(classic)回退 -->
+<meta name="color-scheme" content="light dark">
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC("dcf");</script>
+<link rel="stylesheet" href="theme-tokens.css">
 <title>三维估值 · DCF+PE+PB</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f172a'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E📊%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* 主题变量(明暗 data-theme × 风格 data-style,由 theme-manager.js 写在 <html> 上)
+   · :root = classic 深色(页面原生配色),同时是无 JS / theme-manager.js 缺失时的回退
+   · html[data-theme="light"] = classic 浅色(米白金)
+   · LT-THEME-MAP 块 = tech / fresh / paper,别名到 theme-tokens.css 的共享令牌(--lt-*)
+   · 所有半透明叠层 / 描边 / 光晕都由基础色 color-mix 派生,换主题时自动跟随 */
 :root {
   --bg: #080b0e;
   --s1: #0f1318;
@@ -15,43 +25,109 @@
   --s3: #1c242e;
   --bd: #1e2730;
   --bd2: #263040;
+  --bd-ctl: #66728a; /* 输入框边界:对 s2 / bg ≥ 3:1(旧版输入框直接用 --bd,仅约 1.15:1) */
   --gold: #c8a84b;
   --gold-l: #e5c96e;
-  --gold-d: rgba(200,168,75,0.14);
-  --gold-d2: rgba(200,168,75,0.07);
   --txt: #ddd8ce;
-  --txt2: #7e8a9a;
-  --txt3: #3e4d5e;
+  --txt2: #98a4b4; /* 旧 #7e8a9a:叠在 --s3 上仅 4.47:1;新值 ≥ 5.9:1 */
+  --txt3: #818d9e; /* 旧 #3e4d5e:各处小字标签仅约 2.2:1;新值 ≥ 4.6:1(仍比 --txt2 弱一档) */
   --green: #48b87a;
-  --green-d: rgba(72,184,122,0.14);
-  --red: #d95c5c;
-  --red-d: rgba(217,92,92,0.14);
+  --red: #e36b6b; /* 旧 #d95c5c:作为文字叠在自身 14% 淡底上仅 3.98:1;新值 ≥ 4.5:1 */
   --blue: #5a9ed6;
-  --blue-d: rgba(90,158,214,0.14);
-  --purple: #9b7fd4;
-  --purple-d: rgba(155,127,212,0.14);
-  --r: 12px; --rs: 8px; --rx: 16px;
+  --purple: #a285d9; /* 旧 #9b7fd4:叠在自身淡底上 4.34:1;新值 ≥ 4.6:1 */
+  --green-t: #88d4a8; /* 提示条里的正文色 */
+  --red-t: #e89090;
+  --btn-a: #b8942e; --btn-b: #e5c96e; --btn-ink: #080b0e; /* 主按钮渐变与文字 */
+  --focus: #c8a84b;
+  --font-heading: 'Noto Serif SC', serif;
+  --bg-deco: none; /* 背景装饰(tech 网格 / fresh 光晕 / paper 横格),classic 不用 */
+  --noise: 1; /* 噪点叠层的整体系数,浅色与非 classic 风格置 0 */
+  --r: 12px; --rs: 8px; --rx: 16px; --r-pill: 20px;
+  --glow-a: 50%; --shadow-a: 28%; --shadow-a2: 42%;
+
+  /* 派生色:由基础色按透明度混合(数值即旧版 rgba 的 alpha) */
+  --gold-d: color-mix(in srgb, var(--gold) 14%, transparent);
+  --gold-d2: color-mix(in srgb, var(--gold) 7%, transparent);
+  --green-d: color-mix(in srgb, var(--green) 14%, transparent);
+  --red-d: color-mix(in srgb, var(--red) 14%, transparent);
+  --blue-d: color-mix(in srgb, var(--blue) 14%, transparent);
+  --purple-d: color-mix(in srgb, var(--purple) 14%, transparent);
+  --hdr-glow: color-mix(in srgb, var(--gold) 6%, transparent);
+  --badge-gold-bd: color-mix(in srgb, var(--gold) 35%, transparent);
+  --badge-blue-bd: color-mix(in srgb, var(--blue) 35%, transparent);
+  --badge-purple-bd: color-mix(in srgb, var(--purple) 35%, transparent);
+  --badge-green-bd: color-mix(in srgb, var(--green) 35%, transparent);
+  --ring-gold: color-mix(in srgb, var(--gold) 10%, transparent);
+  --ring-blue: color-mix(in srgb, var(--blue) 10%, transparent);
+  --ring-purple: color-mix(in srgb, var(--purple) 10%, transparent);
+  --glow-gold: color-mix(in srgb, var(--gold) var(--glow-a), transparent);
+  --glow-blue: color-mix(in srgb, var(--blue) var(--glow-a), transparent);
+  --glow-purple: color-mix(in srgb, var(--purple) var(--glow-a), transparent);
+  --btn-shadow: color-mix(in srgb, var(--gold) var(--shadow-a), transparent);
+  --btn-shadow-hover: color-mix(in srgb, var(--gold) var(--shadow-a2), transparent);
+  --verdict-under-bd: color-mix(in srgb, var(--green) 30%, transparent);
+  --verdict-over-bd: color-mix(in srgb, var(--red) 30%, transparent);
+  --verdict-fair-bd: color-mix(in srgb, var(--blue) 30%, transparent);
+  --verdict-warn-bd: color-mix(in srgb, var(--gold) 30%, transparent);
+  --flag-ok-bd: color-mix(in srgb, var(--green) 25%, transparent);
+  --flag-warn-bg: color-mix(in srgb, var(--gold) 10%, transparent);
+  --flag-warn-bd: color-mix(in srgb, var(--gold) 25%, transparent);
+  --flag-danger-bd: color-mix(in srgb, var(--red) 25%, transparent);
+  --disc-bg: color-mix(in srgb, var(--gold) 5%, transparent);
+  --disc-bd: color-mix(in srgb, var(--gold) 15%, transparent);
+  --zone-bg: color-mix(in srgb, var(--green) 18%, transparent);
+  --zone-bd: color-mix(in srgb, var(--green) 30%, transparent);
+  --tag-bd: color-mix(in srgb, var(--red) 40%, transparent);
+  --tag-ink: var(--red); /* 现价标签文字:叠在标尺各处(含绿色合理区)的淡红底上,非 classic 风格另行加深 */
+}
+
+/* classic 浅色(米白金):页面原生深色之外新增的另一半 */
+html[data-theme="light"] {
+  --bg: #f7f5ef;
+  --s1: #fbf9f4;
+  --s2: #ffffff;
+  --s3: #f1ede3;
+  --bd: #d9d3c4;
+  --bd2: #a39a85;
+  --bd-ctl: #8a8272;
+  --gold: #735200;
+  --gold-l: #5e4309;
+  --txt: #2d281f;
+  --txt2: #4f493d;
+  --txt3: #645d50;
+  --green: #146b32;
+  --red: #b42318;
+  --blue: #1d4ed8;
+  --purple: #6b3fb5;
+  --green-t: #146b32;
+  --red-t: #b42318;
+  --btn-a: #735200; --btn-b: #8f6a12; --btn-ink: #fffdf8;
+  --focus: #735200;
+  --noise: 0;
+  --glow-a: 22%; --shadow-a: 22%; --shadow-a2: 32%;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overscroll-behavior:none}
 body{background:var(--bg);color:var(--txt);font-family:'Noto Sans SC',sans-serif;font-size:14px;overflow-x:hidden}
-body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:var(--noise,1)}
+body::before{content:'';position:fixed;inset:0;background-image:var(--bg-deco,none);pointer-events:none;z-index:0}
 
 .wrap{position:relative;z-index:1;max-width:500px;margin:0 auto;padding-bottom:90px}
 
 /* ── HEADER ── */
-.hdr{padding:26px 18px 18px;border-bottom:1px solid var(--bd);background:linear-gradient(170deg,rgba(200,168,75,.06) 0%,transparent 60%)}
+.hdr{padding:26px 18px 18px;border-bottom:1px solid var(--bd);background:linear-gradient(170deg,var(--hdr-glow) 0%,transparent 60%)}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .hdr-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .hdr-eyebrow::before{content:'';width:18px;height:1px;background:var(--gold)}
-.hdr h1{font-family:'Noto Serif SC',serif;font-size:21px;font-weight:700;line-height:1.25;color:var(--txt)}
+.hdr h1{font-family:var(--font-heading);font-size:21px;font-weight:700;line-height:1.25;color:var(--txt)}
 .hdr h1 em{color:var(--gold);font-style:normal}
 .hdr-sub{margin-top:6px;font-size:11.5px;color:var(--txt2);line-height:1.65}
 .method-badges{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
-.badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.05em;border:1px solid}
-.badge.dcf{color:var(--gold);border-color:rgba(200,168,75,.35);background:var(--gold-d2)}
-.badge.pe{color:var(--blue);border-color:rgba(90,158,214,.35);background:var(--blue-d)}
-.badge.pb{color:var(--purple);border-color:rgba(155,127,212,.35);background:var(--purple-d)}
-.badge.comp{color:var(--green);border-color:rgba(72,184,122,.35);background:var(--green-d)}
+.badge{padding:4px 10px;border-radius:var(--r-pill);font-size:10px;font-weight:600;letter-spacing:.05em;border:1px solid}
+.badge.dcf{color:var(--gold);border-color:var(--badge-gold-bd);background:var(--gold-d2)}
+.badge.pe{color:var(--blue);border-color:var(--badge-blue-bd);background:var(--blue-d)}
+.badge.pb{color:var(--purple);border-color:var(--badge-purple-bd);background:var(--purple-d)}
+.badge.comp{color:var(--green);border-color:var(--badge-green-bd);background:var(--green-d)}
 
 /* ── TABS ── */
 .tabs{display:flex;border-bottom:1px solid var(--bd)}
@@ -76,13 +152,14 @@ body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml
 .ig{display:flex;flex-direction:column;gap:6px}
 .ig label{font-size:11px;color:var(--txt2);letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center}
 .ig label .hn{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--txt3)}
-.iw{display:flex;align-items:center;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rs);transition:border-color .2s,box-shadow .2s}
-.iw:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(200,168,75,.1)}
-.iw.blue:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(90,158,214,.1)}
-.iw.purple:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px rgba(155,127,212,.1)}
+.iw{display:flex;align-items:center;background:var(--s2);border:1px solid var(--bd-ctl);border-radius:var(--rs);transition:border-color .2s,box-shadow .2s}
+.iw:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--ring-gold)}
+.iw.blue:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--ring-blue)}
+.iw.purple:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px var(--ring-purple)}
+.iw:focus-within{outline:2px solid var(--focus);outline-offset:2px} /* 焦点环:仅靠边框变色对旧边界不足 3:1,另加实线外环 */
 .iw .un{padding:0 10px 0 3px;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt3);pointer-events:none;white-space:nowrap}
 .iw .px{padding:0 3px 0 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--txt2)}
-input[type=number],input[type=text]{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:14.5px;font-family:'DM Mono',monospace;padding:10px 8px;width:100%;-webkit-appearance:none}
+input[type=number],input[type=text]{flex:1;background:inherit;border-radius:inherit;border:none;outline:none;color:var(--txt);font-size:14.5px;font-family:'DM Mono',monospace;padding:10px 8px;width:100%;-webkit-appearance:none}
 input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none}
 .igrid{display:flex;flex-direction:column;gap:11px}
 .irow{display:flex;gap:10px}.irow .ig{flex:1}
@@ -94,13 +171,14 @@ input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appear
 .sv{font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);font-weight:500}
 .sv.blue{color:var(--blue)}.sv.purple{color:var(--purple)}
 input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:2px;background:var(--bd);outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2.5px solid var(--bg);box-shadow:0 0 8px rgba(200,168,75,.5);cursor:pointer}
-input[type=range].blue::-webkit-slider-thumb{background:var(--blue);box-shadow:0 0 8px rgba(90,158,214,.5)}
-input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shadow:0 0 8px rgba(155,127,212,.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2.5px solid var(--bg);box-shadow:0 0 8px var(--glow-gold);cursor:pointer}
+input[type=range].blue::-webkit-slider-thumb{background:var(--blue);box-shadow:0 0 8px var(--glow-blue)}
+input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shadow:0 0 8px var(--glow-purple)}
+input[type=range]:focus-visible,.calc-btn:focus-visible{outline:2px solid var(--focus);outline-offset:4px}
 
 /* ── PILLS ── */
 .pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.pill{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bd);background:var(--s2);color:var(--txt2);cursor:pointer;transition:all .18s}
+.pill{padding:5px 11px;border-radius:var(--r-pill);font-size:11px;font-weight:500;border:1px solid var(--bd);background:var(--s2);color:var(--txt2);cursor:pointer;transition:all .18s}
 .pill.active{background:var(--gold-d);border-color:var(--gold);color:var(--gold)}
 
 /* ── WEIGHT CONTROL ── */
@@ -119,8 +197,8 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 .wt-btn:active{transform:scale(.9)}
 
 /* ── BTN ── */
-.calc-btn{width:100%;padding:15px;background:linear-gradient(130deg,#b8942e,#e5c96e,#b8942e);background-size:200% 100%;background-position:right;border:none;border-radius:var(--r);color:#080b0e;font-size:15px;font-weight:700;font-family:'Noto Sans SC',sans-serif;letter-spacing:.07em;cursor:pointer;transition:background-position .35s,transform .15s,box-shadow .3s;box-shadow:0 4px 22px rgba(200,168,75,.28)}
-.calc-btn:hover{background-position:left;box-shadow:0 6px 30px rgba(200,168,75,.42)}
+.calc-btn{width:100%;padding:15px;background:linear-gradient(130deg,var(--btn-a),var(--btn-b),var(--btn-a));background-size:200% 100%;background-position:right;border:none;border-radius:var(--r);color:var(--btn-ink);font-size:15px;font-weight:700;font-family:'Noto Sans SC',sans-serif;letter-spacing:.07em;cursor:pointer;transition:background-position .35s,transform .15s,box-shadow .3s;box-shadow:0 4px 22px var(--btn-shadow)}
+.calc-btn:hover{background-position:left;box-shadow:0 6px 30px var(--btn-shadow-hover)}
 .calc-btn:active{transform:scale(.975)}
 
 /* ── RESULT ── */
@@ -134,11 +212,11 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 .comp-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--txt3);margin-bottom:6px}
 .comp-price{font-family:'DM Mono',monospace;font-size:36px;font-weight:400;color:var(--green);line-height:1}
 .comp-range{font-size:11px;color:var(--txt2);margin-top:6px;font-family:'DM Mono',monospace}
-.verdict{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:20px;font-size:11.5px;font-weight:600;letter-spacing:.05em}
-.verdict.under{background:var(--green-d);color:var(--green);border:1px solid rgba(72,184,122,.3)}
-.verdict.over{background:var(--red-d);color:var(--red);border:1px solid rgba(217,92,92,.3)}
-.verdict.fair{background:var(--blue-d);color:var(--blue);border:1px solid rgba(90,158,214,.3)}
-.verdict.warn{background:rgba(200,168,75,.14);color:var(--gold);border:1px solid rgba(200,168,75,.3)}
+.verdict{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:var(--r-pill);font-size:11.5px;font-weight:600;letter-spacing:.05em}
+.verdict.under{background:var(--green-d);color:var(--green);border:1px solid var(--verdict-under-bd)}
+.verdict.over{background:var(--red-d);color:var(--red);border:1px solid var(--verdict-over-bd)}
+.verdict.fair{background:var(--blue-d);color:var(--blue);border:1px solid var(--verdict-fair-bd)}
+.verdict.warn{background:var(--gold-d);color:var(--gold);border:1px solid var(--verdict-warn-bd)}
 
 /* method cards row */
 .method-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--bd)}
@@ -177,9 +255,9 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 /* risk flags */
 .flags{margin:14px 18px 0;display:flex;flex-direction:column;gap:6px}
 .flag{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--rs);border:1px solid;font-size:11.5px;line-height:1.6}
-.flag.ok{background:var(--green-d);border-color:rgba(72,184,122,.25);color:#88d4a8}
-.flag.warn{background:rgba(200,168,75,.1);border-color:rgba(200,168,75,.25);color:var(--gold-l)}
-.flag.danger{background:var(--red-d);border-color:rgba(217,92,92,.25);color:#e89090}
+.flag.ok{background:var(--green-d);border-color:var(--flag-ok-bd);color:var(--green-t)}
+.flag.warn{background:var(--flag-warn-bg);border-color:var(--flag-warn-bd);color:var(--gold-l)}
+.flag.danger{background:var(--red-d);border-color:var(--flag-danger-bd);color:var(--red-t)}
 .flag-icon{font-size:14px;line-height:1.4;flex-shrink:0}
 
 /* sensitivity */
@@ -206,7 +284,7 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 .totr td{font-weight:600;border-top:1px solid var(--bd2)}
 
 /* disclaimer */
-.disc{margin:14px 18px 0;padding:12px 14px;background:rgba(200,168,75,.05);border:1px solid rgba(200,168,75,.15);border-radius:var(--rs);font-size:11px;color:var(--txt3);line-height:1.75}
+.disc{margin:14px 18px 0;padding:12px 14px;background:var(--disc-bg);border:1px solid var(--disc-bd);border-radius:var(--rs);font-size:11px;color:var(--txt3);line-height:1.75}
 .disc strong{color:var(--gold);font-weight:500}
 
 /* about */
@@ -232,10 +310,49 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 .mcc p{font-size:10px;color:var(--txt2);line-height:1.6}
 
 /* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--gold);color:var(--gold);padding:9px 18px;border-radius:24px;font-size:12.5px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--gold);color:var(--gold);padding:9px 18px;border-radius:calc(var(--r-pill) + 4px);font-size:12.5px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @supports(padding-bottom:env(safe-area-inset-bottom)){.wrap{padding-bottom:calc(90px + env(safe-area-inset-bottom))}}
+
+/* LT-THEME-MAP —— tech / fresh / paper:把页面变量别名到共享令牌(theme-tokens.css)。
+   · 每个 var(--lt-*, 回退值) 的回退值 = classic 深色原值,theme-tokens.css 缺失时页面不崩
+   · 特异性 (0,2,1) 高于 :root (0,1,0) 与 html[data-theme="light"] (0,1,1),无需 !important
+   · --gold 是页面里「文字 + 装饰」共用的强调色,所以映射到 --lt-accent-strong(对各层底 ≥ 5:1);按钮填充用 --lt-accent
+   · 紫色(PB 方法的标识色)令牌里没有,用 info 与 bad 混合得到,明暗风格各自成立 */
+html[data-style]:not([data-style="classic"]) {
+  --bg: var(--lt-bg, #080b0e);
+  --s1: var(--lt-surface, #0f1318);
+  --s2: var(--lt-surface, #151b22);
+  --s3: var(--lt-surface-2, #1c242e);
+  --bd: var(--lt-border, #1e2730);
+  --bd2: var(--lt-border-strong, #263040);
+  --bd-ctl: var(--lt-border-strong, #66728a);
+  --gold: var(--lt-accent-strong, #c8a84b);
+  --gold-l: var(--lt-accent-strong, #e5c96e);
+  --txt: var(--lt-text, #ddd8ce);
+  --txt2: color-mix(in srgb, var(--lt-text, #ddd8ce) 40%, var(--lt-text-muted, #98a4b4));
+  --txt3: var(--lt-text-muted, #818d9e);
+  --green: color-mix(in srgb, var(--lt-good, #48b87a) 85%, var(--lt-text, #ddd8ce)); /* 与正文色微量混合(同 --blue):信号条「综合」叠在绿色淡底 + 背景网格上时留足余量 */
+  --red: var(--lt-bad, #d95c5c);
+  --blue: color-mix(in srgb, var(--lt-info, #5a9ed6) 85%, var(--lt-text, #ddd8ce)); /* 与正文色微量混合:徽标/信号条叠在淡蓝底 + 背景网格上时留足余量 */
+  --purple: color-mix(in srgb, var(--lt-info, #5a9ed6) 55%, var(--lt-bad, #d95c5c));
+  --green-t: var(--lt-good, #88d4a8);
+  --red-t: var(--lt-bad, #e89090);
+  --btn-a: var(--lt-accent, #b8942e);
+  --btn-b: color-mix(in srgb, var(--lt-accent, #e5c96e) 55%, var(--lt-accent-strong, #e5c96e));
+  --btn-ink: var(--lt-on-accent, #080b0e);
+  --focus: var(--lt-focus, #c8a84b);
+  --font-heading: var(--lt-font-heading, 'Noto Serif SC', serif);
+  --bg-deco: var(--lt-bg-deco, none);
+  --noise: 0;
+  --tag-ink: color-mix(in srgb, var(--lt-bad, #d95c5c) 78%, var(--lt-text, #ddd8ce));
+  --hint-bs: solid; /* CAPM 提示框:圆角路径上的虚线边在采样点处会随尺寸断开,非 classic 风格用实线保证边界始终可辨 */
+  --r: var(--lt-radius, 12px);
+  --rs: var(--lt-radius-sm, 8px);
+  --rx: calc(var(--lt-radius, 12px) + 4px);
+  --r-pill: calc(var(--lt-radius, 17px) + 3px);
+}
 </style>
 </head>
 <body>
@@ -243,7 +360,10 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="hdr-eyebrow">Multi-Method Valuation</div>
+  <div class="hdr-top">
+    <div class="hdr-eyebrow">Multi-Method Valuation</div>
+    <div id="themeSlot"></div>
+  </div>
   <h1>三维估值<em>综合计算器</em></h1>
   <p class="hdr-sub">融合 DCF · PE · PB 三种方法，交叉验证内在价值，压缩估算误差区间</p>
   <div class="method-badges">
@@ -321,7 +441,7 @@ input[type=range].purple::-webkit-slider-thumb{background:var(--purple);box-shad
       </div>
       <div class="ig">
         <label>CAPM 快速估算</label>
-        <div class="iw" style="background:var(--bg);border-style:dashed;cursor:pointer" onclick="applyWACC()">
+        <div class="iw" style="background:var(--bg);border-style:var(--hint-bs,dashed);cursor:pointer" onclick="applyWACC()">
           <input type="text" id="wacc-hint" readonly style="cursor:pointer;font-size:11.5px;color:var(--gold)">
         </div>
       </div>
@@ -828,7 +948,7 @@ function buildRuler({ price, dcfVal, peVal, pbVal, comp, compLo, compHi }) {
   // fair zone
   const zone = document.createElement('div');
   zone.className = 'ruler-zone';
-  zone.style.cssText = `left:${pct(compLo)}%;width:${pct(compHi)-pct(compLo)}%;background:rgba(72,184,122,.18);border:1px solid rgba(72,184,122,.3)`;
+  zone.style.cssText = `left:${pct(compLo)}%;width:${pct(compHi)-pct(compLo)}%;background:var(--zone-bg);border:1px solid var(--zone-bd)`;
   ruler.appendChild(zone);
 
   // dots for 3 methods
@@ -857,7 +977,7 @@ function buildRuler({ price, dcfVal, peVal, pbVal, comp, compLo, compHi }) {
     ruler.appendChild(line);
     const tag = document.createElement('div');
     tag.className = 'ruler-price-tag';
-    tag.style.cssText = `left:${pct(price)}%;background:var(--red-d);color:var(--red);border:1px solid rgba(217,92,92,.4)`;
+    tag.style.cssText = `left:${pct(price)}%;background:var(--red-d);color:var(--tag-ink);border:1px solid var(--tag-bd)`;
     tag.textContent = '现价¥' + f2(price);
     ruler.appendChild(tag);
   }
@@ -994,6 +1114,11 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 ['g1','g2','gp','wacc','tpe','tpb','mg'].forEach(slup);
 ['rf','beta'].forEach(id => document.getElementById(id).addEventListener('input', updateWACC));
 updateWACC();
+
+// ── 主题挂件(内联进页头;缺少 theme-manager.js 时静默跳过) ──
+if (window.LifeToolsTheme && typeof window.LifeToolsTheme.mountThemeControl === 'function') {
+  window.LifeToolsTheme.mountThemeControl('dcf', { container: document.getElementById('themeSlot') });
+}
 </script>
 </body>
 </html>

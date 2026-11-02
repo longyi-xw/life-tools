@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<!-- 主题接入:必须同步加载并在任何 <style> 之前初始化;theme-manager.js / theme-tokens.css 缺失时保持 :root 的深色(classic)回退 -->
+<meta name="color-scheme" content="light dark">
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC("earnings");</script>
+<link rel="stylesheet" href="theme-tokens.css">
 <title>收益计算器 · Yield Calculator</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a1508'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E🪙%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,22 +16,55 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
+  /* 主题变量(明暗 data-theme × 风格 data-style,由 theme-manager.js 写在 <html> 上)
+     · :root = classic 深色(页面原生配色),同时是无 JS / theme-manager.js 缺失时的回退
+     · html[data-theme="light"] = classic 浅色(暖纸 + 墨绿)
+     · LT-THEME-MAP 块 = tech / fresh / paper,别名到 theme-tokens.css 的共享令牌(--lt-*) */
   :root {
     --bg: #0f1410;
     --bg-elev: #161c18;
     --bg-card: #1a211c;
     --line: #2a332d;
     --line-soft: #232b26;
+    --line-ctl: #657067; /* 输入框 / 按钮边界:对卡片底 ≥ 3:1(旧版直接用 --line,仅约 1.2:1) */
     --ink: #e8e4d8;
     --ink-dim: #9aa098;
-    --ink-faint: #6a716b;
+    --ink-faint: #858d86; /* 旧 #6a716b:对卡片底仅 3.3:1;新值 ≥ 4.8:1 */
     --accent: #d4a574;
-    --accent-soft: #8a7355;
+    --accent-soft: #a08966; /* 旧 #8a7355:Tab 序号对卡片底仅 3.65:1;新值 ≥ 4.9:1 */
+    --accent-hover: #e6b88a;
+    --btn-bg: var(--accent);
+    --btn-ink: var(--bg);
     --positive: #7ba87b;
     --negative: #c97b6c;
+    --focus: #d4a574;
+    --bg-deco: none; /* 背景装饰(tech 网格 / fresh 光晕 / paper 横格),classic 不用 */
+    --glow-1: color-mix(in srgb, var(--accent) 4%, transparent);
+    --glow-2: color-mix(in srgb, var(--positive) 3%, transparent);
+    --r-box: 0px; --r-ctl: 0px;
     --serif: 'Cormorant Garamond', 'Noto Serif SC', serif;
     --sc: 'Noto Serif SC', serif;
     --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* classic 浅色(暖纸 + 墨绿):页面原生深色之外新增的另一半 */
+  html[data-theme="light"] {
+    --bg: #f1efe6;
+    --bg-elev: #f7f5ec;
+    --bg-card: #fcfbf6;
+    --line: #d6d3c3;
+    --line-soft: #e2dfd0;
+    --line-ctl: #85846f;
+    --ink: #232a24;
+    --ink-dim: #4a544c;
+    --ink-faint: #5e6860;
+    --accent: #8a5a1f;
+    --accent-soft: #7a6642;
+    --accent-hover: #6f4912;
+    --btn-ink: #fcfbf6;
+    --positive: #2d6a3e;
+    --negative: #a8402c;
+    --focus: #8a5a1f;
   }
   
   html, body {
@@ -40,9 +78,10 @@
   }
   
   body {
-    background-image: 
-      radial-gradient(ellipse at top left, rgba(212, 165, 116, 0.04), transparent 50%),
-      radial-gradient(ellipse at bottom right, rgba(123, 168, 123, 0.03), transparent 50%);
+    background-image:
+      var(--bg-deco, none),
+      radial-gradient(ellipse at top left, var(--glow-1), transparent 50%),
+      radial-gradient(ellipse at bottom right, var(--glow-2), transparent 50%);
   }
   
   .container {
@@ -69,6 +108,19 @@
     background: var(--accent);
   }
   
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .header-top .eyebrow { margin-bottom: 0; }
+
+  .theme-slot { display: contents; }
+  #themeSlot > .lt-theme-root { flex-shrink: 0; }
+
   .eyebrow {
     font-family: var(--mono);
     font-size: 10px;
@@ -107,7 +159,7 @@
     gap: 0;
     margin-bottom: 28px;
     border: 1px solid var(--line);
-    border-radius: 0;
+    border-radius: var(--r-box);
     overflow: hidden;
     background: var(--bg-elev);
   }
@@ -125,10 +177,22 @@
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    border-right: 1px solid var(--line);
+    border-right: 1px solid transparent;
   }
   
   .tab:last-child { border-right: none; }
+
+  .tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+
+  .tab:last-child::before { display: none; }
   
   .tab .tab-num {
     font-family: var(--mono);
@@ -172,6 +236,7 @@
   .form-section {
     background: var(--bg-card);
     border: 1px solid var(--line);
+    border-radius: var(--r-box);
     padding: 24px 20px;
     margin-bottom: 20px;
   }
@@ -231,13 +296,13 @@
   .input-wrap input {
     width: 100%;
     background: var(--bg);
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-ctl);
     color: var(--ink);
     padding: 14px 16px;
     font-family: var(--mono);
     font-size: 16px;
     font-weight: 400;
-    border-radius: 0;
+    border-radius: var(--r-ctl);
     transition: border-color 0.2s ease;
     -webkit-appearance: none;
     appearance: none;
@@ -247,6 +312,17 @@
     outline: none;
     border-color: var(--accent);
   }
+
+  /* 键盘焦点:仅边框变色对旧边界不足 3:1,另加实线外环 */
+  .input-wrap input:focus-visible,
+  .btn:focus-visible,
+  .tab:focus-visible,
+  .toggle-mode button:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .toggle-mode button { border-radius: var(--r-ctl); }
   
   .input-wrap input::placeholder {
     color: var(--ink-faint);
@@ -284,24 +360,24 @@
     font-size: 14px;
     font-weight: 400;
     letter-spacing: 0.1em;
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-ctl);
     background: transparent;
     color: var(--ink);
     cursor: pointer;
     transition: all 0.25s ease;
-    border-radius: 0;
+    border-radius: var(--r-ctl);
     position: relative;
     overflow: hidden;
   }
   
   .btn-primary {
-    background: var(--accent);
-    color: var(--bg);
-    border-color: var(--accent);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    border-color: var(--btn-bg);
     font-weight: 500;
   }
   
-  .btn-primary:hover { background: #e6b88a; border-color: #e6b88a; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
   .btn-primary:active { transform: translateY(1px); }
   
   .btn-ghost:hover { border-color: var(--accent-soft); color: var(--accent); }
@@ -310,6 +386,7 @@
   .result {
     background: var(--bg-elev);
     border: 1px solid var(--line);
+    border-radius: var(--r-box);
     position: relative;
     overflow: hidden;
     display: none;
@@ -431,6 +508,7 @@
   .calc-detail {
     background: var(--bg);
     border: 1px solid var(--line-soft);
+    border-radius: var(--r-ctl);
     padding: 18px;
     margin-top: 8px;
   }
@@ -477,7 +555,8 @@
   .toggle-mode {
     display: flex;
     background: var(--bg);
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-ctl);
+    border-radius: var(--r-ctl);
     margin-bottom: 18px;
   }
   
@@ -518,6 +597,34 @@
   
   input[type="number"] { -moz-appearance: textfield; }
   
+  /* LT-THEME-MAP —— tech / fresh / paper:把页面变量别名到共享令牌(theme-tokens.css)。
+     · 每个 var(--lt-*, 回退值) 的回退值 = classic 深色原值,theme-tokens.css 缺失时页面不崩
+     · 特异性 (0,2,1) 高于 :root (0,1,0) 与 html[data-theme="light"] (0,1,1),无需 !important
+     · --accent 在页面里既当文字色又当装饰线,映射到 --lt-accent-strong(对各层底 ≥ 5:1);主按钮填充单独用 --lt-accent / --lt-on-accent
+     · 页面自有语义色(收益 positive / 亏损 negative)映射到 good / bad,正负号 + - 仍随数字显示,不只靠颜色 */
+  html[data-style]:not([data-style="classic"]) {
+    --bg: var(--lt-bg, #0f1410);
+    --bg-elev: var(--lt-surface-2, #161c18);
+    --bg-card: var(--lt-surface, #1a211c);
+    --line: var(--lt-border, #2a332d);
+    --line-soft: color-mix(in srgb, var(--lt-border, #232b26) 60%, var(--lt-bg, #0f1410));
+    --line-ctl: var(--lt-border-strong, #657067);
+    --ink: var(--lt-text, #e8e4d8);
+    --ink-dim: color-mix(in srgb, var(--lt-text, #9aa098) 45%, var(--lt-text-muted, #9aa098));
+    --ink-faint: var(--lt-text-muted, #858d86);
+    --accent: var(--lt-accent-strong, #d4a574);
+    --accent-soft: color-mix(in srgb, var(--lt-accent-strong, #a08966) 55%, var(--lt-text-muted, #a08966));
+    --accent-hover: color-mix(in srgb, var(--lt-accent, #e6b88a) 80%, var(--lt-text, #fff));
+    --btn-bg: var(--lt-accent, #d4a574);
+    --btn-ink: var(--lt-on-accent, #0f1410);
+    --positive: var(--lt-good, #7ba87b);
+    --negative: var(--lt-bad, #c97b6c);
+    --focus: var(--lt-focus, #d4a574);
+    --bg-deco: var(--lt-bg-deco, none);
+    --r-box: var(--lt-radius, 0px);
+    --r-ctl: var(--lt-radius-sm, 0px);
+  }
+
   @media (max-width: 480px) {
     .container { padding: 24px 16px 60px; }
     .form-section { padding: 20px 16px; }
@@ -534,7 +641,10 @@
 <div class="container">
   
   <header class="header">
-    <div class="eyebrow">Personal Finance · 个人理财</div>
+    <div class="header-top">
+      <div class="eyebrow">Personal Finance · 个人理财</div>
+      <div class="theme-slot" id="themeSlot"></div>
+    </div>
     <h1 class="title">收益<em>计算</em></h1>
     <p class="subtitle">Yield Calculator for Funds &amp; Bonds</p>
   </header>
@@ -978,6 +1088,11 @@
       else el.value = '';
     });
     document.getElementById('bond-result').classList.remove('show');
+  }
+
+  // ============ 主题挂件(内联进页头;缺少 theme-manager.js 时静默跳过) ============
+  if (window.LifeToolsTheme && typeof window.LifeToolsTheme.mountThemeControl === 'function') {
+    window.LifeToolsTheme.mountThemeControl('earnings', { container: document.getElementById('themeSlot') });
   }
 </script>
 

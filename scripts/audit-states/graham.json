@@ -1,0 +1,220 @@
+{
+  "_comment": "格雷厄姆量化:默认视图是「基础指标」标签页(价值/蓝筹,金色)。6 种股票类型色、诊断列表的绿/黄/红分支、EPS/内在价值/NCAV/AI 提示词四个隐藏标签页、评级卡与 toast 都要交互后才出现,逐个声明让审计覆盖。",
+  "states": [
+    {
+      "name": "诊断-混合(价值蓝筹:绿黄红)",
+      "steps": [
+        { "type": { "selector": "#pe", "text": "12" } },
+        { "type": { "selector": "#pb", "text": "3" } },
+        { "type": { "selector": "#roe", "text": "5" } },
+        { "type": { "selector": "#growth", "text": "10" } },
+        { "type": { "selector": "#cr", "text": "1.8" } },
+        { "type": { "selector": "#dr", "text": "80" } },
+        { "type": { "selector": "#stockPrice", "text": "10" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "诊断-全优+NCAV达标(优质标的)",
+      "steps": [
+        { "type": { "selector": "#pe", "text": "14" } },
+        { "type": { "selector": "#pb", "text": "1.2" } },
+        { "type": { "selector": "#roe", "text": "20" } },
+        { "type": { "selector": "#growth", "text": "15" } },
+        { "type": { "selector": "#cr", "text": "2.5" } },
+        { "type": { "selector": "#dr", "text": "30" } },
+        { "type": { "selector": "#stockPrice", "text": "5" } },
+        { "type": { "selector": "#currentAssets", "text": "100000" } },
+        { "type": { "selector": "#totalLiab", "text": "20000" } },
+        { "type": { "selector": "#totalShares", "text": "10000" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "类型-消费(绿)",
+      "steps": [
+        { "click": ".type-btn[data-type=\"consumer\"]" },
+        { "type": { "selector": "#pe", "text": "22" } },
+        { "type": { "selector": "#roe", "text": "18" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "类型-科技(蓝)",
+      "steps": [
+        { "click": ".type-btn[data-type=\"tech\"]" },
+        { "type": { "selector": "#pe", "text": "60" } },
+        { "type": { "selector": "#roe", "text": "12" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "类型-医药(紫)",
+      "steps": [
+        { "click": ".type-btn[data-type=\"pharma\"]" },
+        { "type": { "selector": "#pe", "text": "25" } },
+        { "type": { "selector": "#roe", "text": "6" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "类型-周期(橙)",
+      "steps": [
+        { "click": ".type-btn[data-type=\"cyclical\"]" },
+        { "type": { "selector": "#pe", "text": "9" } },
+        { "type": { "selector": "#pb", "text": "0.9" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "类型-公用(青)",
+      "steps": [
+        { "click": ".type-btn[data-type=\"utility\"]" },
+        { "type": { "selector": "#pe", "text": "30" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "EPS-空列表",
+      "steps": [
+        { "click": ".tab-btn:nth-child(2)" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "EPS-有数据(含负值)",
+      "steps": [
+        { "click": ".tab-btn:nth-child(2)" },
+        { "type": { "selector": "#epsYear", "text": "2021" } },
+        { "type": { "selector": "#epsVal", "text": "1.20" } },
+        { "click": ".eps-add .btn" },
+        { "type": { "selector": "#epsYear", "text": "2022" } },
+        { "type": { "selector": "#epsVal", "text": "-0.35" } },
+        { "click": ".eps-add .btn" },
+        { "type": { "selector": "#epsYear", "text": "2023" } },
+        { "type": { "selector": "#epsVal", "text": "2.10" } },
+        { "click": ".eps-add .btn" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "EPS-错误toast",
+      "steps": [
+        { "click": ".tab-btn:nth-child(2)" },
+        { "click": ".eps-add .btn" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "内在价值-空结果",
+      "steps": [
+        { "click": ".tab-btn:nth-child(3)" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "内在价值-高(低估)",
+      "steps": [
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "8" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "内在价值-中(偏贵)+科技PEG",
+      "steps": [
+        { "click": ".type-btn[data-type=\"tech\"]" },
+        { "type": { "selector": "#pe", "text": "40" } },
+        { "type": { "selector": "#growth", "text": "30" } },
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "50" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "内在价值-低(高估)",
+      "steps": [
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "40" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "NCAV-高价值+评级A+",
+      "steps": [
+        { "click": ".type-btn[data-type=\"cyclical\"]" },
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "5" } },
+        { "click": ".tab-btn:nth-child(4)" },
+        { "type": { "selector": "#n-ca", "text": "100000" } },
+        { "type": { "selector": "#n-tl", "text": "20000" } },
+        { "type": { "selector": "#n-cl", "text": "15000" } },
+        { "type": { "selector": "#n-ts", "text": "10000" } },
+        { "type": { "selector": "#n-price", "text": "3" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "NCAV-中等+评级B",
+      "steps": [
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "14" } },
+        { "click": ".tab-btn:nth-child(4)" },
+        { "type": { "selector": "#n-ca", "text": "100000" } },
+        { "type": { "selector": "#n-tl", "text": "20000" } },
+        { "type": { "selector": "#n-cl", "text": "15000" } },
+        { "type": { "selector": "#n-ts", "text": "10000" } },
+        { "type": { "selector": "#n-price", "text": "7.5" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "NCAV-低+评级C",
+      "steps": [
+        { "click": ".tab-btn:nth-child(3)" },
+        { "type": { "selector": "#ivEps", "text": "1.5" } },
+        { "type": { "selector": "#ivPrice", "text": "60" } },
+        { "click": ".tab-btn:nth-child(4)" },
+        { "type": { "selector": "#n-ca", "text": "100000" } },
+        { "type": { "selector": "#n-tl", "text": "20000" } },
+        { "type": { "selector": "#n-cl", "text": "15000" } },
+        { "type": { "selector": "#n-ts", "text": "10000" } },
+        { "type": { "selector": "#n-price", "text": "30" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "NCAV-仅填资产(数据不足)",
+      "steps": [
+        { "click": ".tab-btn:nth-child(4)" },
+        { "type": { "selector": "#n-ca", "text": "100000" } },
+        { "type": { "selector": "#n-tl", "text": "20000" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "AI提示词-空与生成",
+      "steps": [
+        { "click": ".tab-btn:nth-child(5)" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "AI提示词-已填写+复制toast",
+      "steps": [
+        { "click": ".tab-btn:nth-child(5)" },
+        { "type": { "selector": "#ai-sector", "text": "半导体" } },
+        { "type": { "selector": "#ai-pe", "text": "20" } },
+        { "type": { "selector": "#ai-roe", "text": "12" } },
+        { "type": { "selector": "#ai-extra", "text": "近5年连续盈利" } },
+        { "click": ".cpb" },
+        { "wait": 400 }
+      ]
+    }
+  ]
+}

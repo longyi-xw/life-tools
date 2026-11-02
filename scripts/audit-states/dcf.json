@@ -1,0 +1,223 @@
+{
+  "_comment": "三维估值:默认视图是「参数输入」标签页(茅台场景)。估值结果、方法说明、各 verdict / flag 分支与 toast 都要交互后才出现,逐个声明让审计覆盖。 toast 类状态会冻结 2.4s 自动消失计时,并把 toast 钉到文档底部留白区(否则审计分段滚动时 fixed 的 toast 会盖住别处文字,造成不稳定的遮挡误报)。",
+  "states": [
+    {
+      "name": "无结果提示",
+      "steps": [
+        {
+          "click": ".tab[data-tab=\"result\"]"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "方法说明",
+      "steps": [
+        {
+          "click": ".tab[data-tab=\"about\"]"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "场景切换-toast",
+      "steps": [
+        {
+          "eval": "var _st = window.setTimeout; window.setTimeout = function (f, ms) { return ms === 2400 ? 0 : _st.apply(window, arguments); };"
+        },
+        {
+          "scrollTo": ".pills"
+        },
+        {
+          "click": ".pill:nth-child(2)"
+        },
+        {
+          "eval": "var t = document.getElementById('toast'); t.style.position = 'absolute'; t.style.bottom = 'auto'; t.style.top = (document.documentElement.scrollHeight - 72) + 'px';"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "CAPM提示框-toast",
+      "steps": [
+        {
+          "eval": "var _st = window.setTimeout; window.setTimeout = function (f, ms) { return ms === 2400 ? 0 : _st.apply(window, arguments); };"
+        },
+        {
+          "scrollTo": "#wacc-hint"
+        },
+        {
+          "click": "#wacc-hint"
+        },
+        {
+          "eval": "var t = document.getElementById('toast'); t.style.position = 'absolute'; t.style.bottom = 'auto'; t.style.top = (document.documentElement.scrollHeight - 72) + 'px';"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    },
+    {
+      "name": "结果-默认(茅台)",
+      "steps": [
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-低估+满足安全边际",
+      "steps": [
+        {
+          "type": {
+            "selector": "#price",
+            "text": "900"
+          }
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-高估",
+      "steps": [
+        {
+          "type": {
+            "selector": "#price",
+            "text": "5000"
+          }
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-合理(现价约等于综合价值)",
+      "steps": [
+        {
+          "eval": "calculate(); var p=parseFloat(document.getElementById('r-comp').textContent); var i=document.getElementById('price'); i.value=p.toFixed(2); calculate();"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-成长股(分歧+风险提示)",
+      "steps": [
+        {
+          "click": ".pill:nth-child(3)"
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-银行(PE低位+PB提示)",
+      "steps": [
+        {
+          "click": ".pill:nth-child(2)"
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-WACC与g过近(N/A格+终值警告)",
+      "steps": [
+        {
+          "eval": "document.getElementById('wacc').value=5.2; slup('wacc'); document.getElementById('gp').value=4.8; slup('gp');"
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "结果-未输入股价",
+      "steps": [
+        {
+          "eval": "document.getElementById('price').value=''"
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "document.getElementById('toast').classList.remove('show')"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "错误-toast(折现率不大于增长率)",
+      "steps": [
+        {
+          "eval": "var _st = window.setTimeout; window.setTimeout = function (f, ms) { return ms === 2400 ? 0 : _st.apply(window, arguments); };"
+        },
+        {
+          "eval": "document.getElementById('wacc').value=4; slup('wacc'); document.getElementById('gp').value=5; slup('gp');"
+        },
+        {
+          "click": ".calc-btn"
+        },
+        {
+          "eval": "var t = document.getElementById('toast'); t.style.position = 'absolute'; t.style.bottom = 'auto'; t.style.top = (document.documentElement.scrollHeight - 72) + 'px';"
+        },
+        {
+          "wait": 300
+        }
+      ]
+    }
+  ]
+}

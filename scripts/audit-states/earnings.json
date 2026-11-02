@@ -1,0 +1,82 @@
+{
+  "_comment": "收益计算器:默认视图是「基金」标签页的空表单。基金 / 债券的结果面板(盈利 / 亏损 / 持平三种语义色)、债券标签页与「中途卖出」模式都要交互后才出现,逐个声明让审计覆盖。不声明触发 alert() 的校验失败态(无头模式下 alert 会阻塞)。",
+  "states": [
+    {
+      "name": "基金-盈利结果",
+      "steps": [
+        { "type": { "selector": "#f-principal", "text": "10000" } },
+        { "type": { "selector": "#f-nav-buy", "text": "1" } },
+        { "type": { "selector": "#f-nav-now", "text": "1.1479" } },
+        { "type": { "selector": "#f-fee-buy", "text": "0.15" } },
+        { "type": { "selector": "#f-fee-sell", "text": "0.5" } },
+        { "type": { "selector": "#f-days", "text": "90" } },
+        { "click": "#panel-fund .btn-primary" },
+        { "wait": 900 }
+      ]
+    },
+    {
+      "name": "基金-亏损结果",
+      "steps": [
+        { "type": { "selector": "#f-principal", "text": "10000" } },
+        { "type": { "selector": "#f-nav-buy", "text": "1" } },
+        { "type": { "selector": "#f-nav-now", "text": "0.85" } },
+        { "type": { "selector": "#f-fee-buy", "text": "0.15" } },
+        { "type": { "selector": "#f-fee-sell", "text": "0.5" } },
+        { "type": { "selector": "#f-days", "text": "120" } },
+        { "click": "#panel-fund .btn-primary" },
+        { "wait": 900 }
+      ]
+    },
+    {
+      "name": "基金-持平结果(无天数)",
+      "steps": [
+        { "type": { "selector": "#f-principal", "text": "10000" } },
+        { "type": { "selector": "#f-nav-buy", "text": "1" } },
+        { "type": { "selector": "#f-nav-now", "text": "1" } },
+        { "click": "#panel-fund .btn-primary" },
+        { "wait": 900 }
+      ]
+    },
+    {
+      "name": "债券-空表单",
+      "steps": [
+        { "click": ".tab[data-tab=\"bond\"]" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "债券-持有到期结果",
+      "steps": [
+        { "click": ".tab[data-tab=\"bond\"]" },
+        { "type": { "selector": "#b-principal", "text": "10000" } },
+        { "type": { "selector": "#b-price-buy", "text": "98.5" } },
+        { "type": { "selector": "#b-coupon", "text": "3.2" } },
+        { "type": { "selector": "#b-days", "text": "365" } },
+        { "click": "#panel-bond .btn-primary" },
+        { "wait": 900 }
+      ]
+    },
+    {
+      "name": "债券-中途卖出表单",
+      "steps": [
+        { "click": ".tab[data-tab=\"bond\"]" },
+        { "click": "[data-bond-mode=\"sell\"]" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "债券-中途卖出亏损结果",
+      "steps": [
+        { "click": ".tab[data-tab=\"bond\"]" },
+        { "click": "[data-bond-mode=\"sell\"]" },
+        { "type": { "selector": "#b-principal", "text": "10000" } },
+        { "type": { "selector": "#b-price-buy", "text": "102" } },
+        { "type": { "selector": "#b-price-sell", "text": "96.5" } },
+        { "type": { "selector": "#b-coupon", "text": "2.5" } },
+        { "type": { "selector": "#b-days", "text": "200" } },
+        { "click": "#panel-bond .btn-primary" },
+        { "wait": 900 }
+      ]
+    }
+  ]
+}
