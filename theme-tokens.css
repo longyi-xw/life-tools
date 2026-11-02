@@ -1,0 +1,363 @@
+/*
+ * LifeTools 全站共享主题令牌 theme-tokens.css(零依赖,纯 CSS,不导入其他样式、无外链、无 Web 字体)
+ *
+ * 作用:提供 4 种「风格」× 2 种「明暗」= 8 套语义令牌(--lt-*)。页面把自己的变量别名到这些令牌,
+ * 即可随首页或页面挂件里选择的 风格 / 明暗 联动,无需各页重复造配色。
+ * 选择器只依赖 <html> 上两个属性(由 theme-manager.js 的 initAntiFOUC 在 <head> 内同步写入):
+ *     html[data-style="classic|tech|fresh|paper"][data-theme="dark|light"]
+ *
+ * ─────────────────────────────────────────────────────────────
+ * 一、令牌语义表
+ * ─────────────────────────────────────────────────────────────
+ *  --lt-bg            页面最底层背景。深色 L* 约 5–14(经典深色为保持首页零回归允许更低),
+ *                     浅色是微暖/微冷的灰白,不是纯白。
+ *  --lt-surface       卡片 / 面板 / 输入框所在层(比 bg 高一层;浅色下是纯白或近白)。
+ *  --lt-surface-2     嵌套层:表头、斜纹行、标签底、卡片内的次级区块。页面里 muted 文字常叠在这一层上。
+ *  --lt-border        装饰分隔线 / 卡片描边:肉眼可见即可(对 bg、surface 约 1.3–1.6:1),不要用来承载信息。
+ *  --lt-border-strong 承载信息的边界:输入框、按钮、可交互卡片、图表轴线(对 bg/surface/surface-2 均 ≥ 3:1)。
+ *  --lt-text          正文。对 bg/surface/surface-2 落在 9:1–15:1(防眩光:深色不用纯白,浅色不用 #000)。
+ *  --lt-text-muted    辅助/弱化文字、标签、placeholder、图表轴文字。对三层底均 ≥ 5:1(留余量,
+ *                     不要再叠 opacity 去压它)。
+ *  --lt-accent        强调色「填充 / 装饰」版本:按钮底、进度条、色块、圆点、图表主色。对 bg ≥ 3:1。
+ *                     不要拿它直接当小字文字色。
+ *  --lt-accent-strong 强调色「文字 / 链接」版本:与 accent 是同一色相的两个明度(深色里更亮、浅色里更深),
+ *                     对 bg/surface/surface-2 及 accent-soft 叠加后的底色均 ≥ 5:1。
+ *  --lt-accent-soft   强调色淡底(半透明,叠在 bg/surface/surface-2 上都成立):选中行、徽标底、提示条。
+ *  --lt-on-accent     放在 --lt-accent 填充上的文字/图标色,对 accent ≥ 7:1。
+ *  --lt-good/bad/warn/info
+ *                     四个语义状态色,作为「文字」使用;对 bg/surface/surface-2 及各自 -soft 底均 ≥ 4.5:1。
+ *                     good 偏绿、bad 偏红、warn 偏琥珀、info 偏蓝,语义在 8 套里不翻转。
+ *                     红涨绿跌 / 绿涨红跌由页面自行决定映射,令牌只给语义色。状态不得只靠颜色表达,
+ *                     请同时加符号(▲▼ +−)、文字或形状。
+ *  --lt-good-soft/--lt-bad-soft/--lt-warn-soft/--lt-info-soft
+ *                     对应状态色的淡底(半透明):徽标、提示条、涨跌格底色。
+ *  --lt-focus         键盘焦点环颜色,对 bg/surface/surface-2 均 ≥ 3:1。用法:
+ *                     :focus-visible{outline:2px solid var(--lt-focus);outline-offset:2px}
+ *  --lt-shadow        卡片 / 浮层的 box-shadow 值(深色偏重、浅色偏柔,tech 带克制的描边发光)。
+ *  --lt-radius        卡片、面板的圆角;--lt-radius-sm 用于按钮、输入框、徽标等小控件。
+ *  --lt-bg-deco       页面背景装饰,是 background-image 的合法值或 none。图案自带平铺尺寸(repeating-*
+ *                     渐变),页面无需再设 background-size。已验证叠加后正文/弱化文字对比度几乎不变
+ *                     (tech 透明度 ≤ 0.06)。
+ *  --lt-font-heading  标题字体栈(仅系统字体):classic 无衬线 / tech 等宽点缀 / fresh 圆润无衬线 / paper 衬线。
+ *  --lt-font-mono     等宽字体栈(数字、代码、表格数值)。
+ *
+ * ─────────────────────────────────────────────────────────────
+ * 二、页面接入用法(LT-THEME-MAP 映射块)
+ * ─────────────────────────────────────────────────────────────
+ *  <head> 里,紧跟 theme-manager.js 初始化脚本之后、任何 <style> 之前,同步引入(不要 async/defer/media):
+ *      <link rel="stylesheet" href="theme-tokens.css">
+ *  页面样式里放一块映射(注释标记 LT-THEME-MAP 供 scripts/check-theme.mjs 识别):
+ *
+ *      / * LT-THEME-MAP * /                       (示意:真实写法中星号和斜杠连写)
+ *      html[data-style]:not([data-style="classic"]) {
+ *        --bg: var(--lt-bg, #0b0f14);              ← 必须带回退值:本文件缺失时页面不崩
+ *        --surface: var(--lt-surface, #11161d);
+ *        --text: var(--lt-text, #e2e6ec);
+ *        --muted: var(--lt-text-muted, #8b95a8);
+ *        --accent: var(--lt-accent, #c8a84b);
+ *        ...
+ *      }
+ *
+ *  - classic = 各页「原生配色」:深色即页面现有 :root(零视觉回归),浅色由页面自己的
+ *    html[data-theme="light"] 块提供。所以映射块用 :not([data-style="classic"]) 排除 classic,
+ *    只有 tech / fresh / paper 才会被别名到本文件的令牌。
+ *  - 选择器优先级:html[data-style]:not([data-style="classic"]) 的特异性是 (0,2,1)
+ *    (html 元素 (0,0,1) + [data-style] (0,1,0) + :not() 取其参数 [data-style="classic"] 的 (0,1,0))。
+ *    页面 :root 是 (0,1,0),html[data-theme="light"] 是 (0,1,1),都低于 (0,2,1),所以映射块无需
+ *    !important 即可压过二者,写在它们之前或之后都行;不要把映射块的选择器改写成 :root 或单个
+ *    html[data-theme],那样会输给页面自己的变量块。
+ *  - 页面自有的语义色(涨跌红绿、图表系列色等)可以留在页面内,但每套「风格 × 明暗」都要单独过对比度审计
+ *    (scripts/audit-contrast.mjs)。
+ *  - 装饰背景用法:body{background-color:var(--bg);background-image:var(--lt-bg-deco,none)};
+ *    或做成固定叠层 body::before{content:"";position:fixed;inset:0;pointer-events:none;
+ *    background-image:var(--lt-bg-deco,none)}。
+ *
+ * ─────────────────────────────────────────────────────────────
+ * 三、四种风格的设计意图
+ * ─────────────────────────────────────────────────────────────
+ *  classic 经典:黑金(深) / 米白金(浅),即首页现有气质,圆角 10px,系统无衬线标题,无背景装饰。
+ *     地位特殊:它是各页「原生配色」的参照。页面深色保持原样以零回归,所以 classic 令牌主要供首页与共享
+ *     组件(主题挂件)使用。classic 深色背景为保持首页零回归,允许低于 L* 5(#080a0d 约 L* 2.7)。
+ *     相对首页旧值,为达标而变动的值(旧值→新值)见各块内的「变动」注释。
+ *  tech 科技:深色=深蓝黑底 + 青 / 电光蓝强调,细网格 + 极淡扫描线(透明度 ≤ 0.06),小圆角 5px,
+ *     克制的描边发光,标题用等宽字体点缀;浅色=冷白蓝灰底 + 深蓝强调。
+ *  fresh 清新:薄荷 / 天空蓝淡底、青绿强调,大圆角 16px,柔和阴影,圆润无衬线标题,背景是极淡的渐变光晕;
+ *     深色=深青绿底 + 薄荷强调。
+ *  paper 书卷:浅色=暖纸色 + 墨色正文 + 朱砂 / 棕红点缀,标题用衬线字体,背景是极淡的横格;
+ *     深色=深棕褐暖灰底 + 琥珀强调(底色是暖灰棕而非纯褐,正文是暖米色而非纯白),适合阅读类页面。
+ *
+ * 校验:8 个块已逐块用脚本断言下列阈值(WCAG 2.x 相对亮度对比度,半透明色先按底色合成再计算):
+ *   text 对 bg/surface/surface-2 ∈ [9,15]:1;text-muted ≥ 5:1;accent-strong ≥ 5:1(含 accent-soft 叠加底);
+ *   accent 对 bg ≥ 3:1;on-accent 对 accent ≥ 7:1;good/bad/warn/info 及其 -soft 底 ≥ 4.5:1;
+ *   border-strong、focus ≥ 3:1;border ≥ 1.3:1。非 classic 深色:bg L* ∈ [5,14]、正文不亮于 #ECECE6;
+ *   浅色:bg 非纯白、正文非 #000。页面级审计见 scripts/audit-contrast.mjs。
+ */
+
+/* =============================================================
+ * classic · dark —— 首页现有 :root(黑金)
+ * 变动(旧值→新值):
+ *   --lt-border      #1e2535 → #232d3d   旧值对 bg 1.29:1、对 surface 1.22:1,低于「肉眼可见」1.3:1;新值 1.43 / 1.35
+ *   --lt-text-muted  #5a6478 → #8f9aae   旧值对 surface-2 仅 2.87:1(对 surface 3.15:1),是首页约 50 处小字
+ *                                         不达标的根因;新值对 bg/surface/surface-2 为 6.99 / 6.61 / 6.03:1
+ *   (--lt-border-strong 是首页没有的新令牌;good/bad/warn/info 为新增语义色,不改动首页现有 --green/--red 等)
+ * 其余(bg/surface/surface-2/text/gold/gold2/gold-dim)与首页 :root 完全一致。
+ * ============================================================= */
+html[data-style="classic"][data-theme="dark"] {
+  --lt-bg: #080a0d;
+  --lt-surface: #0f1218;
+  --lt-surface-2: #161c26;
+  --lt-border: #232d3d;
+  --lt-border-strong: #5f6b82;
+  --lt-text: #ddd8cc;
+  --lt-text-muted: #8f9aae;
+  --lt-accent: #c8a84b;
+  --lt-accent-strong: #e8c56a;
+  --lt-accent-soft: rgba(200, 168, 75, 0.12);
+  --lt-on-accent: #0b0d10;
+  --lt-good: #3ddc84;
+  --lt-bad: #f87171;
+  --lt-warn: #f0a43a;
+  --lt-info: #5aa9ff;
+  --lt-good-soft: rgba(61, 220, 132, 0.14);
+  --lt-bad-soft: rgba(248, 113, 113, 0.14);
+  --lt-warn-soft: rgba(240, 164, 58, 0.14);
+  --lt-info-soft: rgba(90, 169, 255, 0.14);
+  --lt-focus: #e8c56a;
+  --lt-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --lt-radius: 10px;
+  --lt-radius-sm: 6px;
+  --lt-bg-deco: none;
+  --lt-font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * classic · light —— 首页现有 html[data-theme="light"](米白金)
+ * 变动(旧值→新值):
+ *   --lt-border      #e3ded2 → #d9d3c4   旧值对 bg 仅 1.23:1,低于「肉眼可见」1.3:1;新值 1.37:1
+ *   --lt-text        #24201a → #2d281f   旧值对纯白 surface 16.2:1,超过 15:1 的防眩光上限;新值 14.6:1
+ *   --lt-text-muted  #6b6457 → #645d50   旧值对 surface-2 仅 5.01:1,叠在强调淡底上跌到 4.4:1;新值 5.57:1
+ *   --lt-accent      首页 --gold #9e7520 → #735200   首页装饰金配白字仅 4.18:1;为满足 on-accent ≥ 7:1
+ *                                         (现 7.04:1)取更深一档。首页自己的 --gold 不变,不受影响
+ *   --lt-accent-strong 首页 --gold-text #7a5712 / --gold2 #6f4f0d → #5e4309   与 accent 拉开明度,对各底 ≥ 5:1
+ * ============================================================= */
+html[data-style="classic"][data-theme="light"] {
+  --lt-bg: #f7f5ef;
+  --lt-surface: #ffffff;
+  --lt-surface-2: #f1ede3;
+  --lt-border: #d9d3c4;
+  --lt-border-strong: #8a8272;
+  --lt-text: #2d281f;
+  --lt-text-muted: #645d50;
+  --lt-accent: #735200;
+  --lt-accent-strong: #5e4309;
+  --lt-accent-soft: rgba(158, 117, 32, 0.12);
+  --lt-on-accent: #fffdf8;
+  --lt-good: #146b32;
+  --lt-bad: #b42318;
+  --lt-warn: #8b4f00;
+  --lt-info: #1d4ed8;
+  --lt-good-soft: rgba(20, 108, 51, 0.1);
+  --lt-bad-soft: rgba(180, 35, 24, 0.09);
+  --lt-warn-soft: rgba(143, 81, 0, 0.1);
+  --lt-info-soft: rgba(29, 78, 216, 0.09);
+  --lt-focus: #735200;
+  --lt-shadow: 0 1px 2px rgba(60, 48, 20, 0.06), 0 6px 18px rgba(60, 48, 20, 0.1);
+  --lt-radius: 10px;
+  --lt-radius-sm: 6px;
+  --lt-bg-deco: none;
+  --lt-font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * tech · dark —— 深蓝黑底 + 青 / 电光蓝,细网格 + 扫描线
+ * ============================================================= */
+html[data-style="tech"][data-theme="dark"] {
+  --lt-bg: #0b1120;
+  --lt-surface: #101827;
+  --lt-surface-2: #172236;
+  --lt-border: #223049;
+  --lt-border-strong: #5a739c;
+  --lt-text: #d3dfec;
+  --lt-text-muted: #8d9fb8;
+  --lt-accent: #26b5f2;
+  --lt-accent-strong: #74cdfa;
+  --lt-accent-soft: rgba(38, 181, 242, 0.13);
+  --lt-on-accent: #04141b;
+  --lt-good: #34d399;
+  --lt-bad: #ff7a8a;
+  --lt-warn: #fbbf24;
+  --lt-info: #8aa8ff;
+  --lt-good-soft: rgba(52, 211, 153, 0.14);
+  --lt-bad-soft: rgba(255, 122, 138, 0.14);
+  --lt-warn-soft: rgba(251, 191, 36, 0.14);
+  --lt-info-soft: rgba(138, 168, 255, 0.14);
+  --lt-focus: #74cdfa;
+  --lt-shadow: 0 0 0 1px rgba(38, 181, 242, 0.14), 0 8px 24px rgba(0, 0, 0, 0.5);
+  --lt-radius: 5px;
+  --lt-radius-sm: 3px;
+  --lt-bg-deco: repeating-linear-gradient(0deg, rgba(38, 181, 242, 0.04) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(38, 181, 242, 0.04) 0 1px, transparent 1px 40px), repeating-linear-gradient(0deg, rgba(116, 205, 250, 0.02) 0 1px, transparent 1px 4px);
+  --lt-font-heading: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * tech · light —— 冷白蓝灰底 + 深蓝强调
+ * ============================================================= */
+html[data-style="tech"][data-theme="light"] {
+  --lt-bg: #edf1f7;
+  --lt-surface: #ffffff;
+  --lt-surface-2: #e2e9f2;
+  --lt-border: #c6d1e0;
+  --lt-border-strong: #6d83a3;
+  --lt-text: #212c40;
+  --lt-text-muted: #4a5b75;
+  --lt-accent: #1a47b8;
+  --lt-accent-strong: #123a96;
+  --lt-accent-soft: rgba(26, 71, 184, 0.1);
+  --lt-on-accent: #f8fbff;
+  --lt-good: #0f683a;
+  --lt-bad: #ad2238;
+  --lt-warn: #7d5200;
+  --lt-info: #0b5bab;
+  --lt-good-soft: rgba(15, 107, 60, 0.1);
+  --lt-bad-soft: rgba(180, 35, 58, 0.09);
+  --lt-warn-soft: rgba(138, 90, 0, 0.1);
+  --lt-info-soft: rgba(11, 92, 173, 0.09);
+  --lt-focus: #1a47b8;
+  --lt-shadow: 0 0 0 1px rgba(26, 71, 184, 0.1), 0 4px 14px rgba(26, 50, 100, 0.1);
+  --lt-radius: 5px;
+  --lt-radius-sm: 3px;
+  --lt-bg-deco: repeating-linear-gradient(0deg, rgba(26, 71, 184, 0.05) 0 1px, transparent 1px 40px), repeating-linear-gradient(90deg, rgba(26, 71, 184, 0.05) 0 1px, transparent 1px 40px);
+  --lt-font-heading: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, "Microsoft YaHei", "PingFang SC", "Noto Sans SC", monospace;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * fresh · dark —— 深青绿底 + 薄荷强调,大圆角
+ * ============================================================= */
+html[data-style="fresh"][data-theme="dark"] {
+  --lt-bg: #0a1614;
+  --lt-surface: #112220;
+  --lt-surface-2: #182f2c;
+  --lt-border: #24403b;
+  --lt-border-strong: #4f7d75;
+  --lt-text: #d3e6e0;
+  --lt-text-muted: #8fb0a8;
+  --lt-accent: #3ccfa0;
+  --lt-accent-strong: #7fe3c3;
+  --lt-accent-soft: rgba(60, 207, 160, 0.14);
+  --lt-on-accent: #04201a;
+  --lt-good: #6fdc6f;
+  --lt-bad: #ff8080;
+  --lt-warn: #f4b942;
+  --lt-info: #6ab8ff;
+  --lt-good-soft: rgba(111, 220, 111, 0.14);
+  --lt-bad-soft: rgba(255, 128, 128, 0.14);
+  --lt-warn-soft: rgba(244, 185, 66, 0.14);
+  --lt-info-soft: rgba(106, 184, 255, 0.14);
+  --lt-focus: #7fe3c3;
+  --lt-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --lt-radius: 16px;
+  --lt-radius-sm: 10px;
+  --lt-bg-deco: radial-gradient(900px 420px at 8% -8%, rgba(60, 207, 160, 0.09), transparent 70%), radial-gradient(700px 360px at 100% 0%, rgba(106, 184, 255, 0.06), transparent 70%);
+  --lt-font-heading: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", "Arial Rounded MT Bold", "Yuanti SC", "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * fresh · light —— 薄荷 / 天空蓝淡底 + 青绿强调,柔和阴影
+ * ============================================================= */
+html[data-style="fresh"][data-theme="light"] {
+  --lt-bg: #e8f3f0;
+  --lt-surface: #ffffff;
+  --lt-surface-2: #dcece8;
+  --lt-border: #bad5ce;
+  --lt-border-strong: #567f77;
+  --lt-text: #16302b;
+  --lt-text-muted: #476560;
+  --lt-accent: #0a5f52;
+  --lt-accent-strong: #064a42;
+  --lt-accent-soft: rgba(11, 107, 92, 0.1);
+  --lt-on-accent: #fcfffe;
+  --lt-good: #166a29;
+  --lt-bad: #ae251d;
+  --lt-warn: #7e4d00;
+  --lt-info: #1456b8;
+  --lt-good-soft: rgba(27, 122, 47, 0.1);
+  --lt-bad-soft: rgba(179, 38, 30, 0.09);
+  --lt-warn-soft: rgba(138, 85, 0, 0.1);
+  --lt-info-soft: rgba(20, 86, 184, 0.09);
+  --lt-focus: #0b6b5c;
+  --lt-shadow: 0 8px 24px rgba(30, 90, 80, 0.12);
+  --lt-radius: 16px;
+  --lt-radius-sm: 10px;
+  --lt-bg-deco: radial-gradient(900px 420px at 8% -8%, rgba(60, 207, 160, 0.12), transparent 70%), radial-gradient(700px 360px at 100% 0%, rgba(106, 184, 255, 0.1), transparent 70%);
+  --lt-font-heading: ui-rounded, "SF Pro Rounded", "Hiragino Maru Gothic ProN", "Arial Rounded MT Bold", "Yuanti SC", "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * paper · dark —— 深棕褐暖灰底 + 琥珀强调(暖灰棕,非纯褐)
+ * ============================================================= */
+html[data-style="paper"][data-theme="dark"] {
+  --lt-bg: #17130f;
+  --lt-surface: #201b15;
+  --lt-surface-2: #2a231b;
+  --lt-border: #3a3126;
+  --lt-border-strong: #85745a;
+  --lt-text: #e6dccb;
+  --lt-text-muted: #ab9f8b;
+  --lt-accent: #e8935a;
+  --lt-accent-strong: #f4b88a;
+  --lt-accent-soft: rgba(232, 147, 90, 0.14);
+  --lt-on-accent: #1c1409;
+  --lt-good: #8fd18a;
+  --lt-bad: #f0907f;
+  --lt-warn: #e8b04a;
+  --lt-info: #86b8e6;
+  --lt-good-soft: rgba(143, 209, 138, 0.14);
+  --lt-bad-soft: rgba(240, 144, 127, 0.14);
+  --lt-warn-soft: rgba(232, 176, 74, 0.14);
+  --lt-info-soft: rgba(134, 184, 230, 0.14);
+  --lt-focus: #f4b88a;
+  --lt-shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 10px 24px rgba(0, 0, 0, 0.45);
+  --lt-radius: 4px;
+  --lt-radius-sm: 2px;
+  --lt-bg-deco: repeating-linear-gradient(0deg, rgba(224, 160, 80, 0.035) 0 1px, transparent 1px 30px);
+  --lt-font-heading: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "STSong", SimSun, serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* =============================================================
+ * paper · light —— 暖纸色 + 墨色正文 + 朱砂 / 棕红点缀
+ * ============================================================= */
+html[data-style="paper"][data-theme="light"] {
+  --lt-bg: #f2ebdd;
+  --lt-surface: #fffdf7;
+  --lt-surface-2: #e9dfcc;
+  --lt-border: #d8cbb2;
+  --lt-border-strong: #8a7a5e;
+  --lt-text: #2b251d;
+  --lt-text-muted: #5f5546;
+  --lt-accent: #9c2f1a;
+  --lt-accent-strong: #7a2312;
+  --lt-accent-soft: rgba(156, 47, 26, 0.09);
+  --lt-on-accent: #fffaf0;
+  --lt-good: #2a6125;
+  --lt-bad: #a61c38;
+  --lt-warn: #7a4a08;
+  --lt-info: #1e5794;
+  --lt-good-soft: rgba(47, 107, 42, 0.1);
+  --lt-bad-soft: rgba(173, 29, 58, 0.09);
+  --lt-warn-soft: rgba(133, 80, 10, 0.1);
+  --lt-info-soft: rgba(31, 90, 153, 0.09);
+  --lt-focus: #7a2312;
+  --lt-shadow: 0 1px 0 rgba(90, 65, 30, 0.1), 0 6px 18px rgba(90, 65, 30, 0.12);
+  --lt-radius: 4px;
+  --lt-radius-sm: 2px;
+  --lt-bg-deco: repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.04) 0 1px, transparent 1px 30px);
+  --lt-font-heading: "Songti SC", "Noto Serif SC", "Source Han Serif SC", "STSong", SimSun, serif;
+  --lt-font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}

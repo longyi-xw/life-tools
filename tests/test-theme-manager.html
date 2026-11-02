@@ -52,10 +52,12 @@
   // 模拟真实页面的标准接入:在 <head> 内同步初始化,并记录此刻(body 尚未解析)的状态
   (function () {
     localStorage.setItem('lifetools_global_theme', 'light');
+    localStorage.setItem('lifetools_global_style', 'tech');
     LifeToolsTheme.initAntiFOUC('testhead');
     var root = document.documentElement;
     window.__head = {
       theme: root.getAttribute('data-theme'),
+      style: root.getAttribute('data-style'),
       colorScheme: root.style.colorScheme,
       bodyIsNull: document.body === null
     };
@@ -129,6 +131,7 @@
     window.dispatchEvent(new StorageEvent('storage', { key: k, storageArea: localStorage }));
   }
   function theme() { return root.getAttribute('data-theme'); }
+  function styleAttr() { return root.getAttribute('data-style'); }
   function listen() {
     var log = [];
     var off = T.onChange(function (e) { log.push(e.detail); });
@@ -466,7 +469,8 @@
 
     var btn = inline.querySelector('.lt-theme-btn');
     var menu = inline.querySelector('[role="menu"]');
-    var items = Array.prototype.slice.call(inline.querySelectorAll('[role="menuitemradio"]'));
+    // 适配:菜单新增「风格」分区后 [role=menuitemradio] 共 9 项,原断言针对明暗模式的 4 项,查询限定到明暗分区
+    var items = Array.prototype.slice.call(inline.querySelectorAll('[data-section="mode"] [role="menuitemradio"]'));
     check('存在触发按钮', !!btn);
     eq('按钮初始 aria-expanded=false', btn.getAttribute('aria-expanded'), 'false');
     eq('按钮声明 aria-haspopup=menu', btn.getAttribute('aria-haspopup'), 'menu');
@@ -483,7 +487,7 @@
     btn.click();
 
     eq('默认模式 follow 被选中', inline.querySelector('[aria-checked="true"]').getAttribute('data-mode'), 'follow');
-    eq('仅有 1 个选中项', inline.querySelectorAll('[aria-checked="true"]').length, 1);
+    eq('仅有 1 个选中项', inline.querySelectorAll('[data-section="mode"] [aria-checked="true"]').length, 1); // 适配:限定明暗分区,风格分区另有自己的 1 个选中项
     var status = inline.querySelector('.lt-theme-status');
     eq('菜单显示当前生效主题(全局 dark)', status.textContent, '当前:深色');
 
@@ -579,7 +583,7 @@
     eq('选择后菜单收起', btn.getAttribute('aria-expanded'), 'false');
     eq('选择后焦点回到按钮', document.activeElement, btn);
     eq('选中态移到浅色', q('light').getAttribute('aria-checked'), 'true');
-    eq('其它选项取消选中', w.querySelectorAll('[aria-checked="true"]').length, 1);
+    eq('其它选项取消选中', w.querySelectorAll('[data-section="mode"] [aria-checked="true"]').length, 1); // 适配:限定明暗分区
     eq('状态文案更新为浅色', status.textContent, '当前:浅色');
     check('按钮 aria-label 反映当前主题', btn.getAttribute('aria-label').indexOf('浅色') >= 0, btn.getAttribute('aria-label'));
     eq('选择时派发 themechange', l.log.length >= 1 && l.log[l.log.length - 1].theme, 'light');
@@ -643,11 +647,11 @@
     key(document.activeElement, 'ArrowLeft');
     eq('ArrowLeft 同样后退', document.activeElement, items[0]);
     key(document.activeElement, 'ArrowUp');
-    eq('第一项 ArrowUp 循环到最后一项', document.activeElement, items[3]);
+    eq('第一项 ArrowUp 循环到最后一项', document.activeElement, items[items.length - 1]); // 适配:最后一项现为风格分区末项
     key(document.activeElement, 'ArrowDown');
     eq('最后一项 ArrowDown 循环到第一项', document.activeElement, items[0]);
     key(document.activeElement, 'End');
-    eq('End 到最后一项', document.activeElement, items[3]);
+    eq('End 到最后一项', document.activeElement, items[items.length - 1]); // 适配:同上
     key(document.activeElement, 'Home');
     eq('Home 到第一项', document.activeElement, items[0]);
 
@@ -657,9 +661,9 @@
 
     key(btn, 'ArrowUp');
     eq('按钮上 ArrowUp 也能展开', btn.getAttribute('aria-expanded'), 'true');
-    items[3].focus();
-    key(items[3], 'Tab');
-    eq('从最后一项 Tab 离开时收起菜单', btn.getAttribute('aria-expanded'), 'false');
+    items[items.length - 1].focus();
+    key(items[items.length - 1], 'Tab');
+    eq('从最后一项 Tab 离开时收起菜单', btn.getAttribute('aria-expanded'), 'false'); // 适配:最后一项现为风格分区末项
 
     btn.click();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
@@ -692,6 +696,969 @@
     eq('卸载后主题变化不再更新已移除的节点(监听已取消)', status.textContent, '当前:深色');
     noThrow('卸载后操作其它 API 不抛错', function () { T.setGlobalTheme('auto'); T.applyTheme('mu'); });
     eq('卸载后页面中没有该挂件', document.querySelectorAll('.lt-theme-root[data-page="mu"]').length, 0);
+  });
+
+  /* =====================================================================
+   * 风格维度(契约 A 扩展):与明暗正交,存储键 lifetools_global_style / lifetools_page_style_<pageId>
+   * ===================================================================== */
+  var STYLE_IDS = ['classic', 'tech', 'fresh', 'paper'];
+  var PAGE_STYLE_MODES = ['follow', 'classic', 'tech', 'fresh', 'paper'];
+  function btnOf(w) { return w.querySelector('.lt-theme-btn'); }
+  function allItems(w) { return Array.prototype.slice.call(w.querySelectorAll('[role="menuitemradio"]')); }
+  function styleItemsOf(w) { return Array.prototype.slice.call(w.querySelectorAll('[data-section="style"] [role="menuitemradio"]')); }
+  function modeItemsOf(w) { return Array.prototype.slice.call(w.querySelectorAll('[data-section="mode"] [role="menuitemradio"]')); }
+  function sq(w, id) { return w.querySelector('[data-style="' + id + '"]'); }
+
+  /* ---------- 9. STYLES 常量与键 ---------- */
+  await group('风格:常量、键名与只读', function () {
+    var S = T.STYLES;
+    check('STYLES 是数组', Array.isArray(S));
+    eq('STYLES 共 4 项', S.length, 4);
+    eq('STYLES 顺序 classic/tech/fresh/paper', S.map(function (i) { return i.id; }).join(','), 'classic,tech,fresh,paper');
+    eq('STYLES 标签 经典/科技/清新/书卷', S.map(function (i) { return i.label; }).join(','), '经典,科技,清新,书卷');
+    check('每项 swatch 是 2 个 #rrggbb 颜色', S.every(function (i) {
+      return Array.isArray(i.swatch) && i.swatch.length === 2 && i.swatch.every(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); });
+    }), JSON.stringify(S));
+    check('STYLES 数组被冻结', Object.isFrozen(S));
+    check('STYLES 每项及其 swatch 被冻结', S.every(function (i) { return Object.isFrozen(i) && Object.isFrozen(i.swatch); }));
+
+    var before = JSON.stringify(S);
+    try { S.push({ id: 'hack', label: 'x', swatch: ['#000000', '#ffffff'] }); } catch (e) { /* 冻结数组 push 会抛 TypeError,符合预期 */ }
+    try { S[0].id = 'hack'; } catch (e) { /* 严格模式下才抛 */ }
+    try { S[0].swatch[0] = '#123456'; } catch (e) { /* 同上 */ }
+    try { S.length = 0; } catch (e) { /* 同上 */ }
+    eq('尝试篡改 STYLES 不生效', JSON.stringify(T.STYLES), before);
+
+    eq('KEYS.GLOBAL_STYLE 取值', KEYS.GLOBAL_STYLE, 'lifetools_global_style');
+    eq('KEYS.PAGE_STYLE_PREFIX 取值', KEYS.PAGE_STYLE_PREFIX, 'lifetools_page_style_');
+    eq('既有 KEYS.GLOBAL 取值不变', KEYS.GLOBAL, 'lifetools_global_theme');
+    eq('既有 KEYS.PAGE_PREFIX 取值不变', KEYS.PAGE_PREFIX, 'lifetools_page_theme_');
+    check('KEYS 被冻结', Object.isFrozen(KEYS));
+    ['getGlobalStyle', 'setGlobalStyle', 'getPageStyle', 'setPageStyle', 'resolveEffectiveStyle'].forEach(function (n) {
+      eq('暴露 API ' + n, typeof T[n], 'function');
+    });
+  });
+
+  /* ---------- 10. 默认值与非法值回退 ---------- */
+  await group('风格:默认值与非法值回退', function () {
+    reset();
+    eq('全局风格默认为 classic', T.getGlobalStyle(), 'classic');
+    eq('页面风格默认为 follow', T.getPageStyle('pg'), 'follow');
+    eq('默认生效风格为 classic', T.resolveEffectiveStyle('pg'), 'classic');
+    eq('默认首页生效风格为 classic', T.resolveEffectiveStyle('home'), 'classic');
+    eq('默认 data-style=classic', styleAttr(), 'classic');
+
+    ['neon', '', 'TECH', 'Classic', 'follow', 'auto', 'dark'].forEach(function (bad) {
+      localStorage.setItem(KEYS.GLOBAL_STYLE, bad);
+      eq('存储里的非法全局风格 ' + JSON.stringify(bad) + ' 回退为 classic', T.getGlobalStyle(), 'classic');
+    });
+    ['neon', '', 'TECH', 'auto', 'dark', 'light', 'system'].forEach(function (bad) {
+      localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'pg', bad);
+      eq('存储里的非法页面风格 ' + JSON.stringify(bad) + ' 回退为 follow', T.getPageStyle('pg'), 'follow');
+    });
+
+    // set 非法值:直接忽略,且不写存储
+    clearKeys();
+    [undefined, null, 'neon', 'follow', 'TECH', '', 1, {}, ['tech']].forEach(function (bad) { T.setGlobalStyle(bad); });
+    eq('setGlobalStyle 非法值全部忽略:未写存储', localStorage.getItem(KEYS.GLOBAL_STYLE), null);
+    eq('setGlobalStyle 非法值后仍为默认 classic', T.getGlobalStyle(), 'classic');
+    T.setGlobalStyle('tech');
+    T.setGlobalStyle('bogus');
+    eq('setGlobalStyle 非法值被忽略(保留旧值)', T.getGlobalStyle(), 'tech');
+    eq('存储里仍是上一次的合法值', localStorage.getItem(KEYS.GLOBAL_STYLE), 'tech');
+
+    [undefined, null, 'neon', 'auto', 'dark', 'TECH', ''].forEach(function (bad) { T.setPageStyle('pg2', bad); });
+    eq('setPageStyle 非法值全部忽略:未写存储', localStorage.getItem(KEYS.PAGE_STYLE_PREFIX + 'pg2'), null);
+    eq('setPageStyle 非法值后仍为 follow', T.getPageStyle('pg2'), 'follow');
+    T.setPageStyle('pg2', 'paper');
+    T.setPageStyle('pg2', 'bogus');
+    eq('setPageStyle 非法值被忽略(保留旧值)', T.getPageStyle('pg2'), 'paper');
+
+    noThrow('空 / 非字符串 pageId 不抛错', function () {
+      [undefined, null, '', 0, 123, {}].forEach(function (pid) { T.setPageStyle(pid, 'tech'); T.getPageStyle(pid); T.resolveEffectiveStyle(pid); });
+    });
+    eq('空 pageId 读取为 follow', T.getPageStyle(''), 'follow');
+    eq('undefined pageId 读取为 follow', T.getPageStyle(undefined), 'follow');
+    eq('非法 pageId 的生效风格跟全局', T.resolveEffectiveStyle(''), 'tech');
+    check('非法 pageId 的 setPageStyle 没有写入任何页面风格键', (function () {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k.indexOf(KEYS.PAGE_STYLE_PREFIX) === 0 && k !== KEYS.PAGE_STYLE_PREFIX + 'pg' && k !== KEYS.PAGE_STYLE_PREFIX + 'pg2') return false;
+      }
+      return true;
+    })());
+  });
+
+  /* ---------- 11. 存取与持久化、解析 ---------- */
+  await group('风格:全局与页面存取、持久化与解析', function () {
+    reset();
+    STYLE_IDS.forEach(function (st) {
+      T.setGlobalStyle(st);
+      eq('setGlobalStyle(' + st + ') 读回一致', T.getGlobalStyle(), st);
+      eq('全局风格 ' + st + ' 实际写入 localStorage', localStorage.getItem(KEYS.GLOBAL_STYLE), st);
+    });
+    PAGE_STYLE_MODES.forEach(function (m) {
+      T.setPageStyle('pg', m);
+      eq('setPageStyle(pg, ' + m + ') 读回一致', T.getPageStyle('pg'), m);
+      eq('页面风格 ' + m + ' 实际写入 ' + KEYS.PAGE_STYLE_PREFIX + 'pg', localStorage.getItem(KEYS.PAGE_STYLE_PREFIX + 'pg'), m);
+    });
+    T.setPageStyle('pgA', 'tech');
+    T.setPageStyle('pgB', 'paper');
+    eq('不同页面的风格互不影响(A)', T.getPageStyle('pgA'), 'tech');
+    eq('不同页面的风格互不影响(B)', T.getPageStyle('pgB'), 'paper');
+    eq('未设置的页面风格仍为 follow', T.getPageStyle('pgC'), 'follow');
+    T.setGlobalStyle('fresh');
+    eq('改全局风格不会改写页面风格', T.getPageStyle('pgA'), 'tech');
+
+    // 跨"重新读取":风格存在 localStorage,不是模块内缓存
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'paper');
+    eq('直接改存储后 getGlobalStyle 读到最新值(无内部缓存)', T.getGlobalStyle(), 'paper');
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'pgA', 'classic');
+    eq('直接改存储后 getPageStyle 读到最新值', T.getPageStyle('pgA'), 'classic');
+
+    // resolveEffectiveStyle 全组合:页面显式风格优先,follow 取全局
+    reset();
+    STYLE_IDS.forEach(function (g) {
+      T.setGlobalStyle(g);
+      PAGE_STYLE_MODES.forEach(function (p) {
+        T.setPageStyle('pg', p);
+        var expected = p === 'follow' ? g : p;
+        eq('全局=' + g + ' 页面=' + p + ' → ' + expected, T.resolveEffectiveStyle('pg'), expected);
+      });
+      eq('全局=' + g + ' 首页 → ' + g, T.resolveEffectiveStyle('home'), g);
+    });
+
+    // home 永不使用页面级风格覆盖
+    reset();
+    T.setGlobalStyle('tech');
+    T.setPageStyle('home', 'paper');
+    eq("'home' 的 setPageStyle 被忽略,生效风格仍是全局", T.resolveEffectiveStyle('home'), 'tech');
+    eq("'home' 的页面风格恒为 follow", T.getPageStyle('home'), 'follow');
+    check("'home' 不会写入页面风格键", localStorage.getItem(KEYS.PAGE_STYLE_PREFIX + 'home') === null);
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'home', 'fresh'); // 绕过 API 手动写入
+    eq("即便存储里有 home 页面风格键,getPageStyle('home') 仍为 follow", T.getPageStyle('home'), 'follow');
+    eq("即便存储里有 home 页面风格键,解析仍跟全局", T.resolveEffectiveStyle('home'), 'tech');
+    T.setGlobalStyle('paper');
+    eq("'home' 随全局风格切到 paper", T.resolveEffectiveStyle('home'), 'paper');
+
+    // 与明暗维度正交:互不污染
+    reset();
+    T.setGlobalTheme('light');
+    T.setPageTheme('pg', 'dark');
+    T.setGlobalStyle('fresh');
+    T.setPageStyle('pg', 'paper');
+    eq('设置风格不改全局明暗', T.getGlobalTheme(), 'light');
+    eq('设置风格不改页面明暗', T.getPageTheme('pg'), 'dark');
+    eq('明暗与风格各自解析:明暗', T.resolveEffectiveTheme('pg'), 'dark');
+    eq('明暗与风格各自解析:风格', T.resolveEffectiveStyle('pg'), 'paper');
+    T.setGlobalTheme('dark');
+    T.setPageTheme('pg', 'follow');
+    eq('设置明暗不改全局风格', T.getGlobalStyle(), 'fresh');
+    eq('设置明暗不改页面风格', T.getPageStyle('pg'), 'paper');
+    check('风格键与明暗键互不相同', KEYS.GLOBAL_STYLE !== KEYS.GLOBAL && KEYS.PAGE_STYLE_PREFIX !== KEYS.PAGE_PREFIX);
+  });
+
+  /* ---------- 12. applyTheme 同时写 data-theme / data-style 并派发 detail.style ---------- */
+  await group('风格:applyTheme 写 DOM 并派发事件', function () {
+    reset();
+    T.setGlobalTheme('dark');
+    T.setGlobalStyle('tech');
+    T.setPageStyle('pg', 'fresh');
+    var l = listen();
+    var ret = T.applyTheme('pg');
+    eq('页面风格 fresh → data-style=fresh', styleAttr(), 'fresh');
+    eq('同时写入 data-theme(明暗未受影响)', theme(), 'dark');
+    eq('colorScheme 仍随明暗', root.style.colorScheme, 'dark');
+    eq('applyTheme 返回值仍是生效明暗', ret, 'dark');
+    eq('派发了 1 次 lifetools:themechange', l.log.length, 1);
+    var d = l.log[0] || {};
+    eq('detail.pageId(原有字段)', d.pageId, 'pg');
+    eq('detail.theme(原有字段)', d.theme, 'dark');
+    eq('detail.mode(原有字段,页面明暗模式)', d.mode, 'follow');
+    eq('detail.style 为生效风格', d.style, 'fresh');
+    eq('detail.styleMode 为页面风格模式', d.styleMode, 'fresh');
+    eq('detail 字段集合 = 5 个', Object.keys(d).sort().join(','), 'mode,pageId,style,styleMode,theme');
+
+    T.setPageStyle('pg', 'follow');
+    l.log.length = 0;
+    T.applyTheme('pg');
+    eq('页面 follow → data-style 取全局 tech', styleAttr(), 'tech');
+    eq('follow 时 detail.style 为全局风格', l.log[0] && l.log[0].style, 'tech');
+    eq('follow 时 detail.styleMode=follow', l.log[0] && l.log[0].styleMode, 'follow');
+
+    l.log.length = 0;
+    T.applyTheme('home');
+    eq('home → data-style 取全局 tech', styleAttr(), 'tech');
+    eq('home 的 detail.style', l.log[0] && l.log[0].style, 'tech');
+    eq('home 的 detail.styleMode 为全局风格 id', l.log[0] && l.log[0].styleMode, 'tech');
+    eq('home 的 detail.mode 仍为全局明暗模式', l.log[0] && l.log[0].mode, 'dark');
+
+    T.setGlobalStyle('paper');
+    l.log.length = 0;
+    T.applyTheme('home');
+    eq('home 随全局风格变化 detail.styleMode=paper', l.log[0] && l.log[0].styleMode, 'paper');
+
+    // 明暗与风格的组合都能落到 <html> 上(8 套配色的入口)
+    STYLE_IDS.forEach(function (st) {
+      ['dark', 'light'].forEach(function (th) {
+        T.setGlobalStyle(st);
+        T.setGlobalTheme(th);
+        T.applyTheme('home');
+        eq('组合 ' + st + ' × ' + th + ' → <html data-style data-theme>', styleAttr() + '|' + theme(), st + '|' + th);
+      });
+    });
+    l.off();
+  });
+
+  /* ---------- 13. setter 自动应用 + storage 跨标签页同步 ---------- */
+  await group('风格:setter 自动应用与 storage 跨标签页同步', function () {
+    reset();
+    var l = listen();
+    T.setGlobalStyle('tech');
+    eq('setGlobalStyle 后当前页立即应用 data-style', styleAttr(), 'tech');
+    eq('setGlobalStyle 触发 1 次事件', l.log.length, 1);
+    eq('事件 detail.style=tech', l.log[0] && l.log[0].style, 'tech');
+    eq('事件 detail.pageId 为当前页', l.log[0] && l.log[0].pageId, 'testhead');
+    T.setPageStyle('testhead', 'paper');
+    eq('setPageStyle(当前页) 立即应用', styleAttr(), 'paper');
+    eq('setPageStyle 触发事件(styleMode=paper)', l.log[l.log.length - 1].styleMode, 'paper');
+    T.setPageStyle('testhead', 'follow');
+    eq('回到 follow 后跟全局 tech', styleAttr(), 'tech');
+    T.setPageStyle('someOtherPage', 'fresh');
+    eq('设置其它页面的风格不改当前页 data-style', styleAttr(), 'tech');
+
+    // 模拟另一个标签页改了全局风格键
+    l.log.length = 0;
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'fresh');
+    storageEvent(KEYS.GLOBAL_STYLE);
+    eq('storage 事件(全局风格键)→ 无刷新同步', styleAttr(), 'fresh');
+    eq('storage 同步时派发 1 次 themechange', l.log.length, 1);
+    eq('storage 同步的 detail.style', l.log[0] && l.log[0].style, 'fresh');
+
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'testhead', 'paper');
+    storageEvent(KEYS.PAGE_STYLE_PREFIX + 'testhead');
+    eq('storage 事件(本页风格键)→ 同步为 paper', styleAttr(), 'paper');
+    eq('storage 同步的 detail.styleMode', l.log[l.log.length - 1].styleMode, 'paper');
+
+    l.log.length = 0;
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'otherPage', 'tech');
+    storageEvent(KEYS.PAGE_STYLE_PREFIX + 'otherPage');
+    eq('其它页面的风格键变化不触发本页重算', l.log.length, 0);
+    eq('其它页面的风格键变化不影响当前 data-style', styleAttr(), 'paper');
+
+    // 明暗键与风格键各管各的:明暗键变化只重算(并带上最新风格),不会丢风格
+    localStorage.setItem(KEYS.GLOBAL, 'light');
+    storageEvent(KEYS.GLOBAL);
+    eq('明暗键 storage 事件后明暗同步', theme(), 'light');
+    eq('明暗键 storage 事件后风格不丢', styleAttr(), 'paper');
+
+    // localStorage.clear() → key 为 null
+    l.log.length = 0;
+    localStorage.removeItem(KEYS.PAGE_STYLE_PREFIX + 'testhead');
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'classic');
+    storageEvent(null);
+    eq('clear() 的 storage 事件(key=null)触发 1 次重算', l.log.length, 1);
+    eq('key=null 事件后风格回到最新存储值', styleAttr(), 'classic');
+    localStorage.removeItem(KEYS.GLOBAL_STYLE);
+    storageEvent(null);
+    eq('全局风格键被清除 → 回到默认 classic', styleAttr(), 'classic');
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'tech');
+    storageEvent(KEYS.GLOBAL_STYLE);
+    eq('再次被写入后同步为 tech', styleAttr(), 'tech');
+    l.off();
+  });
+
+  /* ---------- 13b. 真实跨文档 storage 事件(iframe 写入风格键) ---------- */
+  await group('风格:真实跨文档 storage 事件', async function () {
+    reset();
+    T.setGlobalStyle('classic');
+    eq('前置:当前为 classic', styleAttr(), 'classic');
+    var got = new Promise(function (resolve) {
+      var t = setTimeout(function () { resolve(false); }, 1500);
+      var off = T.onChange(function (e) {
+        if (e.detail.style === 'fresh') { clearTimeout(t); off(); resolve(true); }
+      });
+    });
+    var ifr = document.createElement('iframe');
+    ifr.srcdoc = '<script>localStorage.setItem("' + KEYS.GLOBAL_STYLE + '","fresh");<\/script>';
+    fixtures.appendChild(ifr);
+    var synced = await got;
+    check('另一个文档写入全局风格后,本页收到真实 storage 事件并同步', synced,
+      '1.5s 内未收到变更(可能是当前环境对 file:// iframe 的存储隔离)');
+    eq('同步后 data-style=fresh', styleAttr(), 'fresh');
+    ifr.remove();
+  });
+
+  /* ---------- 14. initAntiFOUC:data-style 在 <head> 即就绪 + 幂等 ---------- */
+  await group('风格:initAntiFOUC 防闪烁与幂等', function () {
+    eq('head 内调用时 body 尚未解析', window.__head.bodyIsNull, true);
+    eq('head 内调用后 data-style 已就绪(全局 tech)', window.__head.style, 'tech');
+    eq('head 内调用后 data-theme 与 data-style 同时就绪', window.__head.theme + '|' + window.__head.style, 'light|tech');
+
+    reset();
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'paper');
+    T.initAntiFOUC('testhead');
+    eq('initAntiFOUC 同步写入 data-style(调用返回时已就绪)', styleAttr(), 'paper');
+    eq('同时写入 data-theme', theme() === 'dark' || theme() === 'light', true);
+
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'initpg', 'fresh');
+    T.initAntiFOUC('initpg');
+    eq('页面级风格覆盖在 init 时同步生效', styleAttr(), 'fresh');
+    T.initAntiFOUC('testhead');
+    eq('回到跟随全局的页面后风格回到全局 paper', styleAttr(), 'paper');
+
+    var storageBefore = window.__reg.storage;
+    var pageshowBefore = window.__reg.pageshow;
+    var mqBefore = window.__mm.listeners.length;
+    for (var i = 0; i < 4; i++) T.initAntiFOUC('testhead');
+    T.setGlobalStyle('tech');
+    T.setPageStyle('testhead', 'fresh');
+    T.setPageStyle('testhead', 'follow');
+    eq('重复 init + 风格 setter 后 storage 监听仍只注册 1 次', window.__reg.storage, 1);
+    eq('storage 监听数没有增加', window.__reg.storage, storageBefore);
+    eq('pageshow 监听数没有增加', window.__reg.pageshow, pageshowBefore);
+    eq('系统主题监听数没有增加', window.__mm.listeners.length, mqBefore);
+
+    reset();
+    T.setGlobalStyle('fresh');
+    var l = listen();
+    T.initAntiFOUC('testhead');
+    T.initAntiFOUC('testhead');
+    eq('2 次 init 恰好派发 2 次事件(无叠加监听)', l.log.length, 2);
+    eq('重复 init 的 detail.style 一致', l.log.map(function (x) { return x.style; }).join(','), 'fresh,fresh');
+    eq('重复 init 后 data-style 稳定', styleAttr(), 'fresh');
+    // storage 事件只会触发 1 次重算(没有因重复 init 叠加多份监听)
+    l.log.length = 0;
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'paper');
+    storageEvent(KEYS.GLOBAL_STYLE);
+    eq('多次 init 后一次 storage 事件只重算 1 次', l.log.length, 1);
+    l.off();
+  });
+
+  /* ---------- 15. 挂件:风格分区渲染与选择 ---------- */
+  await group('mountThemeControl:风格分区渲染与选择', function () {
+    reset();
+    T.initAntiFOUC('ms');
+    T.setGlobalTheme('dark');
+    T.setGlobalStyle('classic');
+    fixtures.textContent = '';
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var w = T.mountThemeControl('ms', { container: host });
+    var btn = btnOf(w);
+    var menu = w.querySelector('[role="menu"]');
+
+    var groups = Array.prototype.slice.call(w.querySelectorAll('[role="group"]'));
+    eq('菜单含 2 个 role=group 分区', groups.length, 2);
+    check('分区都在 role=menu 之内', groups.every(function (g) { return menu.contains(g); }));
+    check('每个分区都有非空 aria-label', groups.every(function (g) { return (g.getAttribute('aria-label') || '').length > 0; }));
+    var sg = w.querySelector('[role="group"][data-section="style"]');
+    var mg = w.querySelector('[role="group"][data-section="mode"]');
+    eq('风格分区 aria-label=风格', sg && sg.getAttribute('aria-label'), '风格');
+    eq('明暗分区 aria-label=明暗模式', mg && mg.getAttribute('aria-label'), '明暗模式');
+    eq('菜单共有 9 个 menuitemradio(4 明暗 + 5 风格)', allItems(w).length, 9);
+    var si = styleItemsOf(w);
+    eq('风格分区有 5 项', si.length, 5);
+    eq('风格项顺序:跟随首页/经典/科技/清新/书卷', si.map(function (i) { return i.getAttribute('data-style'); }).join(','), 'follow,classic,tech,fresh,paper');
+    eq('风格项文字', si.map(function (i) { return i.querySelector('.lt-theme-item-text').textContent; }).join(','), '跟随首页,经典,科技,清新,书卷');
+    check('风格项 role=menuitemradio 且为原生 button', si.every(function (i) {
+      return i.getAttribute('role') === 'menuitemradio' && i.tagName === 'BUTTON' && i.type === 'button';
+    }));
+    check('4 个具体风格项各带 1 个 .lt-theme-swatch 小色块(自身或容器 aria-hidden)', STYLE_IDS.every(function (id) {
+      var sw = sq(w, id).querySelectorAll('.lt-theme-swatch');
+      return sw.length === 1 && !!sw[0].closest('[aria-hidden="true"]');
+    }));
+    check('小色块的两个代表色取自 STYLES.swatch', T.STYLES.every(function (st) {
+      var sw = sq(w, st.id).querySelector('.lt-theme-swatch');
+      var cs = getComputedStyle(sw);
+      return cs.getPropertyValue('--lt-sw1').trim() === st.swatch[0] && cs.getPropertyValue('--lt-sw2').trim() === st.swatch[1];
+    }));
+    eq('"跟随首页"风格项没有色块(使用 🏠 图标)', sq(w, 'follow').querySelectorAll('.lt-theme-swatch').length, 0);
+    check('每个风格项的文字与色块并存(文字 + 色块)', STYLE_IDS.every(function (id) {
+      var it = sq(w, id);
+      return it.querySelector('.lt-theme-item-text').textContent.length > 0 && !!it.querySelector('.lt-theme-swatch');
+    }));
+    eq('明暗分区仍是 4 项', modeItemsOf(w).length, 4);
+    check('风格项不带 data-mode(不会被旧的 [data-mode] 选择器误中)', si.every(function (i) { return !i.hasAttribute('data-mode'); }));
+    check('明暗项不带 data-style', modeItemsOf(w).every(function (i) { return !i.hasAttribute('data-style'); }));
+
+    eq('默认风格 follow 被选中', w.querySelector('[data-section="style"] [aria-checked="true"]').getAttribute('data-style'), 'follow');
+    eq('风格分区仅 1 个选中项', w.querySelectorAll('[data-section="style"] [aria-checked="true"]').length, 1);
+    eq('明暗分区仍仅 1 个选中项', w.querySelectorAll('[data-section="mode"] [aria-checked="true"]').length, 1);
+    eq('菜单整体共 2 个选中项(每分区 1 个)', w.querySelectorAll('[aria-checked="true"]').length, 2);
+
+    btn.click();
+    check('展开后全部 9 个菜单项触控高度 ≥ 40px', allItems(w).every(function (i) { return i.offsetHeight >= 40; }),
+      allItems(w).map(function (i) { return i.offsetHeight; }).join(','));
+    check('展开后色块有实际尺寸', STYLE_IDS.every(function (id) {
+      var sw = sq(w, id).querySelector('.lt-theme-swatch');
+      return sw.offsetWidth >= 14 && sw.offsetHeight >= 14;
+    }));
+    check('菜单展开后不超出视口高度(矮屏可内部滚动)', menu.getBoundingClientRect().height <= window.innerHeight,
+      menu.getBoundingClientRect().height + ' vs ' + window.innerHeight);
+    btn.click();
+
+    // 按钮反映当前风格
+    var chipText = function () { return w.querySelector('.lt-theme-chip-text').textContent; };
+    eq('按钮显示当前生效风格名称(经典)', chipText(), '经典');
+    check('按钮 aria-label 含当前风格', btn.getAttribute('aria-label').indexOf('风格:经典') >= 0, btn.getAttribute('aria-label'));
+    check('按钮 title 含当前风格', btn.title.indexOf('风格:经典') >= 0, btn.title);
+    check('按钮的风格色块已写入代表色', getComputedStyle(btn.querySelector('.lt-theme-swatch')).getPropertyValue('--lt-sw1').trim() === T.STYLES[0].swatch[0]);
+    check('原有 aria-label 文案前缀保持', btn.getAttribute('aria-label').indexOf('主题设置,当前深色(跟随首页)') === 0, btn.getAttribute('aria-label'));
+
+    // 选择风格
+    var l = listen();
+    btn.click();
+    sq(w, 'tech').click();
+    eq('选择科技 → 写入页面风格', T.getPageStyle('ms'), 'tech');
+    eq('选择后立即生效 data-style=tech', styleAttr(), 'tech');
+    eq('选择风格不改变明暗', theme(), 'dark');
+    eq('页面明暗模式未被改动', T.getPageTheme('ms'), 'follow');
+    eq('选择后菜单收起', btn.getAttribute('aria-expanded'), 'false');
+    eq('选择后焦点回到按钮', document.activeElement, btn);
+    eq('选中态移到科技', sq(w, 'tech').getAttribute('aria-checked'), 'true');
+    eq('风格分区仍仅 1 个选中项', w.querySelectorAll('[data-section="style"] [aria-checked="true"]').length, 1);
+    eq('明暗分区选中项不受影响(follow)', w.querySelector('[data-section="mode"] [aria-checked="true"]').getAttribute('data-mode'), 'follow');
+    eq('选择时派发 themechange(detail.style=tech)', l.log.length >= 1 && l.log[l.log.length - 1].style, 'tech');
+    eq('选择时 detail.styleMode=tech', l.log[l.log.length - 1].styleMode, 'tech');
+    eq('按钮名称更新为科技', chipText(), '科技');
+    check('按钮 aria-label 更新为科技', btn.getAttribute('aria-label').indexOf('风格:科技') >= 0 && btn.getAttribute('aria-label').indexOf('风格:科技(') < 0, btn.getAttribute('aria-label'));
+    check('按钮 title 更新为科技', btn.title.indexOf('风格:科技') >= 0, btn.title);
+    check('按钮色块更新为科技的代表色', getComputedStyle(btn.querySelector('.lt-theme-swatch')).getPropertyValue('--lt-sw2').trim() === T.STYLES[1].swatch[1]);
+    eq('持久化到 localStorage', localStorage.getItem(KEYS.PAGE_STYLE_PREFIX + 'ms'), 'tech');
+
+    // 逐个选择 4 个风格
+    STYLE_IDS.forEach(function (id) {
+      btn.click();
+      sq(w, id).click();
+      eq('选择 ' + id + ' → data-style 与页面风格一致', styleAttr() + '|' + T.getPageStyle('ms'), id + '|' + id);
+    });
+
+    // 明暗与风格互不干扰
+    btn.click();
+    w.querySelector('[data-mode="light"]').click();
+    eq('选择浅色后明暗生效', theme(), 'light');
+    eq('选择浅色不改页面风格', T.getPageStyle('ms'), 'paper');
+    eq('选择浅色后 data-style 仍为 paper', styleAttr(), 'paper');
+    eq('风格分区选中态仍是 paper', sq(w, 'paper').getAttribute('aria-checked'), 'true');
+
+    // 恢复跟随首页,并随首页(全局)风格联动
+    btn.click();
+    sq(w, 'follow').click();
+    eq('选择跟随首页 → 页面风格 follow', T.getPageStyle('ms'), 'follow');
+    eq('跟随首页后 data-style 取全局(classic)', styleAttr(), 'classic');
+    T.setGlobalStyle('fresh');
+    eq('首页(全局)改清新后 data-style 同步', styleAttr(), 'fresh');
+    eq('按钮名称同步为清新', chipText(), '清新');
+    check('跟随首页时 aria-label 标注"(跟随首页)"', btn.getAttribute('aria-label').indexOf('风格:清新(跟随首页)') >= 0, btn.getAttribute('aria-label'));
+    eq('跟随首页风格项被选中', sq(w, 'follow').getAttribute('aria-checked'), 'true');
+    eq('跟随首页时具体风格项都未选中', STYLE_IDS.filter(function (id) { return sq(w, id).getAttribute('aria-checked') === 'true'; }).length, 0);
+
+    // 其它标签页修改页面风格键 → 挂件同步
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'ms', 'paper');
+    storageEvent(KEYS.PAGE_STYLE_PREFIX + 'ms');
+    eq('跨标签页修改页面风格后挂件选中态同步', sq(w, 'paper').getAttribute('aria-checked'), 'true');
+    eq('跨标签页修改后按钮名称同步', chipText(), '书卷');
+    eq('跨标签页修改后 data-style 同步', styleAttr(), 'paper');
+    // 其它标签页修改全局风格(页面为 follow 时)
+    localStorage.setItem(KEYS.PAGE_STYLE_PREFIX + 'ms', 'follow');
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'tech');
+    storageEvent(KEYS.GLOBAL_STYLE);
+    eq('跨标签页修改全局风格后挂件按钮名称同步', chipText(), '科技');
+
+    // 挂件挂在非当前页时:选择风格写入的是挂件所属页面
+    var host2 = document.createElement('div');
+    fixtures.appendChild(host2);
+    var other = T.mountThemeControl('ms-other', { container: host2 });
+    btnOf(other).click();
+    sq(other, 'fresh').click();
+    eq('挂件选择写入的是所属 pageId', T.getPageStyle('ms-other'), 'fresh');
+    eq('不会误改其它页面的风格', T.getPageStyle('ms'), 'follow');
+    T.unmountThemeControl('ms-other');
+
+    l.off();
+    T.unmountThemeControl('ms');
+    T.initAntiFOUC('testhead');
+  });
+
+  /* ---------- 16. 挂件:键盘覆盖全部项 ---------- */
+  await group('mountThemeControl:键盘操作覆盖风格分区', async function () {
+    reset();
+    T.initAntiFOUC('mks');
+    T.setGlobalTheme('dark');
+    var host = document.createElement('div');
+    fixtures.appendChild(host);
+    var w = T.mountThemeControl('mks', { container: host });
+    var btn = btnOf(w);
+    var all = allItems(w);
+    var mi = modeItemsOf(w);
+    var si = styleItemsOf(w);
+    var last = all[all.length - 1];
+    eq('DOM 顺序:先 4 个明暗项再 5 个风格项', all.map(function (i) { return i.hasAttribute('data-mode') ? 'm' : 's'; }).join(''), 'mmmmsssss');
+
+    btn.focus();
+    key(btn, 'ArrowDown');
+    eq('按钮 ArrowDown 展开,焦点落在选中的明暗项', document.activeElement, mi[0]);
+    key(document.activeElement, 'ArrowDown'); key(document.activeElement, 'ArrowDown'); key(document.activeElement, 'ArrowDown');
+    eq('ArrowDown 依次走到明暗分区末项(跟随系统)', document.activeElement, mi[3]);
+    key(document.activeElement, 'ArrowDown');
+    eq('ArrowDown 跨分区进入风格分区首项(跟随首页)', document.activeElement, si[0]);
+    key(document.activeElement, 'ArrowDown');
+    eq('ArrowDown 移到 经典', document.activeElement, si[1]);
+    key(document.activeElement, 'ArrowRight');
+    eq('ArrowRight 同样前进(科技)', document.activeElement, si[2]);
+    key(document.activeElement, 'ArrowUp');
+    eq('ArrowUp 回到 经典', document.activeElement, si[1]);
+    key(document.activeElement, 'ArrowLeft');
+    eq('ArrowLeft 同样后退(风格首项)', document.activeElement, si[0]);
+    key(document.activeElement, 'ArrowUp');
+    eq('ArrowUp 跨分区回到明暗分区末项', document.activeElement, mi[3]);
+
+    key(document.activeElement, 'End');
+    eq('End 到整个菜单的最后一项(书卷)', document.activeElement, last);
+    eq('最后一项是 data-style=paper', last.getAttribute('data-style'), 'paper');
+    key(document.activeElement, 'ArrowDown');
+    eq('最后一项 ArrowDown 循环到第一项', document.activeElement, all[0]);
+    key(document.activeElement, 'ArrowUp');
+    eq('第一项 ArrowUp 循环到最后一项', document.activeElement, last);
+    key(document.activeElement, 'Home');
+    eq('Home 到整个菜单的第一项', document.activeElement, all[0]);
+
+    // 逐项遍历:ArrowDown 走完一整圈恰好访问全部 9 项各一次
+    var seen = [all[0]];
+    for (var i = 0; i < all.length - 1; i++) { key(document.activeElement, 'ArrowDown'); seen.push(document.activeElement); }
+    check('ArrowDown 走一圈恰好访问全部 9 项', seen.length === 9 && seen.every(function (n, idx) { return n === all[idx]; }));
+
+    // Esc / Tab
+    si[2].focus();
+    key(si[2], 'Escape');
+    eq('风格项上 Esc 收起菜单', btn.getAttribute('aria-expanded'), 'false');
+    eq('风格项上 Esc 后焦点回到按钮', document.activeElement, btn);
+
+    key(btn, 'ArrowUp');
+    eq('按钮 ArrowUp 也能展开', btn.getAttribute('aria-expanded'), 'true');
+    si[2].focus();
+    key(si[2], 'Tab');
+    eq('中间的风格项 Tab 不收起菜单(交给浏览器默认移动焦点)', btn.getAttribute('aria-expanded'), 'true');
+    last.focus();
+    key(last, 'Tab', { shiftKey: true });
+    eq('最后一项 Shift+Tab 是往回走,不收起菜单', btn.getAttribute('aria-expanded'), 'true');
+    key(last, 'Tab');
+    eq('从最后一项(风格分区末项)Tab 离开时收起菜单', btn.getAttribute('aria-expanded'), 'false');
+
+    key(btn, 'ArrowDown');
+    key(btn, 'Tab', { shiftKey: true });
+    eq('按钮上 Shift+Tab(焦点往回离开)收起菜单', btn.getAttribute('aria-expanded'), 'false');
+    btn.click();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    eq('焦点在别处时全局 Esc 也能收起', btn.getAttribute('aria-expanded'), 'false');
+
+    // 键盘选择风格:聚焦 → click(原生 button 的 Enter/Space 会触发 click)
+    key(btn, 'ArrowDown');
+    si[3].focus();
+    si[3].click();
+    eq('键盘选择清新 → 页面风格 fresh', T.getPageStyle('mks'), 'fresh');
+    eq('data-style 立即为 fresh', styleAttr(), 'fresh');
+    eq('选择后菜单收起且焦点回按钮', btn.getAttribute('aria-expanded') + '|' + (document.activeElement === btn), 'false|true');
+    key(btn, 'ArrowDown');
+    eq('再次展开:焦点落在第一个选中项(明暗分区)', document.activeElement, mi[0]);
+    key(document.activeElement, 'End');
+    eq('已选风格时 End 仍到最后一项', document.activeElement, last);
+    key(document.activeElement, 'Escape');
+
+    check('全部 9 项均为原生 <button> 且可 Tab 聚焦', all.every(function (i) { return i.tagName === 'BUTTON' && i.tabIndex >= 0; }));
+    await wait(400);
+    eq('收起后菜单 display:none(不进入 Tab 序列)', getComputedStyle(w.querySelector('.lt-theme-menu')).display, 'none');
+    T.unmountThemeControl('mks');
+    T.initAntiFOUC('testhead');
+  });
+
+  /* ---------- 17. 存储不可用降级(风格) ---------- */
+  await group('风格:存储不可用时的降级', function () {
+    reset();
+    var desc = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    check('能获取 localStorage 属性描述符(用于还原)', !!desc);
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: function () { throw new DOMException('denied', 'SecurityError'); }
+    });
+    try {
+      noThrow('存储抛异常时 getGlobalStyle / getPageStyle 不抛错', function () { T.getGlobalStyle(); T.getPageStyle('deg2'); });
+      eq('存储抛异常时全局风格默认 classic', T.getGlobalStyle(), 'classic');
+      eq('存储抛异常时页面风格默认 follow', T.getPageStyle('deg2'), 'follow');
+      noThrow('存储抛异常时 setGlobalStyle 不抛错', function () { T.setGlobalStyle('fresh'); });
+      eq('降级为内存值:全局风格读回 fresh', T.getGlobalStyle(), 'fresh');
+      eq('降级后当前页 data-style 仍能应用', styleAttr(), 'fresh');
+      noThrow('存储抛异常时 setPageStyle 不抛错', function () { T.setPageStyle('deg2', 'paper'); });
+      eq('降级为内存值:页面风格读回 paper', T.getPageStyle('deg2'), 'paper');
+      eq('降级后 resolveEffectiveStyle 正确(页面优先)', T.resolveEffectiveStyle('deg2'), 'paper');
+      eq('降级后首页解析为全局内存值', T.resolveEffectiveStyle('home'), 'fresh');
+      noThrow('存储抛异常时非法值仍被忽略', function () { T.setGlobalStyle('bogus'); T.setPageStyle('deg2', 'bogus'); });
+      eq('降级下非法值不覆盖内存值', T.getGlobalStyle() + '|' + T.getPageStyle('deg2'), 'fresh|paper');
+      noThrow('存储抛异常时 applyTheme/initAntiFOUC 不抛错', function () { T.applyTheme('deg2'); T.initAntiFOUC('testhead'); });
+      noThrow('存储抛异常时挂件风格分区仍可用', function () {
+        var r = T.mountThemeControl('deg2', { container: fixtures });
+        check('存储抛异常时仍可挂载挂件', r && r.nodeType === 1);
+        eq('降级下挂件选中态读取内存值(paper)', sq(r, 'paper').getAttribute('aria-checked'), 'true');
+        btnOf(r).click();
+        sq(r, 'tech').click();
+        eq('降级下通过挂件选择风格后读回 tech', T.getPageStyle('deg2'), 'tech');
+        eq('降级下挂件选中态更新', sq(r, 'tech').getAttribute('aria-checked'), 'true');
+        T.unmountThemeControl('deg2');
+      });
+    } finally {
+      Object.defineProperty(window, 'localStorage', desc);
+    }
+    eq('存储恢复后内存兜底仍是最新选择(全局)', T.getGlobalStyle(), 'fresh');
+    eq('存储恢复后内存兜底仍是最新选择(页面)', T.getPageStyle('deg2'), 'tech');
+    T.setGlobalStyle('classic');
+    T.setPageStyle('deg2', 'follow');
+    check('存储恢复后可正常读写风格', localStorage.getItem(KEYS.GLOBAL_STYLE) === 'classic' && localStorage.getItem(KEYS.PAGE_STYLE_PREFIX + 'deg2') === 'follow');
+
+    // 只有写入失败(配额 / Safari 隐私模式),读取仍正常
+    var origSet = Storage.prototype.setItem;
+    Storage.prototype.setItem = function () { throw new DOMException('quota', 'QuotaExceededError'); };
+    try {
+      noThrow('setItem 抛配额异常时 setGlobalStyle 不抛错', function () { T.setGlobalStyle('tech'); });
+      eq('写入失败时读回内存值 tech', T.getGlobalStyle(), 'tech');
+      eq('写入失败时当前页仍应用 tech', styleAttr(), 'tech');
+      noThrow('setItem 抛配额异常时 setPageStyle 不抛错', function () { T.setPageStyle('deg2', 'paper'); });
+      eq('写入失败时页面风格读回内存值', T.getPageStyle('deg2'), 'paper');
+    } finally {
+      Storage.prototype.setItem = origSet;
+    }
+    // 其它标签页的写入比本页失败的那次更新:storage 事件到来时丢掉内存兜底值
+    localStorage.setItem(KEYS.GLOBAL_STYLE, 'paper');
+    storageEvent(KEYS.GLOBAL_STYLE);
+    eq('storage 事件到来后丢弃过期的内存兜底(全局风格)', T.getGlobalStyle(), 'paper');
+    eq('storage 事件后 data-style 取最新存储值', styleAttr(), 'paper');
+    T.setPageStyle('deg2', 'follow'); // 写入成功,清掉页面风格的内存兜底
+    clearKeys();
+    eq('清理后无残留内存值:全局风格回到默认', T.getGlobalStyle(), 'classic');
+    eq('清理后无残留内存值:页面风格回到 follow', T.getPageStyle('deg2'), 'follow');
+    T.initAntiFOUC('testhead');
+  });
+
+  /* =====================================================================
+   * 挂件样式(widget 角色追加):令牌回退 / 令牌接入 / 8 套配色对比度 / 宿主全局样式隔离 / 色块代表色
+   * ===================================================================== */
+  // 配色辅助:任意 CSS 颜色 -> [r,g,b,a](借一个探针元素让浏览器自己解析,兼容 rgb() / color(srgb ...) 两种序列化)
+  var probeEl = document.createElement('i');
+  probeEl.style.cssText = 'position:absolute;left:-9999px;top:0';
+  fixtures.appendChild(probeEl);
+  function rgba(v) {
+    probeEl.style.color = '';
+    probeEl.style.color = v;
+    var c = getComputedStyle(probeEl).color;
+    var m = /^rgba?\(([^)]+)\)$/.exec(c);
+    if (m) { var p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; }
+    m = /^color\(srgb ([^)]+)\)$/.exec(c);
+    if (m) { var q = m[1].split(/[ \/]+/).filter(Boolean).map(Number); return [q[0] * 255, q[1] * 255, q[2] * 255, q.length > 3 ? q[3] : 1]; }
+    return null;
+  }
+  function over(top, bottom) {
+    var a = top[3];
+    return [top[0] * a + bottom[0] * (1 - a), top[1] * a + bottom[1] * (1 - a), top[2] * a + bottom[2] * (1 - a), 1];
+  }
+  function lum(c) {
+    var f = function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  }
+  function ratio(a, b) {
+    var la = lum(a), lb = lum(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+  function r2(n) { return Math.round(n * 100) / 100; }
+  // 关闭挂件内的 transition:读 color / background / transform 等带过渡的属性时,切换主题后立刻读到的会是旧值
+  function noAnim(on) {
+    var id = 'lt-test-noanim', st = document.getElementById(id);
+    if (on && !st) {
+      st = document.createElement('style');
+      st.id = id;
+      st.textContent = '.lt-theme-root,.lt-theme-root *{transition:none!important;animation:none!important}';
+      document.head.appendChild(st);
+    }
+    if (!on && st) st.parentNode.removeChild(st);
+  }
+  var HOSTS_BW = { black: [0, 0, 0, 1], white: [255, 255, 255, 1] }; // 最差情形:挂件盖在纯黑 / 纯白宿主背景上
+
+  // 对当前主题下的一个已挂载挂件做全套对比度断言;菜单需处于展开状态才有"选中项"可量
+  function widgetContrast(label, w) {
+    var cs = getComputedStyle(w);
+    var v = function (n) { return cs.getPropertyValue(n).trim(); };
+    var bg = rgba(v('--lt-theme-bg'));
+    var fg = rgba(v('--lt-theme-fg')), muted = rgba(v('--lt-theme-muted')), accent = rgba(v('--lt-theme-accent'));
+    var soft = rgba(v('--lt-theme-accent-soft')), edge = rgba(v('--lt-theme-edge')), focus = rgba(v('--lt-theme-focus'));
+    var halo = rgba(v('--lt-theme-halo'));
+    check(label + ':挂件配色变量都能解析为颜色', !!(bg && fg && muted && accent && soft && edge && focus && halo),
+      [v('--lt-theme-bg'), v('--lt-theme-fg'), v('--lt-theme-muted'), v('--lt-theme-accent'), v('--lt-theme-accent-soft'), v('--lt-theme-edge'), v('--lt-theme-focus')].join(' | '));
+    if (!(bg && fg && muted && accent && soft && edge && focus && halo)) return;
+    Object.keys(HOSTS_BW).forEach(function (hn) {
+      var host = HOSTS_BW[hn];
+      var surf = over(bg, host); // 半透明毛玻璃压在宿主上的有效底色
+      var tag = label + '(' + hn + ' 宿主)';
+      var a = ratio(fg, surf), b = ratio(muted, surf), c = ratio(accent, over(soft, surf));
+      check(tag + ':正文 >= 4.5:1', a >= 4.5, r2(a) + ':1');
+      check(tag + ':弱化文字(状态行/分组标题) >= 4.5:1', b >= 4.5, r2(b) + ':1');
+      check(tag + ':选中项文字叠在淡底上 >= 4.5:1', c >= 4.5, r2(c) + ':1');
+      var d = ratio(edge, surf), e = ratio(edge, host), f = ratio(focus, surf), g = ratio(muted, surf);
+      check(tag + ':按钮/菜单边界 edge 对挂件底 >= 3:1', d >= 3, r2(d) + ':1');
+      check(tag + ':按钮边界 edge 对宿主背景 >= 3:1', e >= 3, r2(e) + ':1');
+      check(tag + ':焦点环对挂件底 >= 3:1', f >= 3, r2(f) + ':1');
+      check(tag + ':色块描边环(muted)对挂件底 >= 3:1', g >= 3, r2(g) + ':1');
+    });
+    check(label + ':毛玻璃底色不透明度 >= 0.96(反色宿主上也读得清)', bg[3] >= 0.96, 'alpha=' + bg[3]);
+  }
+
+  /* ---------- 挂件样式 1. 令牌文件缺失时的回退 ---------- */
+  await group('挂件样式:令牌文件缺失时仍可读(回退配色)', function () {
+    reset();
+    check('测试前提:当前文档没有加载 theme-tokens.css', getComputedStyle(root).getPropertyValue('--lt-text').trim() === '');
+    fixtures.textContent = '';
+    fixtures.appendChild(probeEl);
+    var host = document.createElement('div');
+    host.style.display = 'block';
+    fixtures.appendChild(host);
+    noAnim(true);
+    var w = T.mountThemeControl('fb', { container: host });
+    ['light', 'dark'].forEach(function (th) {
+      T.setGlobalTheme(th);
+      var cs = getComputedStyle(w);
+      var btn = btnOf(w);
+      var bcs = getComputedStyle(btn);
+      var bg = rgba(bcs.backgroundColor);
+      check('回退(' + th + '):按钮底色不是透明', !!bg && bg[3] >= 0.9, bcs.backgroundColor);
+      check('回退(' + th + '):按钮边框有颜色', !!rgba(bcs.borderTopColor) && rgba(bcs.borderTopColor)[3] > 0.5 && parseFloat(bcs.borderTopWidth) >= 1, bcs.borderTopColor + ' ' + bcs.borderTopWidth);
+      eq('回退(' + th + '):按钮文字色 = 挂件正文色变量', rgba(bcs.color).slice(0, 3).join(','), rgba(cs.getPropertyValue('--lt-theme-fg')).slice(0, 3).join(','));
+      widgetContrast('回退(' + th + ')', w);
+    });
+    T.setGlobalTheme('light');
+    var lightFg = getComputedStyle(w).getPropertyValue('--lt-theme-fg').trim();
+    T.setGlobalTheme('dark');
+    var darkFg = getComputedStyle(w).getPropertyValue('--lt-theme-fg').trim();
+    check('回退配色仍随明暗切换(正文色不同)', lightFg !== '' && darkFg !== '' && lightFg !== darkFg, lightFg + ' vs ' + darkFg);
+    T.unmountThemeControl('fb');
+    noAnim(false);
+    T.initAntiFOUC('testhead');
+  });
+
+  /* ---------- 挂件样式 2. 令牌接入 + 8 套配色对比度 ---------- */
+  await group('挂件样式:接入 theme-tokens.css,4 风格 x 明暗共 8 套配色对比度', async function () {
+    reset();
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '../theme-tokens.css';
+    var loaded = await new Promise(function (res) {
+      link.onload = function () { res(true); };
+      link.onerror = function () { res(false); };
+      setTimeout(function () { res(false); }, 5000);
+      document.head.appendChild(link);
+    });
+    check('theme-tokens.css 加载成功', loaded);
+    if (!loaded) return;
+    try {
+      fixtures.textContent = '';
+      fixtures.appendChild(probeEl);
+      var host = document.createElement('div');
+      host.style.display = 'block';
+      fixtures.appendChild(host);
+      var w = T.mountThemeControl('tk', { container: host });
+      var btn = btnOf(w);
+      noAnim(true);
+      var hcs = function () { return getComputedStyle(root); };
+      var tokenColor = function (n) { return rgba(hcs().getPropertyValue(n).trim()); };
+      var same = function (a, b) { return !!a && !!b && a.slice(0, 3).map(Math.round).join(',') === b.slice(0, 3).map(Math.round).join(','); };
+      var nativeTheme = { classic: 'dark', tech: 'dark', fresh: 'light', paper: 'light' };
+      var swatchChecked = {};
+      ['dark', 'light'].forEach(function (th) {
+        STYLE_IDS.forEach(function (st) {
+          T.setGlobalStyle(st);
+          T.setGlobalTheme(th);
+          var key = st + '/' + th;
+          eq(key + ':html 属性已应用', styleAttr() + '/' + theme(), key);
+          var cs = getComputedStyle(w);
+          var v = function (n) { return rgba(cs.getPropertyValue(n).trim()); };
+          check(key + ':令牌已生效(--lt-surface 非空)', hcs().getPropertyValue('--lt-surface').trim() !== '');
+          check(key + ':正文色取自 --lt-text', same(v('--lt-theme-fg'), tokenColor('--lt-text')));
+          check(key + ':弱化文字取自 --lt-text-muted', same(v('--lt-theme-muted'), tokenColor('--lt-text-muted')));
+          check(key + ':强调(文字级)取自 --lt-accent-strong', same(v('--lt-theme-accent'), tokenColor('--lt-accent-strong')));
+          check(key + ':控件边界取自 --lt-border-strong', same(v('--lt-theme-edge'), tokenColor('--lt-border-strong')));
+          check(key + ':分隔线取自 --lt-border', same(v('--lt-theme-border'), tokenColor('--lt-border')));
+          check(key + ':焦点环取自 --lt-focus', same(v('--lt-theme-focus'), tokenColor('--lt-focus')));
+          check(key + ':底色取自 --lt-surface(毛玻璃只改不透明度)', same(v('--lt-theme-bg'), tokenColor('--lt-surface')));
+          check(key + ':按钮边框色 = edge', same(rgba(getComputedStyle(btn).borderTopColor), v('--lt-theme-edge')), getComputedStyle(btn).borderTopColor);
+          // 圆角取自 --lt-radius / --lt-radius-sm
+          var menuCs = getComputedStyle(w.querySelector('.lt-theme-menu'));
+          eq(key + ':菜单圆角 = --lt-radius', menuCs.borderTopLeftRadius, hcs().getPropertyValue('--lt-radius').trim());
+          eq(key + ':菜单项圆角 = --lt-radius-sm', getComputedStyle(w.querySelector('.lt-theme-item')).borderTopLeftRadius, hcs().getPropertyValue('--lt-radius-sm').trim());
+          widgetContrast(key, w);
+          // 色块:代表色与令牌一致(每个风格只在其"原生明暗"那一轮核对一次,避免重复)
+          var def = T.STYLES.filter(function (s) { return s.id === st; })[0];
+          if (nativeTheme[st] === th && !swatchChecked[st]) {
+            swatchChecked[st] = true;
+            check(st + ':swatch[0] = 原生明暗(' + th + ')的 --lt-bg', same(rgba(def.swatch[0]), tokenColor('--lt-bg')), def.swatch[0] + ' vs ' + hcs().getPropertyValue('--lt-bg'));
+            check(st + ':swatch[1] = 原生明暗(' + th + ')的 --lt-accent', same(rgba(def.swatch[1]), tokenColor('--lt-accent')), def.swatch[1] + ' vs ' + hcs().getPropertyValue('--lt-accent'));
+          }
+        });
+      });
+      T.STYLES.forEach(function (def) {
+        var r = ratio(rgba(def.swatch[0]), rgba(def.swatch[1]));
+        check(def.id + ':色块两半的代表色互相 >= 3:1(对半分仍可辨)', r >= 3, r2(r) + ':1');
+      });
+      check('4 个风格的色块代表色两两不同', (function () {
+        var seen = {};
+        return T.STYLES.every(function (d) { var k = d.swatch.join('/'); if (seen[k]) return false; seen[k] = 1; return true; });
+      })());
+      // 风格影响挂件观感:科技 / 书卷的按钮是小圆角方钮,经典 / 清新是胶囊
+      T.setGlobalTheme('dark');
+      T.setGlobalStyle('classic');
+      var rClassic = parseFloat(getComputedStyle(btn).borderTopLeftRadius);
+      T.setGlobalStyle('tech');
+      var rTech = parseFloat(getComputedStyle(btn).borderTopLeftRadius);
+      T.setGlobalStyle('paper');
+      var rPaper = parseFloat(getComputedStyle(btn).borderTopLeftRadius);
+      check('经典风格按钮是胶囊(圆角 >= 高度一半)', rClassic >= btn.offsetHeight / 2, rClassic + ' vs h=' + btn.offsetHeight);
+      check('科技 / 书卷风格按钮是小圆角(< 12px)', rTech > 0 && rTech < 12 && rPaper > 0 && rPaper < 12, rTech + ' / ' + rPaper);
+      T.unmountThemeControl('tk');
+    } finally {
+      noAnim(false);
+      link.parentNode && link.parentNode.removeChild(link);
+      reset();
+    }
+    check('移除令牌文件后回到回退状态', getComputedStyle(root).getPropertyValue('--lt-surface').trim() === '');
+  });
+
+  /* ---------- 挂件样式 3. 色块可辨与焦点环(样式表层面) ---------- */
+  await group('挂件样式:色块描边环、选中态边界与焦点环', function () {
+    reset();
+    fixtures.textContent = '';
+    fixtures.appendChild(probeEl);
+    var host = document.createElement('div');
+    host.style.display = 'block';
+    fixtures.appendChild(host);
+    noAnim(true);
+    var w = T.mountThemeControl('ring', { container: host });
+    var css = document.getElementById('lt-theme-style').textContent;
+    check('样式表含 :focus-visible 焦点环(2px 实线,取 --lt-focus 令牌)', /:focus-visible\{outline:2px solid var\(--lt-theme-focus\)/.test(css));
+    check('焦点环带底色光晕,不依赖宿主背景明暗', /:focus-visible\{box-shadow:0 0 0 2px var\(--lt-theme-halo\)/.test(css));
+    check('选中项有内描边(不只靠淡底色)', /aria-checked="true"\]\{[^}]*box-shadow:inset 0 0 0 1px var\(--lt-theme-accent\)/.test(css));
+    check('支持 prefers-contrast:more', css.indexOf('prefers-contrast:more') >= 0);
+    check('关闭动画时保留 prefers-reduced-motion 分支', css.indexOf('prefers-reduced-motion:reduce') >= 0);
+    w.querySelector('.lt-theme-btn').click();
+    var sws = Array.prototype.slice.call(w.querySelectorAll('.lt-theme-item-swatch .lt-theme-swatch'));
+    eq('菜单里有 4 个风格色块', sws.length, 4);
+    check('色块有 1px 外描边环(box-shadow 非 none)', sws.every(function (s) { return /0px 0px 0px 1px/.test(getComputedStyle(s).boxShadow); }),
+      sws.map(function (s) { return getComputedStyle(s).boxShadow; }).join(' | '));
+    var chip = w.querySelector('.lt-theme-chip .lt-theme-swatch');
+    check('按钮角标色块带两层环(描边 + 底色光晕)', !!chip && /0px 0px 0px 1px/.test(getComputedStyle(chip).boxShadow) && /0px 0px 0px 2px/.test(getComputedStyle(chip).boxShadow), chip && getComputedStyle(chip).boxShadow);
+    var sel = w.querySelector('.lt-theme-item[aria-checked="true"]');
+    check('选中项的边界环(内描边)已生效', /inset/.test(getComputedStyle(sel).boxShadow), getComputedStyle(sel).boxShadow);
+    var btn = w.querySelector('.lt-theme-btn');
+    // 键盘焦点(带 :focus-visible)时按钮应有 2px 实线焦点环 + 间隙光晕
+    btn.click(); // 收起
+    btn.focus();
+    if (btn.matches(':focus-visible')) {
+      var bcs = getComputedStyle(btn);
+      eq('按钮 :focus-visible 轮廓为 2px 实线', bcs.outlineStyle + ' ' + bcs.outlineWidth, 'solid 2px');
+      eq('按钮焦点环与边框之间留 2px 间隙', bcs.outlineOffset, '2px');
+      check('按钮焦点态带 2px 光晕', /0px 0px 0px 2px/.test(bcs.boxShadow), bcs.boxShadow);
+    } else {
+      check('(环境未触发 :focus-visible,已用样式表断言兜底)', true);
+    }
+    btn.blur();
+    T.unmountThemeControl('ring');
+    noAnim(false);
+    T.initAntiFOUC('testhead');
+  });
+
+  /* ---------- 挂件样式 4. 宿主全局样式不应破坏挂件 ---------- */
+  await group('挂件样式:宿主的全局 button / p / div / span / body 样式不改变挂件', function () {
+    reset();
+    fixtures.textContent = '';
+    fixtures.appendChild(probeEl);
+    var host = document.createElement('div');
+    host.className = 'hb';
+    host.style.cssText = 'display:block;margin:0;padding:0;border:0;background:none';
+    fixtures.appendChild(host);
+    noAnim(true);
+    var w = T.mountThemeControl('iso', { container: host });
+    w.querySelector('.lt-theme-btn').click(); // 展开,让菜单内部节点都参与比较
+    var nodes = [w].concat(Array.prototype.slice.call(w.querySelectorAll('*')));
+    var snap = function () {
+      return nodes.map(function (n) {
+        var cs = getComputedStyle(n), o = {};
+        for (var i = 0; i < cs.length; i++) o[cs[i]] = cs.getPropertyValue(cs[i]);
+        return o;
+      });
+    };
+    var before = snap();
+
+    var hostile = document.createElement('style');
+    hostile.id = 'hostile-host-css';
+    hostile.textContent = [
+      'body{letter-spacing:.3em;word-spacing:9px;text-transform:uppercase;text-indent:2em;line-height:3.2;font-style:italic;',
+      'font-variant:small-caps;font-weight:900;text-shadow:2px 2px 0 #0f0;text-decoration:underline;color:#f0f}',
+      'button{display:block;width:100%;height:90px;color:#e11;background:#fe0;border:6px outset #f0f;border-radius:0;padding:30px;margin:15px;',
+      'text-transform:uppercase;letter-spacing:.5em;font:italic 900 34px/1 fantasy;opacity:.5;box-shadow:6px 6px 0 #f0f;transform:rotate(4deg);float:right;min-height:120px}',
+      'button:hover,button:focus-visible{background:#0f0;color:#00f;outline:5px solid #f0f}',
+      'p{margin:30px;padding:20px;font-size:30px;line-height:4;color:#0ff;background:#400;text-align:right;text-indent:3em;display:flex;width:90%;letter-spacing:.4em}',
+      'div{display:flex;flex-direction:column;margin:9px;padding:9px;background:rgba(255,0,255,.2);border:3px dotted lime;color:#f0f;line-height:5;',
+      'width:300px;float:left;font-size:30px;font-family:fantasy;opacity:.8;transform:skew(5deg);text-align:right}',
+      'span{display:block;margin:6px;padding:6px;color:#fa0;font-weight:100;background:rgba(0,0,255,.3);text-transform:capitalize;width:200px;height:60px;float:left;opacity:.7}',
+      '.hb button,.hb div,.hb span,.hb p{border-color:#f00;color:#0f0;background-color:#00f;font-size:40px}',
+      'body .hb div button{height:140px;width:220px}',
+      'body .hb div span{display:none}'
+    ].join('');
+    document.head.appendChild(hostile);
+    try {
+      // 先证明敌意样式确实生效(防止断言空转):普通 button / p 被它改了
+      var plain = document.createElement('button');
+      plain.textContent = 'x';
+      host.appendChild(plain);
+      var plainP = document.createElement('p');
+      plainP.textContent = 'x';
+      host.appendChild(plainP);
+      eq('前提:宿主 button 样式生效(普通按钮被大写)', getComputedStyle(plain).textTransform, 'uppercase');
+      eq('前提:宿主 p 样式生效(普通段落被改成 40px)', getComputedStyle(plainP).fontSize, '40px');
+      eq('前提:宿主 body 样式生效(字距)', getComputedStyle(document.body).letterSpacing !== 'normal', true);
+      host.removeChild(plain);
+      host.removeChild(plainP);
+
+      var after = snap();
+      var diffs = [], compared = 0;
+      for (var i = 0; i < nodes.length; i++) {
+        Object.keys(before[i]).forEach(function (p) {
+          compared++;
+          if (before[i][p] !== after[i][p]) diffs.push(nodes[i].className + ' ' + p + ': ' + before[i][p] + ' -> ' + after[i][p]);
+        });
+      }
+      check('宿主敌意样式不改变挂件任何计算样式(共比较 ' + compared + ' 项,共 ' + nodes.length + ' 个节点)', diffs.length === 0, diffs.slice(0, 6).join('\n'));
+
+      // 关键属性再点名断言(失败时更好定位),含悬停态
+      var btn = btnOf(w), st = w.querySelector('.lt-theme-status'), it = w.querySelector('.lt-theme-item');
+      var bcs = getComputedStyle(btn);
+      eq('按钮高度仍是 44px(宿主 height:90px 不生效)', bcs.height, '44px');
+      eq('按钮不被宿主改成大写 / 字距', bcs.textTransform + '|' + bcs.letterSpacing, 'none|normal');
+      eq('按钮不浮动、不旋转、不透明', bcs.cssFloat + '|' + bcs.transform + '|' + bcs.opacity, 'none|none|1');
+      eq('状态行 p 的外边距 / 缩进 / 对齐不受宿主 p 影响', (function () {
+        var c = getComputedStyle(st); return [c.marginTop, c.textIndent, c.textAlign, c.fontSize].join('|');
+      })(), '0px|0px|left|12px');
+      eq('状态行背景保持透明(宿主 p 的深红底不泄漏)', getComputedStyle(st).backgroundColor, 'rgba(0, 0, 0, 0)');
+      eq('菜单仍是绝对定位且无宿主 transform', getComputedStyle(w.querySelector('.lt-theme-menu')).position + '|' + getComputedStyle(w.querySelector('.lt-theme-menu')).transform, 'absolute|none');
+      eq('菜单项仍是 flex 且宽度撑满、不受宿主 span/div 影响', getComputedStyle(it).display + '|' + getComputedStyle(it.querySelector('.lt-theme-item-text')).textTransform, 'flex|none');
+      eq('挂件根节点字号 14px、无字距、无大写', (function () {
+        var c = getComputedStyle(w); return [c.fontSize, c.letterSpacing, c.textTransform, c.textIndent, c.fontStyle].join('|');
+      })(), '14px|normal|none|0px|normal');
+      eq('菜单项(button)不被宿主边框 / 内边距污染', (function () {
+        var c = getComputedStyle(it); return [c.borderTopWidth, c.paddingTop, c.marginTop].join('|');
+      })(), '0px|0px|0px');
+    } finally {
+      hostile.parentNode.removeChild(hostile);
+    }
+    w.querySelector('.lt-theme-btn').click();
+    T.unmountThemeControl('iso');
+    noAnim(false);
+    T.initAntiFOUC('testhead');
   });
 
   /* ---------- 收尾:还原用户存储 ---------- */
