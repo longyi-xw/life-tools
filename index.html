@@ -4,22 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>生活工具箱 · LifeTools</title>
-<!-- 主题中枢:必须同步加载并在任何 <style> 之前初始化,避免首屏闪烁;theme-manager.js 缺失时保持 :root 的深色回退 -->
+<!-- 主题中枢:必须同步加载并在任何 <style> 之前初始化,避免首屏闪烁;theme-manager.js / theme-tokens.css 缺失时保持 :root 的深色回退 -->
 <meta name="color-scheme" content="light dark">
 <script src="theme-manager.js"></script>
 <script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC('home');</script>
+<link rel="stylesheet" href="theme-tokens.css">
 <meta name="description" content="工具箱：投资、分析、量化、生活等实用工具合集">
 <!-- 首页专用 Favicon：金色多功能工具箱矢量图标 -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f5d77f'/%3E%3Cstop offset='100%25' stop-color='%23b88e28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%230b0f19'/%3E%3Cpath d='M23 20V16a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v4' fill='none' stroke='url(%23g)' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='10' y='20' width='44' height='32' rx='6' fill='url(%23g)'/%3E%3Crect x='10' y='31' width='44' height='3.5' fill='%230b0f19'/%3E%3Crect x='26' y='27.5' width='12' height='10.5' rx='2.5' fill='%230b0f19'/%3E%3Ccircle cx='32' cy='32.5' r='2' fill='url(%23g)'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-  /* 主题变量::root 是深色(无 JS / theme-manager.js 缺失时的回退),浅色由 html[data-theme="light"] 覆盖 */
+  /* 主题变量(两个正交维度:明暗 data-theme × 风格 data-style,由 theme-manager.js 写在 <html> 上)
+     · :root = classic 深色,同时是无 JS / theme-manager.js 缺失时的回退
+     · html[data-theme="light"] = classic 浅色(米白金)
+     · LT-THEME-MAP 块 = tech / fresh / paper 三风格,别名到 theme-tokens.css 的共享令牌(--lt-*),classic 不受影响 */
   :root {
     --bg: #080a0d;
     --surface: #0f1218;
     --surface2: #161c26;
     --border: #1e2535;
+    --border-ctl: #5a6579; /* 输入框 / 筛选按钮等控件的边界:对 bg、surface 均 ≥ 3:1(非文本对比度)。旧版控件直接用 --border,仅 1.29:1 */
     --gold: #c8a84b;
     --gold2: #e8c56a;
     --gold-text: var(--gold); /* 小字号金色文字专用:浅色下需要更深才能满足对比度 */
@@ -28,7 +33,7 @@
     /* 状态色以 rgb 通道存储,标签底色/描边直接复用,浅色下只需换一组通道值 */
     --green-rgb: 61,220,132;
     --blue-rgb: 74,158,255;
-    --purple-rgb: 168,85,247;
+    --purple-rgb: 184,120,250; /* 旧 168,85,247:PRO 标签文字对自身淡底仅 4.17:1,提亮后 ≥ 4.9:1 */
     --orange-rgb: 249,115,22;
     --green: rgb(var(--green-rgb));
     --blue: rgb(var(--blue-rgb));
@@ -37,20 +42,35 @@
     --red: #ef4444;
     --teal: #14b8a6;
     --text: #ddd8cc;
-    --muted: #5a6478;
-    --muted-ctl: #8b95a8; /* 主题切换器里未选中项的文字色:比 --muted 亮一档,深色下对比度 ≥ 4.5:1 */
+    --muted: #8f9aae; /* 旧 #5a6478:对 surface 仅 3.15:1,是 site-sub / hstat-label / filter-btn / tool-desc 等约 50 处小字不达标的根因;新值 6.0–7.0:1 */
+    --muted-ctl: #8b95a8; /* 主题切换器里未选中项的文字色(与 --muted 现已接近,保留以免动到切换器像素) */
+    --focus: var(--gold);
     --mono: 'Share Tech Mono', monospace;
     --serif: 'Noto Serif SC', serif;
     --display: 'Bebas Neue', sans-serif;
+    --font-heading: var(--serif); /* 标题字体:classic 沿用思源宋体,tech 等宽 / fresh 圆体 / paper 衬线由映射块替换 */
+
+    /* 形状:classic 即原有数值,其它风格由映射块换成 --lt-radius 系列 */
+    --r-card: 6px;
+    --r-icon: 8px;
+    --r-field: 4px;
+    --r-chip: 20px;
+    --r-tag: 10px;
+    --r-pill: 999px;
 
     /* 装饰性变量(网格、光晕、阴影等),两套主题各给一组取值 */
     --grid-line: rgba(var(--gold-rgb),0.03);
+    --bg-deco: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    --bg-deco-size: 40px 40px;
     --header-glow: rgba(var(--gold-rgb),0.05);
     --title-shadow: 0 0 60px rgba(var(--gold-rgb),0.3);
     --title-glow-lo: 0 0 40px rgba(var(--gold-rgb),0.2);
     --title-glow-hi: 0 0 80px rgba(var(--gold-rgb),0.5), 0 0 120px rgba(var(--gold-rgb),0.2);
     --card-shadow: none;
     --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+    --card-glow: rgba(var(--gold-rgb),0.06);
+    --icon-bg: rgba(var(--gold-rgb),0.1);
+    --icon-border: rgba(var(--gold-rgb),0.25);
     --featured-tint: rgba(var(--gold-rgb),0.06);
     --featured-border: rgba(var(--gold-rgb),0.3);
     --input-shadow: 0 0 0 0 transparent; /* 保持是合法的阴影值,focus 时才能和描边光圈并列 */
@@ -59,14 +79,20 @@
     --soon-border: rgba(90,100,120,0.3);
     --soon-opacity: 0.5;
     --eyebrow-opacity: 0.8;
+    /* 标签(NEW / HOT / PRO / FREE)的淡底与描边 */
+    --tag-new-bg: rgba(var(--green-rgb),0.12);   --tag-new-bd: rgba(var(--green-rgb),0.25);
+    --tag-hot-bg: rgba(var(--orange-rgb),0.12);  --tag-hot-bd: rgba(var(--orange-rgb),0.25);
+    --tag-pro-bg: rgba(var(--purple-rgb),0.12);  --tag-pro-bd: rgba(var(--purple-rgb),0.25);
+    --tag-free-bg: rgba(var(--blue-rgb),0.12);   --tag-free-bd: rgba(var(--blue-rgb),0.25);
   }
 
-  /* 浅色:雅致米白底 + 暖金点缀。文字/次要文字/金色文字对比度均 ≥ 4.5:1(WCAG AA) */
+  /* classic 浅色:雅致米白底 + 暖金点缀。文字/次要文字/金色文字对比度均 ≥ 4.5:1(WCAG AA) */
   html[data-theme="light"] {
     --bg: #f7f5ef;
     --surface: #ffffff;
     --surface2: #f1ede3;
     --border: #e3ded2;
+    --border-ctl: #8a8272;
     --gold: #9e7520;      /* 装饰:描边、竖条、圆点 */
     --gold2: #6f4f0d;     /* 强调文字:标题、悬停态 */
     --gold-text: #7a5712; /* 小号金色文字 */
@@ -96,6 +122,92 @@
     --eyebrow-opacity: 1; /* 浅色下不再降低透明度,否则小字对比度掉到 4:1 以下 */
   }
 
+  /* LT-THEME-MAP —— tech / fresh / paper:把首页变量别名到共享令牌(theme-tokens.css)。
+     · 每个 var(--lt-*, 回退值) 的回退值 = 首页 classic 深色原值,theme-tokens.css 缺失时页面不崩
+     · 特异性 (0,2,1) 高于 :root (0,1,0) 与 html[data-theme="light"] (0,1,1),无需 !important
+     · 首页独有的装饰变量(网格、光晕、标题发光、卡片阴影、标签淡底……)用 color-mix 从 --gold(= --lt-accent)派生 */
+  html[data-style]:not([data-style="classic"]) {
+    --bg: var(--lt-bg, #080a0d);
+    --surface: var(--lt-surface, #0f1218);
+    --surface2: var(--lt-surface-2, #161c26);
+    --border: var(--lt-border, #1e2535);
+    --border-ctl: var(--lt-border-strong, #5a6579);
+    --text: var(--lt-text, #ddd8cc);
+    --muted: var(--lt-text-muted, #8f9aae);
+    --muted-ctl: var(--lt-text-muted, #8b95a8);
+    --gold: var(--lt-accent, #c8a84b);              /* 填充 / 装饰:描边、竖条、圆点 */
+    --gold2: var(--lt-accent-strong, #e8c56a);      /* 强调文字:标题、选中态 */
+    --gold-text: var(--lt-accent-strong, #e8c56a);  /* 小号强调文字 */
+    --gold-dim: var(--lt-accent-soft, rgba(200,168,75,0.12));
+    --green: var(--lt-good, #3ddc84);
+    --blue: var(--lt-info, #4a9eff);
+    --orange: var(--lt-warn, #f0a43a);
+    --focus: var(--lt-focus, #e8c56a);
+    --font-heading: var(--lt-font-heading, var(--serif));
+
+    --r-card: var(--lt-radius, 6px);
+    --r-icon: var(--lt-radius-sm, 8px);
+    --r-field: var(--lt-radius-sm, 4px);
+    --r-chip: var(--lt-radius-sm, 20px);
+    --r-tag: var(--lt-radius-sm, 10px);
+    --r-pill: calc(var(--lt-radius, 6px) + 3px);
+
+    --bg-deco: var(--lt-bg-deco, none);
+    --bg-deco-size: auto;
+    --card-shadow-hover: var(--lt-shadow, 0 8px 30px rgba(0,0,0,0.4));
+    --toast-shadow: var(--lt-shadow, none);
+    --eyebrow-opacity: 1;
+    --card-glow: color-mix(in srgb, var(--gold) 9%, transparent);
+    --icon-bg: color-mix(in srgb, var(--gold) 11%, transparent);
+    --icon-border: color-mix(in srgb, var(--gold) 30%, transparent);
+    --soon-bg: color-mix(in srgb, var(--muted) 20%, transparent);
+    --soon-border: color-mix(in srgb, var(--muted) 32%, transparent);
+    --tag-new-bg: var(--lt-good-soft, rgba(61,220,132,0.12));
+    --tag-new-bd: color-mix(in srgb, var(--green) 32%, transparent);
+    --tag-hot-bg: var(--lt-warn-soft, rgba(249,115,22,0.12));
+    --tag-hot-bd: color-mix(in srgb, var(--orange) 32%, transparent);
+    --tag-free-bg: var(--lt-info-soft, rgba(74,158,255,0.12));
+    --tag-free-bd: color-mix(in srgb, var(--blue) 32%, transparent);
+    --tag-pro-bg: color-mix(in srgb, var(--purple) 14%, transparent);
+    --tag-pro-bd: color-mix(in srgb, var(--purple) 32%, transparent);
+  }
+  /* 深色三风格共用的发光 / 阴影强度 */
+  html[data-style="tech"][data-theme="dark"],
+  html[data-style="fresh"][data-theme="dark"],
+  html[data-style="paper"][data-theme="dark"] {
+    --header-glow: color-mix(in srgb, var(--gold) 7%, transparent);
+    --title-shadow: 0 0 56px color-mix(in srgb, var(--gold) 34%, transparent);
+    --title-glow-lo: 0 0 36px color-mix(in srgb, var(--gold) 22%, transparent);
+    --title-glow-hi: 0 0 72px color-mix(in srgb, var(--gold) 52%, transparent), 0 0 110px color-mix(in srgb, var(--gold) 22%, transparent);
+    --card-shadow: none;
+    --featured-tint: color-mix(in srgb, var(--gold) 7%, transparent);
+    --featured-border: color-mix(in srgb, var(--gold) 34%, transparent);
+    --input-shadow: 0 0 0 0 transparent;
+  }
+  /* 浅色三风格共用:发光收敛,阴影柔和 */
+  html[data-style="tech"][data-theme="light"],
+  html[data-style="fresh"][data-theme="light"],
+  html[data-style="paper"][data-theme="light"] {
+    --header-glow: color-mix(in srgb, var(--gold) 11%, transparent);
+    --title-shadow: 0 1px 28px color-mix(in srgb, var(--gold) 16%, transparent);
+    --title-glow-lo: 0 1px 24px color-mix(in srgb, var(--gold) 12%, transparent);
+    --title-glow-hi: 0 1px 36px color-mix(in srgb, var(--gold) 30%, transparent);
+    --card-shadow: 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent), 0 2px 8px color-mix(in srgb, var(--text) 5%, transparent);
+    --featured-tint: color-mix(in srgb, var(--gold) 8%, transparent);
+    --featured-border: color-mix(in srgb, var(--gold) 44%, transparent);
+    --input-shadow: inset 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent);
+  }
+  /* 页面自有的 PRO 标签紫色(共享令牌里没有紫):每套「风格 × 明暗」单独挑选并过对比度审计 */
+  html[data-style="tech"][data-theme="dark"] { --purple: #b8a2ff; }
+  html[data-style="tech"][data-theme="light"] { --purple: #5a2fc0; }
+  html[data-style="fresh"][data-theme="dark"] { --purple: #c4a6ff; }
+  html[data-style="fresh"][data-theme="light"] { --purple: #6330b0; }
+  html[data-style="paper"][data-theme="dark"] { --purple: #c9a6ea; }
+  html[data-style="paper"][data-theme="light"] { --purple: #693786; }
+  /* 风格个性:fresh 全圆角胶囊;paper 标题静态墨色(不做发光脉动) */
+  html[data-style="fresh"][data-theme] { --r-chip: 999px; --r-pill: 999px; --r-tag: 999px; }
+  html[data-style="paper"][data-theme] { --title-glow-lo: var(--title-shadow); --title-glow-hi: var(--title-shadow); }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -112,7 +224,7 @@
   html.theme-switching *,
   html.theme-switching *::before,
   html.theme-switching *::after {
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease !important;
   }
   @media (prefers-reduced-motion: reduce) {
     html.theme-switching,
@@ -126,10 +238,8 @@
     content: '';
     position: fixed;
     inset: 0;
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-image: var(--bg-deco);
+    background-size: var(--bg-deco-size);
     pointer-events: none;
     z-index: 0;
   }
@@ -144,29 +254,42 @@
     background: linear-gradient(180deg, var(--header-glow) 0%, transparent 100%);
   }
 
-  /* === THEME SWITCH(三段式:自动 / 深色 / 浅色) === */
-  .theme-switch {
+  /* === HEADER TOOLS:风格选择器 + 明暗切换器,同一行右上角;窄屏落到标题上方并居中 === */
+  .header-tools {
     position: absolute;
     top: 14px;
     right: 16px;
     z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .header-tools[hidden] { display: none; }
+
+  /* 两个分段控件(明暗三段式 / 风格四段式)共用同一套胶囊外观 */
+  .theme-switch,
+  .style-switch {
     display: inline-flex;
     gap: 2px;
     padding: 3px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     box-shadow: var(--card-shadow);
   }
-  .theme-switch[hidden] { display: none; }
-  .theme-opt {
+  .theme-switch[hidden],
+  .style-switch[hidden] { display: none; }
+  .theme-opt,
+  .style-opt {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     min-height: 32px;
     padding: 0 12px;
     border: 1px solid transparent;
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: transparent;
     color: var(--muted-ctl);
     font-family: var(--mono);
@@ -176,17 +299,36 @@
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   }
-  .theme-opt:hover { color: var(--text); }
-  .theme-opt[aria-checked="true"] {
+  .theme-opt:hover,
+  .style-opt:hover { color: var(--text); }
+  .theme-opt[aria-checked="true"],
+  .style-opt[aria-checked="true"] {
     background: var(--gold-dim);
     border-color: var(--gold);
     color: var(--gold2);
   }
-  .theme-opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  @media (pointer: coarse) { .theme-opt { min-height: 40px; } }
+  .theme-opt:focus-visible,
+  .style-opt:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  /* 风格色块:对角两色(深色背景代表色 / 强调色),颜色由脚本从 LifeToolsTheme.STYLES 写入 --sw1 / --sw2;
+     细描边用控件边界色,保证 classic 深色块在深色胶囊上、fresh / paper 浅色块在浅色胶囊上也看得见 */
+  .style-swatch {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--border-ctl);
+    background: linear-gradient(135deg, var(--sw1, transparent) 0 50%, var(--sw2, transparent) 50% 100%);
+  }
+  .style-opt[aria-checked="true"] .style-swatch { border-color: var(--gold2); }
+
+  @media (pointer: coarse), (max-width: 1024px) { .theme-opt, .style-opt { min-height: 40px; } }
+  @media (max-width: 640px) {
+    header { padding-top: 14px; }
+    .header-tools { position: static; justify-content: center; margin: 0 auto 22px; }
+  }
   @media (max-width: 480px) {
-    .theme-switch { top: 10px; right: 10px; }
-    .theme-opt { padding: 0 9px; letter-spacing: 0; }
+    .theme-opt, .style-opt { padding: 0 9px; letter-spacing: 0; }
   }
 
   .site-eyebrow {
@@ -200,7 +342,7 @@
   }
 
   .site-title {
-    font-family: var(--serif);
+    font-family: var(--font-heading);
     font-weight: 700;
     font-size: clamp(44px, 12vw, 68px);
     color: var(--gold2);
@@ -260,8 +402,8 @@
   .search-input {
     width: 100%;
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
+    border: 1px solid var(--border-ctl);
+    border-radius: var(--r-field);
     padding: 11px 16px 11px 40px;
     color: var(--text);
     font-family: var(--mono);
@@ -270,7 +412,8 @@
     box-shadow: var(--input-shadow);
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .search-input:focus { border-color: var(--gold); box-shadow: var(--input-shadow), 0 0 0 3px var(--gold-dim); }
+  /* 焦点态:边框变色 + 淡色光圈之外再加一圈实心描边,焦点环相对未聚焦状态 ≥ 3:1(控件边界提亮后,仅靠边框变色不够) */
+  .search-input:focus { border-color: var(--gold); box-shadow: var(--input-shadow), 0 0 0 3px var(--gold-dim); outline: 2px solid var(--focus); outline-offset: 3px; }
   .search-input::placeholder { color: var(--muted); }
   .search-icon {
     position: absolute;
@@ -295,12 +438,12 @@
   }
   .filter-btn {
     padding: 5px 14px;
-    border-radius: 20px;
+    border-radius: var(--r-chip);
     font-size: 11px;
     font-family: var(--mono);
     letter-spacing: 1px;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-ctl);
     color: var(--muted);
     cursor: pointer;
     transition: all 0.2s;
@@ -345,7 +488,7 @@
   .tool-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--r-card);
     padding: 16px;
     display: flex;
     gap: 14px;
@@ -398,7 +541,7 @@
   .tool-icon {
     width: 46px;
     height: 46px;
-    border-radius: 8px;
+    border-radius: var(--r-icon);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -426,6 +569,7 @@
   }
 
   .tool-name {
+    font-family: var(--font-heading);
     font-size: 15px;
     font-weight: 700;
     color: var(--text);
@@ -443,14 +587,14 @@
     font-size: 9px;
     font-family: var(--mono);
     padding: 2px 7px;
-    border-radius: 10px;
+    border-radius: var(--r-tag);
     letter-spacing: 0.5px;
     white-space: nowrap;
   }
-  .tag-new { background: rgba(var(--green-rgb),0.12); color: var(--green); border: 1px solid rgba(var(--green-rgb),0.25); }
-  .tag-hot { background: rgba(var(--orange-rgb),0.12); color: var(--orange); border: 1px solid rgba(var(--orange-rgb),0.25); }
-  .tag-pro { background: rgba(var(--purple-rgb),0.12); color: var(--purple); border: 1px solid rgba(var(--purple-rgb),0.25); }
-  .tag-free { background: rgba(var(--blue-rgb),0.12); color: var(--blue); border: 1px solid rgba(var(--blue-rgb),0.25); }
+  .tag-new { background: var(--tag-new-bg); color: var(--green); border: 1px solid var(--tag-new-bd); }
+  .tag-hot { background: var(--tag-hot-bg); color: var(--orange); border: 1px solid var(--tag-hot-bd); }
+  .tag-pro { background: var(--tag-pro-bg); color: var(--purple); border: 1px solid var(--tag-pro-bd); }
+  .tag-free { background: var(--tag-free-bg); color: var(--blue); border: 1px solid var(--tag-free-bd); }
 
   .tool-desc {
     font-size: 12px;
@@ -563,7 +707,7 @@
     background: var(--surface2);
     color: var(--text);
     padding: 10px 20px;
-    border-radius: 4px;
+    border-radius: var(--r-field);
     font-size: 13px;
     font-family: var(--mono);
     z-index: 999;
@@ -576,11 +720,19 @@
 <body>
 
 <header>
-  <!-- 全站主题主控:选择结果写入 localStorage,各工具页默认"跟随首页" -->
-  <div class="theme-switch" id="theme-switch" role="radiogroup" aria-label="主题模式" title="切换主题(同步到所有工具页)">
-    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="auto" aria-label="自动(跟随系统)" title="自动:跟随系统"><span aria-hidden="true">💻</span>自动</button>
-    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="dark" aria-label="深色" title="深色"><span aria-hidden="true">🌙</span>深色</button>
-    <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="light" aria-label="浅色" title="浅色"><span aria-hidden="true">☀️</span>浅色</button>
+  <!-- 全站主题主控:风格(经典/科技/清新/书卷)与明暗(自动/深色/浅色)两个正交维度,选择结果写入 localStorage,各工具页默认"跟随首页" -->
+  <div class="header-tools" id="header-tools">
+    <div class="style-switch" id="style-switch" role="radiogroup" aria-label="主题风格" title="切换风格(同步到所有工具页)">
+      <button type="button" class="style-opt" role="radio" aria-checked="false" data-style="classic" aria-label="经典风格" title="经典:黑金 / 米白金"><span class="style-swatch" aria-hidden="true"></span>经典</button>
+      <button type="button" class="style-opt" role="radio" aria-checked="false" data-style="tech" aria-label="科技风格" title="科技:深蓝黑 + 青蓝"><span class="style-swatch" aria-hidden="true"></span>科技</button>
+      <button type="button" class="style-opt" role="radio" aria-checked="false" data-style="fresh" aria-label="清新风格" title="清新:薄荷 + 青绿"><span class="style-swatch" aria-hidden="true"></span>清新</button>
+      <button type="button" class="style-opt" role="radio" aria-checked="false" data-style="paper" aria-label="书卷风格" title="书卷:纸墨 + 朱砂"><span class="style-swatch" aria-hidden="true"></span>书卷</button>
+    </div>
+    <div class="theme-switch" id="theme-switch" role="radiogroup" aria-label="主题模式" title="切换主题(同步到所有工具页)">
+      <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="auto" aria-label="自动(跟随系统)" title="自动:跟随系统"><span aria-hidden="true">💻</span>自动</button>
+      <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="dark" aria-label="深色" title="深色"><span aria-hidden="true">🌙</span>深色</button>
+      <button type="button" class="theme-opt" role="radio" aria-checked="false" data-mode="light" aria-label="浅色" title="浅色"><span aria-hidden="true">☀️</span>浅色</button>
+    </div>
   </div>
   <div class="site-eyebrow">⬡ PERSONAL TOOLKIT</div>
   <div class="site-title">工具箱</div>
@@ -1009,67 +1161,102 @@ document.querySelectorAll('.tool-card.coming-soon').forEach(card => {
   });
 });
 
-// === 主题切换器(三段式单选:自动 / 深色 / 浅色) ===
-(function initThemeSwitch() {
-  const group = document.getElementById('theme-switch');
+// === 主题选择器:风格(四选一色块) + 明暗(三段式:自动 / 深色 / 浅色) ===
+(function initThemeControls() {
+  const tools = document.getElementById('header-tools');
+  const styleGroup = document.getElementById('style-switch');
+  const themeGroup = document.getElementById('theme-switch');
   const T = window.LifeToolsTheme;
-  if (!group) return;
-  if (!T) { group.hidden = true; return; } // theme-manager.js 加载失败时不展示无效控件
+  if (!tools || !themeGroup || !styleGroup) return;
+  if (!T) { tools.hidden = true; return; } // theme-manager.js 加载失败时不展示无效控件
 
-  const opts = Array.from(group.querySelectorAll('.theme-opt'));
-  const THEME_TEXT = { dark: '深色', light: '浅色' };
   const root = document.documentElement;
+  const THEME_TEXT = { dark: '深色', light: '浅色' };
+  const STYLES = Array.isArray(T.STYLES) ? T.STYLES : [];
+  const canStyle = typeof T.setGlobalStyle === 'function' && typeof T.getGlobalStyle === 'function' && STYLES.length > 0;
   let lastTheme = root.getAttribute('data-theme');
+  let lastStyle = root.getAttribute('data-style');
   let switchTimer = 0;
 
-  function sync() {
-    const mode = T.getGlobalTheme();
-    opts.forEach(btn => {
-      const on = btn.dataset.mode === mode;
-      btn.setAttribute('aria-checked', on ? 'true' : 'false');
-      btn.tabIndex = on ? 0 : -1; // 单选组只让选中项进入 Tab 序列,方向键在组内移动
+  // 单选组的键盘约定:选中项占 Tab 序列,方向键 / Home / End 在组内移动并立即选中
+  function bindRadioGroup(group, opts, choose) {
+    group.addEventListener('click', e => {
+      const btn = e.target.closest('[role="radio"]');
+      if (btn && opts.includes(btn)) choose(btn);
     });
-    const autoBtn = opts.find(b => b.dataset.mode === 'auto');
+    group.addEventListener('keydown', e => {
+      const i = opts.indexOf(document.activeElement);
+      if (i < 0) return;
+      let next = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % opts.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + opts.length) % opts.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = opts.length - 1;
+      if (next < 0) return;
+      e.preventDefault();
+      opts[next].focus();
+      choose(opts[next]);
+    });
+  }
+
+  function markChecked(opts, isOn) {
+    opts.forEach(btn => {
+      const on = isOn(btn);
+      btn.setAttribute('aria-checked', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1;
+    });
+  }
+
+  /* ---- 明暗 ---- */
+  const themeOpts = Array.from(themeGroup.querySelectorAll('.theme-opt'));
+  function syncTheme() {
+    const mode = T.getGlobalTheme();
+    markChecked(themeOpts, btn => btn.dataset.mode === mode);
+    const autoBtn = themeOpts.find(b => b.dataset.mode === 'auto');
     if (autoBtn) autoBtn.title = '自动:跟随系统(当前' + THEME_TEXT[T.resolveEffectiveTheme('home')] + ')';
   }
-
-  function choose(btn) {
+  bindRadioGroup(themeGroup, themeOpts, btn => {
     T.setGlobalTheme(btn.dataset.mode);
-    sync(); // 存储不可用时 setGlobalTheme 仍会应用并广播,这里兜底刷新高亮
+    syncTheme(); // 存储不可用时 setGlobalTheme 仍会应用并广播,这里兜底刷新高亮
+  });
+
+  /* ---- 风格 ---- */
+  const styleOpts = Array.from(styleGroup.querySelectorAll('.style-opt'));
+  function syncStyle() {
+    const cur = T.getGlobalStyle();
+    markChecked(styleOpts, btn => btn.dataset.style === cur);
   }
-
-  group.addEventListener('click', e => {
-    const btn = e.target.closest('.theme-opt');
-    if (btn) choose(btn);
-  });
-
-  group.addEventListener('keydown', e => {
-    const i = opts.indexOf(document.activeElement);
-    if (i < 0) return;
-    let next = -1;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % opts.length;
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + opts.length) % opts.length;
-    else if (e.key === 'Home') next = 0;
-    else if (e.key === 'End') next = opts.length - 1;
-    if (next < 0) return;
-    e.preventDefault();
-    opts[next].focus();
-    choose(opts[next]);
-  });
+  if (canStyle) {
+    styleOpts.forEach(btn => {
+      const def = STYLES.find(s => s.id === btn.dataset.style);
+      if (!def) return;
+      const sw = btn.querySelector('.style-swatch');
+      if (sw && def.swatch) { sw.style.setProperty('--sw1', def.swatch[0]); sw.style.setProperty('--sw2', def.swatch[1]); }
+    });
+    bindRadioGroup(styleGroup, styleOpts, btn => {
+      T.setGlobalStyle(btn.dataset.style);
+      syncStyle();
+    });
+  } else {
+    styleGroup.hidden = true; // 旧版 theme-manager 没有风格维度时只隐藏风格选择器
+  }
 
   // 本页点击、其它标签页修改、系统主题变化都会触发该事件
   T.onChange(e => {
-    // 只在生效主题真的变化时给全站短暂加上颜色过渡;首屏不经过这里,所以刷新没有过渡动画
-    if (e.detail.theme !== lastTheme) {
+    // 只在生效的明暗 / 风格真的变化时给全站短暂加上颜色过渡;首屏不经过这里,所以刷新没有过渡动画
+    if (e.detail.theme !== lastTheme || (e.detail.style && e.detail.style !== lastStyle)) {
       lastTheme = e.detail.theme;
+      lastStyle = e.detail.style || lastStyle;
       root.classList.add('theme-switching');
       clearTimeout(switchTimer);
       switchTimer = setTimeout(() => root.classList.remove('theme-switching'), 350);
     }
-    sync();
+    syncTheme();
+    if (canStyle) syncStyle();
   });
 
-  sync();
+  syncTheme();
+  if (canStyle) syncStyle();
 })();
 </script>
 </body>
