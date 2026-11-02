@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<!-- 主题接入必须同步加载、放在任何 <style> 之前,首屏才不会闪白;缺失时退化为 :root 的浅色配色 -->
+<script src="theme-manager.js"></script>
+<script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC("technical");</script>
+<link rel="stylesheet" href="theme-tokens.css">
 <title>技术面分析速查手册</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23191010'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E📈%3C/text%3E%3C/svg%3E">
 <style>
@@ -14,7 +19,7 @@
     --border2: rgba(0,0,0,0.14);
     --text: #1a1a18;
     --text2: #5a5a56;
-    --text3: #8a8a84;
+    --text3: #6b6b66;             /* 对比度修正:旧 #8a8a84 在白 / 浅灰卡片上仅 3.0-3.5:1,现 4.7-5.4:1 */
     --blue: #1a6fd4;
     --blue-bg: #e8f0fb;
     --blue-text: #1245a0;
@@ -36,36 +41,159 @@
     --accent: #1a6fd4;
     --radius: 12px;
     --radius-sm: 8px;
+    --blue-t: #1866c8;            /* 蓝色文字专用(--blue 同时用于按钮底色,故拆分);旧 #1a6fd4 在 #f2f0eb 上 4.32:1,现 4.89:1 */
+    --on-blue: #fff;              /* 放在 --blue 填充上的文字色 */
+    /* 图表 / 色块用的语义色(填充、描边),inline SVG 与 style 属性统一引用 */
+    --c-red: #ef4444;
+    --c-green: #14963f;           /* 对比度修正:旧 #22c55e 对白底仅 2.28:1(K 线实体 / 柱子按非文本 3:1 判),现 3.84:1(柱子 .85 透明度下 3.11:1) */
+    --c-blue: #3b82f6;
+    --c-orange: #f97316;
+    --c-yellow: #eab308;
+    --c-gray: #888;
+    --c-mid: #8a8a84;
+    --c-neutral: #d1d5db;
+    /* 同色相的「文字专用」版本:在卡片底色上也要达到 WCAG AA */
+    --t-red: #b91c1c;             /* 旧 #ef4444(3.3-3.8:1) → 4.5:1 以上;下同 */
+    --t-green: #146f33;           /* 旧 #22c55e */
+    --t-blue: #1d4ed8;            /* 旧 #3b82f6 */
+    --t-orange: #c2410c;          /* 旧 #f97316 */
+    --t-mid: #6b6b66;             /* 旧 #8a8a84 */
+    /* 控件边界(导航胶囊)与键盘焦点环:对相邻底色 ≥ 3:1 */
+    --ctl-bd: #85857f;
+    --focus: #1a6fd4;
+    /* 信号胶囊 / 流程框的描边与「终点」实心框 */
+    --bd-green: #86efac;
+    --bd-red: #fca5a5;
+    --bd-amber: #fcd34d;
+    --bd-blue: #93c5fd;
+    --fin-green-bg: #dcfce7;
+    --fin-green-fg: #166534;
+    --fin-green-bd: #22c55e;
+    --fin-red-bg: #fee2e2;
+    --fin-red-fg: #991b1b;
+    --fin-red-bd: #ef4444;
+    /* 顶部横幅(经典风格固定为深海军蓝) */
+    --hero-bg: #0a1628;
+    --hero-title: #e8f4ff;
+    --hero-sub: #6b90b8;
+    --hero-glow: rgba(59,130,246,.06);
+    --htag-bg: rgba(59,130,246,.14);
+    --htag-fg: #93c5fd;
+    --htag-bd: rgba(59,130,246,.28);
+    --hero-border: none;
+    /* 风格化装饰:经典风格下全部关闭 */
+    --bg-deco: none;
+    --card-shadow: none;
+    --font-heading: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #111110;
-      --surface: #1c1c1a;
-      --surface2: #252522;
-      --border: rgba(255,255,255,0.08);
-      --border2: rgba(255,255,255,0.14);
-      --text: #e8e6e0;
-      --text2: #a0a09a;
-      --text3: #6a6a64;
-      --blue-bg: #1a2f54;
-      --blue-text: #93c5fd;
-      --green-bg: #052e16;
-      --green-text: #86efac;
-      --red-bg: #450a0a;
-      --red-text: #fca5a5;
-      --amber-bg: #451a03;
-      --amber-text: #fcd34d;
-      --purple-bg: #2e1065;
-      --purple-text: #c4b5fd;
-      --teal-bg: #042f2e;
-      --teal-text: #5eead4;
-    }
+  /* 深色:即原先随系统深色模式生效的那套外观(旧的系统深色媒体查询已删除);跟随系统由 theme-manager 的 auto / system 模式承担 */
+  html[data-theme="dark"] {
+    --bg: #111110;
+    --surface: #1c1c1a;
+    --surface2: #252522;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e6e0;
+    --text2: #a0a09a;
+    --text3: #8e8e88;             /* 对比度修正:旧 #6a6a64 在 #252522 上仅 2.8:1,现 4.7:1 */
+    --blue-bg: #1a2f54;
+    --blue-text: #93c5fd;
+    --green-bg: #052e16;
+    --green-text: #86efac;
+    --red-bg: #450a0a;
+    --red-text: #fca5a5;
+    --amber-bg: #451a03;
+    --amber-text: #fcd34d;
+    --purple-bg: #2e1065;
+    --purple-text: #c4b5fd;
+    --teal-bg: #042f2e;
+    --teal-text: #5eead4;
+    /* 深色下的「文字专用」语义色:红 / 蓝 / 链接蓝沿用浅色那套 #ef4444 / #3b82f6 / #1a6fd4 时在 #252522 上仅 4.1 / 4.2 / 3.1:1,故提亮;
+       绿 / 橙 / 中灰 / K 线实体绿在深色下本就 >= 4.9:1,保持旧值(零回归) */
+    --blue-t: #60a5fa;
+    --t-red: #f87171;
+    --t-green: #22c55e;
+    --t-blue: #7db3fb;
+    --t-orange: #f97316;
+    --t-mid: #8a8a84;
+    --c-green: #22c55e;
+    --ctl-bd: #76766f;
+    --focus: #93c5fd;
+  }
+  /* LT-THEME-MAP —— tech / fresh / paper:把页面变量别名到共享令牌(theme-tokens.css)。
+     · 每个 var(--lt-*, 回退值) 的回退值 = 页面原值,theme-tokens.css 缺失时页面不崩
+     · 特异性 (0,2,1) 高于 :root 与 html[data-theme] 块,无需 !important
+     · 页面自有语义色(K 线红绿、图表系列色)映射到 good / bad / warn / info 语义令牌,状态另有 ▲▼◆ 符号与文字,不只靠颜色 */
+  html[data-style]:not([data-style="classic"]) {
+    --bg: var(--lt-bg, #f8f7f4);
+    --surface: var(--lt-surface, #ffffff);
+    --surface2: var(--lt-surface-2, #f2f0eb);
+    --border: var(--lt-border, rgba(0,0,0,0.08));
+    --border2: var(--lt-border-strong, rgba(0,0,0,0.14));
+    --ctl-bd: var(--lt-border-strong, #85857f);
+    --focus: var(--lt-focus, #1a6fd4);
+    --text: var(--lt-text, #1a1a18);
+    --text2: color-mix(in srgb, var(--lt-text, #5a5a56) 45%, var(--lt-text-muted, #5a5a56));
+    --text3: var(--lt-text-muted, #8a8a84);
+    --blue: var(--lt-accent, #1a6fd4);
+    --blue-t: var(--lt-accent-strong, #1a6fd4);
+    --on-blue: var(--lt-on-accent, #fff);
+    --accent: var(--lt-accent, #1a6fd4);
+    --radius: var(--lt-radius, 12px);
+    --radius-sm: var(--lt-radius-sm, 8px);
+    --blue-bg: var(--lt-info-soft, #e8f0fb);
+    --blue-text: var(--lt-info, #1245a0);
+    --green-bg: var(--lt-good-soft, #dcfce7);
+    --green-text: var(--lt-good, #14532d);
+    --red-bg: var(--lt-bad-soft, #fee2e2);
+    --red-text: var(--lt-bad, #7f1d1d);
+    --amber-bg: var(--lt-warn-soft, #fef3c7);
+    --amber-text: color-mix(in srgb, var(--lt-warn, #78350f) 80%, var(--lt-text, #78350f));   /* 略向正文色靠拢:标签叠在网格装饰交点上时仍 ≥ 4.5:1 */
+    --purple-text: color-mix(in srgb, var(--lt-info, #4c1d95) 55%, var(--lt-bad, #4c1d95));
+    --purple-bg: color-mix(in srgb, var(--purple-text) 13%, transparent);
+    --teal-text: color-mix(in srgb, var(--lt-info, #134e4a) 45%, var(--lt-good, #134e4a));
+    --teal-bg: color-mix(in srgb, var(--teal-text) 13%, transparent);
+    --c-red: var(--lt-bad, #ef4444);
+    --c-green: var(--lt-good, #22c55e);
+    --c-blue: var(--lt-info, #3b82f6);
+    --c-orange: color-mix(in srgb, var(--lt-warn, #f97316) 55%, var(--lt-bad, #f97316));
+    --c-yellow: var(--lt-warn, #eab308);
+    --c-gray: var(--lt-text-muted, #888);
+    --c-mid: var(--lt-text-muted, #8a8a84);
+    --c-neutral: var(--lt-border-strong, #d1d5db);
+    --t-red: var(--lt-bad, #ef4444);
+    --t-green: var(--lt-good, #22c55e);
+    --t-blue: var(--lt-info, #3b82f6);
+    --t-orange: color-mix(in srgb, var(--lt-warn, #f97316) 55%, var(--lt-bad, #f97316));
+    --t-mid: var(--lt-text-muted, #8a8a84);
+    --bd-green: color-mix(in srgb, var(--lt-good, #86efac) 45%, transparent);
+    --bd-red: color-mix(in srgb, var(--lt-bad, #fca5a5) 45%, transparent);
+    --bd-amber: color-mix(in srgb, var(--lt-warn, #fcd34d) 45%, transparent);
+    --bd-blue: color-mix(in srgb, var(--lt-info, #93c5fd) 45%, transparent);
+    --fin-green-bg: var(--lt-good-soft, #dcfce7);
+    --fin-green-fg: var(--lt-good, #166534);
+    --fin-green-bd: var(--lt-good, #22c55e);
+    --fin-red-bg: var(--lt-bad-soft, #fee2e2);
+    --fin-red-fg: var(--lt-bad, #991b1b);
+    --fin-red-bd: var(--lt-bad, #ef4444);
+    --hero-bg: var(--lt-surface-2, #0a1628);
+    --hero-title: var(--lt-text, #e8f4ff);
+    --hero-sub: var(--lt-text-muted, #6b90b8);
+    --hero-glow: var(--lt-accent-soft, rgba(59,130,246,.06));
+    --htag-bg: var(--lt-accent-soft, rgba(59,130,246,.14));
+    --htag-fg: var(--lt-accent-strong, #93c5fd);
+    --htag-bd: color-mix(in srgb, var(--lt-accent, #3b82f6) 40%, transparent);
+    --hero-border: 1px solid var(--lt-border-strong, transparent);
+    --bg-deco: var(--lt-bg-deco, none);
+    --card-shadow: var(--lt-shadow, none);
+    --font-heading: var(--lt-font-heading, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
     background: var(--bg);
     color: var(--text);
+    background-image: var(--bg-deco);
     line-height: 1.6;
     font-size: 14px;
   }
@@ -75,9 +203,16 @@
     padding: 24px 20px 60px;
   }
 
+  /* 主题挂件行:挂载成功后才显示 */
+  .theme-row { display: none; justify-content: flex-end; margin-bottom: 12px; }
+  .theme-row.on { display: flex; }
+  .theme-slot { display: inline-flex; align-items: center; }
+
   /* HERO */
   .hero {
-    background: #0a1628;
+    background: var(--hero-bg);
+    border: var(--hero-border);
+    box-shadow: var(--card-shadow);
     padding: 32px 28px 24px;
     border-radius: var(--radius);
     margin-bottom: 20px;
@@ -90,16 +225,16 @@
     top: -80px; right: -60px;
     width: 300px; height: 300px;
     border-radius: 50%;
-    background: rgba(59,130,246,.06);
+    background: var(--hero-glow);
     pointer-events: none;
   }
-  .hero-title { font-size: clamp(20px,4vw,28px); font-weight: 600; color: #e8f4ff; margin-bottom: 6px; }
-  .hero-sub { font-size: 12px; color: #6b90b8; letter-spacing: .4px; }
+  .hero-title { font-family: var(--font-heading); font-size: clamp(20px,4vw,28px); font-weight: 600; color: var(--hero-title); margin-bottom: 6px; }
+  .hero-sub { font-size: 12px; color: var(--hero-sub); letter-spacing: .4px; }
   .hero-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
   .htag {
     font-size: 11px; padding: 3px 11px; border-radius: 20px;
-    background: rgba(59,130,246,.14); color: #93c5fd;
-    border: .5px solid rgba(59,130,246,.28);
+    background: var(--htag-bg); color: var(--htag-fg);
+    border: .5px solid var(--htag-bd);
   }
 
   /* NAV */
@@ -113,13 +248,14 @@
   .nav { display: flex; gap: 6px; min-width: max-content; }
   .nb {
     font-size: 12px; padding: 7px 16px; border-radius: 20px;
-    border: .5px solid var(--border2);
+    border: .5px solid var(--ctl-bd);
     background: var(--surface); color: var(--text2);
     cursor: pointer; white-space: nowrap;
     transition: all .18s; outline: none;
   }
+  .nb:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .nb:hover { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); }
-  .nb.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .nb.active { background: var(--blue); color: var(--on-blue); border-color: var(--blue); }
 
   /* SECTION */
   .section { display: none; }
@@ -127,6 +263,7 @@
   .sec { margin-bottom: 28px; }
   .sec-last { margin-bottom: 0; }
   .st {
+    font-family: var(--font-heading);
     font-size: 14px; font-weight: 600; color: var(--text);
     margin-bottom: 14px; padding-left: 10px;
     border-left: 3px solid var(--accent);
@@ -142,10 +279,11 @@
     background: var(--surface);
     border: .5px solid var(--border);
     border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
     padding: 14px 16px;
   }
   .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-name { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--text); }
   .desc { font-size: 12px; color: var(--text2); line-height: 1.6; margin-top: 6px; }
 
   /* BADGE */
@@ -165,9 +303,9 @@
   /* SIGNAL PILLS */
   .sr { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
   .sig { font-size: 11px; padding: 3px 9px; border-radius: 4px; display: flex; align-items: center; gap: 3px; }
-  .sbuy  { background: var(--green-bg);  color: var(--green-text);  border: .5px solid #86efac; }
-  .ssell { background: var(--red-bg);    color: var(--red-text);    border: .5px solid #fca5a5; }
-  .swat  { background: var(--amber-bg);  color: var(--amber-text);  border: .5px solid #fcd34d; }
+  .sbuy  { background: var(--green-bg);  color: var(--green-text);  border: .5px solid var(--bd-green); }
+  .ssell { background: var(--red-bg);    color: var(--red-text);    border: .5px solid var(--bd-red); }
+  .swat  { background: var(--amber-bg);  color: var(--amber-text);  border: .5px solid var(--bd-amber); }
 
   /* LEVEL BARS */
   .lbar { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
@@ -210,7 +348,7 @@
   .ph.active .phn { color: var(--blue-text); }
   .pd { display: none; background: var(--surface2); border-radius: var(--radius-sm); padding: 16px; }
   .pd.show { display: block; }
-  .pdt { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .pdt { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
   .pgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,200px), 1fr)); gap: 14px; margin-top: 8px; }
   .plabel { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
   .plist { list-style: none; display: flex; flex-direction: column; gap: 5px; }
@@ -221,9 +359,10 @@
   .combo-card {
     background: var(--surface); border: .5px solid var(--border);
     border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
   }
   .combo-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .combo-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .combo-title { font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--text); }
   .combo-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .combo-body { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,150px),1fr)); gap: 8px; }
   .ci { background: var(--surface2); border-radius: 6px; padding: 9px 10px; }
@@ -243,12 +382,12 @@
   /* RULES */
   .rlist { display: flex; flex-direction: column; gap: 4px; }
   .rule { font-size: 12px; color: var(--text2); padding: 6px 10px; background: var(--surface2); border-left: 2px solid var(--blue); line-height: 1.4; }
-  .rule.r-sell { border-left-color: #ef4444; }
-  .rule.r-warn { border-left-color: #f97316; }
-  .rule.r-ok   { border-left-color: #22c55e; }
+  .rule.r-sell { border-left-color: var(--c-red); }
+  .rule.r-warn { border-left-color: var(--c-orange); }
+  .rule.r-ok   { border-left-color: var(--c-green); }
 
   /* WARN BOX */
-  .wbox { background: var(--amber-bg); border: .5px solid #fcd34d; border-radius: var(--radius-sm); padding: 10px 14px; display: flex; gap: 8px; margin-top: 12px; }
+  .wbox { background: var(--amber-bg); border: .5px solid var(--bd-amber); border-radius: var(--radius-sm); padding: 10px 14px; display: flex; gap: 8px; margin-top: 12px; }
   .wbox-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
   .wbox-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
 
@@ -285,6 +424,9 @@
 </head>
 <body>
 <div class="page-wrap">
+
+  <!-- 主题挂件(内联,右对齐;theme-manager.js 缺失时整行隐藏,版面与无主题时一致) -->
+  <div class="theme-row"><span class="theme-slot" id="themeSlot"></span></div>
 
   <!-- HERO -->
   <div class="hero">
@@ -328,10 +470,10 @@
           <div class="card-name">移动平均线</div>
           <div class="desc">价格历史平均，平滑噪音，判断趋势方向。多均线排列判断多空强度。</div>
           <div style="margin-top:12px">
-            <div class="lbar"><span class="llabel">MA5</span><div class="ltrack"><div class="lfill" style="width:95%;background:#ef4444"></div></div><span style="font-size:10px;color:var(--text3)">短期</span></div>
-            <div class="lbar"><span class="llabel">MA20</span><div class="ltrack"><div class="lfill" style="width:72%;background:#f97316"></div></div><span style="font-size:10px;color:var(--text3)">中期</span></div>
-            <div class="lbar"><span class="llabel">MA60</span><div class="ltrack"><div class="lfill" style="width:50%;background:#eab308"></div></div><span style="font-size:10px;color:var(--text3)">中长</span></div>
-            <div class="lbar"><span class="llabel">MA250</span><div class="ltrack"><div class="lfill" style="width:25%;background:#22c55e"></div></div><span style="font-size:10px;color:var(--text3)">牛熊线</span></div>
+            <div class="lbar"><span class="llabel">MA5</span><div class="ltrack"><div class="lfill" style="width:95%;background:var(--c-red)"></div></div><span style="font-size:10px;color:var(--text3)">短期</span></div>
+            <div class="lbar"><span class="llabel">MA20</span><div class="ltrack"><div class="lfill" style="width:72%;background:var(--c-orange)"></div></div><span style="font-size:10px;color:var(--text3)">中期</span></div>
+            <div class="lbar"><span class="llabel">MA60</span><div class="ltrack"><div class="lfill" style="width:50%;background:var(--c-yellow)"></div></div><span style="font-size:10px;color:var(--text3)">中长</span></div>
+            <div class="lbar"><span class="llabel">MA250</span><div class="ltrack"><div class="lfill" style="width:25%;background:var(--c-green)"></div></div><span style="font-size:10px;color:var(--text3)">牛熊线</span></div>
           </div>
           <div class="sr">
             <span class="sig sbuy">▲ 多头排列 买入持有</span>
@@ -353,26 +495,26 @@
               <div class="mini-label">零轴上方（多头）</div>
               <svg width="100%" height="50" viewBox="0 0 170 50">
                 <line x1="0" y1="25" x2="170" y2="25" stroke="var(--border2)" stroke-width=".5" stroke-dasharray="3,3"/>
-                <rect x="14" y="17" width="10" height="8"  fill="#ef4444" opacity=".85" rx="1"/>
-                <rect x="28" y="11" width="10" height="14" fill="#ef4444" opacity=".85" rx="1"/>
-                <rect x="42" y="7"  width="10" height="18" fill="#ef4444" opacity=".85" rx="1"/>
-                <rect x="56" y="10" width="10" height="15" fill="#ef4444" opacity=".85" rx="1"/>
-                <path d="M14 20 Q55 8 130 14" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-                <path d="M14 22 Q55 11 130 17" fill="none" stroke="#f97316" stroke-width="1"/>
-                <text x="4" y="45" fill="#22c55e" font-size="9">多头</text>
+                <rect x="14" y="17" width="10" height="8"  fill="var(--c-red)" opacity=".85" rx="1"/>
+                <rect x="28" y="11" width="10" height="14" fill="var(--c-red)" opacity=".85" rx="1"/>
+                <rect x="42" y="7"  width="10" height="18" fill="var(--c-red)" opacity=".85" rx="1"/>
+                <rect x="56" y="10" width="10" height="15" fill="var(--c-red)" opacity=".85" rx="1"/>
+                <path d="M14 20 Q55 8 130 14" fill="none" stroke="var(--c-blue)" stroke-width="1.5"/>
+                <path d="M14 22 Q55 11 130 17" fill="none" stroke="var(--c-orange)" stroke-width="1"/>
+                <text x="4" y="45" fill="var(--t-green)" font-size="9">多头</text>
               </svg>
             </div>
             <div>
               <div class="mini-label">零轴下方（空头）</div>
               <svg width="100%" height="50" viewBox="0 0 170 50">
                 <line x1="0" y1="25" x2="170" y2="25" stroke="var(--border2)" stroke-width=".5" stroke-dasharray="3,3"/>
-                <rect x="14" y="25" width="10" height="10" fill="#22c55e" opacity=".85" rx="1"/>
-                <rect x="28" y="25" width="10" height="15" fill="#22c55e" opacity=".85" rx="1"/>
-                <rect x="42" y="25" width="10" height="12" fill="#22c55e" opacity=".85" rx="1"/>
-                <rect x="56" y="25" width="10" height="8"  fill="#22c55e" opacity=".85" rx="1"/>
-                <path d="M14 30 Q55 38 130 34" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-                <path d="M14 32 Q55 40 130 37" fill="none" stroke="#f97316" stroke-width="1"/>
-                <text x="4" y="45" fill="#ef4444" font-size="9">空头</text>
+                <rect x="14" y="25" width="10" height="10" fill="var(--c-green)" opacity=".85" rx="1"/>
+                <rect x="28" y="25" width="10" height="15" fill="var(--c-green)" opacity=".85" rx="1"/>
+                <rect x="42" y="25" width="10" height="12" fill="var(--c-green)" opacity=".85" rx="1"/>
+                <rect x="56" y="25" width="10" height="8"  fill="var(--c-green)" opacity=".85" rx="1"/>
+                <path d="M14 30 Q55 38 130 34" fill="none" stroke="var(--c-blue)" stroke-width="1.5"/>
+                <path d="M14 32 Q55 40 130 37" fill="none" stroke="var(--c-orange)" stroke-width="1"/>
+                <text x="4" y="45" fill="var(--t-red)" font-size="9">空头</text>
               </svg>
             </div>
           </div>
@@ -393,13 +535,13 @@
           <div class="desc">上中下三轨。上轨压力，下轨支撑，中轨(MA20)趋势参考。轨道宽窄反映波动率。</div>
           <div style="margin-top:12px">
             <svg width="100%" height="60" viewBox="0 0 280 60">
-              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,2"/>
-              <path d="M10 30 Q70 27 110 26 Q160 28 200 24 Q240 22 270 24" fill="none" stroke="#8a8a84" stroke-width="1.5"/>
-              <path d="M10 48 Q70 46 110 44 Q160 48 200 44 Q240 42 270 46" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="4,2"/>
-              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10 L270 46 Q240 42 200 44 Q160 48 110 44 Q70 46 10 48 Z" fill="#3b82f6" fill-opacity=".05"/>
-              <text x="4" y="11"  fill="#ef4444" font-size="8">上轨</text>
-              <text x="4" y="27"  fill="#8a8a84" font-size="8">中轨</text>
-              <text x="4" y="49"  fill="#3b82f6" font-size="8">下轨</text>
+              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10" fill="none" stroke="var(--c-red)" stroke-width="1.2" stroke-dasharray="4,2"/>
+              <path d="M10 30 Q70 27 110 26 Q160 28 200 24 Q240 22 270 24" fill="none" stroke="var(--c-mid)" stroke-width="1.5"/>
+              <path d="M10 48 Q70 46 110 44 Q160 48 200 44 Q240 42 270 46" fill="none" stroke="var(--c-blue)" stroke-width="1.2" stroke-dasharray="4,2"/>
+              <path d="M10 14 Q70 10 110 13 Q160 17 200 11 Q240 8 270 10 L270 46 Q240 42 200 44 Q160 48 110 44 Q70 46 10 48 Z" fill="var(--c-blue)" fill-opacity=".05"/>
+              <text x="4" y="11"  fill="var(--t-red)" font-size="8">上轨</text>
+              <text x="4" y="27"  fill="var(--t-mid)" font-size="8">中轨</text>
+              <text x="4" y="43"  fill="var(--t-blue)" font-size="8">下轨</text>
             </svg>
           </div>
           <div class="sr">
@@ -417,19 +559,19 @@
           <div class="card-name">成交量分析</div>
           <div class="desc">量价配合是趋势可靠性的关键。量是因，价是果；放量上涨强势，缩量上涨需谨慎。</div>
           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px">
-            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #22c55e">
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid var(--c-green)">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">放量上涨</div>
               <div style="font-size:11px;color:var(--text2)">主力进场，趋势可信</div>
             </div>
-            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #22c55e">
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid var(--c-green)">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">缩量下跌</div>
               <div style="font-size:11px;color:var(--text2)">惜售，动能减弱</div>
             </div>
-            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #f97316">
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid var(--c-orange)">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">缩量上涨 ⚠</div>
               <div style="font-size:11px;color:var(--text2)">动能不足，假突破</div>
             </div>
-            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid #ef4444">
+            <div style="padding:8px;background:var(--surface2);border-radius:6px;border-left:2px solid var(--c-red)">
               <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px">放量下跌 ✗</div>
               <div style="font-size:11px;color:var(--text2)">主力出货，加速跌</div>
             </div>
@@ -452,17 +594,17 @@
           <div class="card-name">相对强弱指数</div>
           <div class="desc">衡量多空力量对比，反映超买超卖状态。参数通常取 6、12、24 日。</div>
           <div style="margin-top:12px">
-            <div class="rsi-bar" style="background:linear-gradient(to right,#3b82f6,#22c55e 28%,#d1d5db 50%,#f97316 70%,#ef4444)">
-              <div style="position:absolute;top:12px;left:0;font-size:9px;color:#3b82f6">0</div>
-              <div style="position:absolute;top:12px;left:17%;font-size:9px;color:#3b82f6">20</div>
+            <div class="rsi-bar" style="background:linear-gradient(to right,var(--c-blue),var(--c-green) 28%,var(--c-neutral) 50%,var(--c-orange) 70%,var(--c-red))">
+              <div style="position:absolute;top:12px;left:0;font-size:9px;color:var(--t-blue)">0</div>
+              <div style="position:absolute;top:12px;left:17%;font-size:9px;color:var(--t-blue)">20</div>
               <div style="position:absolute;top:12px;left:46%;font-size:9px;color:var(--text3)">50</div>
-              <div style="position:absolute;top:12px;left:76%;font-size:9px;color:#ef4444">80</div>
+              <div style="position:absolute;top:12px;left:76%;font-size:9px;color:var(--t-red)">80</div>
               <div style="position:absolute;top:12px;right:0;font-size:9px;color:var(--text3)">100</div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:8px">
-              <span style="color:#3b82f6">超卖 &lt;20<br>买入参考</span>
+              <span style="color:var(--t-blue)">超卖 &lt;20<br>买入参考</span>
               <span style="text-align:center">中性区<br>顺势而为</span>
-              <span style="text-align:right;color:#ef4444">超买 &gt;80<br>减仓参考</span>
+              <span style="text-align:right;color:var(--t-red)">超买 &gt;80<br>减仓参考</span>
             </div>
           </div>
           <div class="sr">
@@ -482,9 +624,9 @@
           <div class="desc">K、D、J三线组合，反映超买超卖。短线灵敏，适合震荡行情，单边市慎用。</div>
           <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
             <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
-              <div style="font-size:20px;font-weight:600;color:#ef4444">80</div>
+              <div style="font-size:20px;font-weight:600;color:var(--t-red)">80</div>
               <div style="font-size:10px;color:var(--text3)">超买</div>
-              <div style="font-size:11px;color:#ef4444;margin-top:2px">考虑卖出</div>
+              <div style="font-size:11px;color:var(--t-red);margin-top:2px">考虑卖出</div>
             </div>
             <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
               <div style="font-size:20px;font-weight:600;color:var(--text2)">50</div>
@@ -492,9 +634,9 @@
               <div style="font-size:11px;color:var(--text2);margin-top:2px">方向不明</div>
             </div>
             <div style="text-align:center;padding:10px 4px;background:var(--surface2);border-radius:6px">
-              <div style="font-size:20px;font-weight:600;color:#3b82f6">20</div>
+              <div style="font-size:20px;font-weight:600;color:var(--t-blue)">20</div>
               <div style="font-size:10px;color:var(--text3)">超卖</div>
-              <div style="font-size:11px;color:#3b82f6;margin-top:2px">考虑买入</div>
+              <div style="font-size:11px;color:var(--t-blue);margin-top:2px">考虑买入</div>
             </div>
           </div>
           <div class="sr">
@@ -521,12 +663,12 @@
         <!-- 看涨吞没 -->
         <div class="kcombo-item">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
-            <line x1="26" y1="2"  x2="26" y2="10" stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="20" y="10" width="12" height="20" fill="#ef4444" rx="1"/>
-            <line x1="26" y1="30" x2="26" y2="36" stroke="#ef4444" stroke-width="1.5"/>
-            <line x1="26" y1="36" x2="26" y2="40" stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="14" y="40" width="24" height="16" fill="#22c55e" rx="1"/>
-            <line x1="26" y1="56" x2="26" y2="60" stroke="#22c55e" stroke-width="1.5"/>
+            <line x1="26" y1="2"  x2="26" y2="10" stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="20" y="10" width="12" height="20" fill="var(--c-red)" rx="1"/>
+            <line x1="26" y1="30" x2="26" y2="36" stroke="var(--c-red)" stroke-width="1.5"/>
+            <line x1="26" y1="36" x2="26" y2="40" stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="14" y="40" width="24" height="16" fill="var(--c-green)" rx="1"/>
+            <line x1="26" y1="56" x2="26" y2="60" stroke="var(--c-green)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">看涨吞没</div>
@@ -536,15 +678,15 @@
         <!-- 早晨之星 -->
         <div class="kcombo-item">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
-            <line x1="12" y1="2"  x2="12" y2="8"  stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="7"  y="8"  width="10" height="14" fill="#ef4444" rx="1"/>
-            <line x1="12" y1="22" x2="12" y2="28" stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="22" y="24" width="8" height="8" fill="#888" rx="1"/>
-            <line x1="26" y1="24" x2="26" y2="20" stroke="#888" stroke-width="1.5"/>
-            <line x1="26" y1="32" x2="26" y2="36" stroke="#888" stroke-width="1.5"/>
-            <line x1="40" y1="36" x2="40" y2="40" stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="35" y="40" width="10" height="14" fill="#22c55e" rx="1"/>
-            <line x1="40" y1="54" x2="40" y2="58" stroke="#22c55e" stroke-width="1.5"/>
+            <line x1="12" y1="2"  x2="12" y2="8"  stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="7"  y="8"  width="10" height="14" fill="var(--c-red)" rx="1"/>
+            <line x1="12" y1="22" x2="12" y2="28" stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="22" y="24" width="8" height="8" fill="var(--c-gray)" rx="1"/>
+            <line x1="26" y1="24" x2="26" y2="20" stroke="var(--c-gray)" stroke-width="1.5"/>
+            <line x1="26" y1="32" x2="26" y2="36" stroke="var(--c-gray)" stroke-width="1.5"/>
+            <line x1="40" y1="36" x2="40" y2="40" stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="35" y="40" width="10" height="14" fill="var(--c-green)" rx="1"/>
+            <line x1="40" y1="54" x2="40" y2="58" stroke="var(--c-green)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">早晨之星</div>
@@ -555,9 +697,9 @@
         <div class="kcombo-item" style="border-bottom:none;padding-bottom:0">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
             <!-- 锤子线：实体在上方，上影线短，下影线很长 -->
-            <line x1="26" y1="2"  x2="26" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="20" y="6"  width="12" height="14" fill="#22c55e" rx="1"/>
-            <line x1="26" y1="20" x2="26" y2="58" stroke="#22c55e" stroke-width="1.5"/>
+            <line x1="26" y1="2"  x2="26" y2="6"  stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="20" y="6"  width="12" height="14" fill="var(--c-green)" rx="1"/>
+            <line x1="26" y1="20" x2="26" y2="58" stroke="var(--c-green)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">锤子线</div>
@@ -573,12 +715,12 @@
         <!-- 看跌吞没 -->
         <div class="kcombo-item">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
-            <line x1="26" y1="2"  x2="26" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="14" y="6"  width="24" height="18" fill="#22c55e" rx="1"/>
-            <line x1="26" y1="24" x2="26" y2="28" stroke="#22c55e" stroke-width="1.5"/>
-            <line x1="26" y1="28" x2="26" y2="32" stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="20" y="32" width="12" height="22" fill="#ef4444" rx="1"/>
-            <line x1="26" y1="54" x2="26" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+            <line x1="26" y1="2"  x2="26" y2="6"  stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="14" y="6"  width="24" height="18" fill="var(--c-green)" rx="1"/>
+            <line x1="26" y1="24" x2="26" y2="28" stroke="var(--c-green)" stroke-width="1.5"/>
+            <line x1="26" y1="28" x2="26" y2="32" stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="20" y="32" width="12" height="22" fill="var(--c-red)" rx="1"/>
+            <line x1="26" y1="54" x2="26" y2="58" stroke="var(--c-red)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">看跌吞没</div>
@@ -588,15 +730,15 @@
         <!-- 黄昏之星 -->
         <div class="kcombo-item">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
-            <line x1="12" y1="2"  x2="12" y2="6"  stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="7"  y="6"  width="10" height="14" fill="#22c55e" rx="1"/>
-            <line x1="12" y1="20" x2="12" y2="26" stroke="#22c55e" stroke-width="1.5"/>
-            <rect x="22" y="22" width="8" height="8" fill="#888" rx="1"/>
-            <line x1="26" y1="22" x2="26" y2="18" stroke="#888" stroke-width="1.5"/>
-            <line x1="26" y1="30" x2="26" y2="34" stroke="#888" stroke-width="1.5"/>
-            <line x1="40" y1="28" x2="40" y2="34" stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="35" y="34" width="10" height="20" fill="#ef4444" rx="1"/>
-            <line x1="40" y1="54" x2="40" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+            <line x1="12" y1="2"  x2="12" y2="6"  stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="7"  y="6"  width="10" height="14" fill="var(--c-green)" rx="1"/>
+            <line x1="12" y1="20" x2="12" y2="26" stroke="var(--c-green)" stroke-width="1.5"/>
+            <rect x="22" y="22" width="8" height="8" fill="var(--c-gray)" rx="1"/>
+            <line x1="26" y1="22" x2="26" y2="18" stroke="var(--c-gray)" stroke-width="1.5"/>
+            <line x1="26" y1="30" x2="26" y2="34" stroke="var(--c-gray)" stroke-width="1.5"/>
+            <line x1="40" y1="28" x2="40" y2="34" stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="35" y="34" width="10" height="20" fill="var(--c-red)" rx="1"/>
+            <line x1="40" y1="54" x2="40" y2="58" stroke="var(--c-red)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">黄昏之星</div>
@@ -607,9 +749,9 @@
         <div class="kcombo-item" style="border-bottom:none;padding-bottom:0">
           <svg class="kcombo-svg" width="52" height="60" viewBox="0 0 52 60">
             <!-- 流星线：实体在下方，上影线很长，下影线极短或无 -->
-            <line x1="26" y1="2"  x2="26" y2="40" stroke="#ef4444" stroke-width="1.5"/>
-            <rect x="20" y="40" width="12" height="14" fill="#ef4444" rx="1"/>
-            <line x1="26" y1="54" x2="26" y2="58" stroke="#ef4444" stroke-width="1.5"/>
+            <line x1="26" y1="2"  x2="26" y2="40" stroke="var(--c-red)" stroke-width="1.5"/>
+            <rect x="20" y="40" width="12" height="14" fill="var(--c-red)" rx="1"/>
+            <line x1="26" y1="54" x2="26" y2="58" stroke="var(--c-red)" stroke-width="1.5"/>
           </svg>
           <div class="kcombo-info">
             <div class="kcombo-name">流星线</div>
@@ -670,15 +812,15 @@
           <div class="desc" style="margin-top:4px">价格创新低，MACD / RSI 指标未同步创新低，下跌动能减弱，可能反转向上。</div>
           <svg width="100%" height="58" viewBox="0 0 260 58" style="margin-top:8px">
             <path d="M18 16 Q52 12 72 30 Q90 44 120 40 Q152 36 172 44 Q200 50 228 42" fill="none" stroke="var(--text2)" stroke-width="1.5"/>
-            <path d="M18 34 Q52 30 72 36 Q90 42 120 38 Q152 33 172 30 Q200 27 228 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,2"/>
-            <circle cx="72"  cy="30" r="3" fill="#ef4444"/>
-            <circle cx="228" cy="42" r="3" fill="#ef4444"/>
-            <circle cx="72"  cy="36" r="3" fill="#3b82f6"/>
-            <circle cx="228" cy="24" r="3" fill="#3b82f6"/>
-            <line x1="72" y1="30" x2="228" y2="42" stroke="#ef4444" stroke-width=".5" stroke-dasharray="3,2"/>
-            <line x1="72" y1="36" x2="228" y2="24" stroke="#3b82f6" stroke-width=".5" stroke-dasharray="3,2"/>
-            <text x="4" y="18"  fill="var(--text2)" font-size="9">价格</text>
-            <text x="4" y="38"  fill="#3b82f6"       font-size="9">指标</text>
+            <path d="M18 34 Q52 30 72 36 Q90 42 120 38 Q152 33 172 30 Q200 27 228 24" fill="none" stroke="var(--c-blue)" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <circle cx="72"  cy="30" r="3" fill="var(--c-red)"/>
+            <circle cx="228" cy="42" r="3" fill="var(--c-red)"/>
+            <circle cx="72"  cy="36" r="3" fill="var(--c-blue)"/>
+            <circle cx="228" cy="24" r="3" fill="var(--c-blue)"/>
+            <line x1="72" y1="30" x2="228" y2="42" stroke="var(--c-red)" stroke-width=".5" stroke-dasharray="3,2"/>
+            <line x1="72" y1="36" x2="228" y2="24" stroke="var(--c-blue)" stroke-width=".5" stroke-dasharray="3,2"/>
+            <text x="4" y="11"  fill="var(--text2)" font-size="9">价格</text>
+            <text x="4" y="38"  fill="var(--t-blue)"       font-size="9">指标</text>
           </svg>
         </div>
         <div class="card">
@@ -686,15 +828,15 @@
           <div class="desc" style="margin-top:4px">价格创新高，MACD / RSI 指标未同步创新高，上涨动能衰竭，可能反转向下。</div>
           <svg width="100%" height="58" viewBox="0 0 260 58" style="margin-top:8px">
             <path d="M18 40 Q52 34 72 18 Q90 12 120 14 Q152 16 172 8 Q200 4 228 10" fill="none" stroke="var(--text2)" stroke-width="1.5"/>
-            <path d="M18 28 Q52 24 72 20 Q90 16 120 18 Q152 20 172 24 Q200 27 228 30" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,2"/>
-            <circle cx="72"  cy="18" r="3" fill="#22c55e"/>
-            <circle cx="228" cy="10" r="3" fill="#22c55e"/>
-            <circle cx="72"  cy="20" r="3" fill="#ef4444"/>
-            <circle cx="228" cy="30" r="3" fill="#ef4444"/>
-            <line x1="72" y1="18" x2="228" y2="10" stroke="#22c55e" stroke-width=".5" stroke-dasharray="3,2"/>
-            <line x1="72" y1="20" x2="228" y2="30" stroke="#ef4444" stroke-width=".5" stroke-dasharray="3,2"/>
+            <path d="M18 28 Q52 24 72 20 Q90 16 120 18 Q152 20 172 24 Q200 27 228 30" fill="none" stroke="var(--c-red)" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <circle cx="72"  cy="18" r="3" fill="var(--c-green)"/>
+            <circle cx="228" cy="10" r="3" fill="var(--c-green)"/>
+            <circle cx="72"  cy="20" r="3" fill="var(--c-red)"/>
+            <circle cx="228" cy="30" r="3" fill="var(--c-red)"/>
+            <line x1="72" y1="18" x2="228" y2="10" stroke="var(--c-green)" stroke-width=".5" stroke-dasharray="3,2"/>
+            <line x1="72" y1="20" x2="228" y2="30" stroke="var(--c-red)" stroke-width=".5" stroke-dasharray="3,2"/>
             <text x="4" y="22"  fill="var(--text2)" font-size="9">价格</text>
-            <text x="4" y="38"  fill="#ef4444"       font-size="9">指标</text>
+            <text x="4" y="38"  fill="var(--t-red)"       font-size="9">指标</text>
           </svg>
         </div>
       </div>
@@ -747,13 +889,13 @@
           <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">反转当日放量（较前5日均量 +50%以上），量能明显放大</div></div>
         </div>
         <div class="flow-row">
-          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:#86efac">K线确认</span>
+          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:var(--bd-green)">K线确认</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">指标共振</span>
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:var(--bd-blue)">指标共振</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:#86efac">放量确认</span>
+          <span class="fbox" style="background:var(--green-bg);color:var(--green-text);border-color:var(--bd-green)">放量确认</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:#dcfce7;color:#166534;border-color:#22c55e;font-weight:600">入场做多</span>
+          <span class="fbox" style="background:var(--fin-green-bg);color:var(--fin-green-fg);border-color:var(--fin-green-bd);font-weight:600">入场做多</span>
         </div>
       </div>
 
@@ -778,13 +920,13 @@
           <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">上涨时量缩（量价背离），或拉高后出现异常放量随后萎缩</div></div>
         </div>
         <div class="flow-row">
-          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:#fca5a5">K线确认</span>
+          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:var(--bd-red)">K线确认</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:#fcd34d">指标共振</span>
+          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:var(--bd-amber)">指标共振</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:#fca5a5">量价背离</span>
+          <span class="fbox" style="background:var(--red-bg);color:var(--red-text);border-color:var(--bd-red)">量价背离</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:#fee2e2;color:#991b1b;border-color:#ef4444;font-weight:600">减仓出场</span>
+          <span class="fbox" style="background:var(--fin-red-bg);color:var(--fin-red-fg);border-color:var(--fin-red-bd);font-weight:600">减仓出场</span>
         </div>
       </div>
 
@@ -808,13 +950,13 @@
           <div class="ci"><div class="ci-label">成交量</div><div class="ci-val">突破当日须放量（前5日均量1.5倍以上），缩量突破为假突破</div></div>
         </div>
         <div class="flow-row">
-          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">价格突破</span>
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:var(--bd-blue)">价格突破</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:#fcd34d">放量确认</span>
+          <span class="fbox" style="background:var(--amber-bg);color:var(--amber-text);border-color:var(--bd-amber)">放量确认</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:#93c5fd">次日不回头</span>
+          <span class="fbox" style="background:var(--blue-bg);color:var(--blue-text);border-color:var(--bd-blue)">次日不回头</span>
           <span class="farr">→</span>
-          <span class="fbox" style="background:#dcfce7;color:#166534;border-color:#22c55e;font-weight:600">轻仓追入</span>
+          <span class="fbox" style="background:var(--fin-green-bg);color:var(--fin-green-fg);border-color:var(--fin-green-bd);font-weight:600">轻仓追入</span>
         </div>
       </div>
     </div>
@@ -827,19 +969,19 @@
           <div class="period-box">
             <div class="period-tag">月线 / 周线</div>
             <div class="period-name">判断大趋势</div>
-            <div class="period-role" style="color:var(--blue)">方向</div>
+            <div class="period-role" style="color:var(--blue-t)">方向</div>
           </div>
           <div class="period-arr">→</div>
           <div class="period-box">
             <div class="period-tag">日线</div>
             <div class="period-name">确认中期趋势</div>
-            <div class="period-role" style="color:#f97316">过滤</div>
+            <div class="period-role" style="color:var(--t-orange)">过滤</div>
           </div>
           <div class="period-arr">→</div>
           <div class="period-box">
             <div class="period-tag">60分钟 / 15分钟</div>
             <div class="period-name">寻找入场点</div>
-            <div class="period-role" style="color:#22c55e">时机</div>
+            <div class="period-role" style="color:var(--t-green)">时机</div>
           </div>
         </div>
       </div>
@@ -879,15 +1021,15 @@
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px">常见误区</div>
           <div style="display:flex;flex-direction:column;gap:8px">
-            <div class="card" style="border-left:2px solid #ef4444;border-radius:0 8px 8px 0;padding:10px 12px">
+            <div class="card" style="border-left:2px solid var(--c-red);border-radius:0 8px 8px 0;padding:10px 12px">
               <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">指标钝化</div>
               <div class="desc">强势行情中 RSI、KDJ 可长期处于超买区，不能单纯依此做空，需结合趋势类指标。</div>
             </div>
-            <div class="card" style="border-left:2px solid #f97316;border-radius:0 8px 8px 0;padding:10px 12px">
+            <div class="card" style="border-left:2px solid var(--c-orange);border-radius:0 8px 8px 0;padding:10px 12px">
               <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">假突破</div>
               <div class="desc">价格突破必须配合成交量放大，缩量突破通常为假信号，风险极高。</div>
             </div>
-            <div class="card" style="border-left:2px solid #eab308;border-radius:0 8px 8px 0;padding:10px 12px">
+            <div class="card" style="border-left:2px solid var(--c-yellow);border-radius:0 8px 8px 0;padding:10px 12px">
               <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">信号滞后</div>
               <div class="desc">均线和 MACD 均基于历史数据，行情快速变化时信号滞后，须结合市场背景预判。</div>
             </div>
@@ -906,17 +1048,17 @@
 <script>
 const klineData = [
   { name:'大阳线', sig:'强势买入',
-    svg:'<rect x="19" y="10" width="10" height="30" fill="#22c55e" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="#22c55e" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="#22c55e" stroke-width="1.5"/>' },
+    svg:'<rect x="19" y="10" width="10" height="30" fill="var(--c-green)" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="var(--c-green)" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="var(--c-green)" stroke-width="1.5"/>' },
   { name:'大阴线', sig:'强势卖出',
-    svg:'<rect x="19" y="10" width="10" height="30" fill="#ef4444" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="#ef4444" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="#ef4444" stroke-width="1.5"/>' },
+    svg:'<rect x="19" y="10" width="10" height="30" fill="var(--c-red)" rx="1"/><line x1="24" y1="10" x2="24" y2="5" stroke="var(--c-red)" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="46" stroke="var(--c-red)" stroke-width="1.5"/>' },
   { name:'十字星', sig:'方向不明',
-    svg:'<rect x="20" y="22" width="8" height="4" fill="#888" rx="1"/><line x1="24" y1="22" x2="24" y2="6" stroke="#888" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="#888" stroke-width="1.5"/>' },
+    svg:'<rect x="20" y="22" width="8" height="4" fill="var(--c-gray)" rx="1"/><line x1="24" y1="22" x2="24" y2="6" stroke="var(--c-gray)" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="var(--c-gray)" stroke-width="1.5"/>' },
   { name:'上影阳线', sig:'上方压力',
-    svg:'<rect x="19" y="26" width="10" height="14" fill="#22c55e" rx="1"/><line x1="24" y1="26" x2="24" y2="6" stroke="#22c55e" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="44" stroke="#22c55e" stroke-width="1.5"/>' },
+    svg:'<rect x="19" y="26" width="10" height="14" fill="var(--c-green)" rx="1"/><line x1="24" y1="26" x2="24" y2="6" stroke="var(--c-green)" stroke-width="1.5"/><line x1="24" y1="40" x2="24" y2="44" stroke="var(--c-green)" stroke-width="1.5"/>' },
   { name:'下影阴线', sig:'下方支撑',
-    svg:'<rect x="19" y="12" width="10" height="14" fill="#ef4444" rx="1"/><line x1="24" y1="12" x2="24" y2="8" stroke="#ef4444" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="#ef4444" stroke-width="1.5"/>' },
+    svg:'<rect x="19" y="12" width="10" height="14" fill="var(--c-red)" rx="1"/><line x1="24" y1="12" x2="24" y2="8" stroke="var(--c-red)" stroke-width="1.5"/><line x1="24" y1="26" x2="24" y2="46" stroke="var(--c-red)" stroke-width="1.5"/>' },
   { name:'纺锤线', sig:'多空均衡',
-    svg:'<rect x="19" y="20" width="10" height="10" fill="#888" rx="1"/><line x1="24" y1="20" x2="24" y2="6" stroke="#888" stroke-width="1.5"/><line x1="24" y1="30" x2="24" y2="46" stroke="#888" stroke-width="1.5"/>' },
+    svg:'<rect x="19" y="20" width="10" height="10" fill="var(--c-gray)" rx="1"/><line x1="24" y1="20" x2="24" y2="6" stroke="var(--c-gray)" stroke-width="1.5"/><line x1="24" y1="30" x2="24" y2="46" stroke="var(--c-gray)" stroke-width="1.5"/>' },
 ];
 
 document.getElementById('klineGrid').innerHTML = klineData.map(d =>
@@ -926,6 +1068,14 @@ document.getElementById('klineGrid').innerHTML = klineData.map(d =>
     <div class="ks">${d.sig}</div>
   </div>`
 ).join('');
+
+/* 主题挂件:内联在页面顶部右侧(窄屏下悬浮挂件会盖住正文);theme-manager.js 缺失或出错都不影响页面功能 */
+try {
+  if (window.LifeToolsTheme && typeof window.LifeToolsTheme.mountThemeControl === 'function') {
+    var themeSlot = document.getElementById('themeSlot');
+    if (window.LifeToolsTheme.mountThemeControl('technical', { container: themeSlot })) themeSlot.parentNode.classList.add('on');
+  }
+} catch (e) { /* 忽略:页面仍使用 :root 默认配色 */ }
 
 function showSec(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));

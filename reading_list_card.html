@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark">
+  <!-- 主题接入必须同步加载、放在任何 <style> 之前，首屏才不会闪白；缺失时退化为 :root 的米白浅色配色 -->
+  <script src="theme-manager.js"></script>
+  <script>window.LifeToolsTheme && LifeToolsTheme.initAntiFOUC("reading");</script>
+  <link rel="stylesheet" href="theme-tokens.css">
   <title>认知成长书单与进阶追踪长图 | Reading & Cognitive Growth Tracker</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2313101c'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='36'%3E📚%3C/text%3E%3C/svg%3E">
   <style>
@@ -16,7 +21,7 @@
       --bg-subtle: #F1F5F9;
       --text-primary: #0F172A;
       --text-secondary: #475569;
-      --text-muted: #94A3B8;
+      --text-muted: #5B6B80; /* 对比度修正:旧 #94A3B8 在白 / 画布底上仅 2.4-2.6:1,现 ≥ 5.0:1 */
       --border-light: #E2E8F0;
       --border-focus: #CBD5E1;
       --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
@@ -68,22 +73,79 @@
       --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
         "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Roboto, sans-serif;
       --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+      /* ---- 以下为原先硬编码在规则里的颜色 / 圆角:变量化,classic 取值 = 原值(零回归) ---- */
+      --canvas-strip: linear-gradient(90deg, #4F46E5 0%, #D97706 35%, #059669 70%, #7C3AED 100%);
+      --eyebrow-fg: #4F46E5;
+      --eyebrow-bg: rgba(79, 70, 229, 0.08);
+      --eyebrow-bd: rgba(79, 70, 229, 0.2);
+      --stat-pct: #059669;   /* 对比度修正:旧 #10B981 在白底仅 2.5:1(22px 粗体按大字 3:1 判),现 3.8:1 */
+      --progress-overall: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
+      --phase-active-bd: #10B981;
+      --phase-active-tint: rgba(16, 185, 129, 0.06);
+      --phase1-bg: #D1FAE5;
+      --phase1-fg: #065F46;
+      --phase2-bg: #EEF2FF;
+      --phase2-fg: #3730A3;
+      --phase3-bg: #FEF3C7;
+      --phase3-fg: #92400E;
+      --anchor-fg: #047857;  /* 对比度修正:旧 #059669 在浅绿渐变底仅 3.5:1(11px 小字),现 5.1:1 */
+      --order-tag-bg: rgba(15, 23, 42, 0.06);
+      --next-glow: 0 4px 14px -2px rgba(245, 158, 11, 0.12);
+      --pulse-a: 0 0 0 3px rgba(16, 185, 129, 0.18), 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      --pulse-b: 0 0 0 6px rgba(16, 185, 129, 0.30), 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+      --reading-bar: linear-gradient(90deg, #059669 0%, #10B981 50%, #34D399 100%);
+      /* 底部「三个习惯」附卡:classic 下深浅两种主题都是固定的深海军蓝 */
+      --banner-bg: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      --banner-bd: none;
+      --banner-fg: #F8FAFC;
+      --banner-title: #FFFFFF;
+      --banner-sub: #94A3B8;
+      --banner-desc: #CBD5E1;
+      --banner-badge-fg: #FCD34D;
+      --banner-badge-bg: rgba(251, 191, 36, 0.18);
+      --banner-badge-bd: rgba(251, 191, 36, 0.35);
+      --banner-card-bg: rgba(255, 255, 255, 0.06);
+      --banner-card-bd: rgba(255, 255, 255, 0.12);
+      /* 序号方块(12px 粗体白字,按小字 4.5:1):旧 #3B82F6 / #10B981 / #F59E0B 配白字仅 3.7 / 2.5 / 2.1:1 */
+      --habit1-bg: #2563EB;
+      --habit2-bg: #047857;
+      --habit3-bg: #B45309;
+      --habit-on: #FFFFFF;
+      --habit1-tag-fg: #93C5FD;
+      --habit1-tag-bg: rgba(59, 130, 246, 0.15);
+      --habit2-tag-fg: #6EE7B7;
+      --habit2-tag-bg: rgba(16, 185, 129, 0.15);
+      --habit3-tag-fg: #FDE68A;
+      --habit3-tag-bg: rgba(245, 158, 11, 0.15);
+      --radius-xl: 24px;
+      --radius-banner: 20px;
+      --radius-lg: 18px;
+      --radius-stat: 16px;
+      --radius-md: 14px;
+      --radius-bar: 12px;
+      --radius-ctl: 8px;
+      --font-heading: var(--font-sans);
+      --bg-deco: none;
+      --focus: #4338CA;
+      /* 控件边界(工具栏按钮 / 主题挂件):对相邻底色 >= 3:1;装饰分隔线仍用 --border-light */
+      --ctl-bd: #7B8AA0;
     }
 
-    /* 深色护眼太空灰主题（可选切换） */
-    [data-theme="dark"] {
+    /* 深色护眼太空灰主题:由 <html data-theme="dark"> 触发(全站主题机制;页面不再自带切换按钮与存储) */
+    html[data-theme="dark"] {
       --bg-page: #090D16;
       --bg-canvas: #0F172A;
       --bg-card: #1E293B;
       --bg-subtle: #334155;
       --text-primary: #F8FAFC;
       --text-secondary: #CBD5E1;
-      --text-muted: #64748B;
+      --text-muted: #94A3B8; /* 对比度修正:旧 #64748B 在卡片底 #1E293B 上仅 3.0:1,现 5.7:1 */
       --border-light: #334155;
       --border-focus: #475569;
       --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
 
-      --cat-framework-main: #818CF8;
+      --cat-framework-main: #9096FB;  /* 对比度修正:旧 #818CF8 在维度徽标的靛青淡底上 4.39:1,现 4.96:1 */
       --cat-framework-bg: rgba(79, 70, 229, 0.16);
       --cat-framework-border: rgba(129, 140, 248, 0.35);
 
@@ -114,6 +176,117 @@
       --status-done-text: #93C5FD;
       --status-done-bg: rgba(59, 130, 246, 0.2);
       --status-done-border: #3B82F6;
+
+      --eyebrow-fg: #A5B4FC;
+      --order-tag-bg: rgba(255, 255, 255, 0.1);
+      --banner-bd: 1px solid #334155;
+      --focus: #A5B4FC;
+      --ctl-bd: #6F7E98;
+      --anchor-fg: #34D399;  /* 对比度修正::root 的 #047857 / 旧 #059669 在深色浅绿渐变底仅 2.5:1,现 7.2:1 */
+      --stat-pct: #10B981;   /* 深色下保持旧值(在 #1E293B 上 5.8:1,无需修正);:root 的 #059669 只为浅色白底而设 */
+    }
+
+    /* LT-THEME-MAP —— tech / fresh / paper:把页面变量别名到共享令牌(theme-tokens.css)。
+       · 每个 var(--lt-*, 回退值) 的回退值 = 页面 classic 原值,theme-tokens.css 缺失时页面不崩
+       · 特异性 (0,2,1) 高于 :root 与 html[data-theme] 块,无需 !important
+       · 层级:页面 = 画布 = lt-bg,卡片 = lt-surface,进度槽 = lt-surface-2;书籍状态色映射到 good / warn / info 语义令牌,
+         每个状态另有文字标签(🟢 当前在读 / 🟡 紧接下一本 …),不只靠颜色 */
+    html[data-style]:not([data-style="classic"]) {
+      --bg-page: var(--lt-bg, #F1F5F9);
+      --bg-canvas: var(--lt-bg, #F8FAFC);
+      --bg-card: var(--lt-surface, #FFFFFF);
+      --bg-subtle: var(--lt-surface-2, #F1F5F9);
+      --text-primary: var(--lt-text, #0F172A);
+      --text-secondary: color-mix(in srgb, var(--lt-text, #475569) 40%, var(--lt-text-muted, #475569));
+      --text-muted: var(--lt-text-muted, #64748B);
+      --border-light: var(--lt-border, #E2E8F0);
+      --border-focus: var(--lt-border-strong, #CBD5E1);
+      --shadow-card: var(--lt-shadow, 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03));
+      --shadow-elevated: var(--lt-shadow, 0 10px 30px -5px rgba(15, 23, 42, 0.08));
+
+      --cat-framework-main: var(--lt-info, #4338CA);
+      --cat-framework-bg: var(--lt-info-soft, #EEF2FF);
+      --cat-framework-border: color-mix(in srgb, var(--lt-info, #C7D2FE) 40%, transparent);
+      --cat-framework-bar: var(--lt-info, #4F46E5);
+      --cat-mechanism-main: var(--lt-warn, #B45309);
+      --cat-mechanism-bg: var(--lt-warn-soft, #FFFBEB);
+      --cat-mechanism-border: color-mix(in srgb, var(--lt-warn, #FDE68A) 40%, transparent);
+      --cat-mechanism-bar: var(--lt-warn, #D97706);
+      --cat-horizon-main: var(--lt-good, #047857);
+      --cat-horizon-bg: var(--lt-good-soft, #ECFDF5);
+      --cat-horizon-border: color-mix(in srgb, var(--lt-good, #A7F3D0) 40%, transparent);
+      --cat-horizon-bar: var(--lt-good, #059669);
+      --cat-uncertainty-main: var(--lt-accent-strong, #6D28D9);
+      --cat-uncertainty-bg: var(--lt-accent-soft, #F5F3FF);
+      --cat-uncertainty-border: color-mix(in srgb, var(--lt-accent, #DDD6FE) 40%, transparent);
+      --cat-uncertainty-bar: var(--lt-accent, #7C3AED);
+
+      --status-reading-text: var(--lt-good, #065F46);
+      --status-reading-bg: var(--lt-good-soft, #D1FAE5);
+      --status-reading-border: var(--lt-good, #10B981);
+      --status-reading-glow: var(--lt-good-soft, rgba(16, 185, 129, 0.22));
+      --status-next-text: var(--lt-warn, #92400E);
+      --status-next-bg: var(--lt-warn-soft, #FEF3C7);
+      --status-next-border: var(--lt-warn, #F59E0B);
+      --status-toread-text: var(--lt-text-muted, #475569);
+      --status-toread-bg: var(--lt-surface-2, #F1F5F9);
+      --status-toread-border: var(--lt-border-strong, #CBD5E1);
+      --status-done-text: var(--lt-info, #1E40AF);
+      --status-done-bg: var(--lt-info-soft, #DBEAFE);
+      --status-done-border: var(--lt-info, #60A5FA);
+
+      --canvas-strip: linear-gradient(90deg, var(--lt-info, #4F46E5) 0%, var(--lt-warn, #D97706) 35%, var(--lt-good, #059669) 70%, var(--lt-accent, #7C3AED) 100%);
+      --eyebrow-fg: var(--lt-accent-strong, #4F46E5);
+      --eyebrow-bg: var(--lt-accent-soft, rgba(79, 70, 229, 0.08));
+      --eyebrow-bd: var(--lt-border-strong, rgba(79, 70, 229, 0.2));
+      --stat-pct: var(--lt-good, #047857);
+      --progress-overall: linear-gradient(90deg, var(--lt-good, #10B981) 0%, var(--lt-info, #3B82F6) 100%);
+      --phase-active-bd: var(--lt-good, #10B981);
+      --phase-active-tint: var(--lt-good-soft, rgba(16, 185, 129, 0.06));
+      --phase1-bg: var(--lt-good-soft, #D1FAE5);
+      --phase1-fg: var(--lt-good, #065F46);
+      --phase2-bg: var(--lt-info-soft, #EEF2FF);
+      --phase2-fg: var(--lt-info, #3730A3);
+      --phase3-bg: var(--lt-warn-soft, #FEF3C7);
+      --phase3-fg: var(--lt-warn, #92400E);
+      --anchor-fg: var(--lt-good, #047857);
+      --order-tag-bg: var(--lt-accent-soft, rgba(15, 23, 42, 0.06));
+      --next-glow: 0 0 0 3px var(--lt-warn-soft, rgba(245, 158, 11, 0.12));
+      --pulse-a: 0 0 0 3px var(--lt-good-soft, rgba(16, 185, 129, 0.18));
+      --pulse-b: 0 0 0 6px var(--lt-good-soft, rgba(16, 185, 129, 0.30)), 0 0 0 6px var(--lt-good-soft, transparent);
+      --reading-bar: var(--lt-good, #059669);
+      --banner-bg: var(--lt-surface-2, #0F172A);
+      --banner-bd: 1px solid var(--lt-border-strong, transparent);
+      --banner-fg: var(--lt-text, #F8FAFC);
+      --banner-title: var(--lt-text, #FFFFFF);
+      --banner-sub: var(--lt-text-muted, #94A3B8);
+      --banner-desc: color-mix(in srgb, var(--lt-text, #CBD5E1) 40%, var(--lt-text-muted, #CBD5E1));
+      --banner-badge-fg: var(--lt-accent-strong, #FCD34D);
+      --banner-badge-bg: var(--lt-accent-soft, rgba(251, 191, 36, 0.18));
+      --banner-badge-bd: var(--lt-border-strong, rgba(251, 191, 36, 0.35));
+      --banner-card-bg: var(--lt-surface, rgba(255, 255, 255, 0.06));
+      --banner-card-bd: var(--lt-border, rgba(255, 255, 255, 0.12));
+      --habit1-bg: var(--lt-info, #2563EB);
+      --habit2-bg: var(--lt-good, #047857);
+      --habit3-bg: var(--lt-warn, #B45309);
+      --habit-on: var(--lt-surface, #FFFFFF);
+      --habit1-tag-fg: var(--lt-info, #93C5FD);
+      --habit1-tag-bg: var(--lt-info-soft, rgba(59, 130, 246, 0.15));
+      --habit2-tag-fg: var(--lt-good, #6EE7B7);
+      --habit2-tag-bg: var(--lt-good-soft, rgba(16, 185, 129, 0.15));
+      --habit3-tag-fg: var(--lt-warn, #FDE68A);
+      --habit3-tag-bg: var(--lt-warn-soft, rgba(245, 158, 11, 0.15));
+      --radius-xl: calc(var(--lt-radius, 16px) * 1.5);
+      --radius-banner: calc(var(--lt-radius, 16px) * 1.25);
+      --radius-lg: calc(var(--lt-radius, 16px) * 1.125);
+      --radius-stat: var(--lt-radius, 16px);
+      --radius-md: calc(var(--lt-radius, 16px) * 0.875);
+      --radius-bar: calc(var(--lt-radius, 16px) * 0.75);
+      --radius-ctl: var(--lt-radius-sm, 8px);
+      --font-heading: var(--lt-font-heading, var(--font-sans));
+      --bg-deco: var(--lt-bg-deco, none);
+      --focus: var(--lt-focus, #4338CA);
+      --ctl-bd: var(--lt-border-strong, #7B8AA0);
     }
 
     * {
@@ -126,6 +299,7 @@
 
     body {
       background-color: var(--bg-page);
+      background-image: var(--bg-deco);
       color: var(--text-primary);
       font-family: var(--font-sans);
       line-height: 1.6;
@@ -146,7 +320,7 @@
       padding: 10px 16px;
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 12px;
+      border-radius: var(--radius-bar);
       font-size: 13px;
       color: var(--text-secondary);
       box-shadow: var(--shadow-card);
@@ -165,11 +339,11 @@
 
     .btn-tool {
       cursor: pointer;
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--ctl-bd);
       background: var(--bg-canvas);
       color: var(--text-primary);
       padding: 6px 12px;
-      border-radius: 8px;
+      border-radius: var(--radius-ctl);
       font-size: 12px;
       font-weight: 600;
       transition: all 0.15s ease;
@@ -180,6 +354,28 @@
       transform: translateY(-1px);
     }
 
+    .btn-tool:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* 主题挂件的内联容器(挂件由 theme-manager.js 注入;缺失时为空) */
+    .theme-slot {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    /* 窄屏:工具栏里的挂件只留图标按钮(44px),文字标签收起,与「打印」按钮并排不挤压 */
+    @media (max-width: 480px) {
+      .toolbar .theme-slot .lt-theme-root.lt-theme-root .lt-theme-label { display: none; }
+      .toolbar .theme-slot .lt-theme-root.lt-theme-root .lt-theme-btn { padding: 0; }
+      .toolbar .btn-tool { white-space: nowrap; }
+    }
+    /* 挂件按钮 / 菜单的描边取令牌 --lt-border-strong;经典风格的工具栏底色(白 / #1E293B)比令牌假定的底色亮,令牌值对它不足 3:1,这里就地换成本页控件边界色 */
+    html[data-style="classic"] .theme-slot {
+      --lt-border-strong: var(--ctl-bd);
+    }
+
     /* ==========================================================================
        2. 核心画布容器 (860px 标准高清信息长图画布)
        ========================================================================== */
@@ -188,7 +384,7 @@
       max-width: 100%;
       background-color: var(--bg-canvas);
       border: 1px solid var(--border-light);
-      border-radius: 24px;
+      border-radius: var(--radius-xl);
       padding: 40px 36px;
       box-shadow: var(--shadow-elevated);
       position: relative;
@@ -203,7 +399,7 @@
       left: 0;
       right: 0;
       height: 6px;
-      background: linear-gradient(90deg, #4F46E5 0%, #D97706 35%, #059669 70%, #7C3AED 100%);
+      background: var(--canvas-strip);
     }
 
     /* ==========================================================================
@@ -231,15 +427,16 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #4F46E5;
-      background: rgba(79, 70, 229, 0.08);
-      border: 1px solid rgba(79, 70, 229, 0.2);
+      color: var(--eyebrow-fg);
+      background: var(--eyebrow-bg);
+      border: 1px solid var(--eyebrow-bd);
       padding: 4px 10px;
       border-radius: 999px;
       margin-bottom: 12px;
     }
 
     .main-title {
+      font-family: var(--font-heading);
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.02em;
@@ -259,7 +456,7 @@
       min-width: 245px;
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 16px;
+      border-radius: var(--radius-stat);
       padding: 16px 18px;
       box-shadow: var(--shadow-card);
     }
@@ -281,7 +478,7 @@
       font-family: var(--font-mono);
       font-size: 22px;
       font-weight: 800;
-      color: #10B981;
+      color: var(--stat-pct);
     }
 
     .overall-progress-track {
@@ -295,7 +492,7 @@
 
     .overall-progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
+      background: var(--progress-overall);
       border-radius: 999px;
       transition: width 0.4s ease;
     }
@@ -328,7 +525,7 @@
     .roadmap-section {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       padding: 20px 22px;
       margin-bottom: 28px;
       box-shadow: var(--shadow-card);
@@ -342,6 +539,7 @@
     }
 
     .section-heading-left {
+      font-family: var(--font-heading);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -365,7 +563,7 @@
     .roadmap-step-card {
       background: var(--bg-canvas);
       border: 1px solid var(--border-light);
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       padding: 14px 15px;
       position: relative;
       display: flex;
@@ -374,8 +572,8 @@
     }
 
     .roadmap-step-card.active-phase {
-      border: 1.5px solid #10B981;
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.06) 0%, var(--bg-canvas) 100%);
+      border: 1.5px solid var(--phase-active-bd);
+      background: linear-gradient(180deg, var(--phase-active-tint) 0%, var(--bg-canvas) 100%);
     }
 
     .phase-badge-row {
@@ -394,27 +592,28 @@
     }
 
     .phase-1 .phase-pill {
-      background: #D1FAE5;
-      color: #065F46;
+      background: var(--phase1-bg);
+      color: var(--phase1-fg);
     }
 
     .phase-2 .phase-pill {
-      background: #EEF2FF;
-      color: #3730A3;
+      background: var(--phase2-bg);
+      color: var(--phase2-fg);
     }
 
     .phase-3 .phase-pill {
-      background: #FEF3C7;
-      color: #92400E;
+      background: var(--phase3-bg);
+      color: var(--phase3-fg);
     }
 
     .phase-anchor-tag {
       font-size: 11px;
       font-weight: 700;
-      color: #059669;
+      color: var(--anchor-fg);
     }
 
     .phase-title {
+      font-family: var(--font-heading);
       font-size: 14px;
       font-weight: 700;
       color: var(--text-primary);
@@ -446,6 +645,7 @@
       color: var(--text-muted);
       font-weight: 700;
       font-size: 16px;
+      pointer-events: none;   /* 窄屏下旋转 90° 后的箭头盒子会盖住相邻卡片的文字(挡住选字 / 点击);它只是装饰 */
     }
 
     /* ==========================================================================
@@ -461,7 +661,7 @@
     .category-block {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       padding: 22px 24px;
       box-shadow: var(--shadow-card);
     }
@@ -517,6 +717,7 @@
     }
 
     .category-name {
+      font-family: var(--font-heading);
       font-size: 17px;
       font-weight: 800;
       color: var(--text-primary);
@@ -539,7 +740,7 @@
     .book-card {
       background: var(--bg-canvas);
       border: 1px solid var(--border-light);
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
@@ -560,7 +761,7 @@
     .book-card.status-next {
       background: var(--bg-card);
       border: 1.5px solid var(--status-next-border);
-      box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.12);
+      box-shadow: var(--next-glow);
     }
 
     /* 已读完成状态卡片 */
@@ -570,10 +771,10 @@
 
     @keyframes pulse-border {
       0%, 100% {
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18), 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+        box-shadow: var(--pulse-a);
       }
       50% {
-        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.30), 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+        box-shadow: var(--pulse-b);
       }
     }
 
@@ -604,6 +805,7 @@
     }
 
     .book-title {
+      font-family: var(--font-heading);
       font-size: 16px;
       font-weight: 800;
       color: var(--text-primary);
@@ -621,12 +823,8 @@
       font-weight: 700;
       padding: 1px 6px;
       border-radius: 4px;
-      background: rgba(15, 23, 42, 0.06);
+      background: var(--order-tag-bg);
       color: var(--text-secondary);
-    }
-
-    [data-theme="dark"] .roadmap-order-tag {
-      background: rgba(255, 255, 255, 0.1);
     }
 
     /* 状态胶囊徽章 Status Badge */
@@ -722,24 +920,21 @@
 
     /* 起读起点专属高亮进度条 */
     .book-card.status-reading .progress-fill {
-      background: linear-gradient(90deg, #059669 0%, #10B981 50%, #34D399 100%);
+      background: var(--reading-bar);
     }
 
     /* ==========================================================================
        6. 底部认知附卡：比读书更关键的三个习惯
        ========================================================================== */
     .habits-banner {
-      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-      color: #F8FAFC;
-      border-radius: 20px;
+      background: var(--banner-bg);
+      color: var(--banner-fg);
+      border: var(--banner-bd);
+      border-radius: var(--radius-banner);
       padding: 24px 26px;
       position: relative;
       overflow: hidden;
       box-shadow: var(--shadow-elevated);
-    }
-
-    [data-theme="dark"] .habits-banner {
-      border: 1px solid #334155;
     }
 
     .habits-header {
@@ -756,9 +951,9 @@
     }
 
     .habits-badge {
-      background: rgba(251, 191, 36, 0.18);
-      color: #FCD34D;
-      border: 1px solid rgba(251, 191, 36, 0.35);
+      background: var(--banner-badge-bg);
+      color: var(--banner-badge-fg);
+      border: 1px solid var(--banner-badge-bd);
       font-size: 11px;
       font-weight: 700;
       padding: 3px 9px;
@@ -766,14 +961,15 @@
     }
 
     .habits-title {
+      font-family: var(--font-heading);
       font-size: 17px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: var(--banner-title);
     }
 
     .habits-subtitle {
       font-size: 12px;
-      color: #94A3B8;
+      color: var(--banner-sub);
     }
 
     .habits-grid {
@@ -783,9 +979,9 @@
     }
 
     .habit-card {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
+      background: var(--banner-card-bg);
+      border: 1px solid var(--banner-card-bd);
+      border-radius: var(--radius-md);
       padding: 15px 16px;
       backdrop-filter: blur(8px);
     }
@@ -801,8 +997,8 @@
       width: 22px;
       height: 22px;
       border-radius: 6px;
-      background: #3B82F6;
-      color: #FFFFFF;
+      background: var(--habit1-bg);
+      color: var(--habit-on);
       font-size: 12px;
       font-weight: 800;
       display: inline-flex;
@@ -811,43 +1007,44 @@
     }
 
     .habit-card:nth-child(2) .habit-index {
-      background: #10B981;
+      background: var(--habit2-bg);
     }
 
     .habit-card:nth-child(3) .habit-index {
-      background: #F59E0B;
+      background: var(--habit3-bg);
     }
 
     .habit-name {
+      font-family: var(--font-heading);
       font-size: 14.5px;
       font-weight: 700;
-      color: #F8FAFC;
+      color: var(--banner-fg);
     }
 
     .habit-tag {
       display: inline-block;
       font-size: 11px;
       font-weight: 600;
-      color: #93C5FD;
-      background: rgba(59, 130, 246, 0.15);
+      color: var(--habit1-tag-fg);
+      background: var(--habit1-tag-bg);
       padding: 2px 7px;
       border-radius: 4px;
       margin-bottom: 8px;
     }
 
     .habit-card:nth-child(2) .habit-tag {
-      color: #6EE7B7;
-      background: rgba(16, 185, 129, 0.15);
+      color: var(--habit2-tag-fg);
+      background: var(--habit2-tag-bg);
     }
 
     .habit-card:nth-child(3) .habit-tag {
-      color: #FDE68A;
-      background: rgba(245, 158, 11, 0.15);
+      color: var(--habit3-tag-fg);
+      background: var(--habit3-tag-bg);
     }
 
     .habit-desc {
       font-size: 12px;
-      color: #CBD5E1;
+      color: var(--banner-desc);
       line-height: 1.5;
     }
 
@@ -919,7 +1116,7 @@
       <span>💡 <strong>进度更新方式：</strong>可直接修改源码顶部 <code>READING_DATA</code> 配置，或点击任意书籍卡片快速预览进度变化</span>
     </div>
     <div class="toolbar-actions">
-      <button class="btn-tool" onclick="toggleTheme()">🌗 切换米白 / 太空灰主题</button>
+      <span class="theme-slot" id="themeSlot"></span>
       <button class="btn-tool" onclick="window.print()">🖨️ 打印 / 导出 PDF</button>
     </div>
   </div>
@@ -1398,12 +1595,13 @@
       }
     }
 
-    /* 切换米白护眼 / 深色太空灰主题 */
-    function toggleTheme() {
-      const root = document.documentElement;
-      const current = root.getAttribute("data-theme");
-      root.setAttribute("data-theme", current === "dark" ? "light" : "dark");
-    }
+    /* 主题挂件:内联进顶部工具栏(取代原先自带的「米白 / 太空灰」切换按钮,统一走全站主题机制);
+       theme-manager.js 缺失或出错都不影响页面功能 */
+    try {
+      if (window.LifeToolsTheme && typeof window.LifeToolsTheme.mountThemeControl === "function") {
+        window.LifeToolsTheme.mountThemeControl("reading", { container: document.getElementById("themeSlot") });
+      }
+    } catch (e) { /* 忽略:页面仍使用 :root 默认配色 */ }
 
     renderTracker();
   </script>

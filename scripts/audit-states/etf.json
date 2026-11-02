@@ -1,0 +1,219 @@
+{
+  "_comment": "筛选面板展开(移动端抽屉)/PK对比抽屉:打开后隐藏被遮罩盖住的页面内容并去掉遮罩,只审抽屉本身;PK候选托盘:把悬浮托盘改成文档流内的静态块,避免它盖住页面其它文字 / 图形造成取样串扰(被遮罩 / 悬浮层盖住的背景无法稳定取样,会变成大量「被遮挡」人工复核或假阳性);背景页面已在默认状态审过。 每个状态末尾 finish() 全部 CSS 过渡:按钮 / 分段控件有 .15-.18s 的 transition,高负载下截图可能落在过渡中途,造成取样串扰。",
+  "states": [
+    {
+      "name": "卡片视图",
+      "steps": [
+        {
+          "click": "#viewSeg [data-view=card]"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "搜索无结果",
+      "steps": [
+        {
+          "type": {
+            "selector": "#q",
+            "text": "zzzz-no-such-etf"
+          }
+        },
+        {
+          "wait": 400
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "沙盘-底部布局期",
+      "steps": [
+        {
+          "click": "#regimeSeg [data-mode=BOTTOM_ACCUMULATE]"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "沙盘-右侧主升期",
+      "steps": [
+        {
+          "click": "#regimeSeg [data-mode=BULL_TREND]"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "沙盘-震荡防御期",
+      "steps": [
+        {
+          "click": "#regimeSeg [data-mode=RANGE_DEFENSIVE]"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "筛选-红利预设加自选",
+      "steps": [
+        {
+          "click": "#presetRow [data-preset=dividend]"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "var s=document.querySelector('.results .star'); if(s) s.click();"
+        },
+        {
+          "wait": 3000
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "PK候选托盘",
+      "steps": [
+        {
+          "eval": "for (var i = 0; i < 2; i++) { var c = document.querySelectorAll('.results .chk input')[i]; if (c) c.click(); }"
+        },
+        {
+          "wait": 400
+        },
+        {
+          "eval": "var s=document.createElement('style'); s.textContent='#tray{position:static!important;transform:none!important;margin:16px auto!important;width:max-content;max-width:calc(100vw - 24px)}'; document.head.appendChild(s);"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "PK对比抽屉",
+      "steps": [
+        {
+          "eval": "for (var i = 0; i < 4; i++) { var c = document.querySelectorAll('.results .chk input')[i]; if (c) c.click(); }"
+        },
+        {
+          "click": "#btnTrayPK"
+        },
+        {
+          "wait": 2500
+        },
+        {
+          "eval": "var s=document.createElement('style'); s.textContent='.app,#tray{visibility:hidden!important}.lt-theme-root{display:none!important}#backdrop{display:none!important}'; document.head.appendChild(s);"
+        },
+        {
+          "wait": 200
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "基准快照提示条与提示气泡",
+      "steps": [
+        {
+          "eval": "var n=document.getElementById('baselineNotice'); n.innerHTML='⚠️ 当前为<b>内置基准快照</b>（近似参考值，非实盘行情）。在仓库根目录运行 <code>python scripts/update_etf_data.py</code> 后即可获得最新数据。'; n.classList.remove('hidden'); var t=document.getElementById('toast'); t.textContent='已复制：510300'; t.style.position='absolute'; t.style.bottom='auto'; t.style.top=(document.documentElement.scrollHeight-84)+'px'; t.classList.add('show');"
+        },
+        {
+          "wait": 400
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "筛选面板展开(移动端抽屉)",
+      "steps": [
+        {
+          "eval": "var b=document.getElementById('btnOpenFilters'); if (b && b.offsetParent !== null) { b.click(); var s=document.createElement('style'); s.textContent='.app > :not(.workbench){visibility:hidden!important}.workbench > .results{visibility:hidden!important}#backdrop{display:none!important}'; document.head.appendChild(s); }"
+        },
+        {
+          "wait": 500
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    },
+    {
+      "name": "算法说明展开",
+      "steps": [
+        {
+          "eval": "var d=document.querySelector('.foot details'); if(d) d.open = true;"
+        },
+        {
+          "scrollTo": ".foot .algo"
+        },
+        {
+          "wait": 300
+        },
+        {
+          "eval": "document.getAnimations().forEach(function(a){try{a.finish()}catch(e){}})"
+        },
+        {
+          "wait": 200
+        }
+      ]
+    }
+  ]
+}

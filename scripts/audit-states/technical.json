@@ -1,0 +1,11 @@
+{
+  "states": [
+    { "name": "标签-K线形态", "steps": [ { "click": ".nb:nth-child(2)" }, { "wait": 200 } ] },
+    { "name": "标签-市场阶段-筑底期", "steps": [ { "click": ".nb:nth-child(3)" }, { "wait": 200 } ] },
+    { "name": "标签-市场阶段-上升期", "steps": [ { "click": ".nb:nth-child(3)" }, { "click": ".ph:nth-child(2)" }, { "wait": 200 } ] },
+    { "name": "标签-市场阶段-筑顶期", "steps": [ { "click": ".nb:nth-child(3)" }, { "click": ".ph:nth-child(3)" }, { "wait": 200 } ] },
+    { "name": "标签-市场阶段-下降期", "steps": [ { "click": ".nb:nth-child(3)" }, { "click": ".ph:nth-child(4)" }, { "wait": 200 } ] },
+    { "name": "标签-组合策略", "steps": [ { "click": ".nb:nth-child(4)" }, { "wait": 200 } ] },
+    { "name": "标签-操作原则", "steps": [ { "click": ".nb:nth-child(5)" }, { "wait": 200 } ] }
+  ]
+}
