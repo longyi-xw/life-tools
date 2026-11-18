@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "update_date": "2026-11-17",
-  "generated_at": "2026-11-18T05:57:10+08:00",
+  "update_date": "2026-11-18",
+  "generated_at": "2026-11-19T05:37:24+08:00",
   "data_source": "akshare",
   "data_notes": "AKShare 抓取东方财富 / 乐咕乐股 / 中证指数等公开数据，部分失败字段沿用上一版",
   "risk_free_rate": 1.5,
   "macro_context": {
-    "hs300_pe": 12.64,
-    "hs300_pe_pct": 62.0,
-    "all_share_pb": 2.32,
-    "all_share_pb_pct": 19.0,
+    "hs300_pe": 12.69,
+    "hs300_pe_pct": 64.5,
+    "all_share_pb": 2.29,
+    "all_share_pb_pct": 16.7,
     "all_share_pb_label": "全A市净率(中位数)",
     "cn10y_yield": 1.6,
-    "erp": 6.31,
+    "erp": 6.28,
     "trend_score": -68.9,
     "trend_detail": {
       "hs300_close": 4016.29,
@@ -37,21 +37,21 @@
       "index_name": "沪深300",
       "t_plus": "T+1",
       "otc_code": "460300 / 006131",
-      "scale_yi": 1899.79,
-      "daily_vol_yi": 83.7,
+      "scale_yi": 1068.79,
+      "daily_vol_yi": 84.55,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.64,
-      "pe_pct": 62.0,
+      "pe": 12.69,
+      "pe_pct": 64.5,
       "pb": 1.32,
       "pb_pct": 25.6,
       "div_yield": 2.62,
       "tracking_error": 3.59,
       "premium_rate": -0.22,
-      "ret_1m": -3.79,
-      "ret_1y": -9.97,
-      "cagr_3y": 5.07,
+      "ret_1m": -3.55,
+      "ret_1y": -9.23,
+      "cagr_3y": 5.18,
       "max_dd_3y": -17.57,
       "sharpe_3y": 0.23,
       "tags": [
@@ -59,7 +59,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 54.6,
+      "fit_score": 54.3,
       "val_src": "lg"
     },
     {
@@ -71,21 +71,21 @@
       "index_name": "沪深300",
       "t_plus": "T+1",
       "otc_code": "110020 / 007339",
-      "scale_yi": 1026.12,
-      "daily_vol_yi": 27.17,
+      "scale_yi": 517.89,
+      "daily_vol_yi": 27.91,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.64,
-      "pe_pct": 62.0,
+      "pe": 12.69,
+      "pe_pct": 64.5,
       "pb": 1.32,
       "pb_pct": 25.6,
       "div_yield": 2.62,
       "tracking_error": 2.34,
       "premium_rate": -0.04,
-      "ret_1m": -4.29,
-      "ret_1y": -10.65,
-      "cagr_3y": 6.39,
+      "ret_1m": -4.02,
+      "ret_1y": -9.94,
+      "cagr_3y": 6.47,
       "max_dd_3y": -19.18,
       "sharpe_3y": 0.27,
       "tags": [
@@ -93,7 +93,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 54.2,
+      "fit_score": 54.0,
       "val_src": "lg"
     },
     {
@@ -105,21 +105,21 @@
       "index_name": "沪深300",
       "t_plus": "T+1",
       "otc_code": "000051 / 005658",
-      "scale_yi": 677.32,
-      "daily_vol_yi": 20.51,
+      "scale_yi": 393.08,
+      "daily_vol_yi": 22.04,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.64,
-      "pe_pct": 62.0,
+      "pe": 12.69,
+      "pe_pct": 64.5,
       "pb": 1.32,
       "pb_pct": 25.6,
       "div_yield": 2.62,
       "tracking_error": 3.69,
       "premium_rate": -0.11,
-      "ret_1m": -3.97,
-      "ret_1y": -9.95,
-      "cagr_3y": 5.08,
+      "ret_1m": -3.81,
+      "ret_1y": -9.32,
+      "cagr_3y": 5.14,
       "max_dd_3y": -17.6,
       "sharpe_3y": 0.23,
       "tags": [
@@ -127,7 +127,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 53.6,
+      "fit_score": 53.2,
       "val_src": "lg"
     },
     {
@@ -139,21 +139,21 @@
       "index_name": "沪深300",
       "t_plus": "T+1",
       "otc_code": "160706",
-      "scale_yi": 584.27,
-      "daily_vol_yi": 25.94,
+      "scale_yi": 317.63,
+      "daily_vol_yi": 25.51,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.64,
-      "pe_pct": 62.0,
+      "pe": 12.69,
+      "pe_pct": 64.5,
       "pb": 1.32,
       "pb_pct": 25.6,
       "div_yield": 2.62,
       "tracking_error": 2.59,
       "premium_rate": -0.08,
-      "ret_1m": -4.19,
-      "ret_1y": -10.8,
-      "cagr_3y": 5.59,
+      "ret_1m": -4.04,
+      "ret_1y": -10.17,
+      "cagr_3y": 5.67,
       "max_dd_3y": -19.1,
       "sharpe_3y": 0.24,
       "tags": [
@@ -161,7 +161,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 53.9,
+      "fit_score": 53.2,
       "val_src": "lg"
     },
     {
@@ -173,8 +173,8 @@
       "index_name": "中证A500",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 305.23,
-      "daily_vol_yi": 55.62,
+      "scale_yi": 243.1,
+      "daily_vol_yi": 57.38,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -195,7 +195,7 @@
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 52.1,
+      "fit_score": 51.9,
       "val_src": "cs"
     },
     {
@@ -207,7 +207,7 @@
       "index_name": "中证A500",
       "t_plus": "T+1",
       "otc_code": "022426 / 022427",
-      "scale_yi": 26.22,
+      "scale_yi": 28.88,
       "daily_vol_yi": 0.45,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
@@ -228,7 +228,7 @@
         "降费最低档",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 45.9,
+      "fit_score": 46.0,
       "val_src": "cs"
     },
     {
@@ -240,8 +240,8 @@
       "index_name": "中证A500",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 184.58,
-      "daily_vol_yi": 12.79,
+      "scale_yi": 182.52,
+      "daily_vol_yi": 12.87,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -274,8 +274,8 @@
       "index_name": "中证A500",
       "t_plus": "T+1",
       "otc_code": "022438 / 022439",
-      "scale_yi": 434.54,
-      "daily_vol_yi": 64.59,
+      "scale_yi": 364.19,
+      "daily_vol_yi": 66.03,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -296,7 +296,7 @@
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 54.4,
+      "fit_score": 54.2,
       "val_src": "cs"
     },
     {
@@ -308,12 +308,12 @@
       "index_name": "上证50",
       "t_plus": "T+1",
       "otc_code": "001051 / 005733",
-      "scale_yi": 476.62,
-      "daily_vol_yi": 29.31,
+      "scale_yi": 203.8,
+      "daily_vol_yi": 29.26,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 11.76,
+      "pe": 11.78,
       "pe_pct": 91.7,
       "pb": 1.24,
       "pb_pct": 59.5,
@@ -330,7 +330,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 52.7,
+      "fit_score": 51.9,
       "val_src": "lg"
     },
     {
@@ -342,13 +342,13 @@
       "index_name": "中证500",
       "t_plus": "T+1",
       "otc_code": "160119 / 004348",
-      "scale_yi": 573.11,
-      "daily_vol_yi": 52.13,
+      "scale_yi": 419.08,
+      "daily_vol_yi": 51.76,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 21.67,
-      "pe_pct": 57.9,
+      "pe": 21.7,
+      "pe_pct": 58.7,
       "pb": 1.96,
       "pb_pct": 54.5,
       "div_yield": 1.52,
@@ -364,7 +364,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 47.0,
+      "fit_score": 46.7,
       "val_src": "lg"
     },
     {
@@ -376,13 +376,13 @@
       "index_name": "中证500",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 71.97,
-      "daily_vol_yi": 5.09,
+      "scale_yi": 76.65,
+      "daily_vol_yi": 5.11,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 21.67,
-      "pe_pct": 57.9,
+      "pe": 21.7,
+      "pe_pct": 58.7,
       "pb": 1.96,
       "pb_pct": 54.5,
       "div_yield": 1.52,
@@ -408,14 +408,14 @@
       "index_name": "中证1000",
       "t_plus": "T+1",
       "otc_code": "011860 / 011861",
-      "scale_yi": 425.29,
-      "daily_vol_yi": 55.04,
+      "scale_yi": 206.28,
+      "daily_vol_yi": 55.92,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 23.85,
-      "pe_pct": 33.1,
-      "pb": 1.92,
+      "pe": 23.69,
+      "pe_pct": 31.4,
+      "pb": 1.91,
       "pb_pct": 11.6,
       "div_yield": 1.02,
       "tracking_error": 0.48,
@@ -430,7 +430,7 @@
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 50.5,
+      "fit_score": 50.0,
       "val_src": "lg"
     },
     {
@@ -442,14 +442,14 @@
       "index_name": "中证1000",
       "t_plus": "T+1",
       "otc_code": "013922 / 013923",
-      "scale_yi": 75.11,
-      "daily_vol_yi": 25.58,
+      "scale_yi": 79.74,
+      "daily_vol_yi": 25.61,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 23.85,
-      "pe_pct": 33.1,
-      "pb": 1.92,
+      "pe": 23.69,
+      "pe_pct": 31.4,
+      "pb": 1.91,
       "pb_pct": 11.6,
       "div_yield": 1.02,
       "tracking_error": 0.45,
@@ -462,7 +462,7 @@
       "tags": [
         "降费最低档"
       ],
-      "fit_score": 48.3,
+      "fit_score": 48.6,
       "val_src": "lg"
     },
     {
@@ -474,8 +474,8 @@
       "index_name": "创业板指",
       "t_plus": "T+1",
       "otc_code": "110026 / 004744",
-      "scale_yi": 1067.28,
-      "daily_vol_yi": 130.4,
+      "scale_yi": 650.43,
+      "daily_vol_yi": 132.12,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -508,8 +508,8 @@
       "index_name": "科创50",
       "t_plus": "T+1",
       "otc_code": "011612 / 011613",
-      "scale_yi": 1338.9,
-      "daily_vol_yi": 124.65,
+      "scale_yi": 941.29,
+      "daily_vol_yi": 125.7,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -542,12 +542,12 @@
       "index_name": "上证红利",
       "t_plus": "T+1",
       "otc_code": "012761 / 012762",
-      "scale_yi": 199.5,
-      "daily_vol_yi": 6.3,
+      "scale_yi": 188.56,
+      "daily_vol_yi": 6.35,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
-      "pe": 9.36,
+      "pe": 9.4,
       "pe_pct": 98.3,
       "pb": 0.92,
       "pb_pct": 71.1,
@@ -563,7 +563,7 @@
         "百亿龙头",
         "高股息"
       ],
-      "fit_score": 58.4,
+      "fit_score": 58.3,
       "val_src": "lg"
     },
     {
@@ -575,8 +575,8 @@
       "index_name": "中证红利",
       "t_plus": "T+1",
       "otc_code": "012643 / 012644",
-      "scale_yi": 112.26,
-      "daily_vol_yi": 3.39,
+      "scale_yi": 112.68,
+      "daily_vol_yi": 3.44,
       "mgmt_fee": 0.2,
       "custody_fee": 0.1,
       "total_fee": 0.3,
@@ -608,8 +608,8 @@
       "index_name": "红利低波",
       "t_plus": "T+1",
       "otc_code": "007466 / 007467",
-      "scale_yi": 317.58,
-      "daily_vol_yi": 9.81,
+      "scale_yi": 312.87,
+      "daily_vol_yi": 9.99,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -641,8 +641,8 @@
       "index_name": "中证央企红利",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 28.5,
-      "daily_vol_yi": 0.94,
+      "scale_yi": 24.9,
+      "daily_vol_yi": 0.95,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -661,7 +661,7 @@
       "tags": [
         "高股息"
       ],
-      "fit_score": 61.3,
+      "fit_score": 61.2,
       "val_src": "cs"
     },
     {
@@ -673,8 +673,8 @@
       "index_name": "国证自由现金流",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 130.29,
-      "daily_vol_yi": 2.91,
+      "scale_yi": 147.1,
+      "daily_vol_yi": 2.89,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -696,7 +696,7 @@
         "高股息",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 68.3,
+      "fit_score": 68.4,
       "val_src": "base"
     },
     {
@@ -708,8 +708,8 @@
       "index_name": "恒生港股通高股息低波动",
       "t_plus": "T+0",
       "otc_code": "—",
-      "scale_yi": 66.11,
-      "daily_vol_yi": 1.07,
+      "scale_yi": 65.62,
+      "daily_vol_yi": 1.08,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -743,8 +743,8 @@
       "index_name": "中证全指半导体",
       "t_plus": "T+1",
       "otc_code": "007300 / 007301",
-      "scale_yi": 161.59,
-      "daily_vol_yi": 12.15,
+      "scale_yi": 192.47,
+      "daily_vol_yi": 12.27,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -763,7 +763,7 @@
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 31.2,
+      "fit_score": 31.4,
       "val_src": "cs"
     },
     {
@@ -775,8 +775,8 @@
       "index_name": "国证芯片",
       "t_plus": "T+1",
       "otc_code": "008887 / 008888",
-      "scale_yi": 205.26,
-      "daily_vol_yi": 6.34,
+      "scale_yi": 259.33,
+      "daily_vol_yi": 6.42,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -795,7 +795,7 @@
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 32.1,
+      "fit_score": 32.4,
       "val_src": "base"
     },
     {
@@ -807,7 +807,7 @@
       "index_name": "中证人工智能主题",
       "t_plus": "T+1",
       "otc_code": "012733 / 012734",
-      "scale_yi": 156.82,
+      "scale_yi": 194.47,
       "daily_vol_yi": 4.04,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
@@ -828,7 +828,7 @@
         "降费最低档",
         "百亿龙头"
       ],
-      "fit_score": 38.1,
+      "fit_score": 38.3,
       "val_src": "cs"
     },
     {
@@ -840,8 +840,8 @@
       "index_name": "沪深300医药卫生",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 141.04,
-      "daily_vol_yi": 3.77,
+      "scale_yi": 149.41,
+      "daily_vol_yi": 3.81,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -860,7 +860,7 @@
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 48.0,
+      "fit_score": 48.1,
       "val_src": "cs"
     },
     {
@@ -872,8 +872,8 @@
       "index_name": "中证医疗",
       "t_plus": "T+1",
       "otc_code": "162412",
-      "scale_yi": 228.96,
-      "daily_vol_yi": 4.27,
+      "scale_yi": 243.29,
+      "daily_vol_yi": 4.35,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -892,7 +892,7 @@
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 48.2,
+      "fit_score": 48.3,
       "val_src": "cs"
     },
     {
@@ -904,8 +904,8 @@
       "index_name": "中证主要消费",
       "t_plus": "T+1",
       "otc_code": "000248",
-      "scale_yi": 163.02,
-      "daily_vol_yi": 4.92,
+      "scale_yi": 148.52,
+      "daily_vol_yi": 4.94,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -936,8 +936,8 @@
       "index_name": "中证新能源汽车",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 15.9,
-      "daily_vol_yi": 1.12,
+      "scale_yi": 20.62,
+      "daily_vol_yi": 1.11,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -954,7 +954,7 @@
       "max_dd_3y": -42.42,
       "sharpe_3y": -0.05,
       "tags": [],
-      "fit_score": 35.7,
+      "fit_score": 35.9,
       "val_src": "cs"
     },
     {
@@ -966,8 +966,8 @@
       "index_name": "中证全指证券公司",
       "t_plus": "T+1",
       "otc_code": "012362 / 012363",
-      "scale_yi": 535.13,
-      "daily_vol_yi": 13.58,
+      "scale_yi": 582.76,
+      "daily_vol_yi": 13.34,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -998,8 +998,8 @@
       "index_name": "中证军工",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 77.12,
-      "daily_vol_yi": 3.32,
+      "scale_yi": 75.22,
+      "daily_vol_yi": 3.31,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1016,7 +1016,7 @@
       "max_dd_3y": -43.04,
       "sharpe_3y": -0.11,
       "tags": [],
-      "fit_score": 31.8,
+      "fit_score": 31.7,
       "val_src": "cs"
     },
     {
@@ -1028,7 +1028,7 @@
       "index_name": "中证基建工程",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 11.49,
+      "scale_yi": 11.62,
       "daily_vol_yi": 0.23,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
@@ -1058,7 +1058,7 @@
       "index_name": "中证虚拟现实主题",
       "t_plus": "T+1",
       "otc_code": "—",
-      "scale_yi": 0.68,
+      "scale_yi": 0.88,
       "daily_vol_yi": 0.1,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
@@ -1090,8 +1090,8 @@
       "index_name": "恒生科技",
       "t_plus": "T+0",
       "otc_code": "013402 / 013403",
-      "scale_yi": 354.7,
-      "daily_vol_yi": 24.41,
+      "scale_yi": 382.85,
+      "daily_vol_yi": 25.54,
       "mgmt_fee": 0.5,
       "custody_fee": 0.15,
       "total_fee": 0.65,
@@ -1112,7 +1112,7 @@
         "可T+0",
         "QDII"
       ],
-      "fit_score": 41.3,
+      "fit_score": 41.4,
       "val_src": "base"
     },
     {
@@ -1124,8 +1124,8 @@
       "index_name": "恒生科技",
       "t_plus": "T+0",
       "otc_code": "015310 / 015311",
-      "scale_yi": 283.52,
-      "daily_vol_yi": 20.93,
+      "scale_yi": 321.51,
+      "daily_vol_yi": 20.89,
       "mgmt_fee": 0.2,
       "custody_fee": 0.05,
       "total_fee": 0.25,
@@ -1146,7 +1146,7 @@
         "可T+0",
         "QDII"
       ],
-      "fit_score": 45.9,
+      "fit_score": 46.1,
       "val_src": "base"
     },
     {
@@ -1158,8 +1158,8 @@
       "index_name": "恒生互联网科技业",
       "t_plus": "T+0",
       "otc_code": "013171 / 013172",
-      "scale_yi": 242.51,
-      "daily_vol_yi": 18.32,
+      "scale_yi": 259.02,
+      "daily_vol_yi": 18.82,
       "mgmt_fee": 0.5,
       "custody_fee": 0.15,
       "total_fee": 0.65,
@@ -1180,7 +1180,7 @@
         "可T+0",
         "QDII"
       ],
-      "fit_score": 39.9,
+      "fit_score": 40.0,
       "val_src": "base"
     },
     {
@@ -1192,8 +1192,8 @@
       "index_name": "纳斯达克100",
       "t_plus": "T+0",
       "otc_code": "160213",
-      "scale_yi": 209.77,
-      "daily_vol_yi": 4.73,
+      "scale_yi": 197.66,
+      "daily_vol_yi": 4.42,
       "mgmt_fee": 0.6,
       "custody_fee": 0.2,
       "total_fee": 0.8,
@@ -1215,7 +1215,7 @@
         "高溢价",
         "QDII"
       ],
-      "fit_score": 45.0,
+      "fit_score": 44.9,
       "val_src": "base"
     },
     {
@@ -1227,8 +1227,8 @@
       "index_name": "纳斯达克100",
       "t_plus": "T+0",
       "otc_code": "270042 / 006479",
-      "scale_yi": 366.22,
-      "daily_vol_yi": 11.24,
+      "scale_yi": 350.53,
+      "daily_vol_yi": 11.27,
       "mgmt_fee": 0.8,
       "custody_fee": 0.2,
       "total_fee": 1.0,
@@ -1262,8 +1262,8 @@
       "index_name": "标普500",
       "t_plus": "T+0",
       "otc_code": "050025 / 006075",
-      "scale_yi": 274.92,
-      "daily_vol_yi": 3.54,
+      "scale_yi": 251.81,
+      "daily_vol_yi": 3.49,
       "mgmt_fee": 0.6,
       "custody_fee": 0.2,
       "total_fee": 0.8,
@@ -1285,7 +1285,7 @@
         "高溢价",
         "QDII"
       ],
-      "fit_score": 45.1,
+      "fit_score": 45.0,
       "val_src": "base"
     },
     {
@@ -1297,8 +1297,8 @@
       "index_name": "日经225",
       "t_plus": "T+0",
       "otc_code": "020712 / 020713",
-      "scale_yi": 25.82,
-      "daily_vol_yi": 1.83,
+      "scale_yi": 27.77,
+      "daily_vol_yi": 1.82,
       "mgmt_fee": 0.2,
       "custody_fee": 0.05,
       "total_fee": 0.25,
@@ -1319,7 +1319,7 @@
         "高溢价",
         "QDII"
       ],
-      "fit_score": 44.5,
+      "fit_score": 44.6,
       "val_src": "base"
     },
     {
@@ -1331,8 +1331,8 @@
       "index_name": "上海金AU9999",
       "t_plus": "T+0",
       "otc_code": "000216 / 000217",
-      "scale_yi": 929.95,
-      "daily_vol_yi": 38.16,
+      "scale_yi": 1026.16,
+      "daily_vol_yi": 39.01,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1363,8 +1363,8 @@
       "index_name": "上海金AU9999",
       "t_plus": "T+0",
       "otc_code": "000307 / 002963",
-      "scale_yi": 344.06,
-      "daily_vol_yi": 7.75,
+      "scale_yi": 366.42,
+      "daily_vol_yi": 7.96,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1395,8 +1395,8 @@
       "index_name": "大商所豆粕期货",
       "t_plus": "T+0",
       "otc_code": "007937 / 007938",
-      "scale_yi": 34.23,
-      "daily_vol_yi": 2.39,
+      "scale_yi": 35.19,
+      "daily_vol_yi": 2.47,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1416,7 +1416,7 @@
         "可T+0",
         "高溢价"
       ],
-      "fit_score": 45.3
+      "fit_score": 45.4
     },
     {
       "code": "159980",
@@ -1427,8 +1427,8 @@
       "index_name": "上期有色金属期货",
       "t_plus": "T+0",
       "otc_code": "007910 / 007911",
-      "scale_yi": 47.85,
-      "daily_vol_yi": 4.63,
+      "scale_yi": 65.68,
+      "daily_vol_yi": 4.73,
       "mgmt_fee": 0.6,
       "custody_fee": 0.1,
       "total_fee": 0.7,
@@ -1447,7 +1447,7 @@
       "tags": [
         "可T+0"
       ],
-      "fit_score": 53.9
+      "fit_score": 54.2
     },
     {
       "code": "511090",
@@ -1459,7 +1459,7 @@
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 392.31,
-      "daily_vol_yi": 57.82,
+      "daily_vol_yi": 58.58,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1492,7 +1492,7 @@
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 246.01,
-      "daily_vol_yi": 30.94,
+      "daily_vol_yi": 31.7,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1513,7 +1513,7 @@
         "百亿龙头",
         "可T+0"
       ],
-      "fit_score": 84.3
+      "fit_score": 84.4
     },
     {
       "code": "511520",
@@ -1525,7 +1525,7 @@
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 480.79,
-      "daily_vol_yi": 21.04,
+      "daily_vol_yi": 21.6,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1558,7 +1558,7 @@
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 940.92,
-      "daily_vol_yi": 676.03,
+      "daily_vol_yi": 674.99,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
