@@ -1,19 +1,19 @@
-/* 由 scripts/update_etf_data.py 自动生成，请勿手动编辑 | generated_at: 2026-11-19T05:37:24+08:00 */
+/* 由 scripts/update_etf_data.py 自动生成，请勿手动编辑 | generated_at: 2026-11-21T05:32:35+08:00 */
 window.__ETF_LATEST_DATA__ = {
   "schema_version": 1,
   "update_date": "2026-11-18",
-  "generated_at": "2026-11-19T05:37:24+08:00",
+  "generated_at": "2026-11-21T05:32:35+08:00",
   "data_source": "akshare",
   "data_notes": "AKShare 抓取东方财富 / 乐咕乐股 / 中证指数等公开数据，部分失败字段沿用上一版",
   "risk_free_rate": 1.5,
   "macro_context": {
-    "hs300_pe": 12.69,
-    "hs300_pe_pct": 64.5,
-    "all_share_pb": 2.29,
-    "all_share_pb_pct": 16.7,
+    "hs300_pe": 12.74,
+    "hs300_pe_pct": 65.3,
+    "all_share_pb": 2.11,
+    "all_share_pb_pct": 8.7,
     "all_share_pb_label": "全A市净率(中位数)",
     "cn10y_yield": 1.6,
-    "erp": 6.28,
+    "erp": 6.25,
     "trend_score": -68.9,
     "trend_detail": {
       "hs300_close": 4016.29,
@@ -39,14 +39,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "460300 / 006131",
       "scale_yi": 1068.79,
-      "daily_vol_yi": 84.55,
+      "daily_vol_yi": 84.26,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.69,
-      "pe_pct": 64.5,
-      "pb": 1.32,
-      "pb_pct": 25.6,
+      "pe": 12.74,
+      "pe_pct": 65.3,
+      "pb": 1.33,
+      "pb_pct": 28.1,
       "div_yield": 2.62,
       "tracking_error": 3.59,
       "premium_rate": -0.22,
@@ -60,7 +60,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 54.3,
+      "fit_score": 54.0,
       "val_src": "lg"
     },
     {
@@ -73,14 +73,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "110020 / 007339",
       "scale_yi": 517.89,
-      "daily_vol_yi": 27.91,
+      "daily_vol_yi": 28.06,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.69,
-      "pe_pct": 64.5,
-      "pb": 1.32,
-      "pb_pct": 25.6,
+      "pe": 12.74,
+      "pe_pct": 65.3,
+      "pb": 1.33,
+      "pb_pct": 28.1,
       "div_yield": 2.62,
       "tracking_error": 2.34,
       "premium_rate": -0.04,
@@ -94,7 +94,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 54.0,
+      "fit_score": 53.7,
       "val_src": "lg"
     },
     {
@@ -107,14 +107,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "000051 / 005658",
       "scale_yi": 393.08,
-      "daily_vol_yi": 22.04,
+      "daily_vol_yi": 22.81,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.69,
-      "pe_pct": 64.5,
-      "pb": 1.32,
-      "pb_pct": 25.6,
+      "pe": 12.74,
+      "pe_pct": 65.3,
+      "pb": 1.33,
+      "pb_pct": 28.1,
       "div_yield": 2.62,
       "tracking_error": 3.69,
       "premium_rate": -0.11,
@@ -128,7 +128,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 53.2,
+      "fit_score": 53.0,
       "val_src": "lg"
     },
     {
@@ -141,14 +141,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "160706",
       "scale_yi": 317.63,
-      "daily_vol_yi": 25.51,
+      "daily_vol_yi": 35.88,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 12.69,
-      "pe_pct": 64.5,
-      "pb": 1.32,
-      "pb_pct": 25.6,
+      "pe": 12.74,
+      "pe_pct": 65.3,
+      "pb": 1.33,
+      "pb_pct": 28.1,
       "div_yield": 2.62,
       "tracking_error": 2.59,
       "premium_rate": -0.08,
@@ -175,7 +175,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 243.1,
-      "daily_vol_yi": 57.38,
+      "daily_vol_yi": 60.28,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -196,7 +196,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 51.9,
+      "fit_score": 52.0,
       "val_src": "cs"
     },
     {
@@ -209,7 +209,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "022426 / 022427",
       "scale_yi": 28.88,
-      "daily_vol_yi": 0.45,
+      "daily_vol_yi": 0.41,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -229,7 +229,7 @@ window.__ETF_LATEST_DATA__ = {
         "降费最低档",
         "成立<3年·3年指标估算"
       ],
-      "fit_score": 46.0,
+      "fit_score": 45.9,
       "val_src": "cs"
     },
     {
@@ -242,7 +242,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 182.52,
-      "daily_vol_yi": 12.87,
+      "daily_vol_yi": 12.58,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -276,7 +276,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "022438 / 022439",
       "scale_yi": 364.19,
-      "daily_vol_yi": 66.03,
+      "daily_vol_yi": 66.8,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -310,14 +310,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "001051 / 005733",
       "scale_yi": 203.8,
-      "daily_vol_yi": 29.26,
+      "daily_vol_yi": 37.49,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 11.78,
-      "pe_pct": 91.7,
-      "pb": 1.24,
-      "pb_pct": 59.5,
+      "pe": 12.01,
+      "pe_pct": 93.4,
+      "pb": 1.26,
+      "pb_pct": 66.1,
       "div_yield": 3.42,
       "tracking_error": 0.71,
       "premium_rate": -0.11,
@@ -331,7 +331,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 51.9,
+      "fit_score": 51.5,
       "val_src": "lg"
     },
     {
@@ -344,14 +344,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "160119 / 004348",
       "scale_yi": 419.08,
-      "daily_vol_yi": 51.76,
+      "daily_vol_yi": 55.28,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 21.7,
-      "pe_pct": 58.7,
-      "pb": 1.96,
-      "pb_pct": 54.5,
+      "pe": 20.86,
+      "pe_pct": 51.2,
+      "pb": 1.89,
+      "pb_pct": 49.6,
       "div_yield": 1.52,
       "tracking_error": 0.46,
       "premium_rate": -0.26,
@@ -365,7 +365,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 46.7,
+      "fit_score": 47.9,
       "val_src": "lg"
     },
     {
@@ -378,14 +378,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 76.65,
-      "daily_vol_yi": 5.11,
+      "daily_vol_yi": 4.91,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 21.7,
-      "pe_pct": 58.7,
-      "pb": 1.96,
-      "pb_pct": 54.5,
+      "pe": 20.86,
+      "pe_pct": 51.2,
+      "pb": 1.89,
+      "pb_pct": 49.6,
       "div_yield": 1.52,
       "tracking_error": 0.53,
       "premium_rate": -0.21,
@@ -397,7 +397,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "降费最低档"
       ],
-      "fit_score": 43.2,
+      "fit_score": 44.3,
       "val_src": "lg"
     },
     {
@@ -410,14 +410,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "011860 / 011861",
       "scale_yi": 206.28,
-      "daily_vol_yi": 55.92,
+      "daily_vol_yi": 60.1,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 23.69,
-      "pe_pct": 31.4,
-      "pb": 1.91,
-      "pb_pct": 11.6,
+      "pe": 22.23,
+      "pe_pct": 14.9,
+      "pb": 1.79,
+      "pb_pct": 5.0,
       "div_yield": 1.02,
       "tracking_error": 0.48,
       "premium_rate": -0.27,
@@ -431,7 +431,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "汇金重仓"
       ],
-      "fit_score": 50.0,
+      "fit_score": 52.3,
       "val_src": "lg"
     },
     {
@@ -444,14 +444,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "013922 / 013923",
       "scale_yi": 79.74,
-      "daily_vol_yi": 25.61,
+      "daily_vol_yi": 24.76,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
-      "pe": 23.69,
-      "pe_pct": 31.4,
-      "pb": 1.91,
-      "pb_pct": 11.6,
+      "pe": 22.23,
+      "pe_pct": 14.9,
+      "pb": 1.79,
+      "pb_pct": 5.0,
       "div_yield": 1.02,
       "tracking_error": 0.45,
       "premium_rate": -0.22,
@@ -463,7 +463,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "降费最低档"
       ],
-      "fit_score": 48.6,
+      "fit_score": 50.8,
       "val_src": "lg"
     },
     {
@@ -476,7 +476,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "110026 / 004744",
       "scale_yi": 650.43,
-      "daily_vol_yi": 132.12,
+      "daily_vol_yi": 128.21,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -510,7 +510,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "011612 / 011613",
       "scale_yi": 941.29,
-      "daily_vol_yi": 125.7,
+      "daily_vol_yi": 121.57,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -544,14 +544,14 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "012761 / 012762",
       "scale_yi": 188.56,
-      "daily_vol_yi": 6.35,
+      "daily_vol_yi": 6.27,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
-      "pe": 9.4,
-      "pe_pct": 98.3,
-      "pb": 0.92,
-      "pb_pct": 71.1,
+      "pe": 9.62,
+      "pe_pct": 99.2,
+      "pb": 0.95,
+      "pb_pct": 75.2,
       "div_yield": 5.62,
       "tracking_error": 0.78,
       "premium_rate": -0.15,
@@ -564,7 +564,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "高股息"
       ],
-      "fit_score": 58.3,
+      "fit_score": 58.0,
       "val_src": "lg"
     },
     {
@@ -577,7 +577,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "012643 / 012644",
       "scale_yi": 112.68,
-      "daily_vol_yi": 3.44,
+      "daily_vol_yi": 3.35,
       "mgmt_fee": 0.2,
       "custody_fee": 0.1,
       "total_fee": 0.3,
@@ -610,7 +610,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "007466 / 007467",
       "scale_yi": 312.87,
-      "daily_vol_yi": 9.99,
+      "daily_vol_yi": 9.53,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -675,7 +675,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 147.1,
-      "daily_vol_yi": 2.89,
+      "daily_vol_yi": 2.82,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -710,7 +710,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 65.62,
-      "daily_vol_yi": 1.08,
+      "daily_vol_yi": 1.07,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -745,7 +745,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "007300 / 007301",
       "scale_yi": 192.47,
-      "daily_vol_yi": 12.27,
+      "daily_vol_yi": 12.02,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -764,7 +764,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 31.4,
+      "fit_score": 31.3,
       "val_src": "cs"
     },
     {
@@ -777,7 +777,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "008887 / 008888",
       "scale_yi": 259.33,
-      "daily_vol_yi": 6.42,
+      "daily_vol_yi": 6.25,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -796,7 +796,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 32.4,
+      "fit_score": 32.3,
       "val_src": "base"
     },
     {
@@ -809,7 +809,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "012733 / 012734",
       "scale_yi": 194.47,
-      "daily_vol_yi": 4.04,
+      "daily_vol_yi": 3.89,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -842,7 +842,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 149.41,
-      "daily_vol_yi": 3.81,
+      "daily_vol_yi": 3.82,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -874,7 +874,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "162412",
       "scale_yi": 243.29,
-      "daily_vol_yi": 4.35,
+      "daily_vol_yi": 4.25,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -893,7 +893,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 48.3,
+      "fit_score": 48.2,
       "val_src": "cs"
     },
     {
@@ -906,7 +906,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "000248",
       "scale_yi": 148.52,
-      "daily_vol_yi": 4.94,
+      "daily_vol_yi": 4.85,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -925,7 +925,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 50.7,
+      "fit_score": 50.6,
       "val_src": "cs"
     },
     {
@@ -938,7 +938,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 20.62,
-      "daily_vol_yi": 1.11,
+      "daily_vol_yi": 1.08,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -968,7 +968,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "012362 / 012363",
       "scale_yi": 582.76,
-      "daily_vol_yi": 13.34,
+      "daily_vol_yi": 12.53,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -987,7 +987,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "百亿龙头"
       ],
-      "fit_score": 41.0,
+      "fit_score": 40.9,
       "val_src": "cs"
     },
     {
@@ -1000,7 +1000,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+1",
       "otc_code": "—",
       "scale_yi": 75.22,
-      "daily_vol_yi": 3.31,
+      "daily_vol_yi": 3.21,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1092,7 +1092,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "013402 / 013403",
       "scale_yi": 382.85,
-      "daily_vol_yi": 25.54,
+      "daily_vol_yi": 26.43,
       "mgmt_fee": 0.5,
       "custody_fee": 0.15,
       "total_fee": 0.65,
@@ -1113,7 +1113,7 @@ window.__ETF_LATEST_DATA__ = {
         "可T+0",
         "QDII"
       ],
-      "fit_score": 41.4,
+      "fit_score": 41.5,
       "val_src": "base"
     },
     {
@@ -1126,7 +1126,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "015310 / 015311",
       "scale_yi": 321.51,
-      "daily_vol_yi": 20.89,
+      "daily_vol_yi": 19.68,
       "mgmt_fee": 0.2,
       "custody_fee": 0.05,
       "total_fee": 0.25,
@@ -1147,7 +1147,7 @@ window.__ETF_LATEST_DATA__ = {
         "可T+0",
         "QDII"
       ],
-      "fit_score": 46.1,
+      "fit_score": 46.0,
       "val_src": "base"
     },
     {
@@ -1160,7 +1160,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "013171 / 013172",
       "scale_yi": 259.02,
-      "daily_vol_yi": 18.82,
+      "daily_vol_yi": 19.03,
       "mgmt_fee": 0.5,
       "custody_fee": 0.15,
       "total_fee": 0.65,
@@ -1194,7 +1194,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "160213",
       "scale_yi": 197.66,
-      "daily_vol_yi": 4.42,
+      "daily_vol_yi": 4.12,
       "mgmt_fee": 0.6,
       "custody_fee": 0.2,
       "total_fee": 0.8,
@@ -1229,7 +1229,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "270042 / 006479",
       "scale_yi": 350.53,
-      "daily_vol_yi": 11.27,
+      "daily_vol_yi": 11.23,
       "mgmt_fee": 0.8,
       "custody_fee": 0.2,
       "total_fee": 1.0,
@@ -1264,7 +1264,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "050025 / 006075",
       "scale_yi": 251.81,
-      "daily_vol_yi": 3.49,
+      "daily_vol_yi": 3.34,
       "mgmt_fee": 0.6,
       "custody_fee": 0.2,
       "total_fee": 0.8,
@@ -1286,7 +1286,7 @@ window.__ETF_LATEST_DATA__ = {
         "高溢价",
         "QDII"
       ],
-      "fit_score": 45.0,
+      "fit_score": 44.9,
       "val_src": "base"
     },
     {
@@ -1299,7 +1299,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "020712 / 020713",
       "scale_yi": 27.77,
-      "daily_vol_yi": 1.82,
+      "daily_vol_yi": 1.79,
       "mgmt_fee": 0.2,
       "custody_fee": 0.05,
       "total_fee": 0.25,
@@ -1333,7 +1333,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "000216 / 000217",
       "scale_yi": 1026.16,
-      "daily_vol_yi": 39.01,
+      "daily_vol_yi": 39.85,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1365,7 +1365,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "000307 / 002963",
       "scale_yi": 366.42,
-      "daily_vol_yi": 7.96,
+      "daily_vol_yi": 8.51,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1385,7 +1385,7 @@ window.__ETF_LATEST_DATA__ = {
         "百亿龙头",
         "可T+0"
       ],
-      "fit_score": 71.1
+      "fit_score": 71.2
     },
     {
       "code": "159985",
@@ -1397,7 +1397,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "007937 / 007938",
       "scale_yi": 35.19,
-      "daily_vol_yi": 2.47,
+      "daily_vol_yi": 2.29,
       "mgmt_fee": 0.5,
       "custody_fee": 0.1,
       "total_fee": 0.6,
@@ -1417,7 +1417,7 @@ window.__ETF_LATEST_DATA__ = {
         "可T+0",
         "高溢价"
       ],
-      "fit_score": 45.4
+      "fit_score": 45.3
     },
     {
       "code": "159980",
@@ -1429,7 +1429,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "007910 / 007911",
       "scale_yi": 65.68,
-      "daily_vol_yi": 4.73,
+      "daily_vol_yi": 5.14,
       "mgmt_fee": 0.6,
       "custody_fee": 0.1,
       "total_fee": 0.7,
@@ -1448,7 +1448,7 @@ window.__ETF_LATEST_DATA__ = {
       "tags": [
         "可T+0"
       ],
-      "fit_score": 54.2
+      "fit_score": 54.3
     },
     {
       "code": "511090",
@@ -1460,7 +1460,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 392.31,
-      "daily_vol_yi": 58.58,
+      "daily_vol_yi": 59.12,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1493,7 +1493,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 246.01,
-      "daily_vol_yi": 31.7,
+      "daily_vol_yi": 34.9,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1526,7 +1526,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 480.79,
-      "daily_vol_yi": 21.6,
+      "daily_vol_yi": 23.06,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
@@ -1559,7 +1559,7 @@ window.__ETF_LATEST_DATA__ = {
       "t_plus": "T+0",
       "otc_code": "—",
       "scale_yi": 940.92,
-      "daily_vol_yi": 674.99,
+      "daily_vol_yi": 660.33,
       "mgmt_fee": 0.15,
       "custody_fee": 0.05,
       "total_fee": 0.2,
